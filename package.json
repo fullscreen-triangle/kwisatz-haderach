@@ -1,0 +1,297 @@
+{
+  "name": "kwisatz-haderach",
+  "displayName": "Kwisatz-Haderach: Citation Intelligence Framework",
+  "description": "Revolutionary citation management through AI-powered intent validation, multi-expert consensus, and environmental intelligence",
+  "version": "0.1.0",
+  "publisher": "fullscreen-triangle",
+  "author": {
+    "name": "K.F. Sachikonye",
+    "email": "kundai.sachikonye@wzw.tum.de"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fullscreen-triangle/kwisatz-haderach"
+  },
+  "bugs": {
+    "url": "https://github.com/fullscreen-triangle/kwisatz-haderach/issues"
+  },
+  "engines": {
+    "vscode": "^1.80.0",
+    "node": ">=18.0.0"
+  },
+  "categories": [
+    "Machine Learning",
+    "Education",
+    "Other"
+  ],
+  "keywords": [
+    "citations",
+    "academic writing",
+    "ai",
+    "machine learning",
+    "huggingface",
+    "validation",
+    "research"
+  ],
+  "activationEvents": [
+    "onLanguage:latex",
+    "onLanguage:markdown",
+    "onLanguage:plaintext",
+    "onCommand:kwisatz-haderach.analyzeCitations",
+    "onCommand:kwisatz-haderach.validatePaper",
+    "onCommand:kwisatz-haderach.trainDomainModel"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "kwisatz-haderach.analyzeCitations",
+        "title": "Analyze Citations",
+        "category": "Kwisatz-Haderach"
+      },
+      {
+        "command": "kwisatz-haderach.validatePaper",
+        "title": "Validate Paper Citations",
+        "category": "Kwisatz-Haderach"
+      },
+      {
+        "command": "kwisatz-haderach.generateRecommendations",
+        "title": "Generate Citation Recommendations",
+        "category": "Kwisatz-Haderach"
+      },
+      {
+        "command": "kwisatz-haderach.trainDomainModel",
+        "title": "Train Domain-Specific Model",
+        "category": "Kwisatz-Haderach"
+      },
+      {
+        "command": "kwisatz-haderach.openCitationPanel",
+        "title": "Open Citation Intelligence Panel",
+        "category": "Kwisatz-Haderach"
+      },
+      {
+        "command": "kwisatz-haderach.toggleValidationDecorations",
+        "title": "Toggle Validation Decorations",
+        "category": "Kwisatz-Haderach"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "kwisatz-haderach.analyzeCitations",
+          "when": "resourceExtname =~ /\\.(tex|md|txt)$/",
+          "group": "kwisatz-haderach"
+        },
+        {
+          "command": "kwisatz-haderach.generateRecommendations",
+          "when": "resourceExtname =~ /\\.(tex|md|txt)$/",
+          "group": "kwisatz-haderach"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "kwisatz-haderach.validatePaper",
+          "when": "resourceExtname =~ /\\.(tex|pdf)$/",
+          "group": "kwisatz-haderach"
+        },
+        {
+          "command": "kwisatz-haderach.trainDomainModel",
+          "when": "resourceExtname =~ /\\.(tex|pdf)$/",
+          "group": "kwisatz-haderach"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "kwisatz-haderach.citationPanel",
+          "name": "Citation Intelligence",
+          "when": "kwisatz-haderach.active"
+        },
+        {
+          "id": "kwisatz-haderach.validationPanel",
+          "name": "Validation Results",
+          "when": "kwisatz-haderach.active"
+        },
+        {
+          "id": "kwisatz-haderach.recommendationsPanel",
+          "name": "Recommendations",
+          "when": "kwisatz-haderach.active"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Kwisatz-Haderach Citation Intelligence",
+      "properties": {
+        "kwisatz-haderach.huggingFace.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "HuggingFace API key for accessing specialized models"
+        },
+        "kwisatz-haderach.openAI.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API key for reasoning interface (optional)"
+        },
+        "kwisatz-haderach.anthropic.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Anthropic API key for Claude reasoning interface (optional)"
+        },
+        "kwisatz-haderach.models.enableLocalInference": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable local model inference for privacy"
+        },
+        "kwisatz-haderach.models.cachePath": {
+          "type": "string",
+          "default": "./models",
+          "description": "Path for cached models and domain LLMs"
+        },
+        "kwisatz-haderach.validation.enableRealTimeValidation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time citation validation as you type"
+        },
+        "kwisatz-haderach.validation.intentValidationDepth": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Depth of intent validation analysis (1=basic, 5=comprehensive)"
+        },
+        "kwisatz-haderach.environment.enableEnvironmentalProcessing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable 12-dimensional environmental intelligence"
+        },
+        "kwisatz-haderach.experts.consensusThreshold": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0.5,
+          "maximum": 1.0,
+          "description": "Minimum consensus threshold for multi-expert validation"
+        },
+        "kwisatz-haderach.ui.showQualityIndicators": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show visual quality indicators for citations"
+        },
+        "kwisatz-haderach.ui.decorationStyle": {
+          "type": "string",
+          "enum": [
+            "minimal",
+            "standard",
+            "comprehensive"
+          ],
+          "default": "standard",
+          "description": "Citation decoration style"
+        },
+        "kwisatz-haderach.citation.defaultStyle": {
+          "type": "string",
+          "enum": [
+            "APA",
+            "MLA",
+            "Chicago",
+            "IEEE",
+            "Harvard"
+          ],
+          "default": "APA",
+          "description": "Default citation style"
+        },
+        "kwisatz-haderach.domain.autoDetection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically detect academic domain from paper content"
+        },
+        "kwisatz-haderach.logging.level": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warn",
+            "info",
+            "debug"
+          ],
+          "default": "info",
+          "description": "Logging level for debugging"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "kwisatz-citation",
+        "aliases": [
+          "Citation",
+          "citation"
+        ],
+        "extensions": [
+          ".cite",
+          ".bib"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kwisatz-citation",
+        "scopeName": "source.kwisatz.citation",
+        "path": "./syntaxes/citation.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "webpack --mode production",
+    "compile:dev": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
+    "clean": "rimraf dist",
+    "build": "npm run clean && npm run compile",
+    "dev": "npm run clean && npm run compile:dev && npm run watch",
+    "setup:dev": "node scripts/setup-dev-env.js",
+    "download:models": "node scripts/download-models.js",
+    "docs:generate": "node scripts/generate-docs.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.0.0",
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.1.0",
+    "webpack": "^5.85.0",
+    "webpack-cli": "^5.1.0",
+    "rimraf": "^5.0.0",
+    "@vscode/vsce": "^2.19.0"
+  },
+  "dependencies": {
+    "@huggingface/inference": "^2.6.4",
+    "@tensorflow/tfjs-node": "^4.10.0",
+    "@xenova/transformers": "^2.6.0",
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "axios": "^1.4.0",
+    "node-fetch": "^3.3.0",
+    "uuid": "^9.0.0",
+    "lodash": "^4.17.21",
+    "yaml": "^2.3.0",
+    "pdf-parse": "^1.1.1",
+    "tex-to-text": "^1.0.0",
+    "citation-js": "^0.7.0",
+    "ml-matrix": "^6.10.0",
+    "natural": "^6.5.0",
+    "compromise": "^14.10.0",
+    "sqlite3": "^5.1.0",
+    "node-cron": "^3.0.0"
+  },
+  "extensionDependencies": []
+}

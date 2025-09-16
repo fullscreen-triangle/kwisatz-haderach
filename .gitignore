@@ -1,0 +1,179 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+out/
+build/
+*.vsix
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.test
+*.key
+*.pem
+config/secrets.json
+config/api-keys.json
+
+# AI Models and Data
+models/
+*.model
+*.bin
+*.safetensors
+*.onnx
+*.tflite
+*.h5
+*.weights
+huggingface-cache/
+transformers-cache/
+tensorflow-cache/
+
+# Citation and training data
+data/training-data/
+data/cache/
+*.corpus
+*.dataset
+validation-history.json
+citation-cache.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+.DS_Store
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+
+# VSCode settings (keep workspace settings, ignore user settings)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+!.vscode/settings.template.json
+!.vscode/tasks.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Test artifacts
+test-results/
+test-reports/
+__tests__/output/
+coverage/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# Python (for any Python scripts in the project)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Performance monitoring
+.clinic/
+.0x/
+
+# User-specific files
+user-settings.json
+personal-api-keys.json
+local-config.json
+
+# Large files and binaries
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Documentation build artifacts
+docs-build/
+api-docs/
+typedoc-output/
+
+# Webpack
+.webpack/
+
+# ESLint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# YARN v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
