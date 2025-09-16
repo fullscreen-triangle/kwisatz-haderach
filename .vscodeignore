@@ -1,0 +1,128 @@
+# Source files - we only want the compiled JavaScript
+src/**
+tests/**
+scripts/**
+
+# Development configuration files
+.vscode/**
+.vscode-test/**
+tsconfig.json
+webpack.config.js
+.eslintrc.json
+jest.config.js
+
+# Development dependencies and build files
+node_modules/**
+*.vsix
+.gitignore
+.github/**
+
+# Documentation (keep only essential docs)
+docs/development-guide.md
+docs/architecture.md
+**/*.md
+!README.md
+!CHANGELOG.md
+
+# Test files and coverage
+**/*.test.ts
+**/*.spec.ts
+**/*.test.js
+**/*.spec.js
+coverage/**
+test-results/**
+.nyc_output/**
+
+# Build artifacts and temporary files
+dist/**/*.map
+*.tsbuildinfo
+.tmp/**
+.temp/**
+
+# AI Models and large data files (too big for extension package)
+models/**
+data/training-data/**
+data/cache/**
+huggingface-cache/**
+transformers-cache/**
+*.model
+*.bin
+*.safetensors
+*.onnx
+*.weights
+*.h5
+
+# Environment and configuration files with secrets
+.env
+.env.*
+config/secrets.json
+config/api-keys.json
+user-settings.json
+personal-api-keys.json
+
+# Logs and runtime files
+logs/**
+*.log
+*.pid
+*.seed
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.idea/**
+*.swp
+*.swo
+*~
+
+# Package manager files
+package-lock.json
+yarn.lock
+.pnpm-lock.yaml
+
+# Large libraries that can be downloaded
+assets/large-files/**
+
+# Development scripts
+scripts/setup-dev-env.js
+scripts/download-models.js
+scripts/generate-docs.js
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Temporary VS Code files
+.vscode/settings.json
+.vscode/launch.json
+
+# Python cache (if any Python scripts exist)
+__pycache__/**
+*.pyc
+
+# Performance and profiling
+.clinic/**
+.0x/**
+
+# Webpack and build files
+webpack.config.*.js
+babel.config.*
+.babelrc*
+
+# Linting cache
+.eslintcache
+
+# Coverage and test reports
+lcov.info
+junit.xml
+
+# Documentation build
+typedoc-output/**
+api-docs/**
