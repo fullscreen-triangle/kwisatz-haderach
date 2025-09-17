@@ -42,7 +42,7 @@
     "onCommand:kwisatz-haderach.validatePaper",
     "onCommand:kwisatz-haderach.trainDomainModel"
   ],
-  "main": "./dist/extension.js",
+  "main": "./dist/extension-minimal.js",
   "contributes": {
     "commands": [
       {
@@ -275,23 +275,11 @@
   },
   "dependencies": {
     "@huggingface/inference": "^2.6.4",
-    "@tensorflow/tfjs-node": "^4.10.0",
-    "@xenova/transformers": "^2.6.0",
-    "openai": "^4.0.0",
-    "@anthropic-ai/sdk": "^0.20.0",
-    "axios": "^1.4.0",
+    "axios": "^1.5.0",
     "node-fetch": "^3.3.0",
     "uuid": "^9.0.0",
-    "lodash": "^4.17.21",
-    "yaml": "^2.3.0",
-    "pdf-parse": "^1.1.1",
-    "tex-to-text": "^1.0.0",
-    "citation-js": "^0.7.0",
-    "ml-matrix": "^6.10.0",
-    "natural": "^6.5.0",
-    "compromise": "^14.10.0",
-    "sqlite3": "^5.1.0",
-    "node-cron": "^3.0.0"
+    "natural": "^6.10.0",
+    "compromise": "^14.11.0"
   },
   "extensionDependencies": []
 }

@@ -13,38 +13,38 @@ import * as vscode from 'vscode';
 import type { ExtensionContext, Disposable } from 'vscode';
 
 // Framework imports
-import { CitationAnalyzer } from './services/citation-analyzer.js';
-import { WorkflowOrchestrator } from './services/workflow-orchestrator.js';
-import { PaperIntelligence } from './services/paper-intelligence.js';
-import { ValidationService } from './services/validation-service.js';
-import { RecommendationEngine } from './services/recommendation-engine.js';
+import { CitationAnalyzer } from './services/citation-analyzer';
+import { WorkflowOrchestrator } from './services/workflow-orchestrator';
+import { PaperIntelligence } from './services/paper-intelligence';
+import { ValidationService } from './services/validation-service';
+import { RecommendationEngine } from './services/recommendation-engine';
 
 // UI Component imports
-import { CitationPanelProvider } from './ui/panels/citation-panel.js';
-import { ValidationPanelProvider } from './ui/panels/validation-panel.js';
-import { RecommendationsPanelProvider } from './ui/panels/recommendations-panel.js';
-import { SettingsPanelProvider } from './ui/panels/settings-panel.js';
+import { CitationPanelProvider } from './ui/panels/citation-panel';
+import { ValidationPanelProvider } from './ui/panels/validation-panel';
+import { RecommendationsPanelProvider } from './ui/panels/recommendations-panel';
+import { SettingsPanelProvider } from './ui/panels/settings-panel';
 
 // Decorator imports
-import { CitationDecorator } from './ui/decorators/citation-decorator.js';
-import { ValidationDecorator } from './ui/decorators/validation-decorator.js';
-import { QualityDecorator } from './ui/decorators/quality-decorator.js';
+import { CitationDecorator } from './ui/decorators/citation-decorator';
+import { ValidationDecorator } from './ui/decorators/validation-decorator';
+import { QualityDecorator } from './ui/decorators/quality-decorator';
 
 // Command imports
-import { AnalyzeCitationsCommand } from './ui/commands/analyze-citations.js';
-import { ValidatePaperCommand } from './ui/commands/validate-paper.js';
-import { GenerateRecommendationsCommand } from './ui/commands/generate-recommendations.js';
-import { TrainDomainModelCommand } from './ui/commands/train-domain-model.js';
+import { AnalyzeCitationsCommand } from './ui/commands/analyze-citations';
+import { ValidatePaperCommand } from './ui/commands/validate-paper';
+import { GenerateRecommendationsCommand } from './ui/commands/generate-recommendations';
+import { TrainDomainModelCommand } from './ui/commands/train-domain-model';
 
 // Configuration and storage imports
-import { DefaultSettings } from './config/default-settings.js';
-import { CacheManager } from './storage/cache-manager.js';
-import { UserPreferences } from './storage/user-preferences.js';
+import { DefaultSettings } from './config/default-settings';
+import { CacheManager } from './storage/cache-manager';
+import { UserPreferences } from './storage/user-preferences';
 
 // Utility imports
-import { Logger } from './utils/logging.js';
-import { PerformanceMonitor } from './utils/performance-monitor.js';
-import { ErrorHandler } from './utils/error-handling.js';
+import { Logger } from './utils/logging';
+import { PerformanceMonitor } from './utils/performance-monitor';
+import { ErrorHandler } from './utils/error-handling';
 
 /**
  * Extension activation function called by VSCode

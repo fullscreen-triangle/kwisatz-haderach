@@ -5,10 +5,10 @@ const config = {
   target: 'node', // vscode extensions run in a node context
   mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 
-  entry: './src/extension.ts', // the entry point of this extension
+  entry: './src/extension-minimal.ts', // the entry point of this extension
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
+    filename: 'extension-minimal.js',
     libraryTarget: 'commonjs2'
   },
   devtool: 'nosources-source-map',
