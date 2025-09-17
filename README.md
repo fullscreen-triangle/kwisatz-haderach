@@ -1,8 +1,11 @@
-# Kwisatz-Haderach: Citation Intelligence Framework
+<h1 align="center">Kwisatz-Haderach</h1>
+<p align="center"><em>On Thermodynamic Consequences of Being the One that was Promised</em></p>
 
-> *"He who controls the citations controls the knowledge."*
+<p align="center">
+  <img src="assets/img/2016fall-jump-ahead-2.png"  width="400" alt="Logo">
+</p>
 
-A revolutionary VSCode extension that transforms academic writing through AI-powered citation intelligence, combining five cutting-edge frameworks for unprecedented citation validation and management.
+A  VSCode extension for academic writing through AI-powered citation intelligence, combining five cutting-edge frameworks for unprecedented citation validation and management.
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](./CHANGELOG.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.1+-blue.svg)](https://www.typescriptlang.org/)
