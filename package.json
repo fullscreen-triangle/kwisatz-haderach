@@ -42,28 +42,32 @@
     "onCommand:kwisatz-haderach.validatePaper",
     "onCommand:kwisatz-haderach.trainDomainModel"
   ],
-  "main": "./dist/extension-minimal.js",
+  "main": "./dist/extension-proof-enhanced.js",
   "contributes": {
     "commands": [
       {
-        "command": "kwisatz-haderach.analyzeCitations",
-        "title": "Analyze Citations",
-        "category": "Kwisatz-Haderach"
+        "command": "kwisatz-haderach.analyzeEnhanced",
+        "title": "🧠 Analyze Citations (Enhanced)",
+        "category": "Kwisatz-Haderach",
+        "icon": "$(telescope)"
       },
       {
-        "command": "kwisatz-haderach.validatePaper",
-        "title": "Validate Paper Citations",
-        "category": "Kwisatz-Haderach"
+        "command": "kwisatz-haderach.verifyMath",
+        "title": "🔍 Verify Mathematical Content",
+        "category": "Kwisatz-Haderach",
+        "icon": "$(symbol-numeric)"
       },
       {
-        "command": "kwisatz-haderach.generateRecommendations",
-        "title": "Generate Citation Recommendations",
-        "category": "Kwisatz-Haderach"
+        "command": "kwisatz-haderach.checkConsistency",
+        "title": "🔍 Check Citation Consistency",
+        "category": "Kwisatz-Haderach",
+        "icon": "$(check-all)"
       },
       {
-        "command": "kwisatz-haderach.trainDomainModel",
-        "title": "Train Domain-Specific Model",
-        "category": "Kwisatz-Haderach"
+        "command": "kwisatz-haderach.showStatus",
+        "title": "📊 Show Service Status",
+        "category": "Kwisatz-Haderach",
+        "icon": "$(dashboard)"
       },
       {
         "command": "kwisatz-haderach.openCitationPanel",
@@ -205,6 +209,76 @@
           "default": true,
           "description": "Automatically detect academic domain from paper content"
         },
+        "kwisatz-haderach.validation.enableFormalVerification": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable formal mathematical verification using proof assistants"
+        },
+        "kwisatz-haderach.validation.mode": {
+          "type": "string",
+          "enum": [
+            "adaptive",
+            "always_formal",
+            "traditional_only"
+          ],
+          "default": "adaptive",
+          "description": "Validation mode: adaptive (smart), always formal, or traditional only"
+        },
+        "kwisatz-haderach.validation.formalVerificationThreshold": {
+          "type": "number",
+          "default": 0.6,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum confidence threshold for triggering formal verification"
+        },
+        "kwisatz-haderach.proofAssistant.primary": {
+          "type": "string",
+          "enum": [
+            "lean",
+            "coq",
+            "isabelle",
+            "agda"
+          ],
+          "default": "lean",
+          "description": "Primary proof assistant for formal verification"
+        },
+        "kwisatz-haderach.proofAssistant.enableCrossValidation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable cross-validation across multiple proof assistants"
+        },
+        "kwisatz-haderach.proofAssistant.timeouts.quickCheck": {
+          "type": "number",
+          "default": 5000,
+          "description": "Timeout for quick proof checks (ms)"
+        },
+        "kwisatz-haderach.proofAssistant.timeouts.fullVerification": {
+          "type": "number",
+          "default": 30000,
+          "description": "Timeout for full proof verification (ms)"
+        },
+        "kwisatz-haderach.proofAssistant.timeouts.crossValidation": {
+          "type": "number",
+          "default": 60000,
+          "description": "Timeout for cross-validation (ms)"
+        },
+        "kwisatz-haderach.proofAssistant.thresholds.minimumConfidence": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Minimum confidence threshold for proof validation"
+        },
+        "kwisatz-haderach.performance.enableParallelValidation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable parallel validation for better performance"
+        },
+        "kwisatz-haderach.performance.maxValidationTime": {
+          "type": "number",
+          "default": 60000,
+          "description": "Maximum total time for validation (ms)"
+        },
         "kwisatz-haderach.logging.level": {
           "type": "string",
           "enum": [
@@ -241,9 +315,9 @@
   },
   "scripts": {
     "vscode:prepublish": "echo 'Using pre-compiled extension'",
-    "compile": "webpack --config webpack.minimal.config.js",
-    "compile:dev": "webpack --config webpack.minimal.config.js --mode development",
-    "watch": "webpack --config webpack.minimal.config.js --mode development --watch",
+    "compile": "webpack --mode production",
+    "compile:dev": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
     "test": "echo 'Tests skipped for packaging'",
     "test:watch": "echo 'Tests skipped for packaging'",
     "lint": "echo 'Linting skipped for packaging'",
