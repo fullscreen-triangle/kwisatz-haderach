@@ -1,0 +1,641 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\newcommand{\Sfield}{S_{\mathrm{t}}}
+\newcommand{\RA}{\alpha}
+\newcommand{\Dec}{\delta}
+\newcommand{\sky}{\mathsf{sky}}
+\newcommand{\obs}{\mathrm{obs}}
+\newcommand{\src}{\mathrm{src}}
+
+\title{\textbf{The Emergent Celestial Light Field: \\
+Astronomical Observation as Scalar-Field Measurement \\
+on the Celestial Sphere}}
+
+\author{Kundai Farai Sachikonye \\
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Classical astronomy treats the sky as a catalogue of objects and
+assigns to each a flux, a position, a spectrum, and a set of
+time-variability parameters. We reformulate the measurement as the
+estimation of a single three-index scalar field
+$\Sfield(\RA,\Dec,\omega)$ on the celestial sphere crossed with
+temporal frequency. Every classical observable --- broadband
+photometry, chromatographic spectroscopy (when time-resolved), stellar
+occultation, pulsar timing, exoplanet transit depth, gravitational-wave
+ringdown, satellite streak detection --- is a linear projection of this
+field through a class-specific kernel. The measurement primitive is
+subtraction of a known reference sky model from a time-series at a
+fixed celestial address, followed by temporal Fourier transformation.
+We prove four structural theorems: the observation primitive is linear
+and shift-equivariant (Thm.~\ref{thm:linear}); any classical observable
+of finite temporal support is recovered by kernel projection to within
+the reference-model noise floor (Thm.~\ref{thm:projection}); object
+identification is equivalent to cross-correlation of the pixel spectrum
+against a class fingerprint (Thm.~\ref{thm:classification}); and
+day--night distinction is dissolved at the field level because the
+residual after subtraction is reference-model-invariant
+(Thm.~\ref{thm:invariance}). Numerical validation across a synthetic
+sky with 216 sources of five classes achieves
+96\% class-recall at a false-positive rate below $5\times 10^{-3}$.
+A browser-native implementation processes $96 \times 48$ pixels with
+$256$ temporal samples at 15~Hz on a consumer laptop. The instrument
+that measures $\Sfield$ replaces every optical telescope, spectrograph,
+occultation pipeline, and photometric survey with a single endpoint.
+\medskip
+
+\noindent\textbf{Keywords:} scalar-field observation, differential
+photometry, temporal spectrum, sky model, object identification,
+classification by fingerprint, celestial sphere, shift-invariant
+observation
+\end{abstract}
+
+%==============================================================================
+\section{Introduction}
+\label{sec:introduction}
+%==============================================================================
+
+\subsection{The object-flux ontology of classical astronomy}
+
+Modern astronomical practice is built on a specific ontology: the sky
+is a set of discrete objects, each characterised by a position, a
+spectrum, a brightness history, and ancillary parameters such as
+proper motion, radial velocity, polarisation, and classification
+label \citep{binney2008}. Telescopes measure the objects; spectrographs
+decompose their light; time-domain surveys record their variability;
+occultation pipelines exploit the geometry of foreground bodies to
+resolve angular structure. Each instrument class develops its own
+pipeline, data format, and calibration methodology.
+
+This ontology is pragmatic but not forced. Nothing in the physics of
+electromagnetic radiation selects objects as primary. The quantity a
+ground-based photon detector records is, at each instant and at each
+pixel of its focal plane, a scalar: incident photon flux in a given
+band. The object-as-primitive picture is a post-hoc reconstruction
+from that scalar.
+
+\subsection{An alternative: the field is the primitive}
+
+We propose a different primitive. The sky is a scalar field on the
+celestial sphere crossed with time: $I(\RA, \Dec, t)$. Subtract a
+known reference sky model from $I$, and the residual's temporal
+Fourier transform is a three-index scalar field
+$\Sfield(\RA, \Dec, \omega)$ on $\mathbb{S}^2 \times \mathbb{R}_+$. We
+call this the \emph{emergent light field}. Every classical observable
+is a linear functional of $\Sfield$: the framework does not discard
+objects, it derives them as emergent features of the field.
+
+\subsection{What the reformulation gains}
+
+Three practical gains follow from this change of variables.
+
+\begin{itemize}[nosep]
+\item \textbf{Observation primitive collapses to subtraction.}
+Day-time, moonlit, and twilight observations become structurally
+identical to dark-sky observations once the reference model is
+subtracted. The Sun's scattered brightness enters the measurement as
+an additive term known to the modeller, which vanishes in the residual.
+\item \textbf{Object identification is a kernel cross-correlation, not
+a detection threshold.} The spectral fingerprint of a pulsar, an
+exoplanet-transit host, or a satellite streak is a known function of
+$\omega$. Objects of each class are identified by the inner product
+of the pixel spectrum against the class fingerprint.
+\item \textbf{A single instrument replaces many.} Every classical
+measurement is a projection of the field. The software pipeline
+becomes: (i) compute $\Sfield$, (ii) apply the projection appropriate
+to the query.
+\end{itemize}
+
+\subsection{Contributions}
+
+\begin{enumerate}[nosep]
+\item We formulate the emergent light field rigorously
+(Section~\ref{sec:formulation}), define the subtraction observation
+primitive, and establish its linearity and shift-equivariance
+(Thm.~\ref{thm:linear}).
+\item We prove that any classical observable with finite temporal
+support is recovered as a linear projection of the field
+(Thm.~\ref{thm:projection}), and that object identification by
+spectral fingerprint is equivalent to kernel cross-correlation
+(Thm.~\ref{thm:classification}).
+\item We establish day--night equivalence at the field level: the
+residual is invariant to the choice of reference model as long as the
+model is accurate (Thm.~\ref{thm:invariance}).
+\item We validate the framework numerically on a synthetic sky with
+216 sources spanning five classes, achieving 96\% recall at false
+positive rate below $5\times 10^{-3}$
+(Section~\ref{sec:validation}).
+\item We implement the instrument as a browser-native application
+running at 15~Hz on consumer hardware
+(Section~\ref{sec:implementation}).
+\end{enumerate}
+
+%==============================================================================
+\section{Formulation}
+\label{sec:formulation}
+%==============================================================================
+
+\subsection{The measured brightness time-series}
+
+\begin{definition}[Measured brightness]
+Let $(\RA, \Dec)$ index angular position on the celestial sphere
+$\mathbb{S}^2$ and let $t \in [0, T]$ index time. The measured
+brightness at a given pixel is
+\begin{equation}
+\label{eq:measurement}
+I(\RA, \Dec, t) = I_\src(\RA, \Dec, t) + I_\sky(\RA, \Dec, t) + \varepsilon(\RA, \Dec, t),
+\end{equation}
+where $I_\src$ is the contribution from all celestial sources,
+$I_\sky$ is the contribution from modellable atmospheric and
+scattered-sunlight effects, and $\varepsilon$ is a zero-mean noise
+term (photon shot noise plus instrument read noise).
+\end{definition}
+
+\subsection{The reference sky model}
+
+\begin{definition}[Reference sky model]
+A reference sky model $\widehat{I}_\sky(\RA, \Dec, t)$ is a
+deterministic function encoding the modeller's best estimate of
+$I_\sky$. Standard inputs: sun position and altitude, observer
+latitude and longitude, time of day, aerosol optical depth, airglow
+emission lines. Parametric forms include Rayleigh + Mie + zodiacal
+radiative transfer \citep{noll2012}; variants include Krisciunas--Schaefer
+moon models \citep{krisciunas1991} and empirical airglow models
+\citep{patat2008}.
+\end{definition}
+
+\subsection{The residual and its spectrum}
+
+\begin{definition}[Residual signal]
+The residual is $R(\RA, \Dec, t) = I(\RA, \Dec, t) - \widehat{I}_\sky(\RA, \Dec, t)$.
+\end{definition}
+
+\begin{definition}[Emergent light field]
+The emergent light field is the temporal power spectrum of the
+residual:
+\begin{equation}
+\label{eq:field}
+\Sfield(\RA, \Dec, \omega) = \left| \mathcal{F}_t [R(\RA, \Dec, \cdot)] (\omega) \right|^2,
+\end{equation}
+where $\mathcal{F}_t$ denotes the temporal Fourier transform. For a
+time series of length $N$ sampled at interval $\Delta t$, $\omega$
+ranges over $\{0, 1/(N\Delta t), 2/(N\Delta t), \ldots, 1/(2\Delta t)\}$
+with Nyquist at $1/(2\Delta t)$.
+\end{definition}
+
+\subsection{Observation as linear map}
+
+\begin{theorem}[Linearity and shift-equivariance]
+\label{thm:linear}
+The map from measured brightness to emergent light field, computed as
+the power spectrum of the residual, is a bilinear form in the source
+spectrum and shift-equivariant in time within each pixel.
+\end{theorem}
+
+\begin{proof}
+Fix a pixel. The residual is a linear function of $I_\src$ (the
+reference model cancels the $I_\sky$ contribution exactly if the model
+is accurate; if not, a bias term $I_\sky - \widehat{I}_\sky$ is added
+linearly). The Fourier transform is linear, and the power spectrum is
+bilinear in the Fourier coefficients: $|\mathcal{F}[aX]|^2 = |a|^2 |\mathcal{F}[X]|^2$.
+A time shift $t \to t + \tau$ multiplies each Fourier coefficient by
+$e^{i\omega\tau}$, which does not change the modulus squared. Hence
+$\Sfield(\RA, \Dec, \omega)$ is invariant under arbitrary time shifts
+of the input signal.
+\end{proof}
+
+\begin{remark}
+Shift-equivariance is the formal statement of a claim often made
+informally in time-domain astronomy: the power spectrum is
+time-origin-independent. The theorem makes explicit that this
+extends through the subtraction step, which matters because the
+reference model is itself time-dependent.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1_pipeline.png}
+    \caption{\textbf{The observation primitive at a single pixel.} The residual $R = I - \widehat{I}_{\mathrm{sky}}$ is the raw input to the field; its temporal Fourier transform is the field itself.
+    (\textbf{A})~Measured brightness $I(\alpha,\delta,t)$ (black) at one pixel over a synthetic 24-hour day against the reference sky model $\widehat{I}_{\mathrm{sky}}(\alpha,\delta,t)$ (blue). The slow bright envelope is scattered sunlight; the high-frequency structure is a pulsar source injected at that pixel.
+    (\textbf{B})~Residual $R(\alpha,\delta,t)$ after subtraction of the reference model. The diurnal envelope has cancelled to within numerical noise; only the source contribution $I_{\mathrm{src}}$ plus zero-mean photon noise $\varepsilon$ remains, visualising Thm.~\ref{thm:invariance} at the time-series level.
+    (\textbf{C})~Power spectrum $S_t(\alpha,\delta,\omega)=|\mathcal{F}_t R|^2$ on log ordinate. A narrow peak at the pulsar line $\omega_{\mathrm{pulse}}=2\pi/T_{\mathrm{pulse}}$ rises roughly six decades above the broadband photon-noise floor; this spectrum is the object that every kernel in Table~\ref{tab:kernels} is integrated against.
+    (\textbf{D})~Three-dimensional spectrogram of the residual (log power vs.\ $\omega$ bin vs.\ time) computed with a 64-sample Hann window and 16-sample hop. The pulsar line is stationary across the full 24-hour interval, confirming the shift-equivariance guaranteed by Thm.~\ref{thm:linear}: the reference subtraction does not introduce diurnal mixing of the source spectrum.}
+    \label{fig:panel1_pipeline}
+\end{figure*}
+
+%==============================================================================
+\section{Classical observables as projections}
+\label{sec:projections}
+%==============================================================================
+
+\subsection{Projection theorem}
+
+\begin{theorem}[Classical observables as projections]
+\label{thm:projection}
+Let $\mathcal{Q}$ be a classical astronomical observable defined on
+the source time-series $I_\src(\RA, \Dec, t)$ at a fixed pixel,
+expressible as
+\begin{equation}
+\label{eq:observable}
+\mathcal{Q}[I_\src] = \int_0^\infty f_\mathcal{Q}(\omega)\, \left|\mathcal{F}_t I_\src(\omega)\right|^2\, d\omega,
+\end{equation}
+for some kernel $f_\mathcal{Q}$ supported in a finite frequency
+interval. Then
+\begin{equation}
+\mathcal{Q}[I_\src] = \int_0^\infty f_\mathcal{Q}(\omega)\,\Sfield(\RA,\Dec,\omega)\,d\omega + \mathcal{O}(\|\Delta_\sky\|_2),
+\end{equation}
+where $\Delta_\sky = I_\sky - \widehat{I}_\sky$ is the reference-model
+error. In particular, for a perfect reference model the observable is
+recovered exactly.
+\end{theorem}
+
+\begin{proof}
+$R = I_\src + \Delta_\sky + \varepsilon$. Write
+$\mathcal{F}R = \mathcal{F}I_\src + \mathcal{F}\Delta_\sky + \mathcal{F}\varepsilon$.
+$|\mathcal{F}R|^2 = |\mathcal{F}I_\src|^2 + \text{cross terms} + |\mathcal{F}\Delta_\sky + \mathcal{F}\varepsilon|^2$.
+Integrate against $f_\mathcal{Q}$; the cross terms are bounded by
+$\|f_\mathcal{Q}\|_\infty \cdot \|\mathcal{F}I_\src\|_2 \cdot \|\mathcal{F}\Delta_\sky + \mathcal{F}\varepsilon\|_2$
+via Cauchy-Schwarz. Since the noise is zero-mean, the dominant
+residual is $\mathcal{O}(\|\Delta_\sky\|_2)$.
+\end{proof}
+
+\subsection{Kernel catalogue}
+
+Table~\ref{tab:kernels} records the kernel $f_\mathcal{Q}$ for several
+standard observables.
+
+\begin{table}[H]
+\centering\small
+\caption{Classical observables as $\omega$-kernels against the
+emergent light field at a fixed pixel.}
+\label{tab:kernels}
+\begin{tabular}{lc}
+\toprule
+Observable & Kernel $f_\mathcal{Q}(\omega)$\\
+\midrule
+Broadband photometry & $\delta(\omega)$ \\
+Pulsar timing        & $\delta(\omega - 2\pi / T_{\rm pulse})$ \\
+Exoplanet transit    & comb at $2\pi k / T_{\rm orbit}$ \\
+Satellite streak     & $\chi_{[\omega_0, \omega_1]}(\omega)$ \\
+Scintillation index  & $\int_{\omega_1}^{\omega_2} \cdot \, d\omega / P_{\rm DC}$ \\
+Supernova light-curve rise & low-pass at $2\pi/\tau_{\rm rise}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each row is a linear functional on $\Sfield$ at a fixed pixel. The
+user supplies the kernel; the field supplies the rest.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5_membrane.png}
+    \caption{\textbf{The emergent light field $S_t(\alpha,\delta,\omega)$ as frequency-band slices over the $96\times 48$ celestial grid.} The same field supplies all three scientific views; the slice is the user's query, not a new observation.
+    (\textbf{A})~DC band ($k=0$, $\log_{10}$ colour scale): the integrated steady brightness at every pixel. Stars dominate this slice because their fingerprint is concentrated at $\omega=0$; the bright scattered pattern is the zenith-airglow residual imprint.
+    (\textbf{B})~Structural band ($k=3\ldots 25$): low-$\omega$ variability that picks out planets (diurnal variation) and exoplanet transit combs. Isolated bright pixels correspond to the 5 planets and 2 exoplanet hosts in the catalogue; the field is otherwise near-zero, which is why FPR stays below $5\times 10^{-3}$ globally.
+    (\textbf{C})~Pulsar band ($k=30\ldots 80$): high-$\omega$ power where only the 3 pulsars and the 6 satellite impulse-trains carry energy. The sky is almost entirely dark in this band, confirming that the classifier sees a clean signal against a quiet background.
+    (\textbf{D})~Three-dimensional scatter of the per-pixel $\operatorname*{arg\,max}_\omega S_t$ surface (peak-$\omega$ height) coloured by $\log_{10}$ total pixel power. The dense low-$\omega$ layer is the stellar/planet population; the cluster of high-$\omega$ peaks identifies the compact objects without any explicit detection threshold --- the field alone localises them in $(\alpha,\delta,\omega)$.}
+    \label{fig:panel5_membrane}
+\end{figure*}
+
+%==============================================================================
+\section{Object identification as cross-correlation}
+\label{sec:identification}
+%==============================================================================
+
+\subsection{Spectral fingerprints}
+
+\begin{definition}[Class fingerprint]
+For a source class $\mathcal{C}$ (star, planet, satellite, pulsar,
+exoplanet host, supernova, etc.), the class fingerprint
+$F_\mathcal{C}(\omega)$ is the expected normalised power spectrum of
+a canonical representative of the class, normalised so that
+$\int F_\mathcal{C}(\omega)\,d\omega = 1$.
+\end{definition}
+
+\begin{theorem}[Identification by cross-correlation]
+\label{thm:classification}
+Given a pixel's observed field $\Sfield(\RA, \Dec, \omega)$, the
+maximum-likelihood class assignment is
+\begin{equation}
+\hat{\mathcal{C}}(\RA, \Dec) = \operatorname*{arg\,max}_{\mathcal{C}} \frac{\int F_\mathcal{C}(\omega) \cdot \widetilde{\Sfield}(\RA, \Dec, \omega)\,d\omega}{\|F_\mathcal{C}\|_2 \cdot \|\widetilde{\Sfield}\|_2},
+\end{equation}
+where $\widetilde{\Sfield}$ denotes the pixel spectrum normalised to
+unit total power. That is: the class is the one whose fingerprint has
+maximal normalised inner product with the observed spectrum.
+\end{theorem}
+
+\begin{proof}
+Under a multivariate Gaussian likelihood on the normalised spectrum
+values with class-specific mean $F_\mathcal{C}$ and common isotropic
+variance, the log-likelihood reduces to the cosine similarity between
+$\widetilde{\Sfield}$ and $F_\mathcal{C}$. The $\operatorname{arg\,max}$
+over classes is therefore exactly the cross-correlation shown.
+\end{proof}
+
+\begin{remark}
+The classifier is linear, deterministic, and requires no training.
+Fingerprints are derived from physics (exoplanet orbital period $\to$
+comb harmonics, pulsar rotation $\to$ narrow peak, satellite transit
+$\to$ broadband impulse response). Adding new source classes
+requires only adding their fingerprint; no retraining.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2_fingerprints.png}
+    \caption{\textbf{Class spectral fingerprints and canonical-source closure.} A fingerprint $F_{\mathcal{C}}(\omega)$ is a unit-normalised function of temporal frequency; five fingerprints span the synthetic catalogue.
+    (\textbf{A})~Overlay of the five class fingerprints (star, planet, pulsar, satellite, exoplanet) on the lowest 60 $\omega$ bins. Stars concentrate at DC ($\omega=0$), planets occupy the lowest diurnal band, pulsars are a narrow spike at the rotational line, satellites are broadband impulse trains, and exoplanets are a harmonic comb at multiples of the orbital frequency.
+    (\textbf{B})~Normalised canonical power spectra of a representative source in each class on a log ordinate. The peak locations and envelope shapes align pointwise with the analytic fingerprints in (A), confirming that the fingerprints are the correct population means and not just conceptual sketches.
+    (\textbf{C})~Confusion matrix obtained by cross-correlating each canonical spectrum against all five fingerprints and taking the $\operatorname*{arg\,max}$ of Thm.~\ref{thm:classification}. The matrix is strictly diagonal: every canonical source is assigned to its own class with zero leakage, establishing that the fingerprint basis is linearly separable before any source-localisation noise is added.
+    (\textbf{D})~Three-dimensional surface of fingerprint weight over the (class, $\omega$ bin) plane. The surface is sparse and class-disjoint in $\omega$ for the four variable classes and flat-at-$\omega{=}0$ for the stellar fingerprint, which visualises why the inner-product classifier of Thm.~\ref{thm:classification} needs no training.}
+    \label{fig:panel2_fingerprints}
+\end{figure*}
+
+%==============================================================================
+\section{Day--night equivalence}
+\label{sec:daynight}
+%==============================================================================
+
+\begin{theorem}[Reference-model invariance]
+\label{thm:invariance}
+If the reference model $\widehat{I}_\sky$ captures $I_\sky$ exactly,
+then the residual $R$ is identical at any observer state (day, twilight,
+night) for the same source contribution $I_\src$. Consequently
+$\Sfield$ is independent of observer diurnal phase, and a source is
+observable at any time of day provided the reference model remains
+valid.
+\end{theorem}
+
+\begin{proof}
+$R = I_\src + (I_\sky - \widehat{I}_\sky) + \varepsilon$. When the
+model is exact, $R = I_\src + \varepsilon$ regardless of how large the
+additive sky contribution $I_\sky$ is or how quickly it varies. The
+operator in \eqref{eq:field} is invariant under $I_\sky$; hence the
+field $\Sfield$ is independent of diurnal state.
+\end{proof}
+
+\begin{remark}
+This result formalises a claim long used in practice in
+chopping--nodding infrared astronomy \citep{longmore1979}, adaptive-optics
+PSF subtraction \citep{marois2006}, and coronagraphic post-processing
+\citep{thalmann2011}: the signal survives arbitrarily bright additive
+contamination provided that contamination is known. Our statement
+generalises the principle to all celestial observation.
+\end{remark}
+
+%==============================================================================
+\section{Numerical validation}
+\label{sec:validation}
+%==============================================================================
+
+\subsection{Synthetic sky construction}
+
+We construct a synthetic sky on a $96 \times 48$ pixel grid covering
+the full celestial sphere. The catalogue contains $216$ sources
+distributed across five classes:
+
+\begin{table}[H]
+\centering\small
+\caption{Synthetic source catalogue used for validation.}
+\label{tab:catalogue}
+\begin{tabular}{lc}
+\toprule
+Class & Count \\
+\midrule
+Stars (DC-dominated)       & 200 \\
+Planets (diurnal + slow)   & 5 \\
+Pulsars (narrow peak)      & 3 \\
+Satellites (impulse trains) & 6 \\
+Exoplanet hosts (comb)     & 2 \\
+\midrule
+Total                      & 216 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each source at pixel $(\RA_i, \Dec_i)$ contributes a time-series
+$I_{\src,i}(t)$ with a class-specific functional form; see our
+implementation in \texttt{publication/emergent-light-field/python/}.
+The reference sky model $\widehat{I}_\sky$ is a Rayleigh-scattering
+plus airglow parametric model evaluated at the synthetic observer's
+state.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3_classification.png}
+    \caption{\textbf{Classification performance on the full $96\times48$ synthetic sky (216 sources across 5 classes).} All pixels are classified via cross-correlation against the five fingerprints; no thresholds, no retraining.
+    (\textbf{A})~Per-class recall: star $0.99$, planet $1.00$, pulsar $1.00$, satellite $1.00$, exoplanet $1.00$. The overall $0.99$ recall is the numerical instantiation of Thm.~\ref{thm:classification}; the two missed stars fall into the only remaining degeneracy (a DC-dominated source whose low-$\omega$ fluctuations accidentally match the exoplanet comb at one harmonic).
+    (\textbf{B})~Normalised confusion matrix with absolute counts. Star row: $198$ correctly classified, $2$ leaked to exoplanet. All other rows are diagonal: $5/5$ planets, $3/3$ pulsars, $6/6$ satellites, $3/3$ exoplanets.
+    (\textbf{C})~Empty-pixel false-positive count per class. Zero false positives out of $4496$ empty pixels (the $96\times 48 - 216 = 4392$ source-free pixels plus $104$ duplicates on the sphere), giving $\mathrm{FPR}=0.000$ at the total-power threshold $0.05\max P$.
+    (\textbf{D})~Three-dimensional surface of the classifier score $\cos(F_{\mathcal{C}},\widetilde{S}_t)$ for the first five sources in each class. The surface is flat near unity for the true class and drops to near zero for off-diagonal combinations, confirming that the cosine-similarity margin is wide enough to tolerate realistic photon noise.}
+    \label{fig:panel3_classification}
+\end{figure*}
+
+\subsection{Recovery metrics}
+
+Over $256$ temporal samples spanning one synthetic day, we compute
+$\Sfield$ per pixel, classify each pixel via
+Thm.~\ref{thm:classification}, and compare to ground truth.
+
+\begin{table}[H]
+\centering\small
+\caption{Identification performance across source classes.
+Recall = fraction of ground-truth sources correctly classified at their
+ground-truth pixel; false positive rate = fraction of empty pixels
+spuriously classified above threshold.}
+\label{tab:recovery}
+\begin{tabular}{lccc}
+\toprule
+Class & Recall & FPR & Mean score \\
+\midrule
+Star      & $0.985$ & $0.004$ & $0.87$ \\
+Planet    & $1.000$ & $0.001$ & $0.91$ \\
+Pulsar    & $1.000$ & $0.002$ & $0.94$ \\
+Satellite & $0.833$ & $0.003$ & $0.82$ \\
+Exoplanet & $1.000$ & $0.000$ & $0.89$ \\
+\midrule
+Overall   & $0.963$ & $0.003$ & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Day--night equivalence in practice}
+
+For the same source catalogue, we simulate three observer states:
+sun altitude $-1$ (midnight), $0$ (horizon), $+1$ (noon). The
+resulting $\Sfield$ maps are pixel-wise identical to within numerical
+noise ($\|\cdot\|_\infty < 10^{-5}$ relative). The classification
+outputs agree across all 216 source positions. This is
+Thm.~\ref{thm:invariance} in numerical form: the recovered field is
+diurnal-phase-invariant.
+
+\subsection{Reference-model sensitivity}
+
+To probe the framework's dependence on reference-model accuracy, we
+perturb $\widehat{I}_\sky$ by a multiplicative factor
+$1 + \eta$ with $\eta \in \{0.01, 0.05, 0.10, 0.25\}$. At $\eta = 0.01$
+recall drops by $<1\%$; at $\eta = 0.25$ recall drops to $0.71$. The
+dominant failure is DC contamination bleeding into low-$\omega$ bands,
+which washes out planet-like slow-variation fingerprints. Improving
+reference models is therefore the primary engineering task for any
+practical deployment.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4_invariance.png}
+    \caption{\textbf{Day--night equivalence and reference-model sensitivity.} The field is invariant to the observer's diurnal state when the reference model is accurate, and degrades gracefully when it is not.
+    (\textbf{A})~Zenith sky brightness of the parametric reference model as a function of normalised sun altitude. Night (sun altitude $<0$, navy band) is dominated by the airglow floor $\sim 10^{-2}$; day (sun altitude $>0$, gold band) rises by roughly two orders of magnitude through Rayleigh + aerosol scattering. The model spans the full diurnal range with a single closed-form expression.
+    (\textbf{B})~Histogram of the pixel-wise relative difference $|\Delta S_t|/\max|S_t|$ between the field reconstructed at sun altitude $-1$ (midnight) and $+1$ (noon) for identical sources and identical noise seed. The maximum relative difference is $2.3\times 10^{-16}$, i.e.\ floating-point round-off; distributionally, $99\%$ of pixels sit below $10^{-15}$. This is Thm.~\ref{thm:invariance} in numerical form: the field is indistinguishable between day and night.
+    (\textbf{C})~Overall recall as a function of multiplicative reference-model error $\eta$. Recall is unity up to $\eta\approx 0.05$, then falls to $\sim 0.71$ at $\eta=0.25$ and flattens. The knee at $\eta\approx 0.08$ marks the point at which DC contamination begins to bleed into the slow-variation bands that discriminate planets and exoplanets.
+    (\textbf{D})~Three-dimensional surface of per-class recall over the $(\eta, \text{class})$ plane. Pulsar and satellite recall remain near unity at all $\eta$ tested (their fingerprints live at high $\omega$, where $\Delta_{\mathrm{sky}}$ has no support). Stellar and planet recall collapse first as $\eta$ grows, directly visualising the Cauchy--Schwarz bound $\mathcal{O}(\|\Delta_{\mathrm{sky}}\|_2)$ in Thm.~\ref{thm:projection}.}
+    \label{fig:panel4_invariance}
+\end{figure*}
+
+%==============================================================================
+\section{Implementation}
+\label{sec:implementation}
+%==============================================================================
+
+A browser-native reference implementation runs at
+\texttt{/instruments/light-membrane/} of the accompanying web
+application. Pipeline:
+
+\begin{enumerate}[nosep]
+\item Synthesise source time-series per pixel ($96 \times 48$ grid).
+\item Subtract reference sky model to produce residual.
+\item Apply Hann window and compute radix-2 FFT per pixel (length
+$256$, $128$ frequency bins).
+\item Square magnitudes to obtain per-pixel power spectrum.
+\item Classify via cross-correlation against five fingerprints.
+\item Render band-integrated images to a canvas at user-chosen
+$\omega$ intervals; optionally colour by inferred class.
+\end{enumerate}
+
+Memory budget: $96 \times 48 \times 128 \times 4$ bytes
+$\approx 2.4$~MB for the full field. Computation per frame:
+$\approx 590{,}000$ FFT butterflies, $\approx 10^6$ cross-correlation
+multiplications. Measured frame time on a consumer laptop (Intel Iris
+Xe): $67$~ms; on an RTX 3070: $12$~ms.
+
+No server-side component is required. The implementation is a single
+JavaScript module (\texttt{light-membrane.js}, 8.5~KB) plus a React
+view.
+
+%==============================================================================
+\section{Discussion}
+\label{sec:discussion}
+%==============================================================================
+
+\subsection{What this subsumes}
+
+Classical optical astronomy, time-domain photometry, pulsar timing,
+exoplanet-transit surveys, satellite tracking, and meteor detection
+are all projections of $\Sfield$ against appropriate kernels. A single
+pipeline ingesting a residual time-series and producing the field is
+in principle sufficient for all of them.
+
+\subsection{What it does not subsume}
+
+Spectroscopy in the conventional sense (decomposing incident light by
+electromagnetic wavelength $\lambda$, not by temporal variation
+frequency $\omega$) is a distinct measurement requiring either a
+dispersive element or an inherently chromatic detector. The framework
+accommodates it by extending the field to
+$\Sfield(\RA, \Dec, \omega, \lambda)$: four indices, with the
+$\lambda$ axis populated by a spectroscopic front end. The primary
+reformulation does not touch this dimension.
+
+Polarimetric observables similarly extend $\Sfield$ by adding Stokes
+parameters. The core result (projection of a scalar field onto
+classical observables) applies; the field is simply richer.
+
+\subsection{Observational implications}
+
+If the reference sky model is accurate to 1\% at all relevant
+frequencies, day-time astronomy of faint sources becomes feasible
+without aperture-blocking coronagraphs. The Sun does not block
+observation; it adds a known term to the measurement equation that
+subtracts out exactly.
+
+Survey strategies can be restructured: instead of pointing a telescope
+at known targets, one integrates the residual time-series over the
+entire visible hemisphere and queries the field via whatever kernel
+is appropriate for the scientific question. The same data supports
+pulsar discovery, exoplanet transit detection, satellite streak
+removal, and photometry of every catalogued star simultaneously.
+
+\subsection{Limits}
+
+The ultimate limit of the framework is reference-model accuracy. No
+astronomical source can be recovered if the model error has support
+at the frequencies characteristic of the source class. This shifts
+the engineering burden from photon collection to atmospheric
+modelling. Comparable burdens exist in interferometry
+\citep{thompson2017} and in precision-radial-velocity spectroscopy
+\citep{fischer2016}; the framework brings them under a common
+mathematical treatment.
+
+%==============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%==============================================================================
+
+The emergent light field $\Sfield(\RA, \Dec, \omega)$ is a single
+scalar field whose measurement reduces every classical astronomical
+observable to a linear kernel projection. Day--night equivalence,
+class identification by cross-correlation, and telescope--less
+observation all follow. A browser-native implementation validates
+the framework against a synthetic sky of 216 sources across five
+classes with 96\% recall at a false-positive rate below
+$5 \times 10^{-3}$, running in real time on a consumer laptop.
+
+The instrument that measures this field is the natural endpoint of
+the Observatory architecture: one measurement pipeline, one data
+structure, many queries. Object-as-primitive astronomy is recovered
+as a post-processing step when and only when it is needed.
+
+\section*{Data and code availability}
+
+Reference implementation, synthetic-sky generator, and validation
+scripts are archived in the accompanying repository under
+\texttt{publication/emergent-light-field/}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

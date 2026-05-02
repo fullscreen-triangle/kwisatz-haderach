@@ -1,0 +1,40 @@
+{
+  "name": "eremia",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export": "next build && next export",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^3.7.0",
+    "@fancyapps/ui": "^4.0.31",
+    "@fortawesome/fontawesome-svg-core": "^6.2.0",
+    "@fortawesome/free-brands-svg-icons": "^6.3.0",
+    "@fortawesome/free-regular-svg-icons": "^6.2.0",
+    "@fortawesome/free-solid-svg-icons": "^6.2.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@reduxjs/toolkit": "^1.9.3",
+    "flickr-justified-gallery": "^2.1.2",
+    "google-map-react": "^2.2.0",
+    "gsap": "^3.11.4",
+    "isotope-layout": "^3.0.6",
+    "next": "^13.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "sass": "^1.55.0",
+    "smooth-scrollbar": "^8.8.1",
+    "splitting": "^1.0.6",
+    "styled-components": "^5.3.5",
+    "swiper": "^8.4.2",
+    "three": "^0.145.0"
+  },
+  "devDependencies": {
+    "eslint": "8.23.1",
+    "eslint-config-next": "^13.2.1"
+  }
+}

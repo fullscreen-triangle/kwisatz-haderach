@@ -1,0 +1,22 @@
+.dsn-list {
+  .number {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background-color: $theme-color;
+    color: $heading-color;
+    text-align: center;
+    margin-right: 15px;
+    font-size: 14px;
+
+    @include media_575 {
+      display: none;
+    }
+  }
+
+  svg {
+    width: var(--dsn-icon-list, 30px);
+    height: var(--dsn-icon-list, 30px);
+  }
+}

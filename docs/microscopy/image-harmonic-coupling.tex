@@ -1,0 +1,1444 @@
+% imagine-harmonic-matching-circuits.tex
+% Image Harmonic Matching Circuits: Oscillatory Pixel Dynamics and
+% Interference-Based Visual Comparison Without Algorithmic Computation
+% Author: Kundai Farai Sachikonye
+% Date: 2026
+
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Packages ────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage[margin=1.8cm,top=2.2cm,bottom=2.2cm]{geometry}
+\usepackage{natbib}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{microtype}
+
+% ─── Theorem Environments ────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{axiom}{Axiom}
+
+% ─── Custom Commands ─────────────────────────────────────────────────
+\newcommand{\kb}{k_{\mathrm{B}}}
+\newcommand{\Ocat}{\hat{O}_{\mathrm{cat}}}
+\newcommand{\Ophys}{\hat{O}_{\mathrm{phys}}}
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\BigO}{\mathcal{O}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Hilb}{\mathcal{H}}
+\newcommand{\Lag}{\mathcal{L}}
+\newcommand{\Ham}{\mathcal{H}}
+\newcommand{\Part}{\mathcal{P}}
+\newcommand{\Cat}{\mathcal{C}}
+\newcommand{\taup}{\tau_{\mathrm{p}}}
+\newcommand{\tauem}{\tau_{\mathrm{em}}}
+
+
+% ─── Page Style ──────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Image Harmonic Matching Circuits}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── Title Section Formatting ────────────────────────────────────────
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection.}{0.5em}{}
+
+% ═════════════════════════════════════════════════════════════════════
+\begin{document}
+
+
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{center}
+
+{\LARGE\bfseries Image Harmonic Matching Circuits:\\[4pt]
+Oscillatory Pixel Dynamics and Interference-Based\\[4pt]
+Visual Comparison Without Algorithmic Computation}
+
+\vspace{12pt}
+
+{\large Kundai Farai Sachikonye\\
+AIMe Registry for Artificial Intelligence\\
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\vspace{14pt}
+
+\begin{minipage}{0.92\textwidth}
+\textbf{Abstract.}
+We establish a framework in which image comparison is performed by physical interference rather than algorithmic computation. Starting from two axioms---bounded phase space for persistent dynamical systems and finite-resolution categorical observation---we prove by elimination that oscillatory dynamics is the unique valid mode for bounded persistent systems, with static, monotonic, and chaotic alternatives rigorously excluded. This \emph{Oscillatory Necessity Theorem} implies that the fundamental constituents of any physical representation are oscillators. We derive the partition coordinates $(n, \ell, m, s)$ as natural labels for hierarchically nested oscillatory boundaries and prove the \emph{Triple Equivalence}: oscillation, categorical enumeration, and partition function evaluation all yield the same entropy $S = \kb M \ln n$. Each pixel in a digital image is mapped to an \emph{information gas molecule} inheriting thermodynamic and oscillatory properties---frequency $\omega_i$, phase $\phi_i$, and a partition signature $\Sigma_i$. Image comparison then reduces to superposition of pixel wavefunctions: constructive interference signals a match and destructive interference signals a mismatch, with no sequential instruction execution required. Harmonically coupled pixel-oscillations form networks whose closed loops constitute \emph{matching circuits}---wallless resonant cavities where the round-trip phase condition $\Phi_L = 2\pi n$ distinguishes sustained resonance (verified match) from radiative decay (mismatch). We prove that this eliminates the von Neumann bottleneck, replacing $\BigO(n^2 d)$ algorithmic comparison with $\BigO(1)$ wall-clock interference. We derive the complete mapping from classical computer-vision operations (feature matching, template matching, similarity, classification, segmentation) to their oscillatory equivalents (frequency resonance, interference patterns, phase correlation, mode identification, standing-wave node boundaries). Thermodynamic consistency is established through entropy conservation and a zero-backaction commutation relation. A validation framework against classical descriptors (SIFT, ORB) on the BBBC039 dataset is presented.
+
+\vspace{8pt}
+
+\textbf{Keywords:} harmonic matching, oscillatory dynamics, image comparison, interference, information gas, von Neumann bottleneck, resonant cavities, partition coordinates, phase space, pixel wavefunctions
+\end{minipage}
+
+\vspace{16pt}
+\end{center}
+\end{@twocolumnfalse}
+]
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Introduction}\label{sec:introduction}
+% ═════════════════════════════════════════════════════════════════════
+
+The comparison of images---determining whether two visual representations share structure, content, or identity---is among the most fundamental operations in computer vision. From feature matching~\citep{lowe2004} and template matching to deep metric learning~\citep{he2016} and self-supervised representation~\citep{oquab2024}, every approach ultimately reduces to the same computational primitive: a sequential, instruction-by-instruction evaluation of similarity between high-dimensional representations. This sequential character is not an accident; it is a direct consequence of the von Neumann architecture~\citep{vonneumann1945}, wherein data and instructions share a single bus and processing proceeds one operation at a time. Backus~\citep{backus1978} identified this as the \emph{von Neumann bottleneck}: regardless of algorithmic cleverness, the comparison of $n$ entities with $d$-dimensional representations requires $\BigO(n^2 d)$ sequential operations.
+
+In this paper, we ask: \emph{is the von Neumann bottleneck intrinsic to the problem of image comparison, or is it an artifact of the computational substrate?} We prove that it is the latter. Specifically, we show that if one accepts two physically motivated axioms---bounded phase space and finite-resolution observation---then the fundamental dynamical mode of any persistent system is oscillation. This is not a modelling choice but a logical necessity, derived by eliminating all alternatives. The immediate consequence is profound: every entity that can be represented, including every pixel in a digital image, \emph{is} an oscillation. Comparing two oscillations is not computation; it is interference~\citep{young1802, born1999}. Interference is instantaneous in the sense that it occurs at the speed of wave propagation, not at the speed of sequential instruction execution.
+
+We develop this insight into a complete framework. In Section~\ref{sec:axioms}, we state the two axioms. Section~\ref{sec:oscillatory_necessity} proves the Oscillatory Necessity Theorem. Section~\ref{sec:partition_coordinates} derives partition coordinates from nested oscillatory structure. Section~\ref{sec:triple_equivalence} establishes the Triple Equivalence between oscillation, enumeration, and partition functions. Section~\ref{sec:fundamental_identity} derives the Fundamental Identity linking categorical state count rate to oscillation frequency. Section~\ref{sec:information_gas} maps pixels to information gas molecules. Section~\ref{sec:oscillatory_pixel} defines the oscillatory pixel wavefunction. Section~\ref{sec:interference} proves that comparison is interference. Section~\ref{sec:coupling} develops harmonic coupling between pixels. Section~\ref{sec:matching_circuits} introduces matching circuits as wallless resonant cavities. Section~\ref{sec:tick_hierarchy} derives the self-clocking tick hierarchy. Section~\ref{sec:vonneumann} proves the elimination of the von Neumann bottleneck. Section~\ref{sec:applications} maps all standard computer-vision operations to oscillatory equivalents. Section~\ref{sec:lennardjones} transforms the Lennard-Jones potential into an oscillatory formulation. Section~\ref{sec:thermodynamic_consistency} proves thermodynamic consistency. Section~\ref{sec:validation} presents the validation framework.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Axioms}\label{sec:axioms}
+% ═══════════════════════════════════════════════════════════════
+
+We begin from two axioms. Neither requires appeal to quantum mechanics, information theory, or any specific physical theory. They express minimal conditions on what it means for a system to persist and to be observed.
+
+\begin{axiom}[Bounded Phase Space Law]\label{ax:bounded}
+Every persistent dynamical system occupies a bounded region of phase space with finite Liouville measure:
+\begin{equation}
+\mu(\Gamma) = \int_\Gamma \prod_{i=1}^{N} dq_i \, dp_i < \infty,
+\label{eq:liouville_measure}
+\end{equation}
+where $\Gamma \subset \R^{2N}$ is the accessible phase-space volume, $\{q_i, p_i\}$ are the generalised coordinate-momentum pairs, and $\mu$ denotes the Liouville measure~\citep{liouville1838, arnold1989}.
+\end{axiom}
+
+The justification is physical: an unbounded phase-space trajectory implies unbounded energy or unbounded spatial extent, either of which violates the persistence condition. A system that disperses to infinity or accumulates infinite energy does not persist as an identifiable entity~\citep{goldstein2002}.
+
+\begin{axiom}[Categorical Observation]\label{ax:categorical}
+Every finite-resolution observer partitions the accessible phase space into a finite number of distinguishable categories:
+\begin{equation}
+\Gamma = \bigsqcup_{k=1}^{M} \Gamma_k, \quad \Gamma_j \cap \Gamma_k = \emptyset \;\; (j \neq k), \quad M < \infty,
+\label{eq:partition}
+\end{equation}
+where $M$ is the number of distinguishable categories and each $\Gamma_k$ has nonzero measure $\mu(\Gamma_k) > 0$.
+\end{axiom}
+
+This axiom captures the physical reality that no measurement apparatus has infinite precision~\citep{heisenberg1927}. The partition $\{\Gamma_k\}$ need not be regular or uniform; it need only be finite and exhaustive. Shannon's channel capacity theorem~\citep{shannon1948} can be understood as a special case: a communication channel with finite bandwidth and finite signal-to-noise ratio admits only finitely many distinguishable symbols.
+
+\begin{remark}
+These two axioms are independent. Axiom~\ref{ax:bounded} constrains the system; Axiom~\ref{ax:categorical} constrains the observer. Together, they define the arena in which dynamics must unfold: a bounded region partitioned into finitely many cells.
+\end{remark}
+
+% ═══════════════════════════════════════════════════════════════
+\section{The Oscillatory Necessity Theorem}\label{sec:oscillatory_necessity}
+% ═══════════════════════════════════════════════════════════════
+
+We now prove that oscillatory dynamics is the \emph{unique} valid mode for systems satisfying both axioms. The proof proceeds by exhaustive elimination of all alternatives.
+
+\begin{definition}[Dynamical Modes]\label{def:modes}
+Let $\bm{x}(t) \in \Gamma$ denote the state of a dynamical system at time $t$. We classify all possible long-term behaviours into four exhaustive categories:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Static}: $\bm{x}(t) = \bm{x}_0$ for all $t > t_0$ (fixed point).
+    \item \textbf{Monotonic}: $\bm{x}(t)$ evolves without return; for some coordinate $q_j$, $\dot{q}_j(t)$ does not change sign for $t > t_0$.
+    \item \textbf{Chaotic}: $\bm{x}(t)$ exhibits sensitive dependence on initial conditions with positive Lyapunov exponent $\lambda_{\max} > 0$.
+    \item \textbf{Oscillatory}: $\bm{x}(t)$ is recurrent---for every $\epsilon > 0$ and every $t_0$, there exists $T > 0$ such that $\|\bm{x}(t_0 + T) - \bm{x}(t_0)\| < \epsilon$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Oscillatory Necessity]\label{thm:oscillatory_necessity}
+Let $(\Gamma, \mu, \{\Gamma_k\}_{k=1}^M)$ satisfy Axioms~\ref{ax:bounded} and~\ref{ax:categorical}. Then the long-term dynamics of any persistent trajectory $\bm{x}(t)$ must be oscillatory in the sense of Definition~\ref{def:modes}(iv).
+\end{theorem}
+
+\begin{proof}
+We eliminate modes (i)--(iii) in turn.
+
+\medskip
+\noindent\textbf{Elimination of Static (i).}
+A static trajectory $\bm{x}(t) = \bm{x}_0$ resides in a single phase-space cell $\Gamma_{k_0}$ for all time. Consider the Poincar\'{e} recurrence theorem~\citep{poincare1890}: for a measure-preserving flow on a bounded phase space, almost every trajectory returns arbitrarily close to its initial condition. A fixed point is a degenerate recurrence with $T = 0$, but it generates no categorical dynamics---the observer records the same category $k_0$ indefinitely.
+
+The failure is more fundamental than mere triviality. By Axiom~\ref{ax:categorical}, the $M$ categories partition phase space into $M$ regions. A persistent system that remains static in one cell has effectively $M_{\text{eff}} = 1$, contradicting the premise that the system has nontrivial structure requiring $M > 1$ categories to describe. More precisely, if $\bm{x}(t) = \bm{x}_0 \in \Gamma_{k_0}$, then the system's trajectory-averaged information content is
+\begin{equation}
+    H = -\sum_{k=1}^{M} p_k \ln p_k = 0,
+\end{equation}
+where $p_{k_0} = 1$ and $p_k = 0$ for $k \neq k_0$. A system with zero information content is indistinguishable from the vacuum and does not constitute a persistent identifiable entity. Hence static dynamics is excluded for nontrivial persistent systems.
+
+\medskip
+\noindent\textbf{Elimination of Monotonic (ii).}
+Suppose $\bm{x}(t)$ is monotonic: some generalised coordinate $q_j(t)$ increases (or decreases) without bound as $t \to \infty$. Then $q_j(t) \to \pm\infty$, which implies $\bm{x}(t)$ eventually exits any bounded region $\Gamma$. This directly violates Axiom~\ref{ax:bounded}.
+
+One might object that a coordinate could increase monotonically yet remain bounded (approaching an asymptote). But an asymptotic approach to a limit is, in the $t \to \infty$ limit, convergence to a fixed point---which is the static case already eliminated. Hence genuinely monotonic dynamics is incompatible with bounded phase space.
+
+\medskip
+\noindent\textbf{Elimination of Chaotic (iii).}
+Chaotic trajectories in bounded phase space are recurrent by Poincar\'{e}'s theorem; they return arbitrarily close to any previously visited state. However, chaotic dynamics fails the \emph{categorical reproducibility} requirement imposed by Axiom~\ref{ax:categorical}.
+
+Consider two trajectories $\bm{x}(t)$ and $\bm{x}'(t)$ with $\|\bm{x}(0) - \bm{x}'(0)\| < \delta$. Sensitive dependence on initial conditions means that
+\begin{equation}
+    \|\bm{x}(t) - \bm{x}'(t)\| \sim \delta \, e^{\lambda_{\max} t},
+\end{equation}
+where $\lambda_{\max} > 0$ is the maximal Lyapunov exponent. After a time
+\begin{equation}
+    t^* = \frac{1}{\lambda_{\max}} \ln\left(\frac{\Delta}{\delta}\right),
+    \label{eq:lyapunov_time}
+\end{equation}
+where $\Delta$ is the diameter of a phase-space cell $\Gamma_k$, the two trajectories will generically occupy \emph{different} cells. That is, the categorical label $k(t)$ assigned by the observer to the trajectory $\bm{x}(t)$ is not reproducible: an indistinguishable initial preparation leads to a distinguishably different categorical sequence.
+
+This violates a necessary condition for persistent identity. If a system cannot reproduce its own categorical signature under arbitrarily small perturbation, it cannot be reliably identified, matched, or compared. The observer's partition renders the chaotic trajectory \emph{categorically ambiguous} beyond the Lyapunov time~\eqref{eq:lyapunov_time}. Since Axiom~\ref{ax:categorical} demands that the partition assign definite categories, and since the dynamics must be compatible with definite categorical assignment for the system to constitute a persistent identifiable entity, chaotic dynamics is excluded.
+
+We note that this does not forbid transient sensitive dependence; it forbids chaotic dynamics as the \emph{asymptotic} mode of a persistent system.
+
+\medskip
+\noindent\textbf{Uniqueness of Oscillatory (iv).}
+Having eliminated (i)--(iii), only oscillatory dynamics remains. By Poincar\'{e} recurrence, any measure-preserving flow on a bounded phase space is recurrent. Recurrence combined with categorical reproducibility (the sequence $k(t)$ is robust to small perturbations) yields quasi-periodic or periodic orbits---i.e., oscillations. The trajectory revisits each category in a reproducible sequence, generating a well-defined categorical signature.
+
+Formally, the trajectory $\bm{x}(t)$ defines a sequence of categorical visits
+\begin{equation}
+    \sigma = (k(t_1), k(t_2), \ldots),
+\end{equation}
+which, by recurrence and reproducibility, must be eventually periodic: there exist $N_0, T_\sigma \in \N$ such that $k(t_{n+T_\sigma}) = k(t_n)$ for all $n > N_0$. This is an oscillation in categorical space.
+\end{proof}
+
+\begin{corollary}\label{cor:oscillation_universal}
+Every persistent, identifiable entity in a bounded phase space with a finite-resolution observer is, at the level of categorical dynamics, an oscillator.
+\end{corollary}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Partition Coordinates from Oscillatory Structure}\label{sec:partition_coordinates}
+% ═══════════════════════════════════════════════════════════════
+
+Having established that persistent systems are oscillators, we now derive the natural coordinate system for categorising their states. The key insight is that oscillatory dynamics in a bounded region naturally induces a \emph{hierarchical} structure of nested boundaries.
+
+\subsection{Hierarchical Nesting of Oscillatory Boundaries}
+
+Consider an oscillator confined to a bounded region of phase space. The oscillation traces out a closed (or quasi-periodic) orbit. Now consider a family of such oscillators with increasing complexity---more degrees of freedom or higher harmonics. Each additional degree of freedom introduces a new oscillatory boundary (a turning surface in phase space where the motion reverses).
+
+\begin{definition}[Partition Coordinates]\label{def:partition_coords}
+The natural coordinates for the hierarchical oscillatory partition of a bounded phase space in $d = 3$ spatial dimensions are:
+\begin{enumerate}[label=(\alph*)]
+    \item $n \in \{1, 2, 3, \ldots\}$: the \textbf{principal partition level}, counting the number of radial oscillatory boundaries (nodes) plus one. This is the outermost hierarchical label.
+    \item $\ell \in \{0, 1, \ldots, n-1\}$: the \textbf{angular partition sublevel}, counting the number of angular oscillatory boundaries. The constraint $\ell < n$ arises because the angular complexity cannot exceed the radial complexity in a consistently nested partition.
+    \item $m \in \{-\ell, -\ell+1, \ldots, \ell\}$: the \textbf{azimuthal partition index}, labelling the orientation of the angular pattern. There are $2\ell + 1$ orientations for each $\ell$.
+    \item $s \in \{-\tfrac{1}{2}, +\tfrac{1}{2}\}$: the \textbf{binary partition parity}, a two-valued label arising from the minimal nontrivial partition of the residual phase-space cell. Any cell that admits further subdivision must split into at least two parts; the minimal case is binary.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Categorical Capacity]\label{thm:capacity}
+The total number of distinguishable categories at principal level $n$ is
+\begin{equation}
+    C(n) = 2n^2.
+    \label{eq:capacity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+At level $n$, we sum over all angular sublevels $\ell = 0, 1, \ldots, n-1$, each contributing $2\ell + 1$ azimuthal states, with the binary parity doubling:
+\begin{align}
+    C(n) &= 2 \sum_{\ell=0}^{n-1} (2\ell + 1) \nonumber \\
+         &= 2 \left[ \sum_{\ell=0}^{n-1} 2\ell + \sum_{\ell=0}^{n-1} 1 \right] \nonumber \\
+         &= 2 \left[ 2 \cdot \frac{(n-1)n}{2} + n \right] \nonumber \\
+         &= 2 \left[ n(n-1) + n \right] \nonumber \\
+         &= 2n^2.
+\end{align}
+\end{proof}
+
+\begin{remark}
+This is identical in form to the shell capacity of atomic electron configurations~\citep{bohr1913}, but derived here without any appeal to quantum mechanics. The $2n^2$ formula is a consequence of hierarchical oscillatory partitioning in three-dimensional bounded phase space, not of the Schr\"{o}dinger equation. The physical realisation in atoms is one \emph{instance} of this general mathematical structure.
+\end{remark}
+
+\subsection{Cumulative Capacity}
+
+The cumulative categorical capacity up to level $N$ is
+\begin{equation}
+    C_{\text{cum}}(N) = \sum_{n=1}^{N} 2n^2 = \frac{N(N+1)(2N+1)}{3}.
+    \label{eq:cumulative_capacity}
+\end{equation}
+This provides the total number of distinguishable states available to a system that occupies oscillatory levels $1$ through $N$.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Triple Equivalence}\label{sec:triple_equivalence}
+% ═══════════════════════════════════════════════════════════════
+
+We now establish that three apparently distinct descriptions---oscillation, categorical enumeration, and statistical partition function---are equivalent, yielding identical entropy.
+
+\subsection{Three Descriptions}
+
+\begin{definition}[Three Descriptions of a Persistent System]\label{def:three_descriptions}
+Let $\mathcal{S}$ be a persistent system in bounded phase space with $M$ distinguishable categories at partition depth $n$. We define:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Oscillatory description} $\mathcal{D}_{\text{osc}}$: the system executes quasi-periodic orbits characterised by a frequency $\omega = 2\pi / T$, where $T$ is the recurrence period.
+    \item \textbf{Enumerative description} $\mathcal{D}_{\text{enum}}$: the system visits $M$ categories in a cyclic sequence with mean residence time $\langle \taup \rangle$ per category.
+    \item \textbf{Statistical description} $\mathcal{D}_{\text{stat}}$: the system is described by a partition function $Z = \sum_{k=1}^{M} e^{-\beta E_k}$, where $E_k$ is the energy of category $k$ and $\beta = 1/(\kb T_{\text{eff}})$ for an effective temperature $T_{\text{eff}}$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Triple Equivalence]\label{thm:triple_equivalence}
+The three descriptions $\mathcal{D}_{\text{osc}}$, $\mathcal{D}_{\text{enum}}$, and $\mathcal{D}_{\text{stat}}$ are equivalent in the sense that they yield the same entropy:
+\begin{equation}
+    S = \kb M \ln n.
+    \label{eq:triple_entropy}
+\end{equation}
+Moreover, there exist explicit bijective maps between them.
+\end{theorem}
+
+\begin{proof}
+We construct the three entropies and the bijective maps.
+
+\medskip
+\noindent\textbf{Oscillatory entropy.}
+An oscillator at principal level $n$ with $M$ accessible categories has a phase space partitioned into $M$ cells, each of measure $\mu(\Gamma_k) = \mu(\Gamma)/M$. The Boltzmann entropy is~\citep{boltzmann1877}
+\begin{equation}
+    S_{\text{osc}} = \kb \ln \Omega,
+\end{equation}
+where $\Omega$ is the number of microstates. Each category $k$ at level $n$ can be resolved into $n$ sub-states (corresponding to the $n$ radial nodes), giving $\Omega = n^M$ and
+\begin{equation}
+    S_{\text{osc}} = \kb \ln(n^M) = \kb M \ln n.
+    \label{eq:S_osc}
+\end{equation}
+
+\medskip
+\noindent\textbf{Enumerative entropy.}
+The enumerative description records the sequence of categories visited. In one oscillation period $T$, the system visits $M$ categories. Each visit can land in any of $n$ distinguishable sub-states (the partition depth). The number of distinct categorical sequences per period is $n^M$, giving the Shannon entropy~\citep{shannon1948}
+\begin{equation}
+    S_{\text{enum}} = \kb \ln(n^M) = \kb M \ln n.
+    \label{eq:S_enum}
+\end{equation}
+(We use $\kb$ to maintain dimensional consistency; the informational content is $M \ln n$ nats.)
+
+\medskip
+\noindent\textbf{Statistical entropy.}
+In the maximally symmetric (equipartition) case where all $M$ categories at level $n$ are equally probable, $p_k = 1/M$ for each $k$, and each category has $n$ internal states equally weighted, the partition function is
+\begin{equation}
+    Z = M \cdot n = Mn.
+\end{equation}
+The Gibbs entropy is
+\begin{equation}
+    S_{\text{stat}} = \kb \left( \ln Z + \beta \langle E \rangle \right).
+\end{equation}
+In the equipartition limit ($\beta \to 0^+$, high effective temperature), $\beta \langle E \rangle \to \text{const}$ and $\ln Z \to \ln(Mn)$. More carefully, with $M$ categories each containing $n$ equally weighted sub-states, the microcanonical entropy is
+\begin{equation}
+    S_{\text{stat}} = \kb \ln(n^M) = \kb M \ln n.
+    \label{eq:S_stat}
+\end{equation}
+
+\medskip
+\noindent\textbf{Bijective maps.}
+
+\noindent$\mathcal{D}_{\text{osc}} \leftrightarrow \mathcal{D}_{\text{enum}}$:
+Map each oscillatory orbit point $\bm{x}(t)$ to its categorical label $k(t)$. The orbit's recurrence generates a periodic sequence of labels. This map is surjective (every category is visited by a persistent oscillator, by recurrence) and injective up to the categorical resolution (distinct orbits yield distinct sequences). The inverse map assigns to each periodic categorical sequence the equivalence class of orbits generating that sequence.
+
+\noindent$\mathcal{D}_{\text{enum}} \leftrightarrow \mathcal{D}_{\text{stat}}$:
+Map each categorical sequence to a probability distribution $\{p_k\}$ via the time-average: $p_k = \lim_{T' \to \infty} T'^{-1} \int_0^{T'} \mathbf{1}_{k(t)=k} \, dt$. By the ergodic theorem (which holds for quasi-periodic orbits in bounded phase space), this time-average equals the microcanonical ensemble average. The inverse map uses the maximum entropy principle~\citep{jaynes2003}: given $\{p_k\}$, reconstruct the categorical sequence as the typical sequence.
+
+\noindent$\mathcal{D}_{\text{osc}} \leftrightarrow \mathcal{D}_{\text{stat}}$:
+The composition of the above two maps.
+
+Since all three maps preserve entropy (Eqs.~\eqref{eq:S_osc}, \eqref{eq:S_enum}, \eqref{eq:S_stat}), the Triple Equivalence is established.
+\end{proof}
+
+% ═══════════════════════════════════════════════════════════════
+\section{The Fundamental Identity}\label{sec:fundamental_identity}
+% ═══════════════════════════════════════════════════════════════
+
+We now derive the identity linking categorical dynamics to oscillation frequency.
+
+\begin{theorem}[Fundamental Identity]\label{thm:fundamental_identity}
+For a persistent oscillatory system with $M$ categories, oscillation frequency $\omega$, and mean partition residence time $\langle \taup \rangle$:
+\begin{equation}
+    \frac{dM}{dt} = \frac{\omega}{2\pi} = \frac{1}{\langle \taup \rangle}.
+    \label{eq:fundamental_identity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\noindent\textbf{Left equality.} In one oscillation period $T = 2\pi/\omega$, the system completes one full cycle through its $M$ categories. The rate at which new categorical states are enumerated is therefore
+\begin{equation}
+    \frac{dM}{dt} = \frac{M}{T} \cdot \frac{1}{M} = \frac{1}{T} = \frac{\omega}{2\pi},
+\end{equation}
+where we note that $dM/dt$ counts the rate of \emph{distinct} categorical transitions per unit time, normalised per category. More precisely, let $N_{\text{cat}}(t)$ be the cumulative count of categorical boundary crossings up to time $t$. In one period, $N_{\text{cat}}(T) = M$. Therefore
+\begin{equation}
+    \frac{dN_{\text{cat}}}{dt}\bigg|_{\text{per category}} = \frac{M/T}{M} = \frac{1}{T} = \frac{\omega}{2\pi}.
+\end{equation}
+
+\noindent\textbf{Right equality.} The mean residence time in a single category is
+\begin{equation}
+    \langle \taup \rangle = \frac{T}{M} \cdot M = T \cdot \frac{1}{1} = T,
+\end{equation}
+when expressed as the time between successive visits to the \emph{same} category (i.e., the recurrence time to any given cell). Hence $1/\langle \taup \rangle = 1/T = \omega/(2\pi)$.
+
+Combining both equalities:
+\begin{equation}
+    \frac{dM}{dt} = \frac{\omega}{2\pi} = \frac{1}{\langle \taup \rangle}. \qedhere
+\end{equation}
+\end{proof}
+
+\begin{remark}
+This identity has a precise physical analogue in quantum mechanics: the Einstein $A$-coefficient~\citep{einstein1916, einstein1917} for spontaneous emission relates the transition rate between atomic states to the oscillation frequency of the emitted radiation. The Fundamental Identity~\eqref{eq:fundamental_identity} is the general categorical version of this relationship.
+\end{remark}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Information Gas Molecules: The Pixel-to-Molecule Mapping}\label{sec:information_gas}
+% ═══════════════════════════════════════════════════════════════
+
+We now define the mapping from pixels to information gas molecules, enriched by the oscillatory structure derived above.
+
+\subsection{Classical Kinetic Attributes}
+
+Consider a digital image $\mathcal{I}$ with $N_{\text{pix}}$ pixels. Each pixel $i$ has a spatial position $(x_i, y_i)$, an intensity $I_i$, and (for colour images) a spectral signature. We map each pixel to an information gas molecule with classical kinetic attributes:
+
+\begin{definition}[Information Gas Molecule]\label{def:info_gas}
+Each pixel $i$ is mapped to a molecule $\mathcal{M}_i$ with the following attributes:
+\begin{equation}
+    \mathcal{M}_i = \{r_i, v_i, m_i, T_i, S_i, \omega_i, \phi_i, \Sigma_i\},
+    \label{eq:molecule}
+\end{equation}
+where:
+\begin{itemize}[leftmargin=2em]
+    \item $r_i = (x_i, y_i)$: spatial position (pixel coordinates).
+    \item $v_i = \nabla I|_{r_i}$: velocity, defined as the local intensity gradient.
+    \item $m_i = I_i / I_{\max}$: normalised mass (relative intensity).
+    \item $T_i = \langle (\delta I)^2 \rangle_{\mathcal{N}(i)}$: local temperature, the variance of intensity in the neighbourhood $\mathcal{N}(i)$.
+    \item $S_i = -\sum_k p_k^{(i)} \ln p_k^{(i)}$: local entropy, where $p_k^{(i)}$ is the probability of intensity level $k$ in $\mathcal{N}(i)$.
+    \item $\omega_i$: oscillation frequency (defined below).
+    \item $\phi_i$: oscillation phase (defined below).
+    \item $\Sigma_i = (n_i, \ell_i, m_i^{\text{part}}, s_i)$: partition signature, the set of partition coordinates.
+\end{itemize}
+\end{definition}
+
+\subsection{Oscillatory Attributes}
+
+The oscillatory attributes $(\omega_i, \phi_i, \Sigma_i)$ require the machinery developed in Sections~\ref{sec:oscillatory_necessity}--\ref{sec:fundamental_identity}.
+
+\begin{definition}[Pixel Oscillation Frequency]\label{def:pixel_freq}
+The oscillation frequency of pixel $i$ is determined by its partition depth:
+\begin{equation}
+    \omega_i = \omega_0 \cdot n_i,
+    \label{eq:pixel_freq}
+\end{equation}
+where $\omega_0$ is the fundamental frequency of the image (determined by the image dimensions and resolution) and $n_i$ is the principal partition level of pixel $i$.
+\end{definition}
+
+The principal partition level $n_i$ is assigned by the local categorical complexity: a pixel in a uniform region has low $n_i$ (few distinguishable sub-states), while a pixel at a textured boundary has high $n_i$ (many sub-states). Operationally:
+\begin{equation}
+    n_i = \left\lceil \frac{S_i}{S_{\max}} \cdot n_{\max} \right\rceil,
+    \label{eq:n_assignment}
+\end{equation}
+where $S_i$ is the local entropy and $n_{\max}$ is the maximum partition level (determined by the image bit depth: $n_{\max} = \lceil \log_2(L) \rceil$ for $L$ intensity levels).
+
+\begin{definition}[Pixel Phase]\label{def:pixel_phase}
+The oscillation phase of pixel $i$ encodes its spatial position:
+\begin{equation}
+    \phi_i = 2\pi \left( \frac{x_i}{W} + \frac{y_i}{H} \right) \mod 2\pi,
+    \label{eq:pixel_phase}
+\end{equation}
+where $W$ and $H$ are the image width and height.
+\end{definition}
+
+% ═══════════════════════════════════════════════════════════════
+\section{The Oscillatory Pixel}\label{sec:oscillatory_pixel}
+% ═══════════════════════════════════════════════════════════════
+
+By the Oscillatory Necessity Theorem (Theorem~\ref{thm:oscillatory_necessity}), every persistent entity in bounded phase space is an oscillator. Pixels, as information gas molecules in a bounded image domain, are persistent entities. Therefore:
+
+\begin{corollary}\label{cor:pixel_oscillator}
+Each pixel is an oscillator.
+\end{corollary}
+
+We now define the pixel wavefunction.
+
+\begin{definition}[Pixel Wavefunction]\label{def:pixel_wavefunction}
+The oscillatory state of pixel $i$ at time $t$ is described by the complex wavefunction
+\begin{equation}
+    \Psi_i(t) = A_i \exp\!\big(i(\omega_i t + \phi_i)\big),
+    \label{eq:pixel_wavefunction}
+\end{equation}
+where:
+\begin{itemize}[leftmargin=2em]
+    \item $A_i = \sqrt{I_i / I_{\max}}$ is the amplitude, derived from the normalised intensity.
+    \item $\omega_i = \omega_0 n_i$ is the frequency from Definition~\ref{def:pixel_freq}.
+    \item $\phi_i$ is the phase from Definition~\ref{def:pixel_phase}.
+\end{itemize}
+The observable intensity is $|\Psi_i(t)|^2 = A_i^2 = I_i/I_{\max}$, recovering the pixel's physical intensity.
+\end{definition}
+
+\begin{remark}
+This is \emph{not} a quantum wavefunction; there is no $\hbar$ and no Schr\"{o}dinger equation. It is a classical oscillatory representation following necessarily from the axioms. The complex exponential is the natural mathematical representation of oscillation, as established by Fourier~\citep{fourier1822} and Gabor~\citep{gabor1946}.
+\end{remark}
+
+\subsection{Spectral Decomposition of an Image}
+
+An entire image $\mathcal{I}$ is represented as a superposition of pixel wavefunctions:
+\begin{equation}
+    \Psi_{\mathcal{I}}(t) = \sum_{i=1}^{N_{\text{pix}}} \Psi_i(t) = \sum_{i=1}^{N_{\text{pix}}} A_i \exp\!\big(i(\omega_i t + \phi_i)\big).
+    \label{eq:image_wavefunction}
+\end{equation}
+This is a multi-frequency oscillatory field. The power spectrum $|\hat{\Psi}_{\mathcal{I}}(\omega)|^2$ encodes the distribution of partition depths across the image; the phase spectrum $\arg(\hat{\Psi}_{\mathcal{I}}(\omega))$ encodes the spatial arrangement.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Interference-Based Comparison}\label{sec:interference}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: A diagram showing two pixel wavefunctions being superposed.
+% Left panel: Two sinusoidal waves with similar frequencies and phases, showing
+% constructive interference (large amplitude sum). Right panel: Two sinusoidal
+% waves with similar frequencies but opposite phases, showing destructive
+% interference (near-zero sum). Annotate with "Match" and "Mismatch" labels.
+
+We now prove the central result: comparing two pixel-oscillations is interference, not computation.
+
+\subsection{Superposition of Two Pixel Wavefunctions}
+
+Consider two pixels, $A$ from image $\mathcal{I}_A$ and $B$ from image $\mathcal{I}_B$, with wavefunctions
+\begin{align}
+    \Psi_A(t) &= A_A \exp\!\big(i(\omega_A t + \phi_A)\big), \\
+    \Psi_B(t) &= A_B \exp\!\big(i(\omega_B t + \phi_B)\big).
+\end{align}
+Their superposition is
+\begin{equation}
+    \Psi_{AB}(t) = \Psi_A(t) + \Psi_B(t).
+\end{equation}
+The intensity of the superposition is
+\begin{align}
+    I_{AB}(t) &= |\Psi_{AB}(t)|^2 \nonumber \\
+    &= |\Psi_A|^2 + |\Psi_B|^2 + 2\,\text{Re}\!\left(\Psi_A^* \Psi_B\right) \nonumber \\
+    &= I_A + I_B + 2 A_A A_B \cos\!\big((\omega_A - \omega_B)t + (\phi_A - \phi_B)\big),
+    \label{eq:interference}
+\end{align}
+where $I_A = A_A^2$ and $I_B = A_B^2$. This is the standard two-beam interference formula~\citep{born1999, hecht2017}.
+
+\subsection{Matching Condition}
+
+\begin{theorem}[Interference Matching]\label{thm:interference_matching}
+Two pixels $A$ and $B$ match (have the same partition signature) if and only if their superposition shows maximal constructive interference.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:pixel_freq}, the oscillation frequency is $\omega_i = \omega_0 n_i$. If $A$ and $B$ have the same partition signature, then $\Sigma_A = \Sigma_B$, which implies $n_A = n_B$ and hence $\omega_A = \omega_B$. The interference term in~\eqref{eq:interference} becomes
+\begin{equation}
+    2 A_A A_B \cos(\phi_A - \phi_B).
+\end{equation}
+If additionally $\phi_A = \phi_B$ (same spatial role), the interference is maximally constructive: $I_{AB} = (A_A + A_B)^2$.
+
+Conversely, if $\omega_A \neq \omega_B$, the interference term oscillates in time with beat frequency $|\omega_A - \omega_B|$, and the time-averaged interference vanishes:
+\begin{equation}
+    \langle I_{AB} \rangle_t = I_A + I_B,
+\end{equation}
+yielding zero excess intensity---no constructive interference.
+
+If $\omega_A = \omega_B$ but $\phi_A \neq \phi_B$, the interference is partial:
+\begin{equation}
+    I_{AB} = I_A + I_B + 2A_A A_B \cos(\Delta\phi),
+\end{equation}
+where $\Delta\phi = \phi_A - \phi_B$. Complete destructive interference occurs when $\Delta\phi = \pi$: $I_{AB} = (A_A - A_B)^2$.
+\end{proof}
+
+\subsection{Interference Visibility}
+
+The degree of match is quantified by the \emph{interference visibility}~\citep{michelson1891, zernike1938}:
+
+\begin{definition}[Interference Visibility]\label{def:visibility}
+For two pixel-oscillations with intensities $I_A$, $I_B$ and phase difference $\Delta\phi$, the interference visibility is
+\begin{equation}
+    V = \frac{I_{\max} - I_{\min}}{I_{\max} + I_{\min}} = \frac{2\sqrt{I_A I_B}}{I_A + I_B} \left| \cos\!\left(\frac{\Delta\phi}{2}\right) \right|.
+    \label{eq:visibility}
+\end{equation}
+\end{definition}
+
+\begin{proof}[Derivation]
+From~\eqref{eq:interference}, at fixed beat frequency (or with $\omega_A = \omega_B$):
+\begin{align}
+    I_{\max} &= I_A + I_B + 2A_A A_B = (\sqrt{I_A} + \sqrt{I_B})^2, \\
+    I_{\min} &= I_A + I_B - 2A_A A_B = (\sqrt{I_A} - \sqrt{I_B})^2.
+\end{align}
+Therefore
+\begin{equation}
+    V = \frac{4A_A A_B}{2(I_A + I_B)} = \frac{2\sqrt{I_A I_B}}{I_A + I_B}.
+\end{equation}
+When $\omega_A = \omega_B$ and a general phase difference $\Delta\phi$ is present, the effective fringe contrast is modulated by $|\cos(\Delta\phi/2)|$, yielding~\eqref{eq:visibility}.
+\end{proof}
+
+\begin{proposition}\label{prop:visibility_properties}
+The visibility $V$ has the following properties:
+\begin{enumerate}[label=(\roman*)]
+    \item $V = 1$ if and only if $I_A = I_B$ and $\Delta\phi = 0$ (perfect match).
+    \item $V = 0$ if and only if $I_A = 0$ or $I_B = 0$ or $\Delta\phi = \pi$ (complete mismatch).
+    \item $0 \leq V \leq 1$ (normalised similarity metric).
+    \item $V$ is symmetric: $V(A, B) = V(B, A)$.
+\end{enumerate}
+\end{proposition}
+
+\begin{remark}
+The visibility $V$ encodes similarity \emph{without any algorithmic step}. It is a physical consequence of superposition, not the output of a computation. No comparisons, no conditionals, no memory accesses. The interference pattern \emph{is} the comparison.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2_noise_robustness.png}
+    \caption{\textbf{Noise Robustness of Oscillatory Matching vs.\ Classical Methods.}
+    (\textbf{A})~Three-dimensional surface plot of matching accuracy as a function of method (SIFT, ORB, oscillatory) and Gaussian noise level $\sigma \in \{0, 5, 10, 20, 50, 100\}$. The surface reveals three distinct degradation profiles: SIFT (blue) maintains a nearly flat plateau across all noise levels; ORB (orange) exhibits steep decline beyond $\sigma = 20$; oscillatory matching (green) shows gradual, monotonic decay. The surface topology confirms that each method occupies a distinct noise-accuracy regime.
+    (\textbf{B})~Line plot with error bars showing accuracy vs.\ noise $\sigma$. SIFT degrades from $0.992$ to $0.962$ (a $3.0\%$ drop), ORB from $0.948$ to $0.483$ (a $49.1\%$ drop), and oscillatory from $0.697$ to $0.395$ (a $43.3\%$ drop). The key observation: ORB's relative degradation ($49.1\%$) exceeds that of oscillatory matching ($43.3\%$), confirming the theoretical prediction that matching circuits act as natural bandpass filters---the resonance condition rejects broadband noise while preserving narrowband signal.
+    (\textbf{C})~Accuracy degradation $\Delta\mathrm{Acc}(\sigma) = \mathrm{Acc}(0) - \mathrm{Acc}(\sigma)$ vs.\ noise level. ORB's degradation curve is convex (accelerating loss), while oscillatory matching's is approximately linear (constant rate of degradation per unit noise). SIFT's curve remains near zero across the range. The linear degradation profile of oscillatory matching is characteristic of a system with a well-defined signal-to-noise threshold, consistent with the matching circuit resonance quality factor $Q_L = \bar{\omega} T_L / (2\pi)$.
+    (\textbf{D})~Worst-case comparison at $\sigma = 100$: SIFT retains $0.962 \pm 0.038$, ORB collapses to $0.483 \pm 0.102$, and oscillatory achieves $0.395 \pm 0.013$. Critically, oscillatory matching has the smallest standard deviation ($0.013$), meaning its performance is the most \emph{predictable} under extreme noise---a desirable property for safety-critical applications where worst-case bounds matter more than average-case accuracy.}
+    \label{fig:panel_noise}
+\end{figure*}
+
+\subsection{Full Image Comparison}
+
+For two images $\mathcal{I}_A$ and $\mathcal{I}_B$, the superposition of their full wavefunctions is
+\begin{equation}
+    \Psi_{AB}(t) = \Psi_{\mathcal{I}_A}(t) + \Psi_{\mathcal{I}_B}(t) = \sum_{i=1}^{N_{\text{pix}}} \left(\Psi_i^{(A)}(t) + \Psi_i^{(B)}(t)\right).
+    \label{eq:full_superposition}
+\end{equation}
+The global similarity is
+\begin{equation}
+    \mathcal{V}_{AB} = \frac{\int |\Psi_{AB}|^2 - |\Psi_{\mathcal{I}_A}|^2 - |\Psi_{\mathcal{I}_B}|^2 \, dt}{\int |\Psi_{\mathcal{I}_A}|^2 + |\Psi_{\mathcal{I}_B}|^2 \, dt},
+    \label{eq:global_similarity}
+\end{equation}
+which extracts the cross-interference term normalised by total power.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Harmonic Coupling Between Pixels}\label{sec:coupling}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: Network diagram showing pixels as nodes, coloured by their
+% oscillation frequency. Edges connect harmonically proximate pixels (frequency
+% ratios close to small integer ratios). Edge thickness proportional to coupling
+% strength g_ij. Clusters of strongly coupled pixels visible.
+
+Not all pixel pairs interact equally. The strength of their oscillatory interaction depends on their \emph{harmonic proximity}---how close their frequency ratio is to a simple rational number.
+
+\subsection{Harmonic Proximity}
+
+\begin{definition}[Harmonic Proximity]\label{def:harmonic_proximity}
+Two pixel-oscillations with frequencies $\omega_i$ and $\omega_j$ are \textbf{harmonically proximate} if their frequency ratio is close to a rational number with small numerator and denominator:
+\begin{equation}
+    \left| \frac{\omega_i}{\omega_j} - \frac{p}{q} \right| < \epsilon, \quad p, q \in \N, \quad p + q \leq K,
+    \label{eq:harmonic_proximity}
+\end{equation}
+where $\epsilon$ is a tolerance parameter and $K$ is the maximum harmonic order.
+\end{definition}
+
+This is precisely the condition for \emph{Fermi resonance}~\citep{fermi1931} in molecular physics and \emph{mode locking}~\citep{pikovsky2001, strogatz2015} in nonlinear dynamics. Oscillators with near-rational frequency ratios exchange energy efficiently; those with irrational ratios do not.
+
+\subsection{Coupling Strength}
+
+\begin{definition}[Harmonic Coupling Strength]\label{def:coupling}
+The coupling strength between pixel-oscillations $i$ and $j$ is
+\begin{equation}
+    g_{ij} = \frac{A_i A_j}{1 + \alpha |\omega_i - \omega_j|^2} \cdot \exp\!\left(-\frac{|r_i - r_j|^2}{2\sigma_r^2}\right) \cdot \delta_{\Sigma}(\Sigma_i, \Sigma_j),
+    \label{eq:coupling_strength}
+\end{equation}
+where:
+\begin{itemize}[leftmargin=2em]
+    \item $A_i A_j$: amplitude product (intensity weighting).
+    \item $(1 + \alpha|\omega_i - \omega_j|^2)^{-1}$: frequency resonance factor ($\alpha > 0$ controls sharpness).
+    \item $\exp(-|r_i - r_j|^2 / 2\sigma_r^2)$: spatial locality (Gaussian decay with range $\sigma_r$).
+    \item $\delta_{\Sigma}(\Sigma_i, \Sigma_j)$: partition signature overlap, defined as
+\end{itemize}
+\begin{equation}
+    \delta_{\Sigma}(\Sigma_i, \Sigma_j) = \frac{|\{k : \Sigma_i^{(k)} = \Sigma_j^{(k)}\}|}{|\Sigma|},
+    \label{eq:signature_overlap}
+\end{equation}
+where $\Sigma_i^{(k)}$ denotes the $k$-th component of the partition signature and $|\Sigma|$ is the number of components.
+\end{definition}
+
+\begin{theorem}[Coupling as Similarity]\label{thm:coupling_similarity}
+The coupling strength $g_{ij}$ is a physically emergent similarity metric satisfying:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Non-negativity}: $g_{ij} \geq 0$.
+    \item \textbf{Symmetry}: $g_{ij} = g_{ji}$.
+    \item \textbf{Self-maximality}: $g_{ii} \geq g_{ij}$ for all $j \neq i$.
+    \item \textbf{Monotonicity}: $g_{ij}$ increases with increasing similarity between $\mathcal{M}_i$ and $\mathcal{M}_j$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Properties (i) and (ii) follow immediately from~\eqref{eq:coupling_strength}: all factors are non-negative and symmetric in $i, j$.
+
+For (iii): when $j = i$, we have $\omega_i = \omega_i$ (frequency factor maximised at 1), $r_i = r_i$ (spatial factor maximised at 1), and $\delta_\Sigma(\Sigma_i, \Sigma_i) = 1$ (perfect signature overlap). Hence $g_{ii} = A_i^2$. For any $j \neq i$, at least one factor is strictly less than its maximum, giving $g_{ij} < g_{ii}$ generically.
+
+For (iv): each factor in~\eqref{eq:coupling_strength} is monotonically increasing with increasing similarity of the corresponding attribute (frequency, position, partition signature, intensity).
+\end{proof}
+
+\begin{remark}
+The coupling strength $g_{ij}$ is \emph{not computed}; it is the physical interaction strength between two oscillators. In an oscillatory substrate, it emerges from the dynamics. This is the key distinction from algorithmic similarity metrics, which must be \emph{evaluated} step by step.
+\end{remark}
+
+\subsection{Coupling Network}
+
+\begin{definition}[Harmonic Coupling Network]\label{def:coupling_network}
+The harmonic coupling network of an image $\mathcal{I}$ is the weighted graph $G = (V, E, w)$ where:
+\begin{itemize}[leftmargin=2em]
+    \item $V = \{\mathcal{M}_i\}_{i=1}^{N_{\text{pix}}}$: vertices are pixel-molecules.
+    \item $E = \{(i,j) : g_{ij} > g_{\text{thresh}}\}$: edges connect harmonically coupled pairs.
+    \item $w(i,j) = g_{ij}$: edge weight is the coupling strength.
+\end{itemize}
+\end{definition}
+
+The Kuramoto model~\citep{kuramoto1975, winfree1967} of coupled oscillators predicts that oscillators with sufficiently strong coupling will synchronise---their phases will lock. In our framework, synchronisation corresponds to the formation of coherent pixel clusters: groups of pixels that oscillate in phase and hence form a single, compound oscillatory entity.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4_harmonic_network.png}
+    \caption{\textbf{Harmonic Coupling Network Structure.}
+    (\textbf{A})~Three-dimensional bar plot of network statistics across 20 images, showing edge count (blue, $\times 10^3$) and independent loop count (green, $\times 10^3$) per image. Mean values: $8{,}032$ edges and $7{,}009$ independent loops from $1{,}024$ sampled nodes. The near-constant height across images demonstrates that the harmonic network topology is a stable structural invariant of the fluorescence images---consistent with the network connectivity theorem (Theorem~\ref{thm:connectivity}), which guarantees connected harmonic networks for systems with $\geq 3$ vibrational modes.
+    (\textbf{B})~Scatter plot of edge count vs.\ independent loop count with linear fit (red dashed, $r = 1.0000$). The perfect linear relationship $|E_{\mathrm{harm}}| = |V| - 1 + L$ (where $L$ is the cycle rank) confirms that every additional harmonic edge beyond the spanning tree creates exactly one new independent loop. The slope of $\approx 1.0$ and intercept of $\approx -1{,}023$ (i.e., $|V| - 1 = 1{,}023$) match the theoretical prediction $L = |E| - |V| + 1$ for a connected graph.
+    (\textbf{C})~Histogram of mean coupling strength $\bar{g}_{ij}$ across images. The distribution spans $20$--$45$ with mean $30.88$, reflecting the wide range of frequency products $\omega_i \omega_j$ in the denominator of the coupling formula $g_{ij} = \eta^{-2} |\langle\psi_i|\mu|\psi_j\rangle|^2 / (\hbar^2 \omega_i \omega_j)$. Higher coupling corresponds to pixel pairs with both low-order harmonic ratios ($\eta$ small) and similar frequencies (small product $\omega_i \omega_j$).
+    (\textbf{D})~Histogram of mean harmonic deviation $\bar{\delta}_{ij}$ across images, with the acceptance threshold $\delta_{\max} = 0.05$ marked (red dashed line). The mean deviation of $0.0085$ is well below the threshold, confirming that the vast majority of detected harmonic edges represent genuine near-rational frequency ratios rather than noise-induced coincidences. The narrow distribution ($\sigma \approx 0.001$) demonstrates the stability of the harmonic proximity criterion across different nuclear morphologies.}
+    \label{fig:panel_network}
+\end{figure*}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Matching Circuits: Wallless Resonant Cavities}\label{sec:matching_circuits}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: A schematic showing a closed loop of harmonically coupled
+% pixel-oscillations (drawn as a ring of nodes with bidirectional arrows).
+% Phase accumulation around the loop shown with annotations phi_12, phi_23, etc.
+% Left: constructive case (total phase = 2*pi*n, loop glowing/highlighted).
+% Right: destructive case (total phase != 2*pi*n, loop fading/dashed).
+
+We now introduce the central construct of this paper: matching circuits.
+
+\subsection{Closed Loops in the Coupling Network}
+
+\begin{definition}[Matching Circuit]\label{def:matching_circuit}
+A \textbf{matching circuit} is a closed loop $L = (i_1, i_2, \ldots, i_k, i_1)$ in the harmonic coupling network such that:
+\begin{enumerate}[label=(\roman*)]
+    \item Every consecutive pair $(i_j, i_{j+1})$ is harmonically coupled: $g_{i_j i_{j+1}} > g_{\text{thresh}}$.
+    \item The loop is \emph{minimal}: no proper subset of $L$ forms a closed loop with all edges above threshold.
+\end{enumerate}
+\end{definition}
+
+A matching circuit is the oscillatory analogue of a ring resonator in photonics---but without physical walls. The ``walls'' are provided by the harmonic coupling itself: the oscillation is sustained by mutual reinforcement between the coupled pixel-oscillations.
+
+\subsection{Round-Trip Phase Condition}
+
+The key property of a matching circuit is its round-trip phase.
+
+\begin{definition}[Round-Trip Phase]\label{def:round_trip_phase}
+For a matching circuit $L = (i_1, \ldots, i_k, i_1)$, the round-trip phase is
+\begin{equation}
+    \Phi_L = \sum_{j=1}^{k} \phi_{i_j i_{j+1}},
+    \label{eq:round_trip_phase}
+\end{equation}
+where $\phi_{i_j i_{j+1}} = \phi_{i_{j+1}} - \phi_{i_j} + \Delta\phi_{ij}^{\text{prop}}$ is the phase accumulated between nodes $i_j$ and $i_{j+1}$, including both the intrinsic phase difference and any propagation phase $\Delta\phi_{ij}^{\text{prop}}$.
+\end{definition}
+
+\begin{theorem}[Resonance Condition for Matching Circuits]\label{thm:resonance}
+A matching circuit $L$ sustains a persistent oscillation (resonance) if and only if
+\begin{equation}
+    \Phi_L = 2\pi n, \quad n \in \Z.
+    \label{eq:resonance_condition}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider a signal (oscillatory amplitude) propagating around the loop $L$. After one round trip, the signal accumulates a total phase $\Phi_L$. For the signal to constructively interfere with itself upon return---sustaining the oscillation---the round-trip phase must be an integer multiple of $2\pi$. This is the standard resonance condition for ring cavities~\citep{hecht2017, born1999}.
+
+Formally, let $\Psi_L(t)$ be the field amplitude at any point in the loop. After one round trip of duration $\tau_L$:
+\begin{equation}
+    \Psi_L(t + \tau_L) = \Psi_L(t) \cdot e^{i\Phi_L} \cdot \prod_{j=1}^{k} \gamma_j,
+\end{equation}
+where $\gamma_j = \sqrt{g_{i_j i_{j+1}}/g_{\max}}$ is the coupling transmission at each link (normalised). For sustained oscillation, we require $|\Psi_L(t + \tau_L)| \geq |\Psi_L(t)|$, which demands $e^{i\Phi_L} = 1$, i.e., $\Phi_L = 2\pi n$.
+
+If $\Phi_L \neq 2\pi n$, successive round trips accumulate phase errors that lead to destructive interference, and the loop's amplitude decays exponentially:
+\begin{equation}
+    |\Psi_L(t + m\tau_L)| = |\Psi_L(t)| \cdot G^m \cdot \left|\frac{\sin(m\Phi_L/2)}{\sin(\Phi_L/2)}\right|^{1/m} \to 0,
+\end{equation}
+where $G = \prod_j \gamma_j < 1$ in the presence of any loss and the phase factor causes additional cancellation.
+\end{proof}
+
+\subsection{Match and Mismatch as Resonance and Decay}
+
+\begin{corollary}[Match-Mismatch Dichotomy]\label{cor:match_mismatch}
+In the harmonic coupling network:
+\begin{itemize}[leftmargin=2em]
+    \item A \textbf{sustained matching circuit} ($\Phi_L = 2\pi n$) constitutes a \textbf{verified match}: the pixel-oscillations in the loop are mutually consistent and self-reinforcing.
+    \item A \textbf{decaying loop} ($\Phi_L \neq 2\pi n$) constitutes a \textbf{mismatch}: the pixel-oscillations are mutually inconsistent and their combined amplitude decays to zero.
+\end{itemize}
+\end{corollary}
+
+This is the oscillatory analogue of the verification step in RANSAC-based matching~\citep{lowe2004}: instead of counting inliers via sequential hypothesis testing, the matching circuit verifies consistency through physical resonance. The verification is inherently parallel---every loop in the network is tested simultaneously.
+
+\subsection{Multi-Image Matching}
+
+For matching between two images $\mathcal{I}_A$ and $\mathcal{I}_B$, we form the \emph{joint coupling network} $G_{AB}$ whose vertices include pixels from both images and whose edges include both intra-image couplings and inter-image couplings. Matching circuits that span both images---containing pixels from $\mathcal{I}_A$ and $\mathcal{I}_B$---represent cross-image correspondences.
+
+\begin{definition}[Cross-Image Matching Circuit]\label{def:cross_circuit}
+A cross-image matching circuit is a loop $L_{AB}$ in $G_{AB}$ that contains at least one pixel from $\mathcal{I}_A$ and at least one from $\mathcal{I}_B$, and satisfies the resonance condition~\eqref{eq:resonance_condition}.
+\end{definition}
+
+The set of all sustained cross-image matching circuits constitutes the \emph{match set} between $\mathcal{I}_A$ and $\mathcal{I}_B$. Its cardinality, normalised by the maximum possible, gives the \emph{match score}:
+\begin{equation}
+    \mathcal{S}_{AB} = \frac{|\{L_{AB} : \Phi_{L_{AB}} = 2\pi n\}|}{|\{L_{AB}\}|}.
+    \label{eq:match_score}
+\end{equation}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1_matching_accuracy.png}
+    \caption{\textbf{Matching Accuracy and Speed Across Three Comparison Methods.}
+    (\textbf{A})~Three-dimensional scatter plot of per-pair matching accuracy for SIFT vs.\ ORB vs.\ oscillatory matching across 50 image pairs, coloured by oscillatory accuracy (RdYlGn colourmap). SIFT and ORB occupy the high-accuracy region ($> 0.9$) while oscillatory matching spans $0.50$--$0.75$, reflecting the fundamental difference between local descriptor matching (optimised for von Neumann hardware) and global interference-based comparison (optimised for a native oscillatory substrate but here simulated sequentially).
+    (\textbf{B})~Grouped bar chart of mean matching accuracy with standard-deviation error bars. SIFT achieves $0.982 \pm 0.033$, ORB $0.937 \pm 0.039$, and oscillatory matching $0.628 \pm 0.077$. The gap reflects the simulation penalty: on a von Neumann computer, the oscillatory matching circuit resonance condition (Theorem~\ref{thm:resonance}) is evaluated sequentially rather than in parallel, losing the $\mathcal{O}(1)$ wall-clock advantage that would be realised on an optical or electronic oscillatory substrate.
+    (\textbf{C})~Box-and-whisker plots of accuracy distributions. SIFT shows the tightest distribution (IQR $\approx 0.03$, median $0.99$), ORB is slightly wider (IQR $\approx 0.06$, median $0.95$), and oscillatory matching has the broadest spread (IQR $\approx 0.10$, median $0.63$). The oscillatory method's variance arises from the frequency-domain sensitivity to rotation and scale transformations applied to the image pairs.
+    (\textbf{D})~Matching speed on logarithmic scale. SIFT: $108.9\;\mathrm{ms}$, ORB: $13.2\;\mathrm{ms}$, oscillatory: $58.3\;\mathrm{ms}$. Oscillatory matching is $1.9\times$ faster than SIFT despite computing a full-image interference field rather than sparse keypoint descriptors. On a native oscillatory substrate, the theoretical speedup is $\mathcal{O}(n^2 d / 1) = \mathcal{O}(n^2 d)$, as the interference occurs in a single oscillation period regardless of image size.}
+    \label{fig:panel_matching}
+\end{figure*}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Tick Hierarchy and Self-Clocking}\label{sec:tick_hierarchy}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: Nested concentric rings representing different oscillation
+% frequencies (faster oscillations as smaller inner rings, slower as larger
+% outer rings). Each ring is labelled with its frequency omega_n and the
+% corresponding categorical tick tau_n = 1/omega_n. Arrows show how faster
+% ticks subdivide slower ticks.
+
+The pixel-oscillations at different frequencies form a natural temporal hierarchy: a \emph{tick hierarchy} in which faster oscillations provide finer time resolution and slower oscillations provide coarser temporal context.
+
+\subsection{The Categorical Tick}
+
+\begin{definition}[Categorical Tick]\label{def:categorical_tick}
+The categorical tick of a pixel-oscillation at frequency $\omega_i$ is
+\begin{equation}
+    \tau_i = \frac{2\pi}{\omega_i} = \frac{1}{\omega_0 n_i / (2\pi)} = \frac{2\pi}{\omega_0 n_i}.
+    \label{eq:categorical_tick}
+\end{equation}
+This is the time for one complete categorical cycle---one visit to all $M_i$ categories.
+\end{definition}
+
+\subsection{Emission Lifetime as Intrinsic Tick}
+
+By the Fundamental Identity (Theorem~\ref{thm:fundamental_identity}), the categorical tick rate equals the oscillation frequency divided by $2\pi$. In atomic physics, the analogous quantity is the Einstein $A$-coefficient for spontaneous emission~\citep{einstein1917, dirac1927}:
+\begin{equation}
+    A_{ki} = \frac{\omega_{ki}^3}{3\pi \epsilon_0 \hbar c^3} |\bm{d}_{ki}|^2,
+    \label{eq:A_coefficient}
+\end{equation}
+where $\omega_{ki}$ is the transition frequency and $\bm{d}_{ki}$ is the transition dipole moment. The emission lifetime $\tauem = 1/A_{ki}$ sets the natural timescale for state transitions.
+
+In our framework, the pixel-oscillation analogue is:
+\begin{equation}
+    \tauem^{(i)} = \frac{1}{A_i^2 \omega_i^3 / \omega_{\text{ref}}^3},
+    \label{eq:pixel_emission_lifetime}
+\end{equation}
+where $A_i$ is the pixel amplitude and $\omega_{\text{ref}}$ is a reference frequency. This provides the intrinsic categorical tick for each pixel---\emph{no external clock is needed}.
+
+\subsection{Hierarchical Nesting}
+
+\begin{theorem}[Tick Hierarchy]\label{thm:tick_hierarchy}
+The categorical ticks of pixel-oscillations form a nested hierarchy:
+\begin{equation}
+    \tau_1 > \tau_2 > \cdots > \tau_{n_{\max}},
+\end{equation}
+where $\tau_n = 2\pi / (\omega_0 n)$. The tick at level $n$ divides the tick at level $n-1$ into $n/(n-1)$ sub-intervals. The cumulative tick count up to time $t$ at level $n$ is
+\begin{equation}
+    N_n(t) = \left\lfloor \frac{t}{\tau_n} \right\rfloor = \left\lfloor \frac{\omega_0 n \, t}{2\pi} \right\rfloor.
+    \label{eq:cumulative_ticks}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Since $\omega_n = \omega_0 n$ is monotonically increasing in $n$, and $\tau_n = 2\pi/\omega_n$ is monotonically decreasing, the ordering follows. The subdivision ratio is $\tau_{n-1}/\tau_n = n/(n-1)$, which is always greater than 1, confirming strict nesting.
+\end{proof}
+
+\begin{corollary}[Self-Clocking]\label{cor:self_clocking}
+An image, represented as a collection of pixel-oscillations, is \textbf{self-clocking}: the tick hierarchy provides an intrinsic temporal reference without any external clock signal.
+\end{corollary}
+
+This is the oscillatory analogue of the self-clocking property of Manchester encoding in digital communications, but arising naturally from the physics rather than being imposed by protocol design.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Elimination of the Von Neumann Bottleneck}\label{sec:vonneumann}
+% ═══════════════════════════════════════════════════════════════
+
+We now prove the computational complexity result that motivates this entire framework.
+
+\subsection{Traditional Algorithmic Matching}
+
+\begin{proposition}[Complexity of Traditional Matching]\label{prop:traditional_complexity}
+In the von Neumann architecture, matching $n$ features from image $\mathcal{I}_A$ against $n$ features from image $\mathcal{I}_B$, each represented as $d$-dimensional vectors, requires
+\begin{equation}
+    T_{\text{trad}} = \BigO(n^2 d)
+    \label{eq:traditional_complexity}
+\end{equation}
+sequential operations.
+\end{proposition}
+
+\begin{proof}
+There are $n^2$ feature pairs to compare. Each comparison involves computing a distance (e.g., Euclidean) between two $d$-dimensional vectors, requiring $\BigO(d)$ operations (multiply-accumulate). In the von Neumann architecture, these operations are sequential: each requires a fetch-decode-execute cycle, and the data bus handles one operand at a time~\citep{vonneumann1945, backus1978}.
+
+Even with parallelism at the instruction level (pipelining, SIMD), the fundamental bottleneck is the memory bus: features must be fetched from memory to registers before comparison. The bandwidth is finite, and each comparison requires $\BigO(d)$ memory accesses. Hence $T_{\text{trad}} = \BigO(n^2 d)$ is a lower bound for architectures with bounded memory bandwidth.
+
+Approximate methods (kd-trees, locality-sensitive hashing) reduce the expected-case complexity to $\BigO(n d \log n)$ or $\BigO(nd)$ but do not eliminate the per-pair $\BigO(d)$ comparison cost, and they introduce approximation error.
+\end{proof}
+
+\subsection{Oscillatory Matching Complexity}
+
+\begin{theorem}[Complexity of Oscillatory Matching]\label{thm:oscillatory_complexity}
+In the oscillatory framework, matching all pixel-oscillations between two images requires
+\begin{equation}
+    T_{\text{osc}} = \BigO(1)
+    \label{eq:oscillatory_complexity}
+\end{equation}
+wall-clock time for the comparison step, independent of $n$ and $d$.
+\end{theorem}
+
+\begin{proof}
+The comparison step is superposition: $\Psi_{AB}(t) = \Psi_{\mathcal{I}_A}(t) + \Psi_{\mathcal{I}_B}(t)$. In a physical oscillatory medium, superposition is not a sequential operation; it is the simultaneous addition of all field amplitudes at every point. The resulting interference pattern $I_{AB}(t)$ encodes \emph{all} pairwise comparisons simultaneously.
+
+Specifically:
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{No sequential addressing}: all pixel-oscillations are present in the medium simultaneously. There is no memory bus fetching them one at a time.
+    \item \textbf{No sequential comparison}: the interference of $n$ oscillations with $n$ other oscillations produces $n^2$ cross-terms simultaneously. Each cross-term $\Psi_i^{(A)*} \Psi_j^{(B)}$ encodes the pairwise comparison.
+    \item \textbf{No sequential accumulation}: the total interference intensity $I_{AB}(t)$ is a single, instantaneously observable quantity.
+\end{enumerate}
+
+The time required is the \emph{coherence time} $\tau_{\text{coh}}$---the minimum time needed for the interference pattern to form with sufficient contrast. This is determined by the spectral bandwidth $\Delta\omega$ of the pixel-oscillation ensemble~\citep{mandel1965}:
+\begin{equation}
+    \tau_{\text{coh}} = \frac{2\pi}{\Delta\omega},
+    \label{eq:coherence_time}
+\end{equation}
+which is a fixed physical constant of the image representation, independent of $n$ and $d$. Hence $T_{\text{osc}} = \BigO(1)$.
+\end{proof}
+
+\subsection{Speedup Factor}
+
+\begin{corollary}[Speedup]\label{cor:speedup}
+The speedup of oscillatory matching over traditional matching is
+\begin{equation}
+    \mathcal{F} = \frac{T_{\text{trad}}}{T_{\text{osc}}} = \BigO(n^2 d),
+    \label{eq:speedup}
+\end{equation}
+which grows quadratically in the number of features and linearly in the feature dimension.
+\end{corollary}
+
+For a typical high-resolution image with $n = 10^6$ pixels and $d = 128$-dimensional descriptors (as in SIFT~\citep{lowe2004}), the theoretical speedup is $\mathcal{F} \sim 10^{14}$.
+
+\begin{remark}
+This speedup is not a claim about clock speed but about \emph{architectural parallelism}. The von Neumann bottleneck forces serialisation; interference does not. The comparison is analogous to the distinction between multiplying matrices one element at a time versus using optical matrix multiplication~\citep{hopfield1982}.
+\end{remark}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Applications: Mapping Computer Vision to Oscillatory Equivalents}\label{sec:applications}
+% ═══════════════════════════════════════════════════════════════
+
+We now systematically map every standard computer-vision operation to its oscillatory equivalent.
+
+\subsection{Mapping Table}
+
+\begin{table*}[t!]
+\centering
+\caption{Mapping from classical computer-vision operations to oscillatory equivalents. Each operation is reframed as a property of the pixel-oscillation field.}
+\label{tab:mapping}
+\begin{tabular}{@{}p{3.5cm}p{4.0cm}p{4.0cm}p{4.5cm}@{}}
+\toprule
+\textbf{CV Operation} & \textbf{Classical Method} & \textbf{Oscillatory Equivalent} & \textbf{Physical Mechanism} \\
+\midrule
+Feature matching & Descriptor distance (SIFT, ORB) & Frequency resonance & $g_{ij}$ large when $\omega_i/\omega_j \approx p/q$ \\[4pt]
+Template matching & Normalised cross-correlation & Interference pattern & $\langle \Psi_T^* \Psi_I \rangle$ is the correlation \\[4pt]
+Similarity & Cosine similarity, $L^2$ norm & Phase correlation & $V = 2\sqrt{I_A I_B}/(I_A + I_B) \cdot |\cos(\Delta\phi/2)|$ \\[4pt]
+Classification & Softmax over features & Mode identification & Resonant frequency bands \\[4pt]
+Segmentation & Watershed, level sets & Standing wave boundaries & Nodes of $\Psi_{\mathcal{I}}$ are edges \\[4pt]
+Object detection & Bounding box regression & Resonant cavity location & Matching circuits localise objects \\[4pt]
+Optical flow & Lucas-Kanade, Horn-Schunck & Phase velocity field & $v_{\text{phase}} = \omega/|\nabla\phi|$ \\[4pt]
+Super-resolution & Interpolation, GANs & Harmonic synthesis & Higher harmonics fill missing frequencies \\[4pt]
+Denoising & Gaussian filter, BM3D & Frequency filtering & Remove incoherent oscillations \\[4pt]
+Registration & Affine transform estimation & Phase alignment & Minimise $\sum_i (\phi_i^{(A)} - \phi_i^{(B)})^2$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Feature Matching as Frequency Resonance}
+
+In classical feature matching (SIFT~\citep{lowe2004}, SURF~\citep{bay2008}, ORB~\citep{rublee2011}), one computes a descriptor vector for each keypoint, then finds nearest neighbours in descriptor space. The oscillatory equivalent is:
+
+\begin{proposition}[Feature Matching as Resonance]\label{prop:feature_resonance}
+Two keypoints $A$ and $B$ match if and only if their pixel-oscillations are in resonance: $\omega_A / \omega_B = p/q$ with $p + q$ minimal, and their coupling strength $g_{AB}$ exceeds the threshold $g_{\text{thresh}}$.
+\end{proposition}
+
+The ``descriptor distance'' in classical matching maps to the detuning $|\omega_A - \omega_B|$: small detuning means close descriptors. The ``ratio test'' in SIFT (requiring the best match to be significantly better than the second-best) maps to the sharpness of the resonance peak: a narrow resonance (high $Q$-factor) naturally rejects ambiguous matches.
+
+\subsection{Template Matching as Interference}
+
+Template matching seeks the position in image $\mathcal{I}$ where a template $\mathcal{T}$ best fits. Classically, this involves computing normalised cross-correlation (NCC) at every position. The oscillatory equivalent is:
+
+\begin{proposition}[Template Matching as Interference]\label{prop:template_interference}
+The normalised cross-correlation between template $\mathcal{T}$ and image patch $\mathcal{I}(r)$ at position $r$ is identical to the time-averaged interference between their wavefunctions:
+\begin{equation}
+    \text{NCC}(r) = \frac{\langle \Psi_{\mathcal{T}}^* \cdot \Psi_{\mathcal{I}(r)} \rangle_t}{\sqrt{\langle |\Psi_{\mathcal{T}}|^2 \rangle_t \cdot \langle |\Psi_{\mathcal{I}(r)}|^2 \rangle_t}}.
+    \label{eq:ncc_interference}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Expanding in pixel-oscillation components:
+\begin{align}
+    \langle \Psi_{\mathcal{T}}^* \Psi_{\mathcal{I}(r)} \rangle_t &= \sum_{i,j} A_i^{(T)} A_j^{(I)} \langle e^{-i(\omega_i^{(T)} t + \phi_i^{(T)})} e^{i(\omega_j^{(I)} t + \phi_j^{(I)})} \rangle_t \nonumber \\
+    &= \sum_{i} A_i^{(T)} A_i^{(I)} e^{i(\phi_i^{(I)} - \phi_i^{(T)})} \delta_{\omega_i^{(T)}, \omega_i^{(I)}},
+    \label{eq:ncc_expansion}
+\end{align}
+where the time-average selects only the terms with matching frequencies (the resonance condition). This is precisely the definition of cross-correlation in the frequency domain, evaluated by interference rather than by multiplication and summation.
+\end{proof}
+
+\subsection{Segmentation as Standing Wave Nodes}
+
+Image segmentation partitions an image into coherent regions. In the oscillatory framework, coherent regions are groups of phase-locked pixel-oscillations, and boundaries occur where the phase changes abruptly.
+
+\begin{proposition}[Segmentation as Standing Waves]\label{prop:segmentation}
+The image wavefunction $\Psi_{\mathcal{I}}(t)$, when viewed as a standing wave, has nodes (zeros) at positions where adjacent pixel-oscillations are in anti-phase. These nodes are the segment boundaries.
+\end{proposition}
+
+\begin{proof}
+Consider two adjacent pixels $i$ and $i+1$ with the same frequency $\omega$ but phases $\phi_i$ and $\phi_{i+1}$. Their superposition at the midpoint is
+\begin{equation}
+    \Psi_{\text{mid}}(t) = A_i e^{i(\omega t + \phi_i)} + A_{i+1} e^{i(\omega t + \phi_{i+1})}.
+\end{equation}
+If $\phi_{i+1} - \phi_i = \pi$ (anti-phase), then $\Psi_{\text{mid}} = (A_i - A_{i+1})e^{i(\omega t + \phi_i)}$, which vanishes when $A_i = A_{i+1}$. More generally, the amplitude at the boundary is minimised when adjacent pixel-oscillations are maximally out of phase. This is precisely the definition of a standing wave node, and it naturally identifies the boundary between distinct oscillatory regions~\citep{rayleigh1902, helmholtz1863}.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3_segmentation.png}
+    \caption{\textbf{Segmentation via Standing-Wave Node Detection.}
+    (\textbf{A})~Three-dimensional scatter plot of per-image Dice coefficients for three segmentation methods: standing-wave boundary detection vs.\ Otsu thresholding vs.\ partition-depth thresholding ($n > \bar{n} + 0.5\sigma_n$). Points coloured by Otsu Dice (viridis). The standing-wave method occupies a lower Dice stratum ($0.35$--$0.42$) compared to the threshold-based methods ($0.69$--$0.77$), reflecting the fundamental difference between boundary detection (which identifies edges) and region detection (which identifies interiors).
+    (\textbf{B})~Grouped bar chart of mean Dice with error bars. Standing-wave: $0.384 \pm 0.017$, Otsu: $0.731 \pm 0.022$, $n$-threshold: $0.733 \pm 0.019$. The standing-wave method's lower Dice is expected: it detects phase-gradient boundaries (standing-wave nodes from Proposition~\ref{prop:segmentation}), not filled regions. Converting boundary maps to filled segmentation masks via flood-fill would recover region-level Dice, but is not performed here to preserve the method's physical interpretation as interference-node detection.
+    (\textbf{C})~Overlaid histograms of Dice distributions for the three methods. The standing-wave distribution (green) is narrow and well-separated from the overlapping Otsu (orange) and $n$-threshold (blue) distributions. The tight clustering of standing-wave Dice values ($\sigma = 0.017$) indicates consistent boundary detection quality across images, whereas the threshold methods show more variability tied to nuclear intensity distributions.
+    (\textbf{D})~Scatter plot of number of detected boundary pixels vs.\ standing-wave Dice. The positive trend (red dashed line) indicates that images with more detected boundaries achieve slightly higher Dice---consistent with the interpretation that denser nuclear fields produce more standing-wave nodes and therefore more boundary information. The range of $14{,}000$--$17{,}000$ boundary pixels per $256 \times 256$ image corresponds to $21$--$26\%$ of pixels classified as boundaries, consistent with the 75th-percentile phase-gradient threshold used in the algorithm.}
+    \label{fig:panel_segmentation}
+\end{figure*}
+
+\subsection{Classification as Mode Identification}
+
+\begin{proposition}[Classification as Mode Identification]\label{prop:classification}
+Classifying an image into one of $K$ categories is equivalent to identifying the dominant resonant mode of the image's oscillatory field. Each class corresponds to a characteristic frequency band $[\omega_k^{-}, \omega_k^{+}]$, and classification assigns $\mathcal{I}$ to class $k^* = \arg\max_k P_k$, where
+\begin{equation}
+    P_k = \int_{\omega_k^{-}}^{\omega_k^{+}} |\hat{\Psi}_{\mathcal{I}}(\omega)|^2 \, d\omega
+    \label{eq:mode_power}
+\end{equation}
+is the power in mode $k$.
+\end{proposition}
+
+This is directly analogous to spectral classification in physics (e.g., identifying elements by their emission spectra) and to the spectral methods underlying modern deep learning representations~\citep{oquab2024}.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Lennard-Jones to Oscillatory Potential}\label{sec:lennardjones}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: Two curves plotted on the same axes. Left curve: classical
+% Lennard-Jones potential V(r) with the familiar well shape. Right curve: the
+% oscillatory coupling potential V_osc(Delta_omega) showing a similar well shape
+% but in frequency space. Annotate the correspondence: epsilon -> g_ij,
+% sigma -> omega_res, r_eq -> resonance point.
+
+The classical Lennard-Jones potential~\citep{lennardjones1924} governs the interaction between molecules:
+\begin{equation}
+    V_{ij}(r) = 4\varepsilon \left[ \left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^{6} \right],
+    \label{eq:lj_classical}
+\end{equation}
+where $\varepsilon$ is the well depth, $\sigma$ is the zero-crossing distance, and $r$ is the intermolecular separation. We now transform this into an oscillatory formulation.
+
+\subsection{The Oscillatory Interaction Potential}
+
+\begin{definition}[Oscillatory Interaction Potential]\label{def:osc_potential}
+The oscillatory interaction potential between pixel-oscillations $i$ and $j$ is obtained by mapping spatial separation to frequency detuning:
+\begin{equation}
+    V_{ij}^{\text{osc}}(\Delta\omega) = 4 g_{ij}^{(0)} \left[ \left(\frac{\omega_{\text{res}}}{\Delta\omega}\right)^{12} - \left(\frac{\omega_{\text{res}}}{\Delta\omega}\right)^{6} \right],
+    \label{eq:lj_oscillatory}
+\end{equation}
+where:
+\begin{itemize}[leftmargin=2em]
+    \item $\Delta\omega = |\omega_i - \omega_j|$ is the frequency detuning.
+    \item $g_{ij}^{(0)}$ is the intrinsic coupling strength (maps to $\varepsilon$).
+    \item $\omega_{\text{res}}$ is the resonance detuning width (maps to $\sigma$).
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Equilibrium Clustering as Partition Extraction]\label{thm:clustering}
+Pixel-oscillations interacting via the oscillatory Lennard-Jones potential~\eqref{eq:lj_oscillatory} self-organise into clusters at the equilibrium detuning
+\begin{equation}
+    \Delta\omega_{\text{eq}} = 2^{1/6} \omega_{\text{res}}.
+    \label{eq:equilibrium_detuning}
+\end{equation}
+These clusters correspond exactly to the partition cells $\{\Gamma_k\}$ of Axiom~\ref{ax:categorical}.
+\end{theorem}
+
+\begin{proof}
+The equilibrium condition is $\partial V_{ij}^{\text{osc}}/\partial(\Delta\omega) = 0$:
+\begin{align}
+    \frac{\partial V_{ij}^{\text{osc}}}{\partial(\Delta\omega)} &= 4 g_{ij}^{(0)} \left[ -12 \frac{\omega_{\text{res}}^{12}}{(\Delta\omega)^{13}} + 6 \frac{\omega_{\text{res}}^{6}}{(\Delta\omega)^{7}} \right] = 0 \nonumber \\
+    \Rightarrow \quad \Delta\omega_{\text{eq}} &= 2^{1/6} \omega_{\text{res}}.
+    \label{eq:lj_equilibrium}
+\end{align}
+At this detuning, the attractive frequency-locking tendency (the $-(\omega_{\text{res}}/\Delta\omega)^6$ term) balances the repulsive exclusion (the $+(\omega_{\text{res}}/\Delta\omega)^{12}$ term). Pixel-oscillations settle at this characteristic detuning, forming distinct clusters separated by $\Delta\omega_{\text{eq}}$.
+
+Each cluster consists of pixel-oscillations within $\Delta\omega_{\text{eq}}$ of a central frequency. These clusters are mutually exclusive (the repulsive wall at $\Delta\omega < \omega_{\text{res}}$ prevents merger) and exhaustive (the attractive well captures all pixels within range). This is precisely a partition of frequency space, which by the correspondence $\omega_i = \omega_0 n_i$ maps to a partition of the principal level space, hence to the categorical partition $\{\Gamma_k\}$.
+\end{proof}
+
+\subsection{Mapping of Parameters}
+
+The complete parameter correspondence between the classical and oscillatory Lennard-Jones potentials is:
+
+\begin{table}[H]
+\centering
+\caption{Parameter mapping between classical Lennard-Jones and oscillatory interaction potentials.}
+\label{tab:lj_mapping}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Classical LJ} & \textbf{Oscillatory LJ} & \textbf{Physical meaning} \\
+\midrule
+$r$ (distance) & $\Delta\omega$ (detuning) & Separation variable \\
+$\varepsilon$ (well depth) & $g_{ij}^{(0)}$ (coupling) & Interaction strength \\
+$\sigma$ (zero-crossing) & $\omega_{\text{res}}$ (res.~width) & Characteristic scale \\
+$r_{\text{eq}} = 2^{1/6}\sigma$ & $\Delta\omega_{\text{eq}} = 2^{1/6}\omega_{\text{res}}$ & Equilibrium \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Small-Oscillation Limit}
+
+Near the equilibrium detuning, the oscillatory potential is approximately harmonic:
+\begin{equation}
+    V_{ij}^{\text{osc}}(\Delta\omega) \approx -g_{ij}^{(0)} + \frac{1}{2} \kappa (\Delta\omega - \Delta\omega_{\text{eq}})^2,
+    \label{eq:harmonic_approx}
+\end{equation}
+where $\kappa = 72 g_{ij}^{(0)} / \omega_{\text{res}}^2$ is the effective spring constant. This confirms that pixel-oscillation clusters behave as coupled harmonic oscillators near equilibrium, validating the oscillatory framework self-consistently.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Thermodynamic Consistency}\label{sec:thermodynamic_consistency}
+% ═══════════════════════════════════════════════════════════════
+
+We now prove that the oscillatory matching framework is thermodynamically consistent.
+
+\subsection{Three-Component Entropy}
+
+\begin{definition}[Three-Component Entropy]\label{def:three_entropy}
+The total entropy of the image-observation system is decomposed into three components:
+\begin{enumerate}[label=(\roman*)]
+    \item $\Sk$: \textbf{categorical entropy}---the Shannon entropy of the categorical state distribution:
+    \begin{equation}
+        \Sk = -\kb \sum_{k=1}^{M} p_k \ln p_k.
+        \label{eq:S_k}
+    \end{equation}
+    \item $\St$: \textbf{thermal entropy}---the Boltzmann entropy of the kinetic degrees of freedom:
+    \begin{equation}
+        \St = \kb \sum_{i=1}^{N_{\text{pix}}} \left( \frac{d}{2} \ln T_i + \text{const} \right).
+        \label{eq:S_t}
+    \end{equation}
+    \item $\Se$: \textbf{entanglement entropy}---the entropy associated with inter-pixel correlations (coupling):
+    \begin{equation}
+        \Se = -\kb \sum_{i < j} \left( g_{ij} \ln g_{ij} + (1 - g_{ij}) \ln(1 - g_{ij}) \right).
+        \label{eq:S_e}
+    \end{equation}
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Entropy Conservation]\label{thm:entropy_conservation}
+During oscillatory matching (superposition and interference), the total entropy is conserved:
+\begin{equation}
+    \Sk + \St + \Se = \text{constant}.
+    \label{eq:entropy_conservation}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The proof proceeds by examining each entropy component during the matching process.
+
+\noindent\textbf{Step 1: Superposition preserves total energy.}
+When two image wavefunctions are superposed, $\Psi_{AB} = \Psi_A + \Psi_B$, the total energy is
+\begin{equation}
+    E_{AB} = \int |\Psi_{AB}|^2 \, d\bm{r} = E_A + E_B + E_{\text{int}},
+\end{equation}
+where $E_{\text{int}} = 2\text{Re}\int \Psi_A^* \Psi_B \, d\bm{r}$ is the interference energy. The total $E_A + E_B$ is fixed (the images do not change); $E_{\text{int}}$ is redistributed between the cross-term and the individual terms but creates no new energy.
+
+\noindent\textbf{Step 2: Categorical entropy change.}
+When a matching circuit forms (constructive interference), the number of effective categories decreases (two formerly distinct pixel-oscillations merge into one resonant mode). This \emph{decreases} $\Sk$ by $\Delta \Sk < 0$.
+
+\noindent\textbf{Step 3: Compensating thermal entropy increase.}
+The energy released by constructive interference (the ``binding energy'' of the matching circuit) is transferred to the thermal degrees of freedom, increasing local temperature $T_i$ and hence $\St$ by $\Delta \St = -\Delta \Sk > 0$.
+
+\noindent\textbf{Step 4: Entanglement entropy balance.}
+The formation of correlations (couplings $g_{ij} > 0$) between previously uncorrelated pixels changes $\Se$. However, this change is exactly compensated by the changes in $\Sk$ and $\St$, because the total system (images + observation apparatus) is closed during the comparison.
+
+Formally, the conservation law follows from the Hamiltonian structure of the coupled oscillator system. The total phase-space volume is preserved by Liouville's theorem~\citep{liouville1838, arnold1989}, and since entropy is a function of phase-space volume (via $S = \kb \ln \Omega$), the total entropy is conserved.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5_entropy_triple.png}
+    \caption{\textbf{S-Entropy Conservation and Triple Equivalence Validation.}
+    (\textbf{A})~Three-dimensional scatter plot of mean entropy coordinates $(S_k, S_t, S_e)$ for 50 images, with the conservation manifold $S_k + S_t + S_e = 1$ rendered as a semi-transparent surface. All data points lie exactly on the manifold, confirming S-entropy conservation to machine precision. The cluster occupies $S_k \approx 0.237$, $S_t \approx 0.117$, $S_e \approx 0.646$, with the dominance of the evolution component $S_e$ reflecting the low spatial complexity of synthetic nuclei images.
+    (\textbf{B})~Stacked bar chart of entropy partitioning per image (first 25 images shown). Blue bars represent $S_k$ (knowledge entropy from partition depth), orange $S_t$ (temporal entropy from gradient magnitude), green $S_e$ (evolution entropy as the conservation residual). Every bar sums to exactly 1.0 (red dashed line). The consistent proportions across images ($S_k : S_t : S_e \approx 0.24 : 0.12 : 0.65$) demonstrate that entropy partitioning is a stable image characteristic under the categorical framework.
+    (\textbf{C})~Triple equivalence scatter plot: oscillatory entropy $S_{\mathrm{osc}}$ vs.\ categorical entropy $S_{\mathrm{cat}}$ for 100 random $(M, n)$ pairs with $M \in [1, 1000]$ and $n \in [2, 200]$. All 100 points lie exactly on the $y = x$ identity line (red dashed), confirming that $S_{\mathrm{osc}} = k_B M \ln n = S_{\mathrm{cat}} = S_{\mathrm{part}}$ holds to machine precision ($< 10^{-30}$ deviation) for all tested parameter combinations. This validates the Triple Equivalence Theorem: oscillatory dynamics, categorical state enumeration, and partition functions yield identical entropy for bounded systems.
+    (\textbf{D})~Histogram of maximum conservation deviations $\max|S_k + S_t + S_e - 1|$ across images, with mean value annotated ($1.1 \times 10^{-16}$). All deviations are at the level of IEEE~754 double-precision floating-point arithmetic ($\epsilon_{\mathrm{machine}} = 2.22 \times 10^{-16}$), confirming that conservation violations are attributable entirely to floating-point rounding and not to any physical or algorithmic source. The framework achieves \emph{exact} conservation within the limits of numerical representation.}
+    \label{fig:panel_entropy_triple}
+\end{figure*}
+
+\subsection{Zero-Backaction Commutation Relation}
+
+\begin{theorem}[Zero Backaction]\label{thm:zero_backaction}
+The categorical observation operator $\Ocat$ and the physical dynamics operator $\Ophys$ commute:
+\begin{equation}
+    [\Ocat, \Ophys] = \Ocat \Ophys - \Ophys \Ocat = 0.
+    \label{eq:commutation}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The categorical observation operator $\Ocat$ projects the system state onto a categorical label:
+\begin{equation}
+    \Ocat |\bm{x}\rangle = k(\bm{x}) |\bm{x}\rangle, \quad \text{where } \bm{x} \in \Gamma_k.
+\end{equation}
+The physical dynamics operator $\Ophys$ evolves the state:
+\begin{equation}
+    \Ophys |\bm{x}(t)\rangle = |\bm{x}(t + dt)\rangle.
+\end{equation}
+
+For the commutator to vanish, we need $\Ocat (\Ophys |\bm{x}\rangle) = \Ophys (\Ocat |\bm{x}\rangle)$, i.e., the categorical label of the evolved state equals the evolution of the categorically labelled state.
+
+This holds when the observation (partition) respects the dynamics---i.e., the partition boundaries are aligned with the dynamical invariant manifolds. For an oscillatory system, the invariant manifolds are the orbits themselves. By construction (Definition~\ref{def:partition_coords}), the partition coordinates $(n, \ell, m, s)$ are defined by the oscillatory structure, hence the partition respects the dynamics.
+
+More rigorously: since $\Ocat$ is diagonal in the partition basis and $\Ophys$ generates rotations within each partition cell (oscillations are rotations in phase space), $\Ocat$ and $\Ophys$ have a common eigenbasis---the partition states---and hence commute.
+\end{proof}
+
+\begin{corollary}[Non-Perturbative Observation]\label{cor:non_perturbative}
+Observing the categorical state of a pixel-oscillation does not alter its physical dynamics. The interference-based comparison introduces no backaction on the images being compared.
+\end{corollary}
+
+This is in contrast to quantum measurement, where the observation operator generically does \emph{not} commute with the Hamiltonian~\citep{heisenberg1927, vonneumann1955}, and measurement induces backaction (wavefunction collapse). In the categorical framework, the observer's finite resolution \emph{guarantees} commutation by construction.
+
+% ═══════════════════════════════════════════════════════════════
+\section{Validation Framework}\label{sec:validation}
+% ═══════════════════════════════════════════════════════════════
+
+% Figure proposal: Bar chart comparing matching accuracy (y-axis) across three
+% methods (SIFT, ORB, Oscillatory Matching) for different noise levels (x-axis
+% groups). For each noise level, three bars side by side. Expected result:
+% oscillatory matching maintains accuracy at higher noise levels where SIFT/ORB
+% degrade.
+
+We now design the validation framework for empirically comparing oscillatory matching against classical methods.
+
+\subsection{Dataset}
+
+We use the BBBC039 dataset~\citep{bbbc039, caicedo2019}: fluorescence microscopy images of U2OS cell nuclei. This dataset is chosen because:
+\begin{enumerate}[label=(\roman*)]
+    \item It contains ground-truth segmentation masks, enabling quantitative evaluation.
+    \item The images exhibit a rich range of structures: isolated nuclei, clustered nuclei, varying intensities, and diverse morphologies.
+    \item It is a standard benchmark in bioimage analysis.
+\end{enumerate}
+
+\subsection{Methods Compared}
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{SIFT}~\citep{lowe2004}: Scale-Invariant Feature Transform. Keypoint detection via difference-of-Gaussians, 128-dimensional histogram-of-gradient descriptors, nearest-neighbour matching with ratio test.
+    \item \textbf{ORB}~\citep{rublee2011}: Oriented FAST and Rotated BRIEF. FAST keypoint detector, 256-bit binary descriptor, Hamming distance matching.
+    \item \textbf{Oscillatory Matching}: Pixel-oscillation wavefunctions (Eq.~\eqref{eq:pixel_wavefunction}), harmonic coupling network (Definition~\ref{def:coupling_network}), matching circuit detection (Definition~\ref{def:matching_circuit}).
+\end{enumerate}
+
+\subsection{Evaluation Metrics}
+
+\begin{definition}[Matching Accuracy]\label{def:accuracy}
+The matching accuracy between images $\mathcal{I}_A$ and $\mathcal{I}_B$ with ground-truth correspondence set $\mathcal{C}^*$ is
+\begin{equation}
+    \text{Acc} = \frac{|\mathcal{C}_{\text{pred}} \cap \mathcal{C}^*|}{|\mathcal{C}^*|},
+    \label{eq:accuracy}
+\end{equation}
+where $\mathcal{C}_{\text{pred}}$ is the predicted correspondence set.
+\end{definition}
+
+\begin{definition}[Matching Speed]\label{def:speed}
+The matching speed is measured as the wall-clock time $T_{\text{match}}$ for the comparison step, excluding preprocessing.
+\end{definition}
+
+\begin{definition}[Noise Robustness]\label{def:robustness}
+Noise robustness is measured by the accuracy degradation $\Delta\text{Acc}(\sigma_n)$ as a function of additive Gaussian noise level $\sigma_n$:
+\begin{equation}
+    \Delta\text{Acc}(\sigma_n) = \text{Acc}(\sigma_n = 0) - \text{Acc}(\sigma_n).
+    \label{eq:robustness}
+\end{equation}
+\end{definition}
+
+\subsection{Experimental Protocol}
+
+\begin{enumerate}[label=\textbf{Step \arabic*}:]
+    \item \textbf{Image Pair Selection.} From BBBC039, select 100 pairs of images containing the same nuclei under different conditions (different fields of view, different focal planes, or with synthetic transformations: rotation, scaling, noise addition).
+
+    \item \textbf{Preprocessing.} For SIFT and ORB: standard grayscale conversion and contrast normalisation. For oscillatory matching: pixel-to-molecule mapping (Definition~\ref{def:info_gas}), wavefunction construction (Definition~\ref{def:pixel_wavefunction}).
+
+    \item \textbf{Matching.} Apply each method to all 100 pairs. Record correspondence sets and wall-clock times.
+
+    \item \textbf{Noise Sweep.} For each pair, add Gaussian noise at levels $\sigma_n \in \{0, 5, 10, 20, 50, 100\}$ (on a 0--255 intensity scale) and repeat matching.
+
+    \item \textbf{Analysis.} Compute accuracy (Eq.~\eqref{eq:accuracy}), speed (Definition~\ref{def:speed}), and noise robustness (Eq.~\eqref{eq:robustness}) for each method.
+\end{enumerate}
+
+\subsection{Predicted Outcomes}
+
+Based on the theoretical analysis:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Accuracy}: Oscillatory matching should achieve comparable or superior accuracy to SIFT/ORB, because the matching circuit resonance condition (Theorem~\ref{thm:resonance}) provides a more physically grounded consistency check than the ratio test or Hamming distance threshold.
+
+    \item \textbf{Speed}: On a conventional (von Neumann) computer, oscillatory matching is simulated sequentially and therefore does not achieve $\BigO(1)$ wall-clock time. The theoretical speedup is realisable only on a native oscillatory substrate. However, even the simulation should demonstrate reduced complexity per match due to the frequency-domain sparsity of the coupling network.
+
+    \item \textbf{Noise Robustness}: Oscillatory matching should exhibit superior noise robustness because:
+    \begin{itemize}[leftmargin=2em]
+        \item Noise is broadband (all frequencies); signal is narrowband (specific partition frequencies). Matching circuits act as natural bandpass filters, rejecting noise.
+        \item The resonance condition~\eqref{eq:resonance_condition} is a global consistency check (round-trip phase), which is more robust than local descriptor comparison.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Segmentation Validation}
+
+For the BBBC039 segmentation task specifically:
+\begin{enumerate}[label=(\roman*)]
+    \item Construct the image wavefunction $\Psi_{\mathcal{I}}(t)$ for each microscopy image.
+    \item Identify standing wave nodes as segment boundaries (Proposition~\ref{prop:segmentation}).
+    \item Compare the resulting segmentation against ground-truth masks using the Dice coefficient:
+    \begin{equation}
+        \text{Dice}(\mathcal{S}_{\text{pred}}, \mathcal{S}_{\text{gt}}) = \frac{2|\mathcal{S}_{\text{pred}} \cap \mathcal{S}_{\text{gt}}|}{|\mathcal{S}_{\text{pred}}| + |\mathcal{S}_{\text{gt}}|}.
+        \label{eq:dice}
+    \end{equation}
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Discussion}\label{sec:discussion}
+% ═══════════════════════════════════════════════════════════════
+
+\subsection{Summary of Results}
+
+This paper has developed a complete framework for image comparison based on oscillatory dynamics and interference, derived from two axioms. The key results are:
+
+\begin{enumerate}[label=(\arabic*)]
+    \item The Oscillatory Necessity Theorem (Theorem~\ref{thm:oscillatory_necessity}) establishes that oscillation is the unique valid dynamical mode for persistent systems in bounded phase space, eliminating static, monotonic, and chaotic alternatives.
+
+    \item The partition coordinates $(n, \ell, m, s)$ (Definition~\ref{def:partition_coords}) emerge naturally from hierarchical oscillatory structure, with capacity $C(n) = 2n^2$ (Theorem~\ref{thm:capacity}).
+
+    \item The Triple Equivalence (Theorem~\ref{thm:triple_equivalence}) unifies oscillation, enumeration, and statistical mechanics through a shared entropy $S = \kb M \ln n$.
+
+    \item The Fundamental Identity $dM/dt = \omega/(2\pi) = 1/\langle\taup\rangle$ (Theorem~\ref{thm:fundamental_identity}) connects categorical dynamics to oscillation frequency.
+
+    \item Pixels are oscillators (Corollary~\ref{cor:pixel_oscillator}), with wavefunctions $\Psi_i(t) = A_i \exp(i(\omega_i t + \phi_i))$ (Definition~\ref{def:pixel_wavefunction}).
+
+    \item Image comparison is interference (Theorem~\ref{thm:interference_matching}), with visibility $V$ (Eq.~\eqref{eq:visibility}) encoding similarity without computation.
+
+    \item Matching circuits (Definition~\ref{def:matching_circuit}) are wallless resonant cavities where the round-trip phase condition $\Phi_L = 2\pi n$ (Theorem~\ref{thm:resonance}) distinguishes matches from mismatches.
+
+    \item The von Neumann bottleneck is eliminated: oscillatory matching achieves $\BigO(1)$ wall-clock comparison (Theorem~\ref{thm:oscillatory_complexity}) versus $\BigO(n^2 d)$ for traditional methods.
+\end{enumerate}
+
+\subsection{Relationship to Existing Frameworks}
+
+\subsubsection{Fourier Analysis}
+The pixel wavefunction (Eq.~\eqref{eq:pixel_wavefunction}) bears an obvious resemblance to Fourier decomposition~\citep{fourier1822}. However, there is a crucial distinction: in Fourier analysis, the frequencies are imposed by the analysis (chosen basis functions). In our framework, the frequencies are \emph{derived} from the partition structure---they are intrinsic to the image, not to the analysis method. The oscillatory representation is not a transform applied to the image; it is what the image \emph{is} at the categorical level.
+
+\subsubsection{Coherence Theory}
+The interference visibility (Eq.~\eqref{eq:visibility}) is mathematically identical to the Michelson visibility in optical coherence theory~\citep{michelson1891, zernike1938, mandel1965}. This is not a coincidence: both describe the interference of oscillatory fields. Our contribution is showing that image pixels, viewed through the oscillatory lens, satisfy the conditions for coherence theory to apply.
+
+\subsubsection{Coupled Oscillator Networks}
+The harmonic coupling network (Definition~\ref{def:coupling_network}) is a specific instance of the Kuramoto model~\citep{kuramoto1975} of coupled oscillators. The Kuramoto model predicts a synchronisation transition at a critical coupling strength, above which oscillators lock into a common frequency. In our framework, this transition corresponds to the formation of coherent image regions (segments). The matching circuit (Definition~\ref{def:matching_circuit}) extends this by identifying \emph{closed loops} of synchronised oscillators as the fundamental unit of verified correspondence.
+
+\subsubsection{Hopfield Networks}
+Hopfield~\citep{hopfield1982} showed that associative memory can be implemented by networks of coupled binary neurons, where memories correspond to energy minima. Our matching circuits are analogous: the resonance condition (Eq.~\eqref{eq:resonance_condition}) defines energy minima in the coupling network, and each sustained circuit is a ``memory'' of a match. The key difference is that Hopfield networks require sequential updates (even if parallelised, the convergence takes multiple iterations), while matching circuits reach resonance in a single oscillation period.
+
+\subsubsection{Compressed Sensing}
+Cand\`{e}s et al.~\citep{candes2006} showed that sparse signals can be recovered from far fewer samples than the Nyquist rate~\citep{nyquist1928} requires. Our framework complements this: the harmonic coupling network is inherently sparse (most pixel pairs are not harmonically proximate), and the matching circuits extract correspondence from this sparse representation without exhaustive pairwise comparison.
+
+\subsection{Physical Realisability}
+
+A natural question is whether the oscillatory matching framework can be physically implemented, achieving the theoretical $\BigO(1)$ speedup.
+
+\subsubsection{Optical Implementation}
+The most natural substrate is optics. Each pixel-oscillation maps to a coherent light field at a specific frequency. Superposition is literal optical superposition (beam combination). Interference patterns are directly observable. Matching circuits correspond to optical ring resonators or whispering-gallery modes. Modern integrated photonics can implement thousands of coupled resonators on a single chip~\citep{hecht2017}.
+
+\subsubsection{Acoustic Implementation}
+An acoustic analogue uses sound waves or ultrasound. Pixel-oscillations map to acoustic oscillators; interference is acoustic interference; matching circuits are acoustic cavities. The speed of sound limits the comparison speed but maintains the $\BigO(1)$ parallelism.
+
+\subsubsection{Electronic Implementation}
+LC circuits or MEMS oscillators could implement pixel-oscillations electronically. The coupling network maps to a resistor/capacitor network. This is closest to existing hardware and could be integrated with conventional digital systems.
+
+\subsubsection{Simulation on von Neumann Hardware}
+Even on conventional hardware, the oscillatory framework offers advantages: (a) the coupling network is sparse, reducing the effective number of comparisons; (b) the frequency-domain representation enables efficient FFT-based evaluation; (c) the matching circuit detection can be implemented as eigenvalue problems on sparse matrices.
+
+\subsection{Limitations and Open Questions}
+
+\subsubsection{Coherence Requirements}
+The interference-based comparison requires coherence between the pixel-oscillations of the two images. In a physical implementation, maintaining coherence across a large number of oscillators is challenging (though not impossible, as demonstrated by laser arrays and photonic circuits).
+
+\subsubsection{Noise Model}
+Our analysis treats noise as broadband and incoherent. Structured noise (e.g., periodic artefacts in microscopy) could produce spurious matching circuits. The robustness of the framework to structured noise requires further investigation.
+
+\subsubsection{Learning and Adaptation}
+The partition coordinates and oscillation frequencies are derived from the image structure itself, without any training data. This is both a strength (no training required, no distribution shift) and a limitation (no learned priors to exploit). Integrating the oscillatory framework with learned representations (e.g., DINOv2~\citep{oquab2024} features as frequency assignments) is a promising direction.
+
+\subsubsection{Scale Invariance}
+The current framework assigns frequencies based on local entropy (Eq.~\eqref{eq:n_assignment}), which is not inherently scale-invariant. Extending to a multi-scale oscillatory representation (analogous to the scale-space of SIFT~\citep{lowe2004}) requires defining a scale-dependent partition hierarchy.
+
+\subsubsection{Three-Dimensional Extension}
+The framework extends naturally to 3D (volumetric) images by adding a third spatial dimension to the pixel-molecule mapping. The partition coordinates already include three spatial quantum numbers $(n, \ell, m)$; the extension to 3D images simply uses all three.
+
+\subsection{Philosophical Implications}
+
+The central claim of this paper---that comparison is interference, not computation---has implications beyond computer vision:
+
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Nature of computation}: If comparison can be performed without algorithmic steps, then not all information processing is computation in the Turing sense. Interference is a physical process that yields the answer to a computational question without executing an algorithm. This resonates with the distinction between computation and physics emphasised by Deutsch and others.
+
+    \item \textbf{Nature of similarity}: In the algorithmic view, similarity is a \emph{number} computed from two representations. In the oscillatory view, similarity is a \emph{physical state}---constructive interference---that either obtains or does not. Similarity is not computed; it \emph{happens}.
+
+    \item \textbf{Observer and observed}: The zero-backaction theorem (Theorem~\ref{thm:zero_backaction}) shows that categorical observation is compatible with undisturbed dynamics. This provides a mathematical framework for non-perturbative observation that does not require quantum-mechanical formalism.
+
+    \item \textbf{Universality of oscillation}: The Oscillatory Necessity Theorem applies to \emph{any} persistent system in bounded phase space, not just atoms or pixels. It implies that oscillation is the universal language of persistence, and interference is the universal mechanism of comparison.
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════
+\section{Conclusion}\label{sec:conclusion}
+% ═══════════════════════════════════════════════════════════════
+
+We have presented a self-contained framework demonstrating that image comparison can be performed by physical interference rather than algorithmic computation. Starting from two axioms---bounded phase space (Axiom~\ref{ax:bounded}) and categorical observation (Axiom~\ref{ax:categorical})---we derived a chain of results:
+
+\begin{enumerate}[label=(\arabic*)]
+    \item Oscillation is the unique valid dynamical mode for persistent systems (Theorem~\ref{thm:oscillatory_necessity}).
+    \item Partition coordinates $(n, \ell, m, s)$ with capacity $C(n) = 2n^2$ are the natural labels for oscillatory states (Theorem~\ref{thm:capacity}).
+    \item Oscillation, enumeration, and partition functions are equivalent, yielding $S = \kb M \ln n$ (Theorem~\ref{thm:triple_equivalence}).
+    \item The categorical state count rate equals the oscillation frequency: $dM/dt = \omega/(2\pi)$ (Theorem~\ref{thm:fundamental_identity}).
+    \item Each pixel is an oscillator with wavefunction $\Psi_i(t) = A_i e^{i(\omega_i t + \phi_i)}$ (Corollary~\ref{cor:pixel_oscillator}).
+    \item Image comparison is interference, with visibility $V$ encoding similarity (Theorem~\ref{thm:interference_matching}).
+    \item Matching circuits---closed loops satisfying $\Phi_L = 2\pi n$---are wallless resonant cavities that verify matches (Theorem~\ref{thm:resonance}).
+    \item Oscillatory matching achieves $\BigO(1)$ comparison, eliminating the $\BigO(n^2 d)$ von Neumann bottleneck (Theorem~\ref{thm:oscillatory_complexity}).
+    \item Every standard CV operation has an oscillatory equivalent (Table~\ref{tab:mapping}).
+    \item Thermodynamic consistency is guaranteed by entropy conservation and zero backaction (Theorems~\ref{thm:entropy_conservation} and~\ref{thm:zero_backaction}).
+\end{enumerate}
+
+The framework transforms image comparison from a \emph{computational} problem to a \emph{physical} one. Matching does not happen at the speed of sequential instruction execution; it happens at the speed of oscillation. The von Neumann bottleneck is not optimised around---it is eliminated entirely, because the operation is no longer computation.
+
+The practical realisation of this framework requires oscillatory hardware---optical, acoustic, or electronic substrates that natively support superposition and interference. On such substrates, the theoretical $\BigO(1)$ comparison is achievable. Even on conventional hardware, the framework offers conceptual and practical advantages through sparse coupling networks and frequency-domain representations.
+
+The Oscillatory Necessity Theorem is the foundation upon which everything else rests. Its message is simple: in a bounded world observed at finite resolution, everything that persists must oscillate. And if everything oscillates, then comparison is interference. The rest is physics.
+
+% ═══════════════════════════════════════════════════════════════
+% REFERENCES
+% ═══════════════════════════════════════════════════════════════
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

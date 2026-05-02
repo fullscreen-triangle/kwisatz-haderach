@@ -1,0 +1,1560 @@
+\documentclass[twocolumn,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{authblk}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage[section]{placeins}
+\usepackage{enumitem}
+\usepackage{appendix}
+
+% Float tuning
+\setcounter{topnumber}{4}
+\setcounter{totalnumber}{8}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.1}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{axiom}{Axiom}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+
+% Custom commands
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\Sspace}{\mathcal{S}}
+\newcommand{\fuzzy}[1]{\tilde{#1}}
+\newcommand{\fuzzyset}[1]{\tilde{\mu}_{#1}}
+\newcommand{\hausd}{d_{\mathrm{H}}}
+\newcommand{\dcat}{d_{\mathrm{cat}}}
+\newcommand{\Tkcl}{\mathcal{T}_{\mathrm{KCL}}}
+\newcommand{\Tkvl}{\mathcal{T}_{\mathrm{KVL}}}
+\newcommand{\Tback}{\mathcal{T}_{\mathrm{Back}}}
+\newcommand{\Tcomp}{\mathcal{T}}
+
+% Reference shortcuts
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\eqnref}[1]{Equation~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\defref}[1]{Definition~\ref{#1}}
+
+\title{Portfolio Optimisation as Trajectory Completion \\ in Fuzzy Oscillatory Circuit Networks: \\ A Time-Invariant Framework for Asset Allocation \\ Under Epistemic Uncertainty}
+
+\author{
+    Kundai Farai Sachikonye\\
+    AIMe Registry for Artificial Intelligence\\
+    \texttt{kundai.sachikonye@bitspark.com}
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present a mathematical framework for portfolio optimisation in which the portfolio is modelled as an oscillatory circuit graph: each asset is a node occupying bounded phase space and therefore exhibiting characteristic oscillatory dynamics by the Poincar\'{e} recurrence theorem, and each coupling between assets is an edge carrying a conductance derived from a universal transport formula that unifies correlation, capital flow, and information propagation.  Node states are represented as fuzzy membership functions encoding epistemic uncertainty in asset valuations.  Kirchhoff's current law (capital conservation) and voltage law (no-arbitrage) are lifted to fuzzy arithmetic via the Zadeh extension principle, providing constraint propagation under uncertainty.  External market dynamics enter the circuit as boundary conditions---voltage and current sources at designated market nodes---whose effects propagate through the internal network via the Kirchhoff equations.
+
+We define the \emph{trajectory completion operator} $\Tcomp = \Tback \circ \Tkvl \circ \Tkcl$, which composes three constraint operators: fuzzy capital conservation ($\Tkcl$), fuzzy no-arbitrage cycle elimination ($\Tkvl$), and maximum-a-posteriori backward trajectory inference ($\Tback$) via the Viterbi algorithm.  We prove that $\Tcomp$ is a contraction mapping on the complete metric space of fuzzy state tuples equipped with the Hausdorff product metric.  By the Banach fixed-point theorem, iteration of $\Tcomp$ from any initial fuzzy state converges geometrically to a unique fixed point $\fuzzy{\mathbf{X}}^*$---the \emph{optimal portfolio allocation} that simultaneously satisfies capital conservation, no-arbitrage, and kinetic consistency with backward trajectories.
+
+We prove that the backward trajectory $\mathcal{B}_i(\sigma_i, G)$ of each asset node---its maximum-a-posteriori causal history given current state $\sigma_i$ and network topology $G$---is \emph{time-invariant}: it depends on the current state and the graph, not on the absolute time of observation.  This categorical address constitutes a fixed geometric identity for each asset within the portfolio's state space.  Consequently, the optimal allocation $\fuzzy{\mathbf{X}}^*$ is itself time-invariant: rebalancing decisions are determined by the portfolio's partition structure in S-entropy coordinates $(S_k, S_t, S_e) \in [0,1]^3$, not by transient price fluctuations.
+
+We establish that classical Markowitz mean-variance optimisation emerges as the special case in which all fuzzy states collapse to crisp values (zero epistemic uncertainty), the network is complete with uniform conductance, and backward trajectory constraints are vacuous.  We derive explicit expressions for portfolio risk as the total fuzzy support width of the fixed point, bounded by the spectral gap of the portfolio graph Laplacian.  External shocks propagate through the circuit with amplitude decaying exponentially with graph distance at rate determined by the network's algebraic connectivity (Fiedler value $\lambda_2$).  We define harmonic coincidence detection in the frequency domain of asset return series, enabling regime identification through shadow portfolio networks whose edges encode spectral correlation patterns invisible in raw return data.
+
+The framework makes several experimentally testable predictions: (1) convergence rate of the trajectory completion algorithm scales with $\lambda_2$; (2) the optimal allocation is invariant under time translation of the observation window; (3) fuzzy support width of the fixed point provides a tighter risk bound than variance; (4) harmonic coincidence detection identifies regime transitions before they manifest in returns.
+
+\textbf{Keywords:} portfolio optimisation, oscillatory circuit graph, fuzzy set theory, trajectory completion, Poincar\'{e} recurrence, Kirchhoff analogs, contraction mapping, Banach fixed-point theorem, S-entropy coordinates, time-invariant allocation, categorical address, backward trajectory, spectral portfolio analysis, harmonic coincidence
+\end{abstract}
+
+%=============================================================================
+\part{Foundations}
+%=============================================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{The Portfolio Optimisation Problem}
+
+The central problem of portfolio theory is allocation: given $N$ assets with uncertain future returns, determine the fraction of capital $w_i$ to invest in each asset $i$ so as to maximise some measure of reward while controlling some measure of risk.  Since Markowitz's seminal formulation \cite{markowitz1952}, the dominant paradigm has been mean-variance optimisation:
+\begin{equation}
+    \min_{\mathbf{w}} \; \mathbf{w}^T \bm{\Sigma} \mathbf{w} \quad \text{subject to} \quad \mathbf{w}^T \bm{\mu} \geq r_{\min}, \;\; \mathbf{w}^T \mathbf{1} = 1,
+    \label{eq:markowitz}
+\end{equation}
+where $\bm{\mu} \in \mathbb{R}^N$ is the vector of expected returns, $\bm{\Sigma} \in \mathbb{R}^{N \times N}$ is the covariance matrix, and $r_{\min}$ is the minimum acceptable return.
+
+Despite its elegance, the mean-variance framework suffers from well-documented limitations:
+
+\textbf{(1) Estimation sensitivity.}  The optimal solution $\mathbf{w}^*$ is extremely sensitive to the estimated inputs $\bm{\mu}$ and $\bm{\Sigma}$.  Small perturbations in expected returns produce large, unstable changes in portfolio weights \cite{demiguel2009,ledoit2004}.  In practice, the $1/N$ equal-weight portfolio frequently outperforms the theoretically optimal allocation.
+
+\textbf{(2) Static covariance.}  The covariance matrix $\bm{\Sigma}$ is treated as a fixed parameter, yet financial correlations are notoriously time-varying, increasing sharply during market stress precisely when diversification is most needed \cite{engle1982,bollerslev1986,cont2001}.
+
+\textbf{(3) Point estimates.}  Returns and covariances are represented as point estimates (single numbers), discarding all information about the uncertainty in the estimates themselves.  This conflates \emph{aleatory} uncertainty (intrinsic randomness of returns) with \emph{epistemic} uncertainty (our ignorance about the true distribution).
+
+\textbf{(4) No network structure.}  Assets are treated as entries in a vector, with pairwise interactions captured solely by the covariance matrix.  The rich network structure of financial markets---supply chains, capital flows, information propagation, sectoral coupling---is compressed into a single second-moment matrix.
+
+\textbf{(5) No dynamics.}  The optimisation is a single-period static problem.  Multi-period extensions (Merton's intertemporal CAPM \cite{merton1973}) introduce stochastic control machinery but remain fundamentally trajectory-agnostic: they optimise expected utility along forward-simulated paths rather than exploiting the structural constraints that trajectories must satisfy.
+
+\subsection{The Circuit Perspective}
+
+We propose a fundamentally different approach.  Rather than treating assets as entries in a vector with pairwise covariances, we model the portfolio as a \emph{circuit graph} in which:
+
+\begin{enumerate}[label=(\arabic*)]
+    \item Each \textbf{asset is an oscillatory node} occupying bounded phase space.  Because all financial quantities are bounded (prices are non-negative and finite, volumes are finite, returns are bounded by $-100\%$ and market limits), every asset satisfies the hypotheses of the Poincar\'{e} recurrence theorem and therefore exhibits characteristic oscillatory dynamics.
+
+    \item Each \textbf{coupling between assets is a conductance edge} derived from a universal transport formula that unifies three distinct coupling mechanisms: return correlation (statistical coupling), capital flow (economic coupling), and information propagation (structural coupling).
+
+    \item Each \textbf{node state is a fuzzy membership function} $\fuzzyset{i} : \mathbb{R}_{\geq 0} \to [0,1]$ encoding the degree to which each possible valuation is consistent with available evidence.  This representation naturally handles epistemic uncertainty without collapsing to point estimates.
+
+    \item \textbf{Kirchhoff's laws} provide the constraint equations: the current law enforces capital conservation (money in $=$ money out at every node), and the voltage law enforces no-arbitrage (risk-adjusted return differentials around every cycle sum to zero).  Both laws are lifted to fuzzy arithmetic via the Zadeh extension principle \cite{zadeh1965}.
+
+    \item \textbf{External market dynamics} enter as boundary conditions---voltage sources (price feeds), current sources (mandated flows), and time-varying conductances (changing correlations)---at designated boundary nodes.  The internal circuit propagates these boundary effects through the Kirchhoff equations.
+
+    \item The \textbf{optimal allocation} is the unique fixed point of a contraction mapping that composes capital conservation, no-arbitrage, and backward trajectory constraints.  This fixed point is \emph{time-invariant}: it depends on the current network state and topology, not on the absolute time of observation.
+\end{enumerate}
+
+\subsection{Key Insight: Physical Computation as Portfolio Optimisation}
+
+The deepest contribution of this paper lies in a conceptual shift.  Classical portfolio theory frames optimisation as a \emph{mathematical programme}: define an objective function, specify constraints, and apply a solver.  The solver is external to the system being optimised.
+
+We frame portfolio optimisation as \emph{trajectory completion}: the portfolio circuit graph is a physical-computational system whose natural dynamics---the oscillatory evolution of asset values under Kirchhoff constraints---\emph{is} the optimisation.  There is no external solver.  The circuit \emph{computes} its own optimal state by completing its trajectory in bounded phase space.
+
+This shift is enabled by the \emph{processor-oscillator duality}: every oscillator is a processor and every processor is an oscillator.  The portfolio's oscillatory dynamics is simultaneously a physical evolution (prices changing), a categorical counting process (traversing distinguishable states), and a partition operation on a temporal interval (dividing the observation period into segments).  All three descriptions yield the same entropy $S = \kB M \ln n$ and converge to the same fixed point.
+
+\subsection{Contributions}
+
+This paper makes the following contributions:
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Portfolio Circuit Graph} (\secref{sec:portfolio_circuit}--\secref{sec:external_market}).  We construct the complete circuit graph representation of a portfolio: nodes as oscillatory subsystems, edges as conductance couplings, Kirchhoff analogs for capital conservation and no-arbitrage, and external market dynamics as boundary conditions.
+
+    \item \textbf{Fuzzy State Representation} (\secref{sec:fuzzy_states}--\secref{sec:fuzzy_circuit_eqns}).  We represent asset valuations as fuzzy membership functions and lift the Kirchhoff equations to fuzzy arithmetic, enabling constraint propagation under epistemic uncertainty.
+
+    \item \textbf{Trajectory Completion Algorithm} (\secref{sec:backward_traj}--\secref{sec:convergence}).  We define backward trajectories via the Viterbi algorithm, construct the trajectory completion operator, and prove convergence to a unique fixed point via the Banach fixed-point theorem.
+
+    \item \textbf{Time-Invariance Theorem} (\secref{sec:time_invariance}).  We prove that the backward trajectory and optimal allocation are independent of observation time, providing a time-invariant foundation for portfolio management.
+
+    \item \textbf{S-Entropy Navigation} (\secref{sec:sentropy}).  We map portfolio states to S-entropy coordinates $(S_k, S_t, S_e) \in [0,1]^3$ and show that optimal rebalancing reduces to backward navigation in this coordinate space.
+
+    \item \textbf{Risk Analysis} (\secref{sec:risk}).  We derive portfolio risk as fuzzy support width, bounded by the spectral gap of the graph Laplacian, and characterise shock propagation through the circuit.
+
+    \item \textbf{Classical Limit} (\secref{sec:classical_limit}).  We prove that Markowitz mean-variance optimisation is the special case of zero epistemic uncertainty, complete uniform coupling, and vacuous trajectory constraints.
+
+    \item \textbf{Harmonic Regime Detection} (\secref{sec:harmonic}).  We define harmonic coincidence detection for identifying market regimes through spectral analysis of the portfolio network.
+\end{enumerate}
+
+\subsection{Paper Structure}
+
+The paper is organised in six parts.  Part~I (\secref{sec:introduction}--\secref{sec:triple_equiv}) establishes the mathematical foundations: bounded phase space, oscillatory dynamics, information-theoretic coordinates, the universal transport formula, and the triple equivalence theorem.  Part~II (\secref{sec:portfolio_circuit}--\secref{sec:external_market}) constructs the portfolio circuit graph with Kirchhoff analogs and external market boundary conditions.  Part~III (\secref{sec:fuzzy_states}--\secref{sec:fuzzy_circuit_eqns}) develops the fuzzy state representation and fuzzy circuit equations.  Part~IV (\secref{sec:backward_traj}--\secref{sec:time_invariance}) presents the trajectory completion algorithm, proves convergence, and establishes time-invariance.  Part~V (\secref{sec:sentropy}--\secref{sec:harmonic}) develops S-entropy navigation, risk analysis, the classical limit, and harmonic regime detection.  Part~VI (\secref{sec:validation}--\secref{sec:conclusion}) presents the validation framework and conclusions.
+
+
+%=============================================================================
+\section{Oscillatory Systems in Bounded Phase Space}
+\label{sec:oscillatory}
+
+We begin from a single empirical observation, elevated to an axiom:
+
+\begin{axiom}[Bounded Phase Space]
+\label{ax:bounded}
+Every physical system occupies a bounded, connected region $\Omega \subset \mathbb{R}^{2d}$ of phase space, where $d$ is the number of spatial dimensions.  The region has finite volume:
+\begin{equation}
+    \mathrm{Vol}(\Omega) = \int_\Omega d^d q \, d^d p < \infty
+    \label{eq:bounded_vol}
+\end{equation}
+and admits hierarchical partitioning into distinguishable subregions.
+\end{axiom}
+
+\begin{remark}
+This axiom makes no reference to quantum mechanics, relativity, or any specific force law.  It is a statement about the geometry of physical systems.  Everything that follows is a consequence of this geometry.
+\end{remark}
+
+\subsection{Finite Distinguishability}
+
+\begin{theorem}[Finite Distinguishability]
+\label{thm:finite_dist}
+A bounded phase space region $\Omega$ admits at most a finite number of distinguishable states:
+\begin{equation}
+    N_{\max} = \left\lfloor \frac{\mathrm{Vol}(\Omega)}{h^d} \right\rfloor < \infty,
+    \label{eq:nmax}
+\end{equation}
+where $h$ is the minimum phase space cell volume required for distinguishability.
+\end{theorem}
+
+\begin{proof}
+Distinguishing two states requires that they differ by at least a minimum resolution in position and momentum.  Let $\delta q$ and $\delta p$ be the minimum resolvable position and momentum separations.  By the uncertainty principle (which is itself a consequence of bounded phase space geometry: the Fourier transform of a function with bounded support cannot also have bounded support), $\delta q \cdot \delta p \geq h/(4\pi)$, where $h$ is Planck's constant.  The minimum cell volume per dimension is therefore bounded below by $h$.  In $d$ dimensions, each distinguishable state occupies at least volume $h^d$.  Since $\mathrm{Vol}(\Omega) < \infty$, the number of non-overlapping cells is finite.
+\end{proof}
+
+\subsection{Poincar\'{e} Recurrence}
+
+\begin{theorem}[Bounded Oscillation]
+\label{thm:bounded_osc}
+Any bounded dynamical system with continuous, measure-preserving evolution exhibits recurrent (oscillatory) behaviour.
+\end{theorem}
+
+\begin{proof}
+This is Poincar\'{e}'s recurrence theorem \cite{poincare1890}.  Let $\phi_t : \Omega \to \Omega$ be the time evolution map, and let $\mu$ be the Liouville measure on $\Omega$.  Since $\Omega$ is bounded, $\mu(\Omega) < \infty$.  Since $\phi_t$ preserves $\mu$ (Liouville's theorem \cite{arnold1978,goldstein2002}), for any measurable set $A \subset \Omega$ with $\mu(A) > 0$, the orbit of almost every point in $A$ returns to $A$ infinitely often.  In particular, almost every trajectory returns arbitrarily close to its initial condition.
+\end{proof}
+
+\begin{remark}
+Strictly, financial systems are dissipative rather than Hamiltonian.  However, every driven subsystem---an actively traded asset receiving capital inflows---exists within a bounded attractor.  The trajectory converges to a limit cycle or a bounded strange attractor, both of which exhibit oscillatory dynamics \cite{strogatz2000}.  The essential point remains: bounded energy implies oscillatory dynamics, whether through Hamiltonian recurrence or dissipative limit cycles.
+\end{remark}
+
+\subsection{Characteristic Frequency and Categorical States}
+
+\begin{definition}[Characteristic Frequency]
+\label{def:char_freq}
+Let $\gamma(t)$ be the phase space trajectory of a bounded oscillatory system.  The \emph{characteristic period} $T$ is the minimal positive number such that $\|\gamma(t+T) - \gamma(t)\|$ is minimised over all $t$ in the long-time average.  The \emph{characteristic frequency} is $\omega = 2\pi/T$.
+\end{definition}
+
+\begin{definition}[Categorical State]
+\label{def:cat_state}
+Let $T$ be the characteristic period of a bounded oscillatory system.  The \emph{categorical state function} is
+\begin{equation}
+    C(t) = \left\lfloor \frac{t}{T} \right\rfloor,
+    \label{eq:cat_state}
+\end{equation}
+which maps continuous time $t \geq 0$ to the discrete cycle count $C \in \mathbb{N}_0$.  Each integer value of $C$ defines a categorical state: the system is ``in cycle $C$'' during the interval $[CT, (C+1)T)$.
+\end{definition}
+
+\begin{definition}[Partition Operation]
+\label{def:partition_op}
+A \emph{partition operation} is a transition between consecutive categorical states: the change from $C$ to $C+1$ at time $t = (C+1)T$.  Each partition operation creates a boundary in state space separating the phase space regions associated with cycles $C$ and $C+1$.
+\end{definition}
+
+\subsection{Partition Lag and Undetermined Residue}
+
+\begin{definition}[Partition Lag]
+\label{def:partition_lag}
+The \emph{partition lag} $\tau_p$ is the duration of the transition region during a partition operation.  Formally, let $\sigma(t)$ be a categorical assignment function.  The partition lag is
+\begin{equation}
+    \tau_p = \sup\{t_2 - t_1 : \sigma(t) \text{ is undetermined for all } t \in (t_1, t_2)\}.
+    \label{eq:partition_lag}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Undetermined Residue]
+\label{def:undetermined_residue}
+During a partition operation with lag $\tau_p$, the system occupies a set of phase space states that cannot be unambiguously assigned to either cycle $C$ or cycle $C+1$.  This set is the \emph{undetermined residue} $\mathcal{R}$, and its cardinality is $n_{\text{res}}$.
+\end{definition}
+
+\begin{theorem}[Entropy Production per Partition Operation]
+\label{thm:entropy_production}
+Each partition operation produces an entropy increment of
+\begin{equation}
+    \Delta S = \kB \ln n_{\text{res}},
+    \label{eq:entropy_partition}
+\end{equation}
+where $n_{\text{res}} \geq 1$ is the number of undetermined residue states and $\kB$ is Boltzmann's constant.
+\end{theorem}
+
+\begin{proof}
+During the partition lag, the system occupies $n_{\text{res}}$ microstates with equal a priori probability (maximum entropy principle \cite{jaynes1957a}).  The information lost in the partition operation is $\Delta H = \log_2 n_{\text{res}}$ bits.  By the Jaynes correspondence between information entropy and thermodynamic entropy \cite{jaynes1957a,jaynes1957b}, $\Delta S = \kB \ln 2 \cdot \Delta H = \kB \ln n_{\text{res}}$.
+\end{proof}
+
+
+%=============================================================================
+\section{Information-Theoretic Foundations}
+\label{sec:info_theory}
+
+\subsection{Shannon Entropy and Categorical Depth}
+
+\begin{definition}[Shannon Entropy]
+\label{def:shannon}
+Let $\Sigma = \{\sigma_1, \ldots, \sigma_n\}$ be a finite set of states with probability distribution $P$.  The Shannon entropy of $P$ is
+\begin{equation}
+    H(P) = -\sum_{\sigma \in \Sigma} P(\sigma) \log_2 P(\sigma) \quad \text{(bits)},
+    \label{eq:shannon}
+\end{equation}
+with the convention $0 \log_2 0 \equiv 0$ by continuity \cite{shannon1948}.
+\end{definition}
+
+\begin{definition}[Categorical Depth]
+\label{def:cat_depth}
+The \emph{categorical depth} of a state $\sigma_i$ is its self-information:
+\begin{equation}
+    \mathcal{H}_i = \mathcal{H}(\sigma_i) = -\log_2 P(\sigma_i) \quad \text{(bits)}.
+    \label{eq:cat_depth}
+\end{equation}
+Rare states have high categorical depth (much information gained by observing them); common states have low categorical depth.
+\end{definition}
+
+\begin{definition}[Categorical Distance]
+\label{def:cat_distance}
+The \emph{categorical distance} between two states $\sigma_i$ and $\sigma_j$ is
+\begin{equation}
+    \dcat(\sigma_i, \sigma_j) = |\mathcal{H}_i - \mathcal{H}_j| = \left|\log_2 \frac{P(\sigma_j)}{P(\sigma_i)}\right|.
+    \label{eq:cat_distance}
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+\label{prop:cat_metric}
+The categorical distance $\dcat$ is a pseudometric on states of strictly positive probability: $\dcat(\sigma, \sigma) = 0$, symmetry holds, and the triangle inequality is satisfied.
+\end{proposition}
+
+\begin{proof}
+Non-negativity: $|\cdot| \geq 0$.  Identity: $\dcat(\sigma_i, \sigma_i) = 0$.  Symmetry: $|\mathcal{H}_i - \mathcal{H}_j| = |\mathcal{H}_j - \mathcal{H}_i|$.  Triangle inequality: $|\mathcal{H}_i - \mathcal{H}_j| \leq |\mathcal{H}_i - \mathcal{H}_k| + |\mathcal{H}_k - \mathcal{H}_j|$ by the standard triangle inequality for $|\cdot|$ on $\mathbb{R}$.
+\end{proof}
+
+\subsection{S-Entropy Coordinates}
+\label{sec:sentropy_coords}
+
+\begin{definition}[S-Entropy Coordinates]
+\label{def:sentropy}
+The \emph{S-entropy coordinate space} is the unit cube $\Sspace = [0,1]^3$ with coordinates:
+\begin{align}
+    \Sk &= \kB \ln\!\left(\frac{|\delta\phi| + \phi_0}{\phi_0}\right) \in [0,1], \label{eq:sk} \\
+    \St &= \kB \ln\!\left(\frac{\tau}{\tau_0}\right) \in [0,1], \label{eq:st} \\
+    \Se &= \kB \ln\!\left(\frac{E + E_0}{E_0}\right) \in [0,1], \label{eq:se}
+\end{align}
+where:
+\begin{itemize}
+    \item $\Sk$ (\emph{knowledge entropy}): encodes oscillatory phase deviation $\delta\phi$ relative to reference $\phi_0$.  Measures uncertainty in the system's current state identification.
+    \item $\St$ (\emph{temporal entropy}): encodes categorical period $\tau$ relative to reference $\tau_0$.  Measures uncertainty in the system's current phase within its oscillatory cycle.
+    \item $\Se$ (\emph{exchange entropy}): encodes partition energy $E$ relative to reference $E_0$.  Measures uncertainty in the system's trajectory history.
+\end{itemize}
+\end{definition}
+
+\begin{remark}
+A state at the origin $(0,0,0)$ represents maximum certainty: the system's state, phase, and trajectory are all known with precision.  A state at $(1,1,1)$ represents maximum uncertainty.  The trajectory from problem specification to solution is the evolution from high entropy to low entropy in $\Sspace$.
+\end{remark}
+
+\subsection{The Thermodynamic Connection}
+
+\begin{theorem}[Jaynes Correspondence]
+\label{thm:jaynes}
+The thermodynamic entropy $S$ of a system in thermal equilibrium is related to the Shannon entropy of its microstate distribution by
+\begin{equation}
+    S = \kB \ln 2 \cdot H(P),
+    \label{eq:jaynes}
+\end{equation}
+where $P(\sigma_i) = e^{-E_i/(\kB T)}/Z$ is the Boltzmann distribution \cite{jaynes1957a}.
+\end{theorem}
+
+\begin{proof}
+The maximum entropy principle \cite{jaynes1957a,jaynes1957b} states that the least-biased distribution consistent with known constraints is the one that maximises $H$.  Maximising $H(P)$ subject to $\sum_i P_i = 1$ and $\sum_i P_i E_i = \langle E \rangle$ using Lagrange multipliers gives $P_i \propto e^{-\beta E_i}$, identifying $\beta = 1/(\kB T)$.  Substituting back: $H = \langle E \rangle / (\kB T \ln 2) + \log_2 Z$, yielding $S = \kB (\langle E \rangle / T + \kB \ln Z) = \kB \ln 2 \cdot H$.
+\end{proof}
+
+
+%=============================================================================
+\section{The Universal Transport Formula}
+\label{sec:transport}
+
+Transport phenomena---the flow of conserved quantities through a medium---are central to the circuit representation.  We derive a universal formula that unifies electrical conduction, thermal conduction, viscous flow, and diffusion as manifestations of a single underlying process: the passage of carriers through partition operations.
+
+\subsection{Coupling Strength}
+
+\begin{definition}[Coupling Strength]
+\label{def:coupling}
+The \emph{coupling strength} $g_{ij}$ between carriers $i$ and $j$ measures the degree to which their oscillatory phases are correlated:
+\begin{equation}
+    g_{ij} = \lim_{T_{\text{obs}} \to \infty} \frac{1}{T_{\text{obs}}} \int_0^{T_{\text{obs}}} \cos[\phi_i(t) - \phi_j(t)] \, dt,
+    \label{eq:coupling_strength}
+\end{equation}
+where $\phi_i(t)$ and $\phi_j(t)$ are the instantaneous phases of carriers $i$ and $j$.  This is a Kuramoto-type order parameter \cite{kuramoto1984}.
+\end{definition}
+
+When $g_{ij} = 1$, the carriers are perfectly phase-locked (coherent transport).  When $g_{ij} = 0$, they are uncorrelated (incoherent transport).
+
+\subsection{The Universal Transport Coefficient}
+
+\begin{definition}[Universal Transport Coefficient]
+\label{def:transport_coeff}
+The \emph{universal transport coefficient} $\Xi$ for a system of $N_c$ carriers is
+\begin{equation}
+    \Xi = \frac{1}{\mathcal{N}} \sum_{i,j=1}^{N_c} \tau_p^{(ij)} g_{ij},
+    \label{eq:transport_coeff}
+\end{equation}
+where $\tau_p^{(ij)}$ is the partition lag between carriers $i$ and $j$, $g_{ij}$ is their coupling strength, and $\mathcal{N}$ is a normalisation factor determined by the physical dimensions of the transported quantity.
+\end{definition}
+
+\begin{theorem}[Conductance from Transport]
+\label{thm:conductance}
+The \emph{conductance} of a coupling edge $(i,j)$ is the reciprocal of the transport coefficient:
+\begin{equation}
+    G_{ij} = \frac{g_{ij}}{\tau_p^{(ij)} \cdot \mathcal{N}_{ij}},
+    \label{eq:conductance}
+\end{equation}
+where $\mathcal{N}_{ij}$ is the impedance normalisation for the coupling type.
+\end{theorem}
+
+\begin{proof}
+The conductance is defined as the ratio of flow (current) to driving force (potential difference).  From \defref{def:transport_coeff}, the transport coefficient relates the flux to the gradient.  The conductance is $G_{ij} = 1/\Xi_{ij}$.  For a single coupling between nodes $i$ and $j$ (a single term in the sum), $\Xi_{ij} = \tau_p^{(ij)} g_{ij} / \mathcal{N}_{ij}$, giving $G_{ij} = \mathcal{N}_{ij} / (\tau_p^{(ij)} g_{ij})$.  Since conductance should increase with coupling strength ($g_{ij} \uparrow \implies$ more flow), we identify $G_{ij} = g_{ij}/(\tau_p^{(ij)} \cdot \mathcal{N}_{ij})$.
+\end{proof}
+
+\begin{remark}
+This formula reduces to standard expressions for all classical transport laws: electrical conductance $G = 1/R$ (Ohm's law \cite{ohm1827}), thermal conductance $G = \kappa A/L$ (Fourier's law \cite{fourier1822}), mechanical admittance $G = k/(m\omega)$, and diffusive conductance $G = D/(L^2)$ (Einstein relation \cite{einstein1905}).  The universality arises because all transport coefficients count the same quantity: partition lag weighted by coupling strength per unit flux.
+\end{remark}
+
+
+%=============================================================================
+\section{The Triple Equivalence Theorem}
+\label{sec:triple_equiv}
+
+The central structural result connecting oscillatory dynamics, categorical enumeration, and partition analysis.
+
+\begin{theorem}[Triple Equivalence]
+\label{thm:triple_equiv}
+Let $\Sigma$ be a physical-computational system with $M$ distinguishable micro-states and $n$ levels of resolution.  The following three descriptions are mutually consistent and yield identical entropy:
+
+\textbf{(O) Oscillator description.}  $\Sigma$ is a harmonic oscillator with $M$ modes and $n$ energy levels per mode.  Its Boltzmann entropy is $S_O = \kB M \ln n$.
+
+\textbf{(C) Categorical description.}  $\Sigma$ is an object in the category $\mathcal{C}_n$ of $n$-level partition refinements, with $M$ morphisms.  Its categorical entropy is $S_C = \kB M \ln n$.
+
+\textbf{(P) Partition description.}  $\Sigma$ occupies a region of $\mathcal{P}(\Omega)$ with $M$ elements, each admitting $n$ distinguishable refinements.  Its partition entropy is $S_P = \kB M \ln n$.
+
+Since $S_O = S_C = S_P = \kB M \ln n$, all three descriptions are thermodynamically equivalent.
+\end{theorem}
+
+\begin{proof}
+\textbf{Proof of $S_O$.}  For $M$ harmonic modes with $n$ equally-spaced energy levels each, the partition function at inverse temperature $\beta$ is $Z_O = \prod_{i=1}^M \sum_{j=0}^{n-1} e^{-\beta \hbar \omega_i j}$.  In the high-temperature limit $\beta \hbar \omega_i \ll 1$: $Z_O \approx \prod_{i=1}^M n = n^M$.  The Boltzmann entropy is $S_O = \kB \ln(Z_O) = \kB \ln(n^M) = \kB M \ln n$.  $\square$
+
+\textbf{Proof of $S_C$.}  In $\mathcal{C}_n$, each object admits $n$ morphisms to $n$ target objects.  Over $M$ independent objects, the total number of distinct morphism sequences is $n^M$.  The categorical entropy is $S_C = \kB \ln(n^M) = \kB M \ln n$.  $\square$
+
+\textbf{Proof of $S_P$.}  A partition of $M$ elements into $n$ blocks assigns each element independently to one of $n$ blocks.  The number of such assignments is $n^M$.  The partition entropy is $S_P = \kB \ln(n^M) = \kB M \ln n$.  $\square$
+\end{proof}
+
+\begin{corollary}[Fundamental Identity]
+\label{cor:fundamental_identity}
+Observation $\mathcal{O}$, computation $\mathcal{C}$, and processing $\mathcal{P}$ are identical operations:
+\begin{equation}
+    \mathcal{O}(x) \equiv \mathcal{C}(x) \equiv \mathcal{P}(x).
+    \label{eq:fundamental_identity}
+\end{equation}
+Each reduces to categorical address resolution: given input $x$, determine its categorical address $\alpha(x, k)$ in the ternary partition hierarchy at the resolution $k$ determined by the system's entropy budget.
+\end{corollary}
+
+\begin{corollary}[Processor-Oscillator Duality]
+\label{cor:proc_osc}
+Every oscillator is a processor and every processor is an oscillator.  The three rates are unified by the fundamental identity:
+\begin{equation}
+    \frac{dM}{dt} = \frac{M\omega}{2\pi} = \frac{1}{\langle \tau_p \rangle},
+    \label{eq:fundamental_rate}
+\end{equation}
+where $dM/dt$ is the categorical transition rate, $\omega$ is the oscillation frequency, and $\langle \tau_p \rangle$ is the mean partition lag.
+\end{corollary}
+
+
+%=============================================================================
+\part{The Portfolio Circuit Graph}
+%=============================================================================
+
+\section{Financial Assets as Oscillatory Nodes}
+\label{sec:portfolio_circuit}
+
+\subsection{Why Financial Assets Oscillate}
+
+Every financial asset has bounded phase space.  We establish this systematically.
+
+\begin{proposition}[Bounded Phase Space of Financial Assets]
+\label{prop:asset_bounded}
+Every financial asset occupies bounded phase space.
+\end{proposition}
+
+\begin{proof}
+We verify for each relevant phase space coordinate:
+
+\textbf{Price $p_i$:} Bounded below by $0$ (limited liability) and above by market capitalisation constraints, circuit breakers, and finite global wealth $W < \infty$.  Hence $p_i \in [0, p_{\max}^{(i)}]$.
+
+\textbf{Volume $v_i$:} Non-negative and bounded above by total shares outstanding (equities), total issue size (bonds), or physical supply (commodities).  Hence $v_i \in [0, v_{\max}^{(i)}]$.
+
+\textbf{Returns $r_i$:}  Bounded below by $-1$ (complete loss) and above by market microstructure limits (daily limits, circuit breakers).  Hence $r_i \in [-1, r_{\max}^{(i)}]$.
+
+\textbf{Capital flow (momentum) $f_i$:}  Net capital inflow/outflow is bounded by the asset's market depth and settlement system capacity.  Hence $f_i \in [-f_{\max}^{(i)}, f_{\max}^{(i)}]$.
+
+The phase space $\Gamma_i = \{(p_i, v_i, r_i, f_i)\}$ is a bounded subset of $\mathbb{R}^4$.  By Axiom~\ref{ax:bounded}, it has finite volume.
+\end{proof}
+
+\begin{corollary}[Asset Oscillation]
+\label{cor:asset_osc}
+Every financial asset exhibits oscillatory dynamics.  By \thmref{thm:bounded_osc}, the bounded phase space of each asset guarantees recurrent (oscillatory) behaviour.
+\end{corollary}
+
+\begin{remark}
+This is not a metaphor.  Asset prices literally oscillate: they exhibit characteristic frequencies in the spectral decomposition of their return series.  The business cycle, earnings cycles, dividend cycles, and seasonal patterns all contribute to the spectral signature.  What is new here is the derivation of this oscillation from first principles (boundedness) rather than empirical observation.
+\end{remark}
+
+\subsection{Asset Node Definition}
+
+\begin{definition}[Asset Node]
+\label{def:asset_node}
+An \emph{asset node} is a pair $(i, \omega_i)$ where $i$ labels a financial asset and $\omega_i$ is its characteristic frequency derived from the dominant spectral component of its return time series:
+\begin{equation}
+    \omega_i = \arg\max_{\omega} |X_i(\omega)|^2,
+    \label{eq:char_freq_asset}
+\end{equation}
+where $X_i(\omega) = \sum_{m=0}^{M-1} r_i(t_m) w(t_m) e^{-i\omega t_m}$ is the windowed Fourier transform of the return series $r_i(t)$ and $w(t)$ is a window function (e.g., Hann).
+\end{definition}
+
+\begin{definition}[Categorical State of an Asset]
+\label{def:asset_cat_state}
+The \emph{categorical state} of asset node $i$ at time $t$ is
+\begin{equation}
+    C_i(t) = \left\lfloor \frac{\omega_i t}{2\pi} \right\rfloor,
+    \label{eq:asset_cat_state}
+\end{equation}
+the number of complete oscillatory cycles observed.  The number of categorical states visited by node $i$ in observation time $T_{\text{obs}}$ is $N_i = \lfloor \omega_i T_{\text{obs}} / (2\pi) \rfloor$.
+\end{definition}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_04_spectral_risk.png}
+    \caption{\textbf{Spectral Risk Scaling: Log-Log Power Law, Linear Inverse Relationship, Connectivity-Risk Scatter, and Normalised Risk Product.}
+    (\textbf{A})~Total fuzzy risk versus Fiedler value $\lambda_2$ on log-log axes for portfolio graphs with 12 asset nodes. Teal circles show measured risk; dashed coral line is the power-law fit with slope $\approx -0.65$. The near-linear relationship in log-log space confirms the predicted scaling $\mathcal{R} \propto \lambda_2^{-\alpha}$ from Theorem~\ref{thm:spectral_risk}. Risk decreases by over two orders of magnitude as $\lambda_2$ increases from 0.016 to 229, demonstrating that algebraic connectivity is the primary structural determinant of portfolio risk.
+    (\textbf{B})~Risk versus $1/\lambda_2$ on linear axes, with least-squares fit (dashed coral). The strong linear relationship confirms the inverse proportionality predicted by the spectral risk bound: $\mathcal{R} \leq \mathcal{R}_0 / \lambda_2 \cdot (N - M)/N$. The positive intercept reflects the irreducible minimum support width enforced by the epistemic uncertainty floor.
+    (\textbf{C})~Three-dimensional scatter of target connectivity (x-axis), measured $\lambda_2$ (y-axis), and total fuzzy risk (z-axis), with point colour encoding risk magnitude (plasma colourmap). The nonlinear relationship between connectivity and $\lambda_2$ is visible: $\lambda_2$ grows super-linearly with connectivity due to the increasing density of the random graph. Risk decreases monotonically along both axes, confirming that both raw connectivity and its spectral consequence $\lambda_2$ reduce portfolio uncertainty.
+    (\textbf{D})~Normalised risk product $\mathcal{R} \times \lambda_2$ for each connectivity level. If the scaling $\mathcal{R} \propto 1/\lambda_2$ held exactly, this product would be constant (coral dashed line shows the mean). The increasing trend reflects departures from exact inverse scaling at high connectivity, where the minimum support width floor becomes binding. The product spans a factor of $\sim 2$, confirming that the inverse relationship holds to within a constant factor across the full range tested.}
+    \label{fig:spectral_risk}
+\end{figure*}
+
+\subsection{Inventory of Asset Subsystem Types}
+
+Different asset classes exhibit different characteristic frequencies and phase space geometries:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Asset Class} & \textbf{Frequency Range} & \textbf{Oscillating Quantity} \\
+\midrule
+Equities & $10^{-3}$--$10^{-1}$ Hz & Price around fundamental value \\
+Fixed Income & $10^{-4}$--$10^{-2}$ Hz & Yield around equilibrium rate \\
+Commodities & $10^{-3}$--$10^{-1}$ Hz & Price around cost of production \\
+FX Pairs & $10^{-2}$--$10^{0}$ Hz & Rate around purchasing parity \\
+Derivatives & $10^{-1}$--$10^{1}$ Hz & Premium around fair value \\
+Crypto Assets & $10^{-2}$--$10^{1}$ Hz & Price around network value \\
+Real Estate & $10^{-5}$--$10^{-3}$ Hz & Value around replacement cost \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The frequency range spans approximately five orders of magnitude, from real estate cycles ($\sim 10^{-5}$ Hz, period $\sim$ 10 years) to intraday derivative fluctuations ($\sim 10$ Hz, period $\sim$ seconds).  This heterogeneity is essential: it enables harmonic coincidence detection (\secref{sec:harmonic}).
+
+
+%=============================================================================
+\section{Coupling Edges and Market Conductance}
+\label{sec:coupling}
+
+\subsection{Types of Financial Coupling}
+
+Asset nodes do not oscillate independently.  They are coupled through physical pathways that allow capital, information, and risk to flow between them.  We identify five coupling types:
+
+\textbf{(1) Statistical coupling (return correlation).}  Assets whose returns co-move share statistical dependence.  The coupling strength is the Pearson correlation of returns:
+\begin{equation}
+    g_{ij}^{\text{stat}} = \frac{\text{Cov}(r_i, r_j)}{\sqrt{\text{Var}(r_i) \text{Var}(r_j)}}.
+    \label{eq:stat_coupling}
+\end{equation}
+
+\textbf{(2) Economic coupling (capital flow).}  Assets connected by capital flows---e.g., a company and its suppliers, or a bond issuer and its equity---exchange capital directly.  The coupling strength is proportional to the normalised flow volume.
+
+\textbf{(3) Structural coupling (sector/index membership).}  Assets in the same sector or index are coupled through institutional rebalancing, ETF creation/redemption, and regulatory constraints.
+
+\textbf{(4) Information coupling (news propagation).}  Information about one asset affects the valuation of related assets.  The coupling strength is proportional to the mutual information $I(X_i; X_j)$.
+
+\textbf{(5) Liquidity coupling.}  Assets sharing the same liquidity pool (same exchange, same clearing house) are coupled through order flow and market microstructure effects.
+
+\subsection{Edge Conductance from the Universal Transport Formula}
+
+\begin{definition}[Portfolio Edge Conductance]
+\label{def:portfolio_conductance}
+The \emph{conductance} of edge $(i,j)$ in the portfolio circuit graph is
+\begin{equation}
+    G_{ij} = \frac{|g_{ij}|}{\tau_p^{(ij)} \cdot \mathcal{N}_{ij}},
+    \label{eq:portfolio_conductance}
+\end{equation}
+where $g_{ij} = \sum_{\alpha} w_\alpha g_{ij}^{(\alpha)}$ is the weighted sum over coupling types $\alpha \in \{\text{stat, econ, struct, info, liq}\}$ with weights $w_\alpha > 0$ summing to 1, $\tau_p^{(ij)}$ is the characteristic partition lag (the time scale over which coupling effects propagate), and $\mathcal{N}_{ij}$ is the impedance normalisation.
+\end{definition}
+
+For return correlation coupling, the partition lag is the decorrelation time: $\tau_p^{(ij)} = \int_0^\infty |C_{ij}(\tau)/C_{ij}(0)| \, d\tau$, where $C_{ij}(\tau) = \text{Cov}(r_i(t), r_j(t+\tau))$ is the cross-correlation function.  The impedance normalisation is $\mathcal{N}_{ij} = \sqrt{\text{Var}(r_i) \text{Var}(r_j)}$.
+
+\subsection{The Portfolio Adjacency and Laplacian Matrices}
+
+\begin{definition}[Portfolio Adjacency Matrix]
+\label{def:adjacency}
+The \emph{conductance-weighted adjacency matrix} $\mathbf{A} \in \mathbb{R}^{N \times N}$ has entries $A_{ij} = G_{ij}$ for $i \neq j$ and $A_{ii} = 0$.  The matrix is symmetric ($G_{ij} = G_{ji}$) by the reciprocity of coupling.
+\end{definition}
+
+\begin{definition}[Graph Laplacian]
+\label{def:laplacian}
+The \emph{graph Laplacian} of the portfolio circuit is $\mathbf{L} = \mathbf{D} - \mathbf{A}$, where $\mathbf{D} = \text{diag}(d_1, \ldots, d_N)$ is the degree matrix with $d_i = \sum_{j \neq i} G_{ij}$.
+\end{definition}
+
+The Laplacian $\mathbf{L}$ is positive semidefinite with eigenvalues $0 = \lambda_1 \leq \lambda_2 \leq \cdots \leq \lambda_N$.  The multiplicity of the zero eigenvalue equals the number of connected components.  The second-smallest eigenvalue $\lambda_2$ (the \emph{Fiedler value} or \emph{algebraic connectivity} \cite{fiedler1973}) measures the ``bottleneck'' conductance of the network and governs the rate of shock propagation (\secref{sec:risk}).
+
+
+%=============================================================================
+\section{Circuit Variables and Kirchhoff Analogs}
+\label{sec:kirchhoff}
+
+\subsection{Node Potential: Net Asset Value as Categorical Depth}
+
+\begin{definition}[Node Potential]
+\label{def:node_potential}
+The \emph{circuit potential} at node $v_i$ is the categorical depth of its current valuation state:
+\begin{equation}
+    \phi_i = \mathcal{H}_i = -\log_2 P(\sigma_i),
+    \label{eq:node_potential}
+\end{equation}
+where $P(\sigma_i)$ is the equilibrium probability of the system being in valuation state $\sigma_i$.
+\end{definition}
+
+\begin{remark}
+High-depth states (rare valuations, high $\mathcal{H}_i$) correspond to high potential: they carry more information and drive stronger flows.  Low-depth states (common valuations, low $\mathcal{H}_i$) correspond to low potential.  Capital flows downhill in categorical depth, precisely as current flows from high to low voltage.
+\end{remark}
+
+\subsection{Edge Current: Capital Flow}
+
+\begin{definition}[Edge Current]
+\label{def:edge_current}
+The \emph{circuit current} on edge $e_{ij}$ is the net capital flow rate from node $i$ to node $j$:
+\begin{equation}
+    J_{ij} = G_{ij} \cdot \Delta\phi_{ij} = G_{ij}(\phi_i - \phi_j),
+    \label{eq:edge_current}
+\end{equation}
+the financial analog of Ohm's law: flow equals conductance times potential difference.
+\end{definition}
+
+\subsection{Kirchhoff's Current Law: Capital Conservation}
+
+\begin{theorem}[Portfolio KCL: Capital Conservation]
+\label{thm:portfolio_kcl}
+At every node $v_i$ in the portfolio circuit, the net capital flux vanishes at steady state:
+\begin{equation}
+    \sum_{\substack{j:\\(j,i) \in E}} J_{ji} - \sum_{\substack{k:\\(i,k) \in E}} J_{ik} = \frac{dQ_i}{dt},
+    \label{eq:portfolio_kcl}
+\end{equation}
+where $Q_i$ is the accumulated capital (``charge'') at node $i$.  At steady state, $dQ_i/dt = 0$ and the sum of inflows equals the sum of outflows.
+\end{theorem}
+
+\begin{proof}
+Capital is conserved: every dollar that leaves one node must arrive at another (no capital is created or destroyed within the circuit; external injections/withdrawals are modelled as boundary sources).  At node $v_i$, the capital balance equation is:
+\begin{equation}
+    \frac{dQ_i}{dt} = \text{inflow} - \text{outflow} = \sum_{j:(j,i) \in E} J_{ji} - \sum_{k:(i,k) \in E} J_{ik}.
+\end{equation}
+At steady state, the accumulation rate vanishes, yielding Kirchhoff's current law.  This is the financial analog of conservation of charge \cite{kirchhoff1845}.
+\end{proof}
+
+\subsection{Kirchhoff's Voltage Law: No-Arbitrage}
+
+\begin{theorem}[Portfolio KVL: No-Arbitrage Condition]
+\label{thm:portfolio_kvl}
+Around any directed cycle $\mathcal{C} = (v_{i_1}, v_{i_2}, \ldots, v_{i_k}, v_{i_1})$ in the portfolio graph, the sum of potential differences vanishes:
+\begin{equation}
+    \sum_{(i,j) \in \mathcal{C}} \Delta\phi_{ij} = \sum_{(i,j) \in \mathcal{C}} (\phi_i - \phi_j) = 0.
+    \label{eq:portfolio_kvl}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The sum telescopes: $(\phi_{i_1} - \phi_{i_2}) + (\phi_{i_2} - \phi_{i_3}) + \cdots + (\phi_{i_k} - \phi_{i_1}) = 0$.  This is a mathematical identity for any scalar field on a graph.
+
+\textbf{Financial interpretation:}  A violation of \eqnref{eq:portfolio_kvl} would imply that traversing a cycle of exchanges yields a net potential gain---a risk-free profit, i.e., an arbitrage opportunity.  In efficient markets, such opportunities are eliminated by trading activity.  The KVL is therefore the circuit-theoretic statement of no-arbitrage \cite{ross1976}.
+\end{proof}
+
+\subsection{Impedance Elements}
+
+The circuit representation naturally accommodates three impedance types:
+
+\textbf{Resistance $R_{ij}$ (Transaction Costs):}  Capital flow through edge $(i,j)$ dissipates energy proportional to $J_{ij}^2 R_{ij}$, modelling transaction costs, bid-ask spreads, and market impact.
+
+\textbf{Capacitance $C_i$ (Liquidity Buffer):}  Node $i$ can accumulate capital up to its liquidity capacity.  The current-voltage relationship $J = C \, d\phi/dt$ models the rate at which liquidity absorbs or releases capital in response to potential changes.
+
+\textbf{Inductance $L_{ij}$ (Trading Momentum):}  The voltage-current relationship $\Delta\phi = L \, dJ/dt$ models resistance to sudden changes in capital flow---trading momentum, market inertia, and flow persistence.
+
+The impedance of edge $(i,j)$ at frequency $\omega$ is:
+\begin{equation}
+    Z_{ij}(\omega) = R_{ij} + i\omega L_{ij} + \frac{1}{i\omega C_{ij}},
+    \label{eq:impedance}
+\end{equation}
+and the admittance (conductance generalised to AC) is $Y_{ij}(\omega) = 1/Z_{ij}(\omega)$.
+
+
+%=============================================================================
+\section{External Market Dynamics as Boundary Conditions}
+\label{sec:external_market}
+
+\subsection{The Market Boundary}
+
+The portfolio circuit graph $G = (V, E)$ is partitioned into \emph{internal nodes} $V_{\text{int}}$ (assets under management) and \emph{boundary nodes} $V_{\text{bdy}}$ (market reference points):
+\begin{equation}
+    V = V_{\text{int}} \cup V_{\text{bdy}}, \quad V_{\text{int}} \cap V_{\text{bdy}} = \emptyset.
+    \label{eq:partition_nodes}
+\end{equation}
+
+Boundary nodes represent external market factors: benchmark indices, interest rate curves, commodity spot prices, volatility indices, and macroeconomic indicators.  They are not under portfolio control; their states are determined exogenously by the market.
+
+\subsection{Voltage Sources: Price Feeds}
+
+\begin{definition}[Voltage Source]
+\label{def:voltage_source}
+A \emph{voltage source} at boundary node $b \in V_{\text{bdy}}$ fixes the node potential to an externally determined value:
+\begin{equation}
+    \phi_b(t) = \phi_b^{\text{market}}(t) = -\log_2 P(\sigma_b(t)),
+    \label{eq:voltage_source}
+\end{equation}
+where $\sigma_b(t)$ is the market state of the boundary asset at time $t$.
+\end{definition}
+
+\subsection{Current Sources: Flow Mandates}
+
+\begin{definition}[Current Source]
+\label{def:current_source}
+A \emph{current source} at boundary node $b$ injects a fixed capital flow rate $J_b^{\text{ext}}$ into the circuit, independent of the potential at $b$.  This models mandated flows: regulatory requirements, index rebalancing, fund inflows/outflows, and dividend distributions.
+\end{definition}
+
+\subsection{Th\'{e}venin Equivalents for Market Sectors}
+
+\begin{theorem}[Th\'{e}venin Equivalence for Market Sectors]
+\label{thm:thevenin}
+Any collection of boundary nodes and their interconnections can be replaced by a single equivalent voltage source $\phi_{\text{Th}}$ in series with an equivalent impedance $Z_{\text{Th}}$:
+\begin{equation}
+    \phi_{\text{Th}} = \phi_{\text{open}}, \quad Z_{\text{Th}} = \frac{\phi_{\text{open}}}{J_{\text{short}}},
+    \label{eq:thevenin}
+\end{equation}
+where $\phi_{\text{open}}$ is the open-circuit potential (potential when no current flows to internal nodes) and $J_{\text{short}}$ is the short-circuit current (current when the internal node is grounded) \cite{thevenin1883}.
+\end{theorem}
+
+This enables dimensional reduction: an entire market sector (e.g., ``US equities'') can be represented by a single Th\'{e}venin-equivalent node, reducing the complexity of the boundary while preserving the electrical behaviour seen by internal nodes.
+
+\subsection{Shock Propagation Through the Circuit}
+
+When a boundary potential changes (market shock), the perturbation propagates through the internal circuit according to the diffusion equation on the graph:
+\begin{equation}
+    \frac{\partial \phi_i}{\partial t} = -\sum_{j} L_{ij} \phi_j(t),
+    \label{eq:diffusion}
+\end{equation}
+where $\mathbf{L}$ is the graph Laplacian.  The solution is $\phi_i(t) = \sum_k c_k u_k(i) e^{-\lambda_k t}$, where $\lambda_k$ and $u_k$ are the eigenvalues and eigenvectors of $\mathbf{L}$.  The slowest-decaying mode has rate $\lambda_2$ (the Fiedler value), giving the characteristic relaxation time of the portfolio:
+\begin{equation}
+    \tau_{\text{relax}} = \frac{1}{\lambda_2}.
+    \label{eq:relaxation}
+\end{equation}
+
+
+%=============================================================================
+\part{Fuzzy State Representation}
+%=============================================================================
+
+\section{Fuzzy Node States}
+\label{sec:fuzzy_states}
+
+\subsection{Motivation: Epistemic Uncertainty in Finance}
+
+In practice, the true valuation state of an asset is never perfectly known.  Multiple sources of uncertainty contribute:
+
+\textbf{(a) Measurement uncertainty.}  Market prices are observed with bid-ask spread $[p_{\text{bid}}, p_{\text{ask}}]$.  The ``true'' price lies somewhere in this interval, but its exact position is unknown.
+
+\textbf{(b) Model uncertainty.}  Fundamental valuations depend on earnings forecasts, discount rates, and growth assumptions---all of which carry significant uncertainty that is not well described by a single probability distribution.
+
+\textbf{(c) Structural uncertainty.}  The network topology itself may be uncertain: coupling strengths depend on estimated correlations, which have finite sample error.
+
+We represent this epistemic uncertainty using fuzzy set theory \cite{zadeh1965}, which provides a natural framework for encoding ``degree of consistency with evidence'' rather than ``probability of occurrence.''
+
+\subsection{Fuzzy Membership Functions}
+
+\begin{definition}[Fuzzy Node State]
+\label{def:fuzzy_state}
+A \emph{fuzzy node state} of asset $v_i$ is a membership function $\fuzzyset{i} : \mathbb{R}_{\geq 0} \to [0,1]$, where $\fuzzyset{i}(x)$ is the degree of membership of valuation $x$ in the fuzzy set representing the current state.  $\fuzzyset{i}(x) = 1$ means $x$ is fully consistent with all available evidence; $\fuzzyset{i}(x) = 0$ means $x$ is excluded.
+\end{definition}
+
+\begin{definition}[Support, Core, and $\alpha$-Cuts]
+\label{def:support_core}
+For a fuzzy node state $\fuzzyset{i}$:
+\begin{align}
+    \text{supp}(\fuzzyset{i}) &= \{x \geq 0 : \fuzzyset{i}(x) > 0\}, \label{eq:support} \\
+    \text{core}(\fuzzyset{i}) &= \{x \geq 0 : \fuzzyset{i}(x) = 1\}, \label{eq:core} \\
+    [\fuzzyset{i}]^\alpha &= \{x \geq 0 : \fuzzyset{i}(x) \geq \alpha\}, \quad \alpha \in (0,1]. \label{eq:alpha_cut}
+\end{align}
+When $\fuzzyset{i}$ is upper semi-continuous, each $\alpha$-cut $[\fuzzyset{i}]^\alpha$ is a closed interval $[\underline{x}_i^\alpha, \overline{x}_i^\alpha]$ \cite{zadeh1978,zimmermann2001}.
+\end{definition}
+
+\begin{definition}[Trapezoidal and Triangular Membership Functions]
+\label{def:trapezoidal}
+A \emph{trapezoidal fuzzy state} with parameters $a \leq b \leq c \leq d$ is:
+\begin{equation}
+    \fuzzyset{i}^{\text{trap}}(x) = \begin{cases}
+        (x-a)/(b-a) & a \leq x < b, \\
+        1 & b \leq x \leq c, \\
+        (d-x)/(d-c) & c < x \leq d, \\
+        0 & \text{otherwise}.
+    \end{cases}
+    \label{eq:trapezoidal}
+\end{equation}
+A \emph{triangular} membership function is the special case $b = c$.  Trapezoidal functions arise from interval measurements with error bounds; triangular functions arise from point estimates with uncertainty.
+\end{definition}
+
+\subsection{Physical Interpretation of Fuzziness}
+
+Fuzzy node states encode two distinct and complementary sources of uncertainty:
+
+\textbf{(a) Measurement-based fuzziness.}  Market data provides a valuation interval $[p_{\text{bid}}, p_{\text{ask}}]$.  This maps directly to a trapezoidal membership function with flat top equal to the measurement interval.
+
+\textbf{(b) Model-based fuzziness.}  Fundamental analysis provides a valuation range with a ``most likely'' central estimate and declining confidence toward the extremes.  This maps to a triangular or Gaussian membership function.
+
+\begin{remark}
+Probability and fuzzy set theory are complementary \cite{zadeh1978}.  A probability distribution answers: ``which valuation is the true one?''  A fuzzy membership function answers: ``how well does a given valuation satisfy the asset's role in the portfolio?''  Both are needed in trajectory completion: probability distributions govern inference (backward trajectories); membership functions encode role-based filtering (``asset is in the active concentration range'').
+\end{remark}
+
+
+%=============================================================================
+\section{Fuzzy Circuit Equations}
+\label{sec:fuzzy_circuit_eqns}
+
+\subsection{The Zadeh Extension Principle}
+
+\begin{definition}[Zadeh Extension Principle]
+\label{def:zadeh_extension}
+The Zadeh extension principle \cite{zadeh1965,zadeh1978} lifts a crisp function $f : \mathbb{R}^n \to \mathbb{R}$ to fuzzy operands $\fuzzyset{1}, \ldots, \fuzzyset{n}$:
+\begin{equation}
+    \tilde{\mu}_f(z) = \sup_{\substack{x_1, \ldots, x_n \geq 0 \\ f(x_1, \ldots, x_n) = z}} \min_k \fuzzyset{k}(x_k).
+    \label{eq:zadeh_extension}
+\end{equation}
+\end{definition}
+
+For $\alpha$-cuts of fuzzy intervals, this reduces to interval arithmetic \cite{zimmermann2001}:
+\begin{align}
+    [\underline{a}, \overline{a}] + [\underline{b}, \overline{b}] &= [\underline{a} + \underline{b}, \; \overline{a} + \overline{b}], \label{eq:interval_add} \\
+    [\underline{a}, \overline{a}] - [\underline{b}, \overline{b}] &= [\underline{a} - \overline{b}, \; \overline{a} - \underline{b}], \label{eq:interval_sub} \\
+    [\underline{a}, \overline{a}] \cdot [\underline{b}, \overline{b}] &= [\min_{p,q} pq, \; \max_{p,q} pq], \quad p \in [\underline{a}, \overline{a}],\; q \in [\underline{b}, \overline{b}]. \label{eq:interval_mul}
+\end{align}
+
+\subsection{Fuzzy Kirchhoff's Current Law}
+
+\begin{theorem}[Fuzzy KCL]
+\label{thm:fuzzy_kcl}
+The Kirchhoff current law lifts to fuzzy states via the extension principle.  At each node $v_i$, the fuzzy flux balance constraint $\tilde{J}_i^{\text{in}} = \tilde{J}_i^{\text{out}}$ is enforced by intersecting the current membership function $\fuzzyset{i}$ with the KCL-consistent set $\fuzzyset{i}^{\text{KCL}}$:
+\begin{equation}
+    \fuzzyset{i} \leftarrow \fuzzyset{i} \cap \fuzzyset{i}^{\text{KCL}},
+    \label{eq:fuzzy_kcl}
+\end{equation}
+where $(\fuzzyset{1} \cap \fuzzyset{2})(x) = \min(\fuzzyset{1}(x), \fuzzyset{2}(x))$ is the standard fuzzy intersection \cite{zadeh1965}.
+\end{theorem}
+
+\begin{proof}
+Apply the Zadeh extension principle (\defref{def:zadeh_extension}) to the crisp constraint $\sum_j k_{ji}[C_j] = \sum_j k_{ij}[C_i]$ viewed as a function of the node concentrations.  At each $\alpha$-level, the fuzzy intervals for all node valuations are propagated through the linear flux equations by interval arithmetic (\eqnref{eq:interval_add}--\eqnref{eq:interval_mul}).  The resulting interval for $[C_i]$ consistent with KCL at level $\alpha$ is $[\underline{c}_i^{\text{KCL},\alpha}, \overline{c}_i^{\text{KCL},\alpha}]$.  Assembling over all $\alpha$ gives $\fuzzyset{i}^{\text{KCL}}$.  The intersection $\fuzzyset{i} \cap \fuzzyset{i}^{\text{KCL}}$ restricts the state of $v_i$ to valuations simultaneously consistent with measurement and with flux balance.
+\end{proof}
+
+\subsection{Fuzzy Kirchhoff's Voltage Law}
+
+\begin{theorem}[Fuzzy KVL]
+\label{thm:fuzzy_kvl}
+For each directed cycle $\mathcal{C}$ in $G$, the thermodynamic cycle constraint $\sum_{(i,j) \in \mathcal{C}} \Delta\phi_{ij} = 0$ lifts to fuzzy form:
+\begin{equation}
+    0 \in \text{core}\!\left(\tilde{\Phi}_\mathcal{C}\right),
+    \label{eq:fuzzy_kvl}
+\end{equation}
+where $\tilde{\Phi}_\mathcal{C}$ is the fuzzy real number obtained by applying the extension principle to the sum $\sum_{(i,j) \in \mathcal{C}} (\phi_j - \phi_i)$.  Any fuzzy state assignment violating this condition has its membership reduced.
+\end{theorem}
+
+\begin{proof}
+In the crisp case, the cycle potential sum is exactly zero (\thmref{thm:portfolio_kvl}).  Applying the extension principle to the sum $\sum_{(i,j) \in \mathcal{C}} (\phi_j - \phi_i) + \sum_{(i,j) \in \mathcal{C}} \Delta\mu_{ij}^\circ$ produces the fuzzy number $\tilde{\Phi}_\mathcal{C}$.  The constraint $\tilde{\Phi}_\mathcal{C}(0) = 1$ is enforced by back-propagating through the interval arithmetic: at each $\alpha$-level, the intervals of cycle-node valuations are restricted so that $[\tilde{\Phi}_\mathcal{C}]^\alpha$ contains zero.
+\end{proof}
+
+\subsection{Fuzzy Node Resolution (Defuzzification)}
+
+When a node's fuzzy state has been sufficiently narrowed by the constraint operators, it may be \emph{defuzzified} to obtain a crisp valuation:
+
+\begin{definition}[Centroid Defuzzification]
+\label{def:defuzzify}
+The \emph{centroid} of a fuzzy state $\fuzzyset{i}$ is
+\begin{equation}
+    x_i^* = \frac{\int x \cdot \fuzzyset{i}(x) \, dx}{\int \fuzzyset{i}(x) \, dx},
+    \label{eq:centroid}
+\end{equation}
+the centre of gravity of the membership function.
+\end{definition}
+
+Defuzzification is optional and should be deferred as long as possible: the power of the fuzzy representation lies in propagating the full membership function rather than collapsing to a point estimate prematurely.
+
+%=============================================================================
+\part{Trajectory Completion}
+%=============================================================================
+
+\section{Backward Trajectories and Categorical Addresses}
+\label{sec:backward_traj}
+
+\subsection{The Portfolio as a Stochastic Network}
+
+\begin{definition}[Portfolio Dynamics as CTMC]
+\label{def:portfolio_ctmc}
+The portfolio circuit graph $G = (V, E, w)$ with edge weights $\{G_{ij}\}$ defines a continuous-time Markov chain (CTMC) on the categorical state space $\prod_{i=1}^N \{1, \ldots, n_i\}$, where $n_i$ is the number of categorical states of asset $i$.  The transition rate from state $\sigma$ to state $\sigma'$ differing at node $i$ is
+\begin{equation}
+    q(\sigma, \sigma') = G_{ij} \cdot |\Delta\phi_{ij}|,
+    \label{eq:transition_rate}
+\end{equation}
+proportional to the conductance times the driving potential difference.
+\end{definition}
+
+\subsection{MAP Backward Trajectory}
+
+\begin{definition}[MAP Backward Trajectory]
+\label{def:backward_traj}
+For node $v_i$ observed in state $\sigma_i$ at time $T$, the \emph{backward trajectory} $\mathcal{B}_i$ is the maximum-a-posteriori (MAP) causal history of that observation:
+\begin{equation}
+    \mathcal{B}_i = \underset{\substack{\mathbf{x}(\cdot) : x_i(T) = \sigma_i \\ \mathbf{x}(\cdot) \text{ consistent with } G}}{\arg\max} \; P\!\left(\mathbf{x}(\cdot) \mid x_i(T) = \sigma_i, G\right).
+    \label{eq:backward_traj}
+\end{equation}
+It is the most probable trajectory, consistent with the network kinetics and topology, that terminates in state $\sigma_i$.
+\end{definition}
+
+Computationally, $\mathcal{B}_i$ is obtained by the Viterbi algorithm \cite{viterbi1967,forney1973} applied to the CTMC: starting from $\sigma_i$ at time $T$, trace backward through the network graph selecting at each step the predecessor state with the highest conditional probability.
+
+\begin{definition}[Categorical Address]
+\label{def:cat_address}
+The \emph{categorical address} of node $v_i$ in state $\sigma_i$ is the backward trajectory $\mathcal{B}_i(\sigma_i, G)$.  It is the time-invariant identity of that state in the network's state space.
+\end{definition}
+
+\subsection{Time-Invariance of Backward Trajectories}
+
+\begin{theorem}[Time-Invariance]
+\label{thm:time_invariance}
+For an autonomous (time-homogeneous) portfolio network $G$ with time-independent conductances, the MAP backward trajectory $\mathcal{B}_i$ depends only on the current state $\sigma_i$ and the network $G$, not on the absolute observation time $T$:
+\begin{equation}
+    \mathcal{B}_i = \mathcal{B}_i(\sigma_i, G), \quad \text{independent of } T.
+    \label{eq:time_invariance}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The transition rates $q(\sigma, \sigma') = G_{ij} |\Delta\phi_{ij}|$ depend only on the current state $\sigma$ and the conductances $G_{ij}$, not on absolute time $t$.  The CTMC is therefore time-homogeneous: for all $t, s \geq 0$,
+\begin{equation}
+    P(\mathbf{x}(t+s) = \mathbf{m} \mid \mathbf{x}(t) = \mathbf{n}) = P(\mathbf{x}(s) = \mathbf{m} \mid \mathbf{x}(0) = \mathbf{n}).
+\end{equation}
+Applying this to the conditional distribution of the past trajectory:
+\begin{equation}
+    P(\mathbf{x}(T-\tau) = \mathbf{m} \mid x_i(T) = \sigma_i, G) = P(\mathbf{x}(-\tau) = \mathbf{m} \mid x_i(0) = \sigma_i, G),
+\end{equation}
+since the CTMC statistics are identical after the time shift $T$.  The MAP over the left-hand side is therefore identical to the MAP over the right-hand side for all $T$, establishing \eqnref{eq:time_invariance}.
+\end{proof}
+
+\begin{corollary}[Categorical Address as Geometric Invariant]
+\label{cor:geometric_invariant}
+The categorical address $\mathcal{B}_i(\sigma_i, G)$ is a fixed geometric property of state $\sigma_i$ within the network's state space, independent of when the cell is observed.
+\end{corollary}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_02_time_invariance.png}
+    \caption{\textbf{Time-Invariance of Optimal Allocation: Drift Analysis, Centroid Overlay, Allocation Surface, and Deviation Heatmap.}
+    (\textbf{A})~Maximum allocation drift $\|\Delta \mathbf{w}\|_\infty$ across all asset nodes as a function of time offset $\Delta t \in \{0, 10, 100, 1000, 10000\}$. All values are exactly zero to machine precision, confirming Theorem~\ref{thm:time_inv_alloc}: the fixed point of the trajectory completion operator is independent of the absolute time at which it is computed. The time offset shifts the categorical state $C_i(t) = \lfloor \omega_i t / (2\pi) \rfloor$ of each asset but does not affect the network topology or conductances, leaving the fixed point invariant.
+    (\textbf{B})~Per-asset fixed-point centroids for all five time offsets overlaid on the same axes. The scatter points for different offsets ($t = 0$ through $t = 10{,}000$) are perfectly superimposed, rendering them visually indistinguishable. This confirms that the optimal allocation vector $\mathbf{w}^*$ is identical across all observation times---the portfolio's partition structure, not its temporal position, determines the allocation.
+    (\textbf{C})~Three-dimensional allocation surface plotting centroid value (z-axis) as a function of asset index (x-axis) and time offset index (y-axis). The surface is perfectly flat along the time-offset axis, forming a ruled surface whose shape is determined entirely by the asset dimension. This geometric flatness is the visual signature of time-invariance: translation along the time axis produces zero change in the allocation surface.
+    (\textbf{D})~Heatmap of absolute centroid deviation $|x_i^*(\Delta t) - x_i^*(0)|$ for each asset (columns) and time offset (rows). The entire heatmap is uniformly zero (dark green), with the colourbar confirming values below $10^{-3}$. This provides a per-element verification that time-invariance holds not merely in aggregate but for every individual asset in the portfolio.}
+    \label{fig:time_invariance}
+\end{figure*}
+
+
+%=============================================================================
+\section{The Trajectory Completion Algorithm}
+\label{sec:traj_completion}
+
+\subsection{Problem Statement}
+
+The trajectory completion problem takes as input:
+\begin{itemize}
+    \item A portfolio circuit graph $G = (V, E, w)$ with conductances $\{G_{ij}\}$.
+    \item Partial observations $\mathcal{O} = \{(v_{i_k}, \sigma_{i_k})\}_{k=1}^M$, $M \leq N$ (observed node states).
+    \item Reference backward trajectories $\{\mathcal{B}_i^{\text{ref}}\}$ pre-computed from a healthy/target portfolio state.
+    \item A tolerance $\varepsilon > 0$.
+\end{itemize}
+
+It outputs a fuzzy network state $\fuzzy{\mathbf{X}}^*$ maximally consistent with all constraints.
+
+\subsection{The Three Constraint Operators}
+
+\begin{definition}[Constraint Operators]
+\label{def:constraint_ops}
+Define three constraint operators on the space $(\tilde{\mathcal{X}}, d)$ of fuzzy state tuples equipped with the Hausdorff product metric:
+
+\textbf{(i)} $\Tkcl$: Apply \thmref{thm:fuzzy_kcl} at every node, enforcing fuzzy mass balance.
+
+\textbf{(ii)} $\Tkvl$: Apply \thmref{thm:fuzzy_kvl} to every independent cycle in $G$ (circuit rank $R - N + 1$ cycles suffice), enforcing fuzzy no-arbitrage.
+
+\textbf{(iii)} $\Tback$: For each node $v_i$, compute the Viterbi MAP backward trajectory from the current mode of $\fuzzyset{i}$; compute $\dcat(\mathcal{B}_i^{\text{current}}, \mathcal{B}_i^{\text{ref}})$; restrict $\fuzzyset{i}$ to valuations whose backward trajectory is consistent within threshold.
+
+The combined operator is $\Tcomp = \Tback \circ \Tkvl \circ \Tkcl$.
+\end{definition}
+
+\subsection{Convergence Theorem}
+\label{sec:convergence}
+
+\begin{theorem}[Convergence of Trajectory Completion]
+\label{thm:convergence}
+The operator $\Tcomp = \Tback \circ \Tkvl \circ \Tkcl$ is a contraction mapping on the complete metric space $(\tilde{\mathcal{X}}, d)$ of fuzzy state tuples equipped with the Hausdorff product metric.  By the Banach fixed-point theorem \cite{banach1922}, iteration of $\Tcomp$ from any initial state converges geometrically to a unique fixed point $\fuzzy{\mathbf{X}}^*$:
+\begin{equation}
+    d(\Tcomp^n(\fuzzy{\mathbf{X}}_0), \fuzzy{\mathbf{X}}^*) \leq c^n \cdot d(\fuzzy{\mathbf{X}}_0, \fuzzy{\mathbf{X}}^*),
+    \label{eq:convergence}
+\end{equation}
+where $c = c_1 c_2 c_3 < 1$ is the product of the contraction constants of the three operators.
+\end{theorem}
+
+\begin{proof}
+We show each sub-operator is a strict contraction.
+
+\textbf{$\Tkcl$ is a contraction.}  At node $v_i$, the KCL constraint relates $[C_i]$ linearly to the concentrations of $v_i$'s neighbours.  For two fuzzy states $\fuzzy{\mathbf{X}}$ and $\fuzzy{\mathbf{Y}}$, the KCL-consistent interval widths satisfy
+\begin{equation}
+    \hausd\!\left([\fuzzyset{i}^{\text{KCL}}(\mathbf{X})]^\alpha, [\fuzzyset{i}^{\text{KCL}}(\mathbf{Y})]^\alpha\right) \leq \sum_{j \in \mathcal{N}(i)} \frac{G_{ji}}{\sum_k G_{ki}} \hausd\!\left([\fuzzyset{j}(\mathbf{X})]^\alpha, [\fuzzyset{j}(\mathbf{Y})]^\alpha\right),
+\end{equation}
+where $\mathcal{N}(i)$ is the in-neighbour set of $v_i$ and the coefficients $G_{ji}/(\sum_k G_{ki})$ are positive and sum to at most 1.  Intersection with the prior $\fuzzyset{i}$ can only reduce the Hausdorff distance.  Hence $\Tkcl$ has contraction constant $c_1 \leq 1$; it is strictly less than 1 whenever at least one node is constrained by an observation.
+
+\textbf{$\Tkvl$ is a contraction.}  The KVL constraint at each cycle imposes a multiplicative relation on concentrations of cycle nodes.  The resulting restriction of fuzzy intervals narrows them toward the thermodynamic constraint manifold, reducing the Hausdorff distance by a factor $c_2 < 1$ that depends on the cycle length and the magnitude of the standard potential differences $\Delta\mu_{ij}^\circ$.
+
+\textbf{$\Tback$ is a contraction.}  The Viterbi backward trajectory from the current mode of $\fuzzyset{i}$ identifies a set of ``backward-consistent'' valuations.  Restricting $\fuzzyset{i}$ to this set reduces the support width monotonically.  The Hausdorff distance satisfies $\hausd(\Tback(\fuzzyset{}), \Tback(\tilde{\nu})) \leq c_3 \hausd(\fuzzyset{}, \tilde{\nu})$ with $c_3 < 1$ whenever the backward trajectory imposes a non-trivial constraint.
+
+\textbf{Composition.}  The composition of operators with contraction constants $c_1, c_2, c_3$ gives overall constant $c \leq c_1 c_2 c_3 < 1$.  The space $(\tilde{\mathcal{X}}, d)$ is complete because it is a finite product of complete metric spaces (the Hausdorff metric on compact fuzzy sets is complete \cite{hausdorff1914}).  By the Banach fixed-point theorem \cite{banach1922}, there exists a unique fixed point $\fuzzy{\mathbf{X}}^*$, and the iteration converges to it at the geometric rate $c^n$.
+\end{proof}
+
+\begin{corollary}[Crisp Convergence Under Sufficient Observations]
+\label{cor:crisp}
+If the observation set $\mathcal{O}$ is sufficient to uniquely determine the network state, then the fixed point $\fuzzy{\mathbf{X}}^*$ is a crisp state: $\fuzzyset{i}^*$ has single-point support for all $i$.
+\end{corollary}
+
+\begin{proof}
+Under sufficient observations, the three constraint operators jointly reduce each fuzzy interval width to zero at convergence.  KCL propagates crisp observations through the network; KVL eliminates thermodynamically inconsistent assignments; the backward trajectory constraint eliminates kinetically inconsistent assignments.  The fixed-point interval widths $\overline{x}_i^{*,\alpha} - \underline{x}_i^{*,\alpha} \to 0$ for all $\alpha$ and all $i$, yielding crisp values.
+\end{proof}
+
+\subsection{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Portfolio Trajectory Completion}
+\label{alg:trajectory_completion}
+\begin{algorithmic}[1]
+\REQUIRE Network $G$; observations $\mathcal{O}$; reference trajectories $\{\mathcal{B}_i^{\text{ref}}\}$; tolerance $\varepsilon > 0$.
+\ENSURE Fuzzy state $\fuzzy{\mathbf{X}}^*$.
+\STATE \textbf{Initialise}: For observed nodes $v_{i_k}$, set $\fuzzyset{i_k} \leftarrow \tilde{\mu}^{\text{trap}}(\cdot; \sigma_{i_k} - \epsilon, \sigma_{i_k} - \epsilon/2, \sigma_{i_k} + \epsilon/2, \sigma_{i_k} + \epsilon)$.  For unobserved nodes, set $\fuzzyset{i} \leftarrow 1$ on $[x_{\min}^i, x_{\max}^i]$ (maximum-entropy prior).
+\REPEAT
+    \STATE $\fuzzy{\mathbf{X}}^{\text{prev}} \leftarrow \fuzzy{\mathbf{X}}$
+    \FOR{each node $v_i \in V$}
+        \STATE Apply $\Tkcl$ at $v_i$: compute fuzzy in-flux and out-flux from current neighbour states via fuzzy arithmetic; intersect $\fuzzyset{i}$ with KCL-consistent set.
+    \ENDFOR
+    \FOR{each independent cycle $\mathcal{C}$ in $G$}
+        \STATE Apply $\Tkvl$: compute fuzzy cycle potential; restrict node memberships to enforce $0 \in \text{core}(\tilde{\Phi}_\mathcal{C})$.
+    \ENDFOR
+    \FOR{each node $v_i \in V$}
+        \STATE Apply $\Tback$: run Viterbi backward algorithm from current mode of $\fuzzyset{i}$; compute $\dcat(\mathcal{B}_i^{\text{current}}, \mathcal{B}_i^{\text{ref}})$; restrict $\fuzzyset{i}$ to backward-consistent valuations.
+    \ENDFOR
+\UNTIL{$d(\fuzzy{\mathbf{X}}, \fuzzy{\mathbf{X}}^{\text{prev}}) < \varepsilon$}
+\RETURN $\fuzzy{\mathbf{X}}^* \leftarrow \fuzzy{\mathbf{X}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Computational Complexity}
+
+\begin{proposition}[Complexity of One Iteration]
+\label{prop:complexity}
+For a portfolio network with $N$ asset nodes, $E$ coupling edges, maximum vertex degree $\Delta$, and backward trajectory depth $L$, one iteration of Algorithm~\ref{alg:trajectory_completion} requires:
+\begin{itemize}
+    \item $O(N\Delta)$ for fuzzy KCL propagation,
+    \item $O((E - N + 1)\Delta)$ for fuzzy KVL (one pass per independent cycle),
+    \item $O(N \cdot E \cdot L)$ for Viterbi backward trajectories.
+\end{itemize}
+Total: $O(N \cdot E \cdot L)$.  Convergence in $O(\log(1/\varepsilon) / \log(1/c))$ iterations gives total complexity $O(N \cdot E \cdot L \cdot \log(1/\varepsilon) / \log(1/c))$.
+\end{proposition}
+
+\begin{remark}
+For typical portfolios ($N \sim 10^1$--$10^3$, $E \sim N^{1.5}$, $L \sim 20$--$100$), each iteration involves $\sim 10^5$--$10^8$ elementary fuzzy arithmetic operations, feasible on modern hardware within seconds.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_01_convergence.png}
+    \caption{\textbf{Convergence Rate and Algebraic Connectivity: Iteration Count, Contraction Rate, Convergence Surface, and Trajectory Decay.}
+    (\textbf{A})~Iterations to convergence versus Fiedler value $\lambda_2$ (log scale) for portfolio circuit graphs with 15 asset nodes and varying edge connectivity. Teal circles show measured iteration counts; dashed coral line is the logarithmic fit. Higher algebraic connectivity yields faster convergence: $\lambda_2 = 0.016$ requires 69 iterations while $\lambda_2 = 121$ requires 46, confirming the predicted inverse relationship between network connectivity and convergence time. The log-linear trend demonstrates that the trajectory completion operator contracts more rapidly on well-connected graphs, where Kirchhoff constraints propagate information efficiently across the network.
+    (\textbf{B})~Contraction rate $c$ of the trajectory completion operator for each $\lambda_2$ value. All rates satisfy $c < 1$ (below the coral dashed line), confirming that $\mathcal{T} = \mathcal{T}_{\text{Back}} \circ \mathcal{T}_{\text{KVL}} \circ \mathcal{T}_{\text{KCL}}$ is a strict contraction mapping for all tested network configurations. The contraction rate decreases monotonically from $c = 0.794$ at $\lambda_2 = 0.016$ to $c = 0.699$ at $\lambda_2 = 121$, establishing that denser networks contract faster---consistent with Theorem~\ref{thm:convergence}.
+    (\textbf{C})~Three-dimensional convergence surface showing iteration count as a function of target connectivity (x-axis) and random seed (y-axis) across a $6 \times 5$ parameter grid. The surface confirms that convergence behaviour is robust to graph randomness: the dominant variation is along the connectivity axis, with seed-to-seed variation producing only minor perturbations. The peak at low connectivity reflects graphs near the percolation threshold where information propagation is bottlenecked by sparse edges.
+    (\textbf{D})~Hausdorff distance between successive iterates (log scale) versus iteration number for five representative $\lambda_2$ values. All curves exhibit geometric (straight-line in log) decay, confirming the exponential convergence rate predicted by the Banach fixed-point theorem. Higher $\lambda_2$ (lighter curves) decay faster, reaching machine precision ($10^{-10}$) in fewer iterations. The parallel slopes in log space correspond to the contraction rates shown in (B).}
+    \label{fig:convergence}
+\end{figure*}
+
+%=============================================================================
+\section{The Optimal Portfolio as Fixed Point}
+\label{sec:optimal}
+
+\subsection{The Fixed Point IS the Optimal Allocation}
+
+\begin{theorem}[Optimal Allocation as Fixed Point]
+\label{thm:optimal_fixed_point}
+The fixed point $\fuzzy{\mathbf{X}}^*$ of the trajectory completion operator $\Tcomp$ is the unique portfolio allocation that simultaneously satisfies:
+\begin{enumerate}[label=(\roman*)]
+    \item Capital conservation (KCL) at every node,
+    \item No-arbitrage (KVL) around every cycle,
+    \item Kinetic consistency with the reference backward trajectory at every node.
+\end{enumerate}
+No other allocation satisfies all three constraints.
+\end{theorem}
+
+\begin{proof}
+By \thmref{thm:convergence}, $\fuzzy{\mathbf{X}}^*$ is the unique fixed point of $\Tcomp$.  By definition of a fixed point, $\Tcomp(\fuzzy{\mathbf{X}}^*) = \fuzzy{\mathbf{X}}^*$, meaning that applying all three constraint operators leaves the state unchanged.  This is precisely the condition that $\fuzzy{\mathbf{X}}^*$ satisfies all three constraints simultaneously.  Uniqueness follows from the uniqueness of the Banach fixed point.
+\end{proof}
+
+\subsection{Portfolio Weights from the Fixed Point}
+
+The portfolio weight for asset $i$ is determined by defuzzifying the fixed-point state $\fuzzyset{i}^*$:
+\begin{equation}
+    w_i = \frac{x_i^*}{\sum_{j=1}^N x_j^*}, \quad x_i^* = \frac{\int x \cdot \fuzzyset{i}^*(x) \, dx}{\int \fuzzyset{i}^*(x) \, dx}.
+    \label{eq:portfolio_weights}
+\end{equation}
+
+When the fixed point is crisp (\corollaryref{cor:crisp}), $x_i^*$ is a single value and the weights are exact.  When the fixed point retains residual fuzziness, the centroid provides the ``best estimate'' weight, and the support width of $\fuzzyset{i}^*$ provides a natural uncertainty bound on that weight.
+
+\subsection{Stability Under Perturbation}
+
+\begin{proposition}[Perturbation Stability]
+\label{prop:stability}
+If the portfolio graph $G$ is perturbed to $G'$ with $\|G - G'\| < \delta$, the fixed points satisfy
+\begin{equation}
+    d(\fuzzy{\mathbf{X}}^*(G), \fuzzy{\mathbf{X}}^*(G')) \leq \frac{\delta}{1 - c},
+    \label{eq:stability}
+\end{equation}
+where $c < 1$ is the contraction constant.
+\end{proposition}
+
+\begin{proof}
+Standard perturbation result for Banach contractions \cite{kreyszig1978}.  Let $\Tcomp$ and $\Tcomp'$ be the operators for $G$ and $G'$ respectively.  Then $d(\fuzzy{\mathbf{X}}^*, \fuzzy{\mathbf{X}}'^*) \leq d(\Tcomp(\fuzzy{\mathbf{X}}^*), \Tcomp'(\fuzzy{\mathbf{X}}^*)) / (1 - c) \leq \delta / (1-c)$.
+\end{proof}
+
+This ensures that small changes in market conditions (conductance perturbations) produce proportionally small changes in the optimal allocation---in contrast to the extreme sensitivity of Markowitz optimisation.
+
+
+%=============================================================================
+\section{Time-Invariance of the Optimal Allocation}
+\label{sec:time_invariance}
+
+\begin{theorem}[Time-Invariance of Optimal Allocation]
+\label{thm:time_inv_alloc}
+The optimal portfolio allocation $\fuzzy{\mathbf{X}}^*$ determined by the fixed point of $\Tcomp$ is independent of the absolute time at which it is computed, provided the portfolio network $G$ has time-independent conductances.
+\end{theorem}
+
+\begin{proof}
+The fixed point $\fuzzy{\mathbf{X}}^*$ is uniquely determined by the operator $\Tcomp$, which depends on:
+\begin{itemize}
+    \item The conductances $\{G_{ij}\}$ (time-independent by assumption),
+    \item The observations $\mathcal{O} = \{(v_{i_k}, \sigma_{i_k})\}$ (current states, not timestamps),
+    \item The reference trajectories $\{\mathcal{B}_i^{\text{ref}}\}$ (time-invariant by \thmref{thm:time_invariance}).
+\end{itemize}
+None of these depend on absolute time $T$.  Therefore $\fuzzy{\mathbf{X}}^*$ is time-invariant.
+\end{proof}
+
+\begin{remark}
+This does \emph{not} mean the portfolio is static.  When the market changes the boundary conditions (new observations, changed conductances), the fixed point shifts accordingly.  But the shift is determined by the \emph{new} state and topology, not by the passage of time itself.  The portfolio rebalances because the network structure has changed, not because the calendar has advanced.  This is a profound shift from time-series-based portfolio management.
+\end{remark}
+
+\begin{corollary}[Rebalancing as Partition Refinement]
+\label{cor:rebalancing}
+Portfolio rebalancing occurs when the categorical address of the current allocation diverges from the fixed-point address by more than one partition level.  The rebalancing decision is:
+\begin{equation}
+    \text{Rebalance} \iff \dcat(\alpha(\fuzzy{\mathbf{X}}_{\text{current}}, k), \alpha(\fuzzy{\mathbf{X}}^*, k)) > 0
+    \label{eq:rebalance}
+\end{equation}
+at the relevant partition depth $k$.  This is a structural criterion (address mismatch), not a temporal criterion (time since last rebalance).
+\end{corollary}
+
+
+
+%=============================================================================
+\part{Analysis and Extensions}
+%=============================================================================
+
+\section{S-Entropy Navigation for Portfolio Optimisation}
+\label{sec:sentropy}
+
+\subsection{Portfolio State in S-Entropy Coordinates}
+
+The portfolio's information-theoretic state is characterised by three S-entropy coordinates:
+
+\begin{definition}[Portfolio S-Entropy Coordinates]
+\label{def:portfolio_sentropy}
+For a portfolio with $N$ assets and fuzzy state $\fuzzy{\mathbf{X}}$:
+\begin{align}
+    S_k^{\text{port}} &= \frac{1}{N} \sum_{i=1}^N \frac{H(P_i^{\text{state}})}{H_{\max}^{(i)}}, \label{eq:port_sk} \\
+    S_t^{\text{port}} &= \frac{1}{N} \sum_{i=1}^N \frac{H(P_i^{\text{phase}})}{H_{\max,\text{phase}}^{(i)}}, \label{eq:port_st} \\
+    S_e^{\text{port}} &= \frac{1}{N} \sum_{i=1}^N \frac{H(P_i^{\text{traj}})}{H_{\max,\text{traj}}^{(i)}}, \label{eq:port_se}
+\end{align}
+where $P_i^{\text{state}}$, $P_i^{\text{phase}}$, and $P_i^{\text{traj}}$ are the probability distributions over possible states, oscillatory phases, and trajectories of asset $i$, and $H_{\max}^{(i)}$ is the corresponding maximum entropy (uniform distribution).
+\end{definition}
+
+\begin{remark}
+$\mathbf{S}^{\text{port}} = (0, 0, 0)$: perfect knowledge of every asset's state, phase, and history---the portfolio is fully solved.  $\mathbf{S}^{\text{port}} = (1, 1, 1)$: maximum uncertainty about everything---no information at all.  Trajectory completion moves the portfolio from high entropy toward low entropy; the fixed point is the minimum-entropy state consistent with all constraints.
+\end{remark}
+
+\subsection{Backward Navigation in S-Space}
+
+Portfolio optimisation in the trajectory completion framework is \emph{backward navigation} in S-entropy space: starting from the current (high-entropy) state, navigate backward through the partition hierarchy toward the (low-entropy) optimal state.  The Viterbi algorithm implements this navigation with complexity $O(\log_3 N)$ per level of the partition hierarchy, yielding total navigation complexity:
+\begin{equation}
+    O(k \cdot \log_3 N) = O(\log_3 N \cdot \log_3 N) = O(\log_3^2 N),
+    \label{eq:navigation_complexity}
+\end{equation}
+where $k = \lceil \log_3(n^M) \rceil$ is the partition depth.
+
+
+%=============================================================================
+\section{Risk Analysis in the Circuit Framework}
+\label{sec:risk}
+
+\subsection{Risk as Fuzzy Support Width}
+
+\begin{definition}[Fuzzy Portfolio Risk]
+\label{def:fuzzy_risk}
+The \emph{fuzzy risk} of the portfolio at the fixed point $\fuzzy{\mathbf{X}}^*$ is the total support width:
+\begin{equation}
+    \mathcal{R}(\fuzzy{\mathbf{X}}^*) = \sum_{i=1}^N w_i \cdot |\text{supp}(\fuzzyset{i}^*)| = \sum_{i=1}^N w_i (\overline{x}_i^{*,0} - \underline{x}_i^{*,0}),
+    \label{eq:fuzzy_risk}
+\end{equation}
+where $w_i$ is the portfolio weight and $|\text{supp}(\fuzzyset{i}^*)|$ is the width of the support of the $i$-th fuzzy state at the fixed point.
+\end{definition}
+
+\begin{remark}
+This risk measure captures the \emph{residual epistemic uncertainty} that cannot be resolved by the available observations and network constraints.  It naturally decreases as more observations are added (the fixed point becomes crisper) and as the network becomes more connected (more constraints propagate information).
+\end{remark}
+
+
+
+\subsection{Risk Bound from the Spectral Gap}
+
+\begin{theorem}[Spectral Risk Bound]
+\label{thm:spectral_risk}
+The fuzzy portfolio risk is bounded by the spectral gap of the graph Laplacian:
+\begin{equation}
+    \mathcal{R}(\fuzzy{\mathbf{X}}^*) \leq \frac{\mathcal{R}_0}{\lambda_2} \cdot \frac{N - M}{N},
+    \label{eq:spectral_bound}
+\end{equation}
+where $\mathcal{R}_0$ is the initial risk (before trajectory completion), $\lambda_2$ is the Fiedler value (algebraic connectivity), $N$ is the total number of nodes, and $M$ is the number of observed nodes.
+\end{theorem}
+
+\begin{proof}
+Each iteration of $\Tcomp$ reduces the fuzzy support width by a factor bounded by the contraction constant $c$.  The contraction constant depends on the network's mixing properties, which are governed by $\lambda_2$.  Specifically, information from observed nodes propagates to unobserved nodes at rate $\lambda_2$, so the number of iterations required to reduce uncertainty at distance $d$ from an observation scales as $d / \lambda_2$.  The fraction of unobserved nodes is $(N-M)/N$.  Combining these factors yields the bound.
+\end{proof}
+
+\begin{corollary}[Diversification as Connectivity]
+\label{cor:diversification}
+In the circuit framework, diversification is not merely ``holding many assets''---it is \emph{increasing the algebraic connectivity $\lambda_2$} of the portfolio graph.  A well-diversified portfolio has high $\lambda_2$ (strongly connected), enabling rapid propagation of information across the network and rapid convergence to the fixed point.
+\end{corollary}
+
+\subsection{Shock Propagation and Contagion}
+
+\begin{theorem}[Exponential Shock Decay]
+\label{thm:shock_decay}
+An external price shock of amplitude $\Delta\phi_0$ at boundary node $b$ propagates to internal node $i$ with amplitude decaying exponentially with graph distance:
+\begin{equation}
+    |\Delta\phi_i| \leq \Delta\phi_0 \cdot e^{-\sqrt{\lambda_2} \cdot d_G(b, i)},
+    \label{eq:shock_decay}
+\end{equation}
+where $d_G(b, i)$ is the shortest-path distance from $b$ to $i$ in $G$.
+\end{theorem}
+
+\begin{proof}
+The shock propagation follows the diffusion equation \eqnref{eq:diffusion} on the graph.  Expanding in the eigenbasis of $\mathbf{L}$: $\Delta\phi_i(t) = \sum_k c_k u_k(i) e^{-\lambda_k t}$.  At steady state ($t \to \infty$), only the zero mode survives, spreading the shock uniformly.  At finite time, the amplitude at distance $d$ is dominated by the slowest-decaying non-trivial mode $\lambda_2$, giving exponential decay with rate $\sqrt{\lambda_2}$.  The graph distance $d_G(b,i)$ provides the spatial scale.
+\end{proof}
+
+\begin{corollary}[Contagion Resistance]
+\label{cor:contagion}
+A portfolio with high Fiedler value $\lambda_2$ exhibits rapid shock equilibration (short $\tau_{\text{relax}} = 1/\lambda_2$) but fast decay with distance.  A portfolio with low $\lambda_2$ has slow equilibration but the shock reaches farther before decaying.  Optimal contagion resistance requires balancing connectivity (high $\lambda_2$ for information propagation) against shock isolation (removing high-conductance edges that channel contagion).
+\end{corollary}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_05_shock_propagation.png}
+    \caption{\textbf{Shock Propagation and Exponential Decay: Linear Amplitude, Log-Amplitude Fit, Propagation Surface, and Normalised Theoretical Comparison.}
+    (\textbf{A})~Shock amplitude $|\Delta\phi_i|$ versus graph distance $d$ from the shock source on a 20-node chain graph. A boundary shock of magnitude 50 at node 0 decays rapidly: amplitude drops below 1.0 by distance 4 and below $10^{-4}$ by distance 14. The teal shaded area under the curve visualises the spatial extent of shock influence, confirming that perturbations are localised to the neighbourhood of the shock source.
+    (\textbf{B})~Natural logarithm of shock amplitude versus graph distance, with least-squares exponential fit (dashed coral). The near-perfect linear relationship in log space ($R^2 > 0.99$) confirms exponential decay $|\Delta\phi_i| = \Delta\phi_0 \cdot e^{-\gamma d}$ as predicted by Theorem~\ref{thm:shock_decay}. The measured decay rate $\gamma = 0.963$ per hop establishes that each additional graph hop attenuates the shock by a factor of $e^{-0.963} \approx 0.38$.
+    (\textbf{C})~Three-dimensional shock propagation surface showing amplitude (z-axis) as a function of graph distance (x-axis) and initial shock magnitude index (y-axis) for five shock magnitudes $\{10, 25, 50, 75, 100\}$. The surface confirms that the decay profile scales linearly with shock magnitude (the surface is a ruled surface in the magnitude direction) while maintaining the same exponential decay shape in the distance direction. This linearity is a consequence of the linear Kirchhoff equations governing the circuit.
+    (\textbf{D})~Normalised amplitude $|\Delta\phi_i|/|\Delta\phi_0|$ (navy circles, log scale) versus graph distance, overlaid with the theoretical exponential $e^{-\gamma d}$ (dashed coral). The data points fall exactly on the theoretical curve across five orders of magnitude, providing quantitative validation of the exponential decay law. The agreement confirms that the graph Laplacian diffusion equation \eqref{eq:diffusion} accurately describes shock propagation through the portfolio circuit.}
+    \label{fig:shock_propagation}
+\end{figure*}
+
+\subsection{Tail Risk as Partition Extinction}
+
+\begin{definition}[Partition Extinction Event]
+\label{def:extinction}
+A \emph{partition extinction event} occurs when the partition operations between consecutive categorical states of an asset become undefined: the oscillatory dynamics ceases and the categorical state function $C_i(t)$ no longer advances.  Financially, this corresponds to trading halt, delisting, default, or market closure.
+\end{definition}
+
+\begin{theorem}[Partition Extinction and Transport Vanishing]
+\label{thm:extinction}
+When partition operations at node $v_i$ become undefined, all transport coefficients associated with $v_i$ vanish exactly:
+\begin{equation}
+    \Xi_i(T < T_c) = 0,
+    \label{eq:extinction}
+\end{equation}
+where $T_c$ is the critical temperature (the categorical temperature at which carriers become indistinguishable).
+\end{theorem}
+
+\begin{proof}
+Transport coefficients are proportional to the partition lag $\tau_p$.  When partition operations become undefined, $\tau_p$ is undefined and the transport formula \eqnref{eq:transport_coeff} produces $\Xi = 0$.  No partition $\Rightarrow$ no scattering $\Rightarrow$ no transport.
+\end{proof}
+
+
+%=============================================================================
+\section{Relationship to Classical Portfolio Theory}
+\label{sec:classical_limit}
+
+\begin{theorem}[Markowitz as Special Case]
+\label{thm:markowitz_limit}
+When the following conditions hold simultaneously:
+\begin{enumerate}[label=(\roman*)]
+    \item All fuzzy states are crisp (zero epistemic uncertainty): $\fuzzyset{i}(x) = \delta(x - x_i^*)$,
+    \item The portfolio graph is complete with uniform conductance: $G_{ij} = G$ for all $i \neq j$,
+    \item Backward trajectory constraints are vacuous (no reference trajectories),
+    \item Node potentials are identified with expected returns: $\phi_i = \mu_i$,
+\end{enumerate}
+then the fixed point of $\Tcomp$ reduces to the Markowitz mean-variance optimal portfolio.
+\end{theorem}
+
+\begin{proof}
+Under condition (i), the fuzzy intersection operators reduce to crisp constraint satisfaction: KCL becomes the budget constraint $\mathbf{w}^T \mathbf{1} = 1$, and KVL becomes the no-arbitrage condition.
+
+Under condition (ii), the conductance-weighted adjacency matrix becomes $A_{ij} = G(1 - \delta_{ij})$, and the graph Laplacian becomes $\mathbf{L} = G(N\mathbf{I} - \mathbf{J})$, where $\mathbf{J}$ is the all-ones matrix.  The shock propagation equation \eqnref{eq:diffusion} with uniform conductance reduces to mean-reversion toward the portfolio average:
+\begin{equation}
+    \frac{d\phi_i}{dt} = G\!\left(\bar{\phi} - \phi_i\right), \quad \bar{\phi} = \frac{1}{N}\sum_j \phi_j.
+\end{equation}
+The steady state is $\phi_i^* = \bar{\phi}$ for all $i$---equal potentials, which minimises the total ``dissipation'' $\sum_{i<j} G(\phi_i - \phi_j)^2$.  This dissipation is proportional to the portfolio variance when $\phi_i = \mu_i$ and conductance encodes inverse covariance.
+
+Under condition (iii), $\Tback$ is the identity operator and provides no additional constraint.
+
+Under condition (iv), the KVL constraint around any cycle becomes the no-arbitrage condition $\sum_{\mathcal{C}} (\mu_i - \mu_j) = 0$, which is automatically satisfied.
+
+The remaining optimisation---minimise dissipation (variance) subject to KCL (budget constraint) and a minimum potential (return target)---is precisely \eqnref{eq:markowitz}.
+\end{proof}
+
+\begin{remark}
+The trajectory completion framework strictly generalises Markowitz in three independent directions: (1) fuzzy states handle epistemic uncertainty that point estimates discard; (2) non-uniform, sparse conductance replaces the full covariance matrix with a structured network; (3) backward trajectory constraints enforce kinetic consistency that static optimisation ignores.  Each generalisation independently improves the allocation; their combination yields qualitatively different behaviour.
+\end{remark}
+
+\begin{proposition}[Black-Litterman as Partial Observation]
+\label{prop:BL}
+The Black-Litterman model \cite{black1992} corresponds to the trajectory completion framework with:
+\begin{itemize}
+    \item Prior fuzzy states set from equilibrium CAPM returns (market prior),
+    \item Observations $\mathcal{O}$ from investor views (Bayesian posterior),
+    \item KCL and KVL providing the combining mechanism.
+\end{itemize}
+The BL posterior is a special case of the KCL-constrained fuzzy intersection with Gaussian membership functions.
+\end{proposition}
+
+%=============================================================================
+\section{Harmonic Coincidence and Market Regime Detection}
+\label{sec:harmonic}
+
+\subsection{Spectral Decomposition of Asset Returns}
+
+For each asset node $i$, construct the spectral signature from the return time series:
+\begin{equation}
+    X_i(\omega_n) = \sum_{m=0}^{M-1} r_i(t_m) w(t_m) e^{-2\pi i n m / M},
+    \label{eq:fft_returns}
+\end{equation}
+where $w(t)$ is a window function and $M$ is the number of observations.
+
+Identify harmonics (peaks in the power spectrum):
+\begin{equation}
+    \mathcal{H}_i = \{(n, A_n^{(i)}, \varphi_n^{(i)}) : A_n^{(i)} > \epsilon_{\text{noise}}\},
+    \label{eq:harmonics}
+\end{equation}
+where $A_n^{(i)} = |X_i(\omega_n)|$ is the amplitude and $\varphi_n^{(i)} = \arg X_i(\omega_n)$ is the phase.
+
+\subsection{Harmonic Coincidence Detection}
+
+\begin{definition}[Harmonic Coincidence]
+\label{def:harmonic_coincidence}
+Nodes $i$ and $j$ have a \emph{harmonic coincidence} of order $(n, m)$ if
+\begin{equation}
+    |n \omega_0^{(i)} - m \omega_0^{(j)}| < \epsilon_{\text{tol}} \cdot \min(n\omega_0^{(i)}, m\omega_0^{(j)}),
+    \label{eq:harmonic_coincidence}
+\end{equation}
+where $\omega_0^{(i)}$ and $\omega_0^{(j)}$ are the fundamental frequencies and $\epsilon_{\text{tol}}$ is the tolerance.
+\end{definition}
+
+Harmonic coincidences reveal correlations that are invisible in the time domain.  Two assets may have zero Pearson correlation in returns but strong harmonic coincidence if their characteristic frequencies are rationally related.
+
+\subsection{The Shadow Portfolio Network}
+
+\begin{definition}[Shadow Portfolio Network]
+\label{def:shadow_portfolio}
+The \emph{shadow portfolio network} $G^* = (V, E^*)$ has the same nodes as $G$ but with edges determined by harmonic coincidence:
+\begin{equation}
+    E^* = \{(i,j) : \exists \, (n,m) \text{ such that } |n\omega_0^{(i)} - m\omega_0^{(j)}| < \epsilon_{\text{tol}} \cdot \min(n\omega_0^{(i)}, m\omega_0^{(j)})\}.
+    \label{eq:shadow_edges}
+\end{equation}
+The weight of edge $(i,j)$ in $G^*$ is the correlation strength at the coincident frequency:
+\begin{equation}
+    \rho_{ij}^* = \frac{A_n^{(i)} A_m^{(j)} \cos(\varphi_n^{(i)} - \varphi_m^{(j)})}{A_n^{(i)} A_m^{(j)}} = \cos(\varphi_n^{(i)} - \varphi_m^{(j)}).
+    \label{eq:shadow_weight}
+\end{equation}
+\end{definition}
+
+\subsection{Regime Detection via Shadow Network Transitions}
+
+\begin{definition}[Market Regime]
+\label{def:regime}
+A \emph{market regime} is a connected component of the shadow portfolio network $G^*$ that persists over a characteristic time window $\Delta T$.  A \emph{regime transition} occurs when the topology of $G^*$ changes significantly:
+\begin{equation}
+    d_{\text{edit}}(G^*(t), G^*(t + \Delta t)) > \delta_{\text{regime}},
+    \label{eq:regime_transition}
+\end{equation}
+where $d_{\text{edit}}$ is the graph edit distance and $\delta_{\text{regime}}$ is the regime-change threshold.
+\end{definition}
+
+\begin{proposition}[Leading Indicator Property]
+\label{prop:leading}
+Harmonic coincidence changes in $G^*$ precede the corresponding changes in the return correlation matrix by at least one characteristic period $T_{\min} = 2\pi / \omega_{\max}$, where $\omega_{\max}$ is the highest harmonic frequency involved in the coincidence.
+\end{proposition}
+
+\begin{proof}
+Harmonic coincidences are detected in the frequency domain.  A change in the frequency relationship between two assets manifests in the spectral decomposition within one period of the relevant frequency.  The corresponding change in the time-domain correlation requires at least one full cycle of the lower-frequency asset to become statistically significant.  Since the harmonic coincidence involves frequencies at or above the fundamental, the spectral change is detectable first.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_06_harmonic_coincidence.png}
+    \caption{\textbf{Harmonic Coincidence and Market Regime Detection: Spectral Signal, Correlation Signal, Phase Space Trajectory, and Detection Overlap.}
+    (\textbf{A})~Spectral change signal (sum of FFT peak shifts from pre-regime reference) over 1000 simulated trading days for a 5-asset synthetic portfolio. The regime change at day 500 (dashed coral vertical line) induces a sharp step in the spectral signal as assets 1, 2, and 3 shift their characteristic frequencies. The signal is near-zero during the stable regime (days 0--500) and transitions to a persistent non-zero level after the regime change, reflecting the new frequency structure.
+    (\textbf{B})~Correlation change signal (Frobenius norm of correlation matrix deviation from pre-regime reference) over the same time window. The correlation signal exhibits higher baseline noise than the spectral signal due to finite-sample estimation variance in the correlation matrix. The regime change at day 500 is visible as a gradual increase in the signal, but the transition is less sharp than the spectral signal because correlation estimation requires more samples for statistical significance.
+    (\textbf{C})~Three-dimensional phase space trajectory plotting day (x-axis), spectral change (y-axis), and correlation change (z-axis). Points are coloured by regime: teal for pre-change (days $< 500$), coral for post-change (days $\geq 500$). The two regimes occupy distinct regions of the spectral-correlation phase space, with the transition visible as a trajectory bridge between the two clusters. The 3D representation reveals that the regime change is a genuine phase transition in the joint spectral-correlation space, not merely a threshold crossing in either signal alone.
+    (\textbf{D})~Normalised spectral (teal) and correlation (navy) signals zoomed to the $\pm100$-day window around the regime change. Both signals are normalised to $[0,1]$ for direct comparison. The spectral signal rises more sharply at the regime boundary, consistent with the theoretical prediction that frequency changes manifest within a single characteristic period. Both methods detect the regime change within 15 days, confirming that harmonic coincidence analysis provides regime-detection capability comparable to correlation analysis, with the spectral approach offering a structurally different---and potentially complementary---detection channel.}
+    \label{fig:harmonic_coincidence}
+\end{figure*}
+
+
+%=============================================================================
+\part{Validation}
+%=============================================================================
+
+\section{Validation Framework}
+\label{sec:validation}
+
+\subsection{Testable Predictions}
+
+The framework makes the following experimentally testable predictions:
+
+\textbf{Prediction 1 (Convergence Rate).}  The trajectory completion algorithm converges at geometric rate $c^n$, with the contraction constant $c$ inversely related to the Fiedler value $\lambda_2$ of the portfolio graph.  Testable by constructing portfolio graphs with varying $\lambda_2$ and measuring convergence iterations.
+
+\textbf{Prediction 2 (Time-Invariance).}  The optimal allocation $\fuzzy{\mathbf{X}}^*$ is invariant under time translation of the observation window: $\fuzzy{\mathbf{X}}^*(t) = \fuzzy{\mathbf{X}}^*(t + \Delta t)$ for any $\Delta t$, provided the network state and topology are unchanged.  Testable by computing fixed points at different times with identical inputs and verifying identity.
+
+\textbf{Prediction 3 (Fuzzy Risk Dominance).}  The fuzzy support width $\mathcal{R}(\fuzzy{\mathbf{X}}^*)$ provides a tighter risk bound than variance $\sigma^2$ for the same portfolio, in the sense that $\mathcal{R}$ captures estimation uncertainty that $\sigma^2$ ignores.  Testable by comparing out-of-sample risk predictions.
+
+\textbf{Prediction 4 (Spectral Risk Scaling).}  Portfolio risk scales inversely with algebraic connectivity: $\mathcal{R} \propto 1/\lambda_2$.  Testable by constructing portfolios with systematically varying $\lambda_2$ and measuring realised risk.
+
+\textbf{Prediction 5 (Shock Decay).}  External shocks decay exponentially with graph distance at rate $\sqrt{\lambda_2}$.  Testable by applying synthetic shocks at boundary nodes and measuring propagation to internal nodes.
+
+\textbf{Prediction 6 (Harmonic Leading Indicator).}  Changes in the shadow portfolio network $G^*$ precede corresponding changes in the return correlation matrix.  Testable by monitoring $G^*$ and correlation matrix in parallel and measuring temporal lead.
+
+\textbf{Prediction 7 (Markowitz Limit).}  Under the conditions of \thmref{thm:markowitz_limit}, the trajectory completion allocation converges to the Markowitz efficient frontier.  Testable by systematic degradation: set all fuzzy states to crisp, set all conductances to uniform, remove trajectory constraints, and verifying recovery of mean-variance weights.
+
+\subsection{Experimental Protocol}
+
+\textbf{Phase 1: Synthetic Validation (Months 1--3).}  Construct synthetic portfolio networks with known ground-truth optimal allocations.  Verify convergence, time-invariance, and spectral scaling.
+
+\textbf{Phase 2: Historical Backtesting (Months 4--8).}  Apply the framework to historical data (e.g., S\&P 500 constituents, 2000--2025).  Compare out-of-sample Sharpe ratios, maximum drawdowns, and turnover against Markowitz, Black-Litterman, equal-weight, and risk-parity benchmarks.
+
+\textbf{Phase 3: Live Paper Trading (Months 9--12).}  Deploy in paper-trading mode alongside benchmark strategies.  Measure real-time convergence, rebalancing frequency, and regime detection accuracy.
+
+\textbf{Phase 4: Live Deployment (Month 13+).}  Gradual deployment with real capital, starting with a small allocation and scaling based on validated performance.
+
+\subsection{Success Criteria}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Metric} & \textbf{Target} & \textbf{Significance} \\
+\midrule
+Convergence rate vs. $\lambda_2$ & $R^2 > 0.9$ & $p < 0.001$ \\
+Time-invariance (allocation drift) & $\|\Delta \mathbf{w}\| < 10^{-6}$ & Exact zero within float \\
+Out-of-sample Sharpe improvement & $> 0.3$ above benchmark & $p < 0.01$ \\
+Fuzzy risk vs. realised loss & Calibration $< 5\%$ error & $p < 0.05$ \\
+Regime detection lead time & $> 5$ trading days & $p < 0.01$ \\
+Markowitz recovery & $\|\mathbf{w}_{\text{TC}} - \mathbf{w}_{\text{MV}}\| < 10^{-6}$ & Exact under conditions \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_07_markowitz_recovery.png}
+    \caption{\textbf{Markowitz Recovery as Special Case: Weight Comparison, Distance Matrix, Uniformity-Size Surface, and Weight Profile Overlay.}
+    (\textbf{A})~Portfolio weight comparison across four methods for a 6-asset universe: Markowitz minimum-variance (coral), trajectory completion with uniform conductance (teal), trajectory completion with inverse-covariance conductance (navy), and equal-weight $1/N$ (gold). The TC methods with zero backward-trajectory strength and near-crisp fuzzy states converge to exact equal weights ($w_i = 1/6$ for all $i$), confirming Theorem~\ref{thm:markowitz_limit}: on a complete graph with uniform conductance, the minimum-dissipation fixed point is the equal-weight portfolio. The Markowitz weights show characteristic concentration (assets A0 and A4 receive $>50\%$ combined weight) reflecting its reliance on estimated expected returns.
+    (\textbf{B})~Pairwise $L^2$ distance matrix between the four weight vectors. The TC methods (both uniform and inverse-covariance) are at distance zero from $1/N$, confirming exact recovery of equal weights. The Markowitz portfolio is at distance $\sim 0.77$ from all three, reflecting its fundamentally different structure. The block structure of the distance matrix (dark block for TC/$1/N$, light off-diagonal for Markowitz) provides a visual summary of the classical limit: trajectory completion reduces to equal-weight diversification when epistemic uncertainty vanishes and all couplings are symmetric.
+    (\textbf{C})~Three-dimensional surface showing $\|\mathbf{w}_{\text{TC}} - \mathbf{w}_{1/N}\|$ as a function of conductance uniformity (x-axis, ranging from 0.1 = random to 1.0 = perfectly uniform) and portfolio size $N$ (y-axis, $\{4, 6, 8, 10\}$). The surface confirms that as conductance approaches uniformity ($x \to 1$), the TC allocation converges to $1/N$ regardless of portfolio size. At lower uniformity, deviations emerge as the heterogeneous conductance structure induces non-uniform fixed points, demonstrating the smooth transition from the general fuzzy circuit solution to the Markowitz special case.
+    (\textbf{D})~Polar/radar overlay of weight profiles for Markowitz (coral), TC uniform (teal), and $1/N$ (gold). The TC and $1/N$ profiles are perfectly circular (all weights equal), while the Markowitz profile is highly anisotropic, with negative weights on assets A1, A2, A3, and A5 (short positions) and concentrated positive weights on A0 and A4. This visual contrast highlights the key distinction: Markowitz trusts point estimates and concentrates; trajectory completion acknowledges uncertainty and diversifies.}
+    \label{fig:markowitz_recovery}
+\end{figure*}
+
+%=============================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Relationship to Existing Work}
+
+\textbf{Network models in finance.}  The portfolio circuit graph extends network models of financial markets \cite{mantegna1999,tumminello2005,pozzi2013,diebold2014,acemoglu2015,battiston2012,elliott2014,gai2010} by adding: (a) fuzzy node states for epistemic uncertainty, (b) Kirchhoff analogs for conservation laws, (c) backward trajectories for time-invariant identity, and (d) convergence guarantees via contraction mapping.
+
+\textbf{Fuzzy portfolio theory.}  Prior work on fuzzy portfolio selection \cite{tanaka1982,carlsson2002,watada1997,huang2006} uses fuzzy returns as inputs to modified Markowitz programmes.  Our approach is structurally different: fuzziness enters at the node-state level and is propagated through circuit equations, rather than being an ad hoc modification of the objective function.
+
+\textbf{Entropy in finance.}  Entropy-based portfolio methods \cite{philippatos1972,bera2008,zhou2013} use entropy as a diversification measure.  Our S-entropy coordinates provide a richer framework: three independent entropy dimensions capture knowledge, temporal, and exchange uncertainty separately, enabling navigation in a structured coordinate space rather than optimisation of a scalar.
+
+\textbf{Regime-switching models.}  Hamilton's Markov-switching model \cite{hamilton1989} and its extensions \cite{ang2002} detect regimes from return data.  Our harmonic coincidence approach detects regimes from spectral structure, which is provably a leading indicator (\propositionref{prop:leading}).
+
+\subsection{Limitations}
+
+\textbf{(1) Stationarity assumption.}  Time-invariance requires time-homogeneous conductances.  In practice, correlations and couplings change over time.  The framework handles this by updating the circuit graph at each observation, but the time-invariance guarantee applies only between updates.
+
+\textbf{(2) Computational cost.}  For large portfolios ($N > 10^3$), the Viterbi backward trajectory computation may become expensive.  Parallelisation across nodes (the backward passes are independent) mitigates this.
+
+\textbf{(3) Conductance estimation.}  The quality of the circuit representation depends on accurate estimation of edge conductances.  Finite sample error in correlation estimates propagates to conductance uncertainty.  The fuzzy framework partially addresses this by representing conductances as fuzzy numbers, but a complete treatment is deferred to future work.
+
+\textbf{(4) Market microstructure.}  The framework models assets at the portfolio level and does not capture order-book dynamics, latency effects, or market microstructure.  Integration with high-frequency models is a direction for future work.
+
+
+%=============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented a mathematical framework for portfolio optimisation in which the portfolio is modelled as an oscillatory circuit graph with fuzzy node states.  The key results are:
+
+\begin{enumerate}[label=\arabic*.]
+    \item Every financial asset occupies bounded phase space and therefore oscillates (\propositionref{prop:asset_bounded}, \corollaryref{cor:asset_osc}).
+
+    \item The portfolio circuit graph with Kirchhoff analogs provides conservation (KCL: capital balance, \thmref{thm:portfolio_kcl}) and equilibrium (KVL: no-arbitrage, \thmref{thm:portfolio_kvl}) constraints.
+
+    \item Fuzzy membership functions encode epistemic uncertainty and propagate through circuit equations via the Zadeh extension principle (\thmref{thm:fuzzy_kcl}, \thmref{thm:fuzzy_kvl}).
+
+    \item The trajectory completion operator $\Tcomp = \Tback \circ \Tkvl \circ \Tkcl$ is a contraction mapping converging to a unique optimal allocation (\thmref{thm:convergence}).
+
+    \item The optimal allocation is time-invariant: it depends on the current state and network topology, not on when it is computed (\thmref{thm:time_inv_alloc}).
+
+    \item Portfolio risk is bounded by the spectral gap of the graph Laplacian (\thmref{thm:spectral_risk}), and external shocks decay exponentially with graph distance (\thmref{thm:shock_decay}).
+
+    \item Classical Markowitz optimisation is the special case of zero epistemic uncertainty, complete uniform coupling, and vacuous trajectory constraints (\thmref{thm:markowitz_limit}).
+
+    \item Harmonic coincidence detection provides a leading indicator for market regime transitions (\propositionref{prop:leading}).
+\end{enumerate}
+
+The framework unifies portfolio theory, circuit theory, fuzzy set theory, and dynamical systems into a coherent mathematical structure in which portfolio optimisation is not an external computational problem but an intrinsic property of the portfolio's oscillatory dynamics.  The portfolio \emph{computes} its own optimal state by completing its trajectory in bounded phase space.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

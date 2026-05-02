@@ -1,0 +1,90 @@
+// -- End skills Section --//
+
+.work.work-section {
+  position: relative;
+  overflow: hidden;
+
+  .box-img{
+    position: relative;
+  }
+
+
+  .box-content{
+    z-index: 1;
+  }
+
+
+  .swiper-slide,
+  .work-item {
+    .metas span{
+      color: #fff;
+    }
+    .box-img {
+      height: 450px;
+
+      &,
+      img {
+        border-radius: 2px;
+      }
+    }
+
+    .box-content {
+      position: relative;
+      margin-top: -60px;
+      padding: 0 30px;
+
+      .cat {
+        margin-bottom: 10px;
+        font-size: 13px;
+        letter-spacing: 2px;
+        font-weight: 500;
+        text-transform: uppercase;
+        opacity: 0.9;
+      }
+
+      .sec-title {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &:not(.work-no-scale){
+    .swiper-slide,
+    .work-item{
+      @include v-light(){
+        .sec-title > a{
+          background-color: $reverse-color;
+          color: $reverse-heading-color;
+          padding: 5px 5px 0;
+        }
+      }
+    }
+  }
+
+
+}
+
+.has-blur .swiper-slide:not(.swiper-slide-active) {
+  filter: blur(3px);
+}
+
+.work.work-section.work-no-scale , .work-no-scale {
+  .swiper-slide,
+  .work-item {
+    overflow: hidden;
+    position: relative;
+    .box-img {
+      height: 80vh;
+    }
+
+    .box-content {
+      position: absolute;
+      margin-top: 0;
+      bottom: 40px;
+    }
+  }
+}
+
+.work .swiper-slide .portfolio-item{
+  overflow: hidden;
+}

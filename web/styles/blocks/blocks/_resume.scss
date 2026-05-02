@@ -1,0 +1,77 @@
+.dsn-resume {
+    position: relative;
+
+  .resume-box-inner {
+    &:nth-of-type(n + 3) {
+      margin-top: 50px;
+    }
+
+    &:nth-of-type(n + 2) {
+      @include media_768 {
+        margin-top: 30px;
+      }
+    }
+  }
+
+  .resume-box {
+    position: relative;
+
+    @include media_768 {
+      margin-bottom: 0;
+    }
+
+    .item-resume-box {
+      position: relative;
+      padding-left: 20px;
+      padding-bottom: 50px;
+
+      @include media_991 {
+        padding-bottom: 30px;
+      }
+
+      @include media_768 {
+        padding-bottom: 20px;
+      }
+
+      &:last-of-type {
+        padding-bottom: 0;
+
+        &:after {
+          display: none;
+        }
+      }
+
+      &:before,
+      &:after {
+        content: "";
+        position: absolute;
+      }
+
+      &:before {
+        top: 5px;
+        left: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: $theme-color;
+      }
+
+      &:after {
+        top: 20px;
+        left: 4px;
+        width: 1px;
+        height: calc(100% - 24px);
+        background-color: $border-color;
+      }
+
+      h6 {
+        max-width: 460px;
+        font-family: $body-font;
+        font-size: inherit;
+        line-height: 1.6;
+        font-weight: 500;
+        color: $body-color;
+      }
+    }
+  }
+}

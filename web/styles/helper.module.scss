@@ -1,0 +1,66 @@
+@import "mixins/_mixins-master.scss";
+@import "mixins/_utilities.scss";
+@import "variables-site/_variables-site.scss";
+
+
+//---> Margin Helper
+@include MarginPaddingModule(20, 5, ".m", margin);
+@include MarginPaddingModule(20, 5, ".mt", margin-top);
+@include MarginPaddingModule(20, 5, ".mb", margin-bottom);
+@include MarginPaddingModule(20, 5, ".ml", margin-left);
+@include MarginPaddingModule(20, 5, ".mr", margin-right);
+
+//---> Padding
+@include MarginPaddingModule(20, 5, ".p", padding);
+@include MarginPaddingModule(20, 5, ".pt", padding-top);
+@include MarginPaddingModule(20, 5, ".pr", padding-right);
+@include MarginPaddingModule(20, 5, ".pl", padding-left);
+@include MarginPaddingModule(20, 5, ".pb", padding-bottom);
+
+//---> height & width
+@include MarginPaddingModule(10, 10, ".h", height, "%");
+@include MarginPaddingModule(10, 10, ".hv", height, "vh");
+@include MarginPaddingModule(10, 10, ".w", width, "%");
+
+
+//---> Top
+@include MarginPaddingModule(20, 5, ".top", top, "%");
+@include MarginPaddingModule(20, 5, ".left", left, "%");
+@include MarginPaddingModule(20, 5, ".right", right, "%");
+@include MarginPaddingModule(20, 5, ".bottom", bottom, "%");
+
+@include MarginPaddingModule(12, 1, ".zIndex", z-index, "");
+
+.borderStyle {
+  border: 1px solid $border-color;
+}
+
+.borderLeft {
+  border-left: 1px solid $border-color;
+}
+
+.borderRight {
+  border-right: 1px solid $border-color;
+}
+
+.borderTop {
+  border-top: 1px solid $border-color;
+}
+
+.borderBottom {
+  border-bottom: 1px solid $border-color;
+}
+
+.preLine{
+  white-space: pre-line;
+}
+.dBlock{
+  display: block;
+}
+
+.textUpper{
+  text-transform: uppercase;
+}
+.textCenter{
+  text-align: center;
+}

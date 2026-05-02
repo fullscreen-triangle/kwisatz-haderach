@@ -1,0 +1,41 @@
+//.section-margin-move.section-margin{
+//  @include media_991(){
+//    margin-bottom: calc(#{$margin-padding} - 60px);
+//    + .section-margin {
+//      margin-top: calc(#{$margin-padding} - 60px);
+//    }
+//  }
+//}
+
+
+.dsn-move-section {
+  z-index: 1;
+
+
+  @include media_991(min) {
+    max-width: 600px;
+    right: 80px;
+    --bs-gutter-x: 0px;
+    &:not(.p-relative) {
+      position: absolute;
+      bottom: 0;
+      width: auto;
+    }
+
+    &.p-relative {
+      width: max-content;
+      margin-right: 0;
+    }
+  }
+
+  @include media_991() {
+    position: relative;
+    bottom: 0;
+  }
+
+  .inner-box {
+    padding: $box-padding;
+  }
+
+
+}

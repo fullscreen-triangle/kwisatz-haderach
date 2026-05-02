@@ -1,0 +1,224 @@
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: $heading-color;
+  font-weight: $font-weight-heading;
+  line-height: $line-height-base;
+  font-family: $heading-font;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 2px;
+}
+
+/* ----------------------------------------------------------------
+	Basic Layout Styles
+-----------------------------------------------------------------*/
+
+h1, .h1 {
+  font-size: $font-size-h1;
+}
+
+h2, .h2 {
+  font-size: $font-size-h2;
+}
+
+h3, .h3 {
+  font-size: $font-size-h3;
+}
+
+h4, .h4 {
+  font-size: $font-size-h4;
+}
+
+h5, .h5 {
+  font-size: $font-size-h5;
+}
+
+h6, .h6 {
+  font-size: $font-size-h6;
+}
+
+
+//-------------------- Title --------------------//
+.title {
+  position: relative;
+  color: $heading-color;
+  font-family: $heading-font;
+  font-size: 55px;
+  letter-spacing: 2px;
+
+
+  @include media_768 {
+    font-size: 47px;
+  }
+
+  @include media_575 {
+    font-size: 40px;
+    line-height: 1.2;
+  }
+
+  @include media_400 {
+    font-size: 35px;
+  }
+}
+
+.title-heading {
+  &.mb-70 {
+    @include media_991(min) {
+      margin-bottom: 70px;
+    }
+    @include media_991() {
+      margin-bottom: 50px;
+    }
+  }
+
+  .sub-heading + .section-title, .section-title + .sub-heading {
+    margin-top: 10px;
+  }
+
+
+}
+
+.sub-heading {
+  //text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 16px;
+
+}
+
+.section-title {
+  position: relative;
+  font-size: 40px;
+  letter-spacing: 2px;
+
+
+  @include media_768 {
+    font-size: 30px;
+    letter-spacing: inherit;
+  }
+}
+
+.title-block {
+  letter-spacing: 2px;
+  font-size: 20px;
+}
+
+.sm-p {
+  font-size: 14px;
+  letter-spacing: 1.5px;
+}
+
+.sm-title-block {
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+
+
+.header-scale-hero {
+  transform: scale(1.15);
+}
+
+
+.subtitle {
+  color: $body-color;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.metas {
+  padding: 0 5px;
+  font-size: 16px;
+
+  span {
+    position: relative;
+    color: $heading-color;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+
+
+    &:not([data-separate]){
+      padding: 6px 15px;
+      border-right: 1px solid $border-color;
+      border-left: 1px solid $border-color;
+      &:not(:last-child){
+        margin-right: 15px;
+      }
+
+      &::before, &:after {
+        content: '';
+        position: absolute;
+        left: -5px;
+        right: -5px;
+        height: 1px;
+        background-color: $border-color;
+      }
+
+      &::before {
+        top: 0;
+      }
+
+      &::after {
+        bottom: 0;
+      }
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+    &[data-separate]{
+      &:not(:last-child){
+        margin-right: 10px;
+      }
+      &:not(:last-child):after {
+        content: attr(data-separate);
+      }
+    }
+
+  }
+}
+
+.title-h2 {
+  font-size: 46px;
+  letter-spacing: 2px;
+
+  @include media_991 {
+    font-size: 35px;
+    line-height: inherit;
+  }
+
+  @include media_768 {
+    font-size: 25px;
+  }
+}
+
+
+.sub-text-header {
+  margin-top: 25px;
+
+  h5 {
+    font-size: 15px;
+    letter-spacing: 2px;
+    line-height: 24px;
+    display: inline-block;
+  }
+}
+
+.sub-text-header, .title-h2, .subtitle, .sm-p, .section-title, .sub-heading, .title {
+  @include media_768() {
+    max-width: 570px;
+    br {
+      display: none;
+    }
+  }
+
+}
+
+.sm-title-block, .title-block {
+  @include media_768() {
+    br {
+      display: none;
+    }
+  }
+
+}

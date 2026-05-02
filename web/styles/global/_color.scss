@@ -1,0 +1,53 @@
+.v-dark,
+.v-light {
+  background-color: $bg-color;
+  color: $body-color;
+}
+
+.v-dark-head {
+  color: $body-color;
+}
+
+.background-main {
+  background-color: $bg-color;
+}
+
+.background-section {
+  background-color: $assistant-color;
+}
+
+.background-gradient-left {
+  background: $assistant-color;
+  background: linear-gradient(90deg, $assistant-color 0%, $theme-color 50%);
+}
+
+.background-gradient-bottom {
+  background: $assistant-color;
+  background: linear-gradient(0deg, $assistant-color 0%, $theme-color 50%);
+}
+
+.background-gradient-right {
+  background: $assistant-color;
+  background: linear-gradient(390deg, $assistant-color 0%, $theme-color 50%);
+}
+
+.background-gradient-top {
+  background: $assistant-color;
+  background: linear-gradient(180deg, $assistant-color 0%, $theme-color 50%);
+}
+
+.background-theme {
+  background-color: $theme-color;
+}
+
+.theme-color {
+  color: $theme-color;
+}
+
+.heading-color {
+  color: $heading-color;
+}
+
+.body-color {
+  color: $body-color;
+}

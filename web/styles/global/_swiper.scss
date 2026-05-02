@@ -1,0 +1,225 @@
+
+
+.next-containers,
+.prev-containers {
+  cursor: pointer;
+
+  .container-inner {
+    position: relative;
+    width: 35px;
+    height: 84px;
+
+    &:before {
+      background: $border-color;
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 1px;
+      height: 55px;
+      margin: 0 auto;
+      transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    svg {
+      position: absolute;
+      left: 0;
+
+      &.arrow {
+        top: 62px;
+        right: 0;
+        width: 7px;
+        height: 5px;
+        margin: 0 auto;
+        transition: top 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+
+        path {
+          fill: $heading-color;
+          transition: fill 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+      }
+
+      &.circle {
+        left: -6px;
+        bottom: 0;
+        width: 45px;
+        height: 45px;
+
+        circle {
+          stroke: $border-color;
+          stroke-dasharray: 95;
+          stroke-dashoffset: 0;
+          transition: all 0.6s ease-in;
+        }
+      }
+    }
+  }
+
+  &.next-containers {
+    .container-inner {
+      transform: rotate(270deg);
+    }
+  }
+
+  &.prev-containers {
+    .container-inner {
+      transform: rotate(90deg);
+    }
+
+    svg.arrow {
+      transform: rotate(0deg);
+    }
+  }
+
+  &:hover {
+    .container-inner {
+      &:before {
+        height: 75px;
+      }
+
+      svg {
+        &.arrow {
+          top: 75px;
+        }
+
+        &.circle {
+          circle {
+            stroke-dashoffset: 95;
+          }
+        }
+      }
+    }
+  }
+}
+
+.next-container,
+.prev-container {
+  cursor: pointer;
+
+  $width-arrow: 3px;
+  $wh_svg: 45px;
+
+  .triangle {
+    width: 0;
+    height: 0;
+    border-top: $width-arrow solid transparent;
+    border-bottom: $width-arrow solid transparent;
+    transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  &.next-container {
+    margin-left: 30px;
+    .container-inner:before {
+      content: "";
+      margin-right: 7px;
+    }
+
+    .triangle {
+      border-left: #{$width-arrow * 2} solid $heading-color;
+      margin-right: #{($wh_svg / 2) - $width-arrow};
+    }
+
+    svg {
+      right: 0;
+    }
+  }
+
+  &.prev-container {
+    margin-right: 30px;
+    .container-inner:after {
+      content: "";
+      margin-left: 7px;
+    }
+
+    .triangle {
+      border-right: #{$width-arrow * 2} solid $heading-color;
+      margin-left: #{($wh_svg / 2) - $width-arrow};
+    }
+
+    svg {
+      left: 0;
+    }
+  }
+
+  .container-inner {
+    position: relative;
+    height: $wh_svg;
+    display: flex;
+    align-items: center;
+
+    &:after,
+    &:before {
+      position: relative;
+      width: 55px;
+      height: 1px;
+      background-color: $border-color;
+      transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    svg {
+      position: absolute;
+      width: $wh_svg;
+      height: $wh_svg;
+
+      circle {
+        stroke: $border-color;
+        stroke-dasharray: 95;
+        stroke-dashoffset: 0;
+      }
+    }
+  }
+
+  svg circle {
+    transition: all 0.6s ease-in;
+  }
+
+  &:hover {
+    .container-inner {
+      &:before,
+      &:after {
+        width: 75px;
+      }
+
+      .triangle {
+        margin: 0;
+      }
+
+      svg circle {
+        stroke-dashoffset: 95;
+      }
+    }
+  }
+}
+
+.swiper-pagination-bullet {
+  width: 20px;
+  height: 2px;
+  border-radius: 0;
+  margin-right: 5px;
+  cursor: pointer;
+  background: $theme-color;
+  transition: transform 0.3s ease-in-out;
+  &:not(.swiper-pagination-bullet-active){
+    opacity: 0.2;
+  }
+}
+
+.swiper-pagination{
+  line-height: 0;
+  //display: flex;
+
+}
+
+.swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic{
+  bottom: 0;
+  position: relative;
+  left: 0;
+  transform: none;
+}
+
+.swiper-horizontal > .swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal, .swiper-pagination-custom, .swiper-pagination-fraction{
+  position: relative;
+  bottom: auto;
+  left: auto;
+  width: auto;
+}

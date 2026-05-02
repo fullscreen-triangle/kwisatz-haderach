@@ -1,0 +1,18 @@
+.cursor {
+
+  @include media_991(min) {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    pointer-events: none;
+    background-color: #fff;
+    border-radius: 50%;
+    transform-origin: left top;
+    z-index: 999999;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: exclusion;
+  }
+  @include media_991 {
+    display: none;
+  }
+}

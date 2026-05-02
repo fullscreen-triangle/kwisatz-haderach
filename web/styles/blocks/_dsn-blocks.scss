@@ -1,0 +1,46 @@
+//-- About Section --//
+
+.img-box.h-100,
+.box-im.h-100 {
+  width: 100%;
+
+  @include media_991(min) {
+    position: absolute;
+  }
+
+  &:not(.box-im-100){
+    @include media_991() {
+      position: relative;
+      height: 70vh;
+    }
+  }
+
+}
+
+@import "blocks/about-section";
+@import "blocks/award";
+@import "blocks/service";
+@import "blocks/move-section";
+@import "blocks/work";
+@import "blocks/testimonial";
+@import "blocks/accordion";
+@import "blocks/blog";
+@import "blocks/team";
+@import "blocks/brand";
+@import "blocks/box-set";
+@import "blocks/facts";
+@import "blocks/video";
+@import "blocks/list";
+@import "blocks/skill";
+@import "blocks/resume";
+@import "blocks/intro-project";
+
+
+.block-quote{
+  background-color: var(--assistant-color);
+  color: $heading-color;
+  padding: 30px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  border-left: 2px solid var(--theme-color);
+}

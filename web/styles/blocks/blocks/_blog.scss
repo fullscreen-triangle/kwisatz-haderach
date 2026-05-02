@@ -1,0 +1,156 @@
+.our-blog {
+  .swiper-container {
+    height: 100%;
+    justify-content: center;
+  }
+
+
+  &.our-blog-classic {
+    .blog-item {
+      flex-direction: column;
+      padding-left: 0;
+
+      .box-meta {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        writing-mode: unset;
+        text-orientation: unset;
+        margin-left: 0;
+        transform: rotate(0);
+      }
+
+      .box-img {
+        position: relative;
+        width: 100%;
+        height: 220px;
+      }
+
+      .box-content {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+
+    &.our-blog-full-img {
+      .box-meta {
+        display: none;
+      }
+
+      .box-img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.3;
+        top: 0;
+      }
+
+      .box-content {
+        padding: 80px 30px;
+
+        @include media_991 {
+          padding: 50px 30px;
+        }
+      }
+    }
+  }
+
+}
+
+.blog-item {
+  border: 2px solid $border-color;
+  padding-left: 50px;
+  margin-right: 0;
+  min-height: 250px;
+
+  @include media_768() {
+    flex-direction: column;
+    padding-left: 0;
+  }
+
+  .metas {
+    padding: 0;
+  }
+
+  .box-meta {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin-left: -35px;
+    transform: rotate(180deg);
+    font-size: 13px;
+
+    @include media_768() {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      writing-mode: unset;
+      text-orientation: unset;
+      margin-left: 0;
+      transform: rotate(0);
+    }
+
+    .author {
+      position: relative;
+      color: $heading-color;
+
+      &:after {
+        content: "-";
+        padding: 10px 0;
+      }
+    }
+
+    .entry-date {
+      font-weight: 500;
+    }
+  }
+
+  .box-img {
+    position: absolute;
+    width: calc(45% - 30px);
+    height: 100%;
+    border-right: 2px solid $border-color;
+
+    @include media_768() {
+      position: relative;
+      width: 100%;
+      height: 300px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .box-content {
+    padding: 30px 20px;
+    margin-left: 47%;
+
+    @include media_768() {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .metas {
+      margin-bottom: 5px;
+
+      span {
+        color: $body-color;
+      }
+    }
+
+    .link-visit {
+      left: auto;
+      bottom: auto;
+
+      .link-visit-text {
+        font-weight: bold;
+
+        &::before {
+          height: 1.5px;
+        }
+      }
+    }
+  }
+
+
+}

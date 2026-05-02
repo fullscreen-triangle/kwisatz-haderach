@@ -1,0 +1,66 @@
+.header-personal , .header-project {
+
+  .w-50 {
+    @include media_991 {
+      width: 100%;
+    }
+  }
+}
+
+.project-number {
+  top: 30px;
+  padding-top: 40px;
+  @include body-line{
+    padding-top: 0;
+  }
+
+  h6 {
+    margin-right: 15px;
+    font-size: 14px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+  }
+
+
+  span {
+    position: relative;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: $heading-font;
+    color: $heading-color;
+
+
+    &.curent {
+      padding-right: 80px;
+
+      @include media_575 {
+        padding-right: 30px;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        margin-top: -1px;
+        width: 60px;
+        height: 1px;
+        background-color: $heading-color;
+
+        @include media_575 {
+          width: 20px;
+        }
+      }
+    }
+
+
+    &.full {
+      margin-left: 20px;
+
+      @include media_575 {
+        margin-left: 15px;
+      }
+    }
+  }
+}

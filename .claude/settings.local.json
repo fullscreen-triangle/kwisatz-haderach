@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\" c:/Users/kunda/Documents/portfolio/kwisatz-haderach/docs/theory/loschmidt-paradox.tex)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:honjo-masamune.vercel.app)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:buhera-long-grass.vercel.app)",
+      "WebFetch(domain:bloodhound-gamma.vercel.app)",
+      "WebFetch(domain:pylon-hazel.vercel.app)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pdftotext --version)",
+      "Bash(pdftotext -layout \"mechanistic_synthesis_of_purpose.pdf\" -)",
+      "Bash(pdftotext -layout \"geometry_of_reality.pdf\" -)",
+      "Bash(pdftotext -layout \"properties-of-observation-boundary.pdf\" -)",
+      "Bash(pdftotext -layout \"kelvin-paradox.pdf\" -)",
+      "Bash(python -c \"import requests; print\\('requests OK'\\)\")",
+      "Bash(python -c \"import urllib.request; print\\('urllib OK'\\)\")",
+      "Bash(python -m tools.github_manager --help)",
+      "Bash(python -m tools.staging_assistant pitch --paper variance-minimisation-during-performance --audience sports_science)",
+      "Bash(python -m tools.staging_assistant pitch --paper biological-membrane-computing-interface --audience sensory_substitution)",
+      "Bash(python -m tools.staging_assistant pitch-all --paper mechanistic_synthesis_of_purpose)",
+      "Bash(cat)",
+      "Bash(python -m tools.staging_assistant job --job-file /tmp/sample_job.txt)",
+      "Bash(python -m tools.staging_assistant list)",
+      "Bash(python -m tools.staging_assistant inventory)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\\\\|^\\\\\\\\\\\\\\\\part\\\\|begin{theorem}\\\\|Theorem.*Trajectory\\\\|Theorem.*Navigation\\\\|Theorem.*Path\\\\|\\\\\\\\\\\\\\\\Theta\\\\|\\\\\\\\\\\\\\\\log_{3}\\\\|virtual sub-state\\\\|Categorical Complexity\\\\|Linear Justification\\\\|frozen-interface\" c:/Users/kunda/Documents/portfolio/kwisatz-haderach/docs/religion/unconstrained-subtask-trajectory-completion.tex)"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+.facts-item {
+  @include media_991(min) {
+    border-right: 1px solid $border-color;
+
+    &:last-of-type {
+      border: 0;
+    }
+  }
+
+  @include media_991() {
+    border: 1px solid $border-color;
+  }
+
+  .number {
+    color: $theme-color;
+    opacity: 0.4;
+    font-size: 130px;
+    font-weight: bold;
+  }
+}

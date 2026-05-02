@@ -1,0 +1,57 @@
+/* Next/Previous Page */
+.next-page {
+    .c-wrapper {
+        @include media_991 {
+            flex-flow: column;
+            .button-box{
+                margin-top: 30px;
+            }
+        }
+    }
+
+    .title {
+        @include media_768 {
+            br {
+                display: none;
+            }
+        } 
+    }
+
+    .button-box {
+        @include media_991 {
+            justify-content: flex-start;
+        } 
+    }
+}
+
+.pagination-post {
+    margin-top: 80px;
+
+    div {
+        padding: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 1.5px;
+
+        a {
+            transition: all .3s ease-in-out;
+            &::before , &:after {
+                display: none;
+            }
+
+            &:hover {
+                color: $theme-color;
+            }
+        }
+    }
+    .icon {
+        width: 70px;
+        svg{
+            width: 20px;
+            height: 20px;
+            path{
+                fill : $body-color
+            }
+        }
+    }
+}

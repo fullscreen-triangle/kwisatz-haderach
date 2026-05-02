@@ -1,0 +1,54 @@
+/**
+    page Personal
+ */
+.header-personal {
+
+  .w-50 {
+    @include media_991 {
+      width: 100%;
+    }
+  }
+  .title,
+  .sm-title-block {
+    margin-left: -120px;
+
+    @include media_991 {
+      margin-left: 0;
+    }
+  }
+
+  .dsn-button {
+    &::before {
+      content: "";
+      position: absolute;
+      width: 50px;
+      height: 2px;
+      left: -50px;
+      top: 50%;
+      background-color: $theme-color;
+
+      @include media_991 {
+        display: none;
+      }
+    }
+  }
+}
+
+
+/**
+    border in normal page like contact & about
+ */
+.border-header {
+  position: relative;
+  width: 130px;
+  margin: 80px auto 0 auto;
+
+  *  , path{
+    fill: none;
+    stroke: $heading-color;
+  }
+
+  path {
+    stroke-dashoffset: 0;
+  }
+}

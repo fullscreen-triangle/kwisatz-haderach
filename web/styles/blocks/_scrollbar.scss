@@ -1,0 +1,33 @@
+#dsn-scrollbar, .sidebar-single, .dsn-work-scrollbar {
+  display: block;
+  position: relative;
+  .scrollbar-track {
+    background: none;
+    width: 4px;
+    mix-blend-mode: exclusion;
+
+    .scrollbar-thumb {
+      background: #fff;
+      width: $smooth-width;
+    }
+  }
+}
+
+
+
+.main-content.dsn-main-scrollbar .scrollbar-track {
+  @include body-line {
+    left: calc(#{$body-style-space} + (#{$smooth-width} /2) * -1) ;
+    right: auto;
+  }
+}
+
+
+
+body.dsn-active-scrollbar .main-content{
+  overflow: hidden;
+}
+
+#dsn-scrollbar > .scroll-content{
+  --dsn-width-scroll : 0px;
+}

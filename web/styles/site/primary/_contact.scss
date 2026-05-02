@@ -1,0 +1,255 @@
+/* -------------------------------------------------------
+                  contact
+-------------------------------------------------------- */
+
+.form-box {
+  position: relative;
+  padding: 40px;
+
+  @include media_575 {
+    padding: 40px 20px;
+  }
+
+  .form-group {
+    width: 100%;
+    margin-bottom: 30px;
+
+    .help-block {
+      color: red;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    li {
+      list-style: none;
+    }
+  }
+}
+
+.entry-box {
+  width: 100%;
+
+  input,
+  textarea {
+    font-size: 16px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1.5px solid $border-color;
+    padding-bottom: 10px;
+    color: $body-color;
+    margin-top: 10px;
+    margin-bottom: 0;
+    letter-spacing: -0.5px;
+
+    &::placeholder {
+      color: $body-color;
+      font-size: 16px;
+      letter-spacing: -0.5px;
+    }
+  }
+
+  input {
+    height: 100%;
+  }
+}
+
+label {
+  color: $theme-color;
+}
+
+.box-info-contact {
+  padding-left: 30px;
+
+  @include media_991 {
+    margin-top: 20px;
+    padding-left: 0;
+  }
+
+  ul {
+    li {
+      &:not(:first-of-type) {
+        margin-top: 30px;
+      }
+
+      @include media_991 {
+        display: inline-block;
+        width: 32.8%;
+      }
+
+      @include media_768 {
+        width: 49%;
+        margin-top: 30px;
+      }
+
+      @include media_400 {
+        width: 100%;
+      }
+
+      .text-p:not(:nth-last-child) {
+        margin-bottom: 10px;
+      }
+
+      a {
+        display: block;
+        text-decoration: underline;
+      }
+
+      .social-item {
+        &:not(:last-of-type) {
+          margin-bottom: 10px;
+        }
+
+        a {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+.comments-form {
+  textarea,
+  input {
+    width: 100%;
+    border: 1px solid $border-color;
+    padding: 15px;
+    color: $heading-color;
+    background-color: transparent;
+    font-size: 16px;
+
+    &::placeholder {
+      font-size: 16px;
+      color: $heading-color;
+    }
+  }
+
+  input[type=submit] {
+    padding: 15px 40px;
+    border-radius: 30px;
+    background: transparent;
+    position: relative;
+    width: auto;
+    font-size: 15px;
+    border: 2px solid $heading-color;
+    color: $heading-color;
+    padding: 20px 41px;
+    cursor: pointer;
+    min-height: 48px;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+  }
+
+  .box-textarea {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+  Map
+ */
+
+.map-custom {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+
+  .gm-fullscreen-control,
+  .gm-bundled-control,
+  .gm-bundled-control-on-bottom,
+  .gmnoprint,
+  .gm-style-cc {
+    display: none !important;
+  }
+}
+
+/**
+  Contact Button
+ */
+.contact-btn {
+  position: fixed;
+  right: 15px;
+  top: 35px;
+  width: 12px;
+  height: 12px;
+  z-index: 99;
+  @include body-line {
+    right: calc(#{$body-style-space} / 2 - 4px);
+    top: 25px;
+  }
+
+  mix-blend-mode: exclusion;
+  color: #fff;
+
+  &:before {
+    content: "";
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    transition: opacity 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.65s,
+      transform 1s cubic-bezier(0.165, 0.84, 0.44, 1) 1.65s,
+      -webkit-transform 1s cubic-bezier(0.165, 0.84, 0.44, 1) 1.65s;
+  }
+
+  .contact-btn-txt {
+    position: absolute;
+    right: 4px;
+    top: -1px;
+    height: 13px;
+    padding-right: 20px;
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform-origin: calc(100% - 6px) 50%;
+    transform: rotate(-90deg);
+    cursor: pointer;
+    transition: opacity 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955) 0.3s, transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+}
+
+.contact-modal {
+  position: fixed;
+  width: calc(100% - 100px);
+  height: 100%;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding-right: 100px;
+  z-index: 98;
+  transform: translate3d(120%, 0, 0);
+  transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1), -webkit-transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+
+  .contact-container {
+    position: relative;
+    padding-left: 60px;
+    overflow: hidden;
+    overflow-y: auto;
+  }
+}
+
+.contact-btn,
+.contact-modal,
+.line-border-style,
+.dsn-paginate-right-page,
+.box-options {
+  @include media_991() {
+    display: none;
+  }
+}
+
+body.dsn-show-contact {
+  .contact-btn .contact-btn-txt {
+    transform: rotate(0deg);
+    transition-delay: 0.1s;
+  }
+
+  .contact-modal {
+    transform: translate3d(0, 0, 0);
+  }
+}
