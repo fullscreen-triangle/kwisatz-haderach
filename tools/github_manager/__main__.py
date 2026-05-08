@@ -69,11 +69,9 @@ def main() -> int:
         print(f"Loading cached inventory from {inventory_path}", file=sys.stderr)
         inventory = load_inventory(inventory_path)
     else:
-        try:
-            token = get_token()
-        except RuntimeError as e:
-            print(str(e), file=sys.stderr)
-            return 2
+        # Token is optional. Without one we run unauthenticated against
+        # the public REST API (60 req/hr is enough for one corpus run).
+        token = get_token()
         inventory = build_inventory(
             user=args.user,
             token=token,

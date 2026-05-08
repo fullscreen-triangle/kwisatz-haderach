@@ -51,15 +51,21 @@ class RepoInfo:
 
 
 class GitHubClient:
-    def __init__(self, token: str):
+    def __init__(self, token: Optional[str] = None):
         self.token = token
         self.session = requests.Session()
-        self.session.headers.update({
-            "Authorization": f"Bearer {token}",
+        headers = {
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": USER_AGENT,
-        })
+        }
+        # Token is OPTIONAL. Without it: 60 requests/hour rate limit, public
+        # repos only. With it: 5000/hour, plus access to your private repos
+        # if the token is scoped to read them. For most public-corpus
+        # surveys the unauthenticated path is sufficient.
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        self.session.headers.update(headers)
 
     def _get(self, url: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
         for attempt in range(3):
@@ -131,12 +137,17 @@ class GitHubClient:
 
 def build_inventory(
     user: str,
-    token: str,
+    token: Optional[str],
     output_path: Path,
     include_forks: bool = False,
     skip_archived: bool = False,
 ) -> List[RepoInfo]:
     client = GitHubClient(token)
+    if token:
+        print("Authenticated mode (5000 req/hr).", file=sys.stderr)
+    else:
+        print("Unauthenticated mode (60 req/hr; public repos only).",
+              file=sys.stderr)
     print(f"Fetching repo list for {user}...", file=sys.stderr)
     raw_repos = client.list_user_repos(user, include_forks=include_forks)
     print(f"  found {len(raw_repos)} repos", file=sys.stderr)
@@ -188,12 +199,7 @@ def load_inventory(path: Path) -> List[RepoInfo]:
     return [RepoInfo(**d) for d in data]
 
 
-def get_token() -> str:
+def get_token() -> Optional[str]:
+    """Return GITHUB_TOKEN if set, else None (unauthenticated mode is supported)."""
     token = os.environ.get("GITHUB_TOKEN")
-    if not token:
-        raise RuntimeError(
-            "Set GITHUB_TOKEN env var. Generate a fine-grained read-only PAT at "
-            "https://github.com/settings/tokens?type=beta with read access to "
-            "your public repos (and private if you want them included)."
-        )
-    return token
+    return token if token else None

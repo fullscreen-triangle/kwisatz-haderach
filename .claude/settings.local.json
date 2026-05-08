@@ -25,7 +25,20 @@
       "Bash(python -m tools.staging_assistant list)",
       "Bash(python -m tools.staging_assistant inventory)",
       "Bash(echo \"exit=$?\")",
-      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\\\\|^\\\\\\\\\\\\\\\\part\\\\|begin{theorem}\\\\|Theorem.*Trajectory\\\\|Theorem.*Navigation\\\\|Theorem.*Path\\\\|\\\\\\\\\\\\\\\\Theta\\\\|\\\\\\\\\\\\\\\\log_{3}\\\\|virtual sub-state\\\\|Categorical Complexity\\\\|Linear Justification\\\\|frozen-interface\" c:/Users/kunda/Documents/portfolio/kwisatz-haderach/docs/religion/unconstrained-subtask-trajectory-completion.tex)"
+      "Bash(grep -n \"^\\\\\\\\\\\\\\\\section\\\\|^\\\\\\\\\\\\\\\\subsection\\\\|^\\\\\\\\\\\\\\\\part\\\\|begin{theorem}\\\\|Theorem.*Trajectory\\\\|Theorem.*Navigation\\\\|Theorem.*Path\\\\|\\\\\\\\\\\\\\\\Theta\\\\|\\\\\\\\\\\\\\\\log_{3}\\\\|virtual sub-state\\\\|Categorical Complexity\\\\|Linear Justification\\\\|frozen-interface\" c:/Users/kunda/Documents/portfolio/kwisatz-haderach/docs/religion/unconstrained-subtask-trajectory-completion.tex)",
+      "Bash(python -c \"import json; data=json.load\\(open\\('tools/github_manager/output/inventory.json',encoding='utf-8'\\)\\); print\\(f'inventory: {len\\(data\\)} repos'\\)\")",
+      "Bash(git rm *)",
+      "Bash(python -c ' *)",
+      "Bash(unset GITHUB_TOKEN)",
+      "Bash(python -m tools.github_manager --user fullscreen-triangle)",
+      "Bash(python -u -m tools.github_manager --user fullscreen-triangle)",
+      "Bash(tee /tmp/gm_run.log)",
+      "Bash(python -u -c \"import sys; print\\('stderr-test', file=sys.stderr\\); print\\('stdout-test'\\)\")",
+      "Bash(python -u -c ' *)",
+      "Bash(python -m tools.staging_assistant job --job-file docs/job-application.md)",
+      "Bash(python -c \"import json; p = json.load\\(open\\('package.json'\\)\\); print\\(json.dumps\\(p.get\\('scripts', {}\\), indent=2\\)\\); print\\('--- devDeps ---'\\); print\\(json.dumps\\(p.get\\('devDependencies', {}\\), indent=2\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(npx jest *)"
     ]
   }
 }

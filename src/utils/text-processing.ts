@@ -155,14 +155,22 @@ export class TextProcessor {
   async normalizeQuotes(text: string): Promise<string> {
     if (!this.config.normalizeQuotes) return text;
 
+    // Use explicit Unicode escapes everywhere. A previous version of this
+    // file used the literal curly-quote / dash glyphs in the regex character
+    // classes; under one of the editor saves they were re-encoded into the
+    // U+FFFD replacement character, silently breaking quote normalisation
+    // for every smart-quoted document. Explicit \uXXXX escapes survive any
+    // editor save regardless of file encoding.
     return text
-      // Replace smart quotes with straight quotes
-      .replace(/[""]/g, '"')
-      .replace(/['']/g, "'")
-      // Replace other quote-like characters
+      // Smart double quotes (U+201C, U+201D) -> ASCII double quote
+      .replace(/[“”]/g, '"')
+      // Smart single quotes (U+2018, U+2019) -> ASCII apostrophe
+      .replace(/[‘’]/g, "'")
+      // Backtick-style and acute-accent quotation marks
       .replace(/[`´]/g, "'")
+      // Low-9 quotation marks (U+201A, U+201E) -> comma
       .replace(/[‚„]/g, ',')
-      // Replace em/en dashes with hyphens in appropriate contexts
+      // Em-dash (U+2014) and en-dash (U+2013) between word chars -> hyphen
       .replace(/([a-zA-Z])—([a-zA-Z])/g, '$1-$2')
       .replace(/([a-zA-Z])–([a-zA-Z])/g, '$1-$2');
   }

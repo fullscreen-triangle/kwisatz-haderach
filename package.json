@@ -318,8 +318,8 @@
     "compile": "webpack --mode production",
     "compile:dev": "webpack --mode development",
     "watch": "webpack --mode development --watch",
-    "test": "echo 'Tests skipped for packaging'",
-    "test:watch": "echo 'Tests skipped for packaging'",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
     "lint": "echo 'Linting skipped for packaging'",
     "lint:fix": "echo 'Linting skipped for packaging'",
     "clean": "rimraf dist",
@@ -329,7 +329,8 @@
     "download:models": "echo 'Model download skipped'",
     "docs:generate": "echo 'Doc generation skipped'",
     "package": "vsce package",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "test:coverage": "jest --config jest.config.js --coverage"
   },
   "devDependencies": {
     "@types/vscode": "^1.80.0",

@@ -145,6 +145,12 @@ user-settings.json
 personal-api-keys.json
 local-config.json
 
+# Personal notes / job-search data — keep local, do not sync to public repo
+docs/data/joblinks.md
+docs/data/cross-validation.json
+tools/github_manager/output/
+tools/staging_assistant/output/
+
 # Large files and binaries
 *.zip
 *.tar.gz
