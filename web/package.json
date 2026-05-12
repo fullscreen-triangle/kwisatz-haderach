@@ -20,6 +20,7 @@
     "@reduxjs/toolkit": "^1.9.3",
     "flickr-justified-gallery": "^2.1.2",
     "google-map-react": "^2.2.0",
+    "googleapis": "^171.4.0",
     "gsap": "^3.11.4",
     "isotope-layout": "^3.0.6",
     "next": "^13.2.1",

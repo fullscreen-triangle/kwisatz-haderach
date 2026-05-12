@@ -46,6 +46,7 @@ data/cache/
 validation-history.json
 citation-cache.json
 
+misc/
 # Logs
 logs/
 *.log
