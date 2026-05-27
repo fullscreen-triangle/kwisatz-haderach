@@ -1,0 +1,124 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+16 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Leibniz-Institut für Analytische Wissenschaften --- ISAS --- e.V. \\
+Bioimaging Research Group \\
+Dortmund, Germany \\
+Reference: 395\_2026
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Candidate (m/f/d) --- Bioimaging Research Group}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the PhD candidate position in the Bioimaging Research Group.
+The tools I have built for fluorescence microscopy analysis and mass spectrometry
+are publicly deployed and available for anyone to use. Before reading further,
+the hiring committee is welcome to try them directly:
+
+\begin{itemize}
+  \item Microscopy image analysis (PNG / JPG / TIFF):
+    \href{https://hieronymus-omega.vercel.app/observe/microscopy}{hieronymus-omega.vercel.app/observe/microscopy}
+  \item Mass spectrometry experiment design and forward simulation:
+    \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+\end{itemize}
+
+Both run client-side on GPU (WebGL2) --- no installation, no account.
+
+\textbf{Fluorescence microscopy.}
+The Hieronymus platform is a browser-based GPU observation engine for multi-modal
+scientific imaging. The microscopy module accepts fluorescence, brightfield, and
+phase-contrast images and encodes them into partition coordinates $(n, l, m)$
+within a three-dimensional S-entropy space ($S_k + S_t + S_e = 1$), using
+adjustable physical parameters including partition depth, inverse temperature, and
+inter-modal coupling constant. Behind the browser interface, the full
+\href{https://github.com/fullscreen-triangle/helicopter}{Helicopter} framework
+resolves structural ambiguity across twelve independent measurement modalities
+through sequential constraint exclusion, reducing the configuration space from
+${\sim}10^{60}$ possible assignments to a unique structural solution and achieving
+effective sub-nanometre resolution beyond what any single optical channel provides
+independently. For immune cell infiltration analysis in murine heart and tumour
+tissue sections, this means that cell-type assignments that are ambiguous in a
+single fluorescence channel become uniquely determined when brightfield, phase
+contrast, and spectral data are incorporated.
+
+\textbf{Mass spectrometry.}
+The Lavoisier platform at
+\href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+implements force-free mass spectrometry via partition depth minimisation: a
+researcher designs an experiment in the browser, the tool runs a forward simulation
+generating a predicted spectral library, and that library is taken into the lab to
+guide acquisition. A Rust-based executable is available for local runs on
+large-scale datasets. The underlying
+\href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+combines a numerical MS1/MS2 analysis pipeline with a visual pipeline that
+converts spectra into temporal image sequences for CNN analysis, reaching
+98.9\,\% feature extraction accuracy against the NIST reference library and
+supporting memory-mapped I/O for mzML datasets exceeding 100\,GB.
+MALDI MSI is a first-class modality in the framework, directly addressing the
+spatial metabolite mapping of heart and tumour tissue that this position involves.
+
+\textbf{Immunological context.}
+The immune cell infiltration question at the centre of this position connects
+to theoretical work I have developed in parallel.
+My manuscript \textit{On the Thermodynamic Consequences of Categorical Completion
+on Biological Systems} models MHC binding affinity as a function of the
+categorical richness of the parent protein's isoform and post-translational
+modification landscape, achieving AUC 0.81 versus NetMHCpan's 0.68 on
+2,847 IEDB peptides ($r = 0.73$, $p < 10^{-12}$).
+Cardiac proteins (collagen isoforms) and tumour-associated antigens that govern
+T-cell and NK-cell infiltration are precisely the proteins the model predicts
+as primary immune targets from first principles.
+The ISAS group's experimental imaging data represents the direct in\,vivo
+measurement of what the model addresses.
+
+\textbf{Wet-lab background.}
+At the Universitätsklinikum Hamburg-Eppendorf I built automated pipelines for
+proteomics and glycomics characterisation from LC-MS/MS and MALDI-TOF data.
+At the University Medical Center Groningen I conducted UPLC-MS/MS shotgun
+proteomics for cancer biomarker discovery.
+At TUM / Bayerisches Forschungsinstitut I developed mass spectrometry pipelines
+covering peak detection, ion annotation, and multi-omics statistical modelling.
+These roles give me direct bench experience with the instrument classes
+--- QTOF, quadrupole ion trap, MALDI-TOF --- that MALDI MSI tissue studies rely on.
+
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and I completed doctoral research in
+Computational Lipidomics at TUM. I am legally resident in Germany with full work
+authorisation and am available immediately. English is native; German is
+conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

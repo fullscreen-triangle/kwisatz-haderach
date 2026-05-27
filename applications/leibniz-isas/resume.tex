@@ -1,0 +1,205 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD Candidate, Bioimaging Research Group, ISAS Dortmund
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Mass spectrometry-based lipidomics, multi-omics statistical modelling, and
+  scientific computing pipeline development. Departed programme to pursue
+  independent computational research.
+}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{helicopter}{
+  \textbf{Multi-Modal Fluorescence Microscopy Image Analysis.}
+  Resolves structural ambiguity in fluorescence, brightfield, phase-contrast, and
+  spectral imaging data through sequential constraint exclusion across twelve independent
+  measurement modalities. Reduces the configuration space from ${\sim}10^{60}$ possible
+  assignments to a unique structural solution; achieves effective sub-nanometre
+  resolution beyond any single optical channel. Directly applicable to 3D immune cell
+  infiltration analysis in murine tissue.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{lavoisier}{
+  \textbf{MALDI MSI and LC-MS Analysis Framework.}
+  Dual-pipeline architecture: numerical pipeline for MS1/MS2 ion annotation and
+  feature extraction; visual pipeline converting spectra to temporal image sequences
+  analysed by CNN (PyTorch). 98.9\,\% feature extraction accuracy against NIST
+  reference libraries. Distributed computing via Ray; memory-mapped I/O for
+  $>$100\,GB mzML datasets; Docker containerised.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  \textbf{Whole-Genome Variant Analysis and RNA-seq Integration.}
+  Processes million-scale VCF files at $10^6$ variants/second; Bayesian network
+  inference, Gaussian mixture models, variational Bayes. Validated against 1000 Genomes
+  Phase 3, gnomAD v3.1.2, UK Biobank. Applicable to tumour immune-evasion genomics
+  and somatic variant profiling.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{Cellular Disease State Computation.}
+  Eight oscillator classes (protein, enzyme, channel, membrane, ATP, genetic expression,
+  calcium, circadian); coherence index $\eta_i \in [0,1]$; disease vector
+  $\mathbf{D}\in[0,1]^8$; $\mathcal{O}(N\log N)$ trajectory computation; sparse
+  $\ell_1$ LP for therapeutic target selection. Applicable to cardiac and tumour
+  microenvironment modelling.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output (Selected)}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems.}
+  MHC binding affinity correlates with parent protein categorical richness
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). AUC 0.81 vs NetMHCpan 0.68.
+  Predicts cardiac (collagen) and tumour-associated proteins as primary autoimmune
+  and immune-infiltration targets from first principles. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency as the unique viable diagnostic criterion.
+  AUC$=1.00$ vs 0.896 for template comparison; 25/25 validation experiments pass.
+  Sparse $\ell_1$ LP for minimum-side-effect therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2019--2021}{Computational Lipidomics}{Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry data pipeline: peak detection, ion annotation, feature engineering,
+  multi-omics statistical modelling. Federated learning for distributed clinical
+  analysis. Instrumentation: TIMS-PASEF, QTOF, ion trap.
+  Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated pipeline for proteomics and glycomics characterisation from LC-MS/MS
+  and MALDI-TOF data. Full workflow from sample preparation through database search,
+  protein identification, and quantification.
+}
+
+\cventry{2019}{Bioprocess Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time process monitoring and ML-based optimisation for industrial
+  photobioreactors. Dynamic and linear programming; Python, C.
+}
+
+\cventry{2013}{Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery. Protocol
+  optimisation, statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Mass Spectrometry}{
+  LC-MS/MS, MALDI-TOF / MALDI MSI, UPLC-MS/MS, TIMS-PASEF, QTOF, Quadrupole,
+  ion trap; peak detection, ion annotation, spectral library matching (NIST),
+  metabolite identification, protein quantification
+}
+
+\cvitem{Imaging}{
+  Fluorescence microscopy (confocal, widefield), brightfield, phase-contrast,
+  spectral imaging; 3D image reconstruction; multi-modal fusion (OpenCV);
+  image segmentation and classification (PyTorch CNNs)
+}
+
+\cvitem{Bioinformatics}{
+  Variant calling (VCF), RNA-seq quantification, pathway analysis (KEGG, Reactome),
+  protein structure (RDKit), sequence alignment and homology search
+}
+
+\cvitem{ML / DL}{
+  PyTorch, scikit-learn, XGBoost; CNNs, LSTMs, Transformers, GNNs; Bayesian networks,
+  Gaussian mixture models, variational Bayes; knowledge distillation
+}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript, Java, C, SQL, Bash}
+
+\cvitem{Infrastructure}{
+  Distributed computing (Ray, Dask), Docker, HPC (Azure, AWS), PostgreSQL,
+  memory-mapped I/O for large-scale datasets
+}
+
+\cvitem{Data Formats}{
+  mzML, mzXML, FASTA, BAM, VCF, HDF5, DICOM
+}
+
+\cvitem{Lab Platforms}{
+  LC-MS/MS (QTOF, Quadrupole, Ion trap), MALDI-TOF, TIMS-PASEF, UPLC-MS/MS,
+  qPCR, Fluorescence and Atomic Force Microscopy, DLS, SPR
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

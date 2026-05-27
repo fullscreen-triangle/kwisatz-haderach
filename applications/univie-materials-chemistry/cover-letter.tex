@@ -1,0 +1,154 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+17 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Dr.\ Jia Min Chin \\
+Department of Functional Materials and Catalysis \\
+Faculty of Chemistry, Universität Wien \\
+Vienna, Austria
+
+\vspace{1.5em}
+
+\textbf{Re: University Assistant Predoctoral --- PhD Position in Inorganic \&
+Materials Chemistry (Job-ID 5571)}
+
+\vspace{1em}
+
+Dear Dr.\ Chin,
+
+I am applying for the predoctoral position in your group. My background spans
+colloidal self-assembly, protein and peptide handling, mass spectrometry
+characterisation, and a first-principles framework for predicting the
+spectroscopic properties of novel molecular structures without reference
+standards --- a combination I believe connects directly to the specific
+challenges of field-driven MOF/COF synthesis.
+
+\textbf{Colloidal synthesis and self-assembly.}
+During my MSc in Pharmaceutical Biotechnology at HAW Hamburg, I worked
+on the encapsulation of proteins inside inverse micelles: selecting the
+surfactant system, controlling the water-to-surfactant ratio $w_0$, and
+tuning the hydrophilic core environment to stabilise a folded protein in
+a non-polar medium. This is supramolecular self-assembly in the same
+physical sense as MOF/COF growth --- a cavity with defined chemical
+geometry nucleates around a guest molecule or forms through cooperative
+non-covalent interactions among building blocks. The specific challenge
+of controlling cavity size, polarity, and guest compatibility in inverse
+micelles is structurally identical to the pore engineering problem in
+framework materials, and the experience of manipulating assembly conditions
+--- solvent composition, concentration, temperature, and field effects ---
+translates directly.
+I have also prepared and characterised lipid nanoparticles and liposomes
+(DLS, zeta potential, electron microscopy) and worked on the production
+and characterisation of therapeutic lipid colloids at Fraunhofer Institut IGB.
+The colloidal assembly dimension of your project is therefore familiar ground.
+
+\textbf{DNA and peptide handling.}
+The position lists DNA or peptide handling as a preferred background.
+Across several roles I have worked directly with proteins and peptides:
+at the University Medical Center Groningen I conducted UPLC-MS/MS shotgun
+proteomics, which requires enzymatic protein digestion, peptide fractionation,
+and LC separation of complex peptide mixtures;
+at Universitätsklinikum Hamburg-Eppendorf I built automated characterisation
+pipelines for proteomics and glycomics samples from LC-MS/MS and MALDI-TOF
+data, again working with digested proteins and peptide-level identification.
+The inverse micelle project at HAW Hamburg involved stabilising folded
+proteins inside the micelle core --- handling proteins under conditions
+designed to preserve their native structure in a non-aqueous environment.
+These roles establish direct hands-on experience with peptides and proteins
+as the relevant material class for DNA/peptide-directed MOF/COF synthesis.
+
+\textbf{Spectroscopic characterisation of novel framework structures.}
+When a new MOF/COF linker combination is synthesised, no reference IR or
+Raman spectrum exists yet in any library. The
+\href{https://github.com/fullscreen-triangle/borgia}{Borgia} framework
+I have developed addresses this directly: it derives molecular vibrational
+modes and harmonic coupling from bounded phase space geometry alone,
+requiring no empirical calibration against reference data.
+The foundational result is that molecular absorption-emission intervals
+create intrinsic frequency ticks; modes sharing rational frequency ratios
+$\omega_i/\omega_j = p/q$ (max$(p,q) \leq 10$) form coupled harmonic networks
+with closed loops that act as virtual resonant cavities.
+This has been validated on six molecules (H$_2$ through C$_6$H$_6$) against
+NIST spectroscopic data with self-consistency errors below 1.63\% and zero
+adjustable parameters. For a novel MOF linker, the framework predicts which
+vibrational modes will harmonically couple, providing theoretical fingerprints
+for IR/Raman assignment and identifying which coupling patterns are diagnostic
+for specific coordination motifs in the grown framework.
+The \href{https://honjo-masamune.vercel.app/tools}{cheminformatics instrument}
+built on this framework is available in the browser: zero-parameter
+molecular spectroscopy including vibrational modes, docking, 3D structure,
+and harmonic network analysis, requiring no installation or account.
+A companion paper --- \textit{Harmonic-Scattering Loop Coupling} --- extends this
+to a full transfer-matrix framework for coupled molecular resonators,
+achieving machine-precision reconstruction across 18/18 benchmarks; and
+a \href{https://space-observatory-xi.vercel.app/instruments/resonant-stack/}{Resonant Stack instrument}
+demonstrates the physical consequence: Beer--Lambert absorption,
+chromatographic separation, and Kirchhoff radiation law are mathematically
+identical operations in partition coordinates.
+For a novel MOF/COF linker this means the vibrational mode predictions cover
+IR absorption, Raman scattering, and thermal emission simultaneously ---
+the same first-principles calculation, no re-calibration per spectroscopic method.
+
+\textbf{Field-driven alignment and charge transport anisotropy.}
+Your project specifies three field types: electric, magnetic, and flow.
+The flow case is addressed directly by the
+\href{https://gas-giant.vercel.app/fluids}{Gas Giant} platform I have
+built, which derives fluid dynamics from partition network interference ---
+Kirchhoff circuit laws map to Navier-Stokes; viscosity emerges as
+$\mu = \tau_c \times g$ without phenomenological fitting; Poiseuille flow
+profiles validate to 0.9\% mean error.
+For flow-directed MOF/COF assembly, the flow field imposes a preferred
+partition direction through viscous alignment forces, and the partition
+lag $\tau_c$ --- the same parameter that governs viscosity --- determines
+the alignment timescale as a function of flow velocity and particle size.
+The physical mechanism by which electric and magnetic fields direct growth is
+that the field breaks rotational symmetry of the assembly environment,
+biasing crystal growth along a preferred axis. In the partition coordinate
+framework underlying Borgia, this is equivalent to imposing a preferred
+partition direction: the coordination environment along the field axis
+develops a deeper, more nested structure than the transverse directions.
+Charge transport anisotropy follows because conductivity along the field
+axis reflects the higher partition depth of that structural direction.
+The composition-inflation theorem ($T(n,d) = d(d{+}1)^{n-1}$) predicts
+that the anisotropy ratio scales combinatorially with the number of
+field-aligned assembly cycles --- a quantitative, testable connection
+between synthesis parameters (field strength, duration) and the resulting
+transport tensor that could be validated against the electrochemical
+sensing data your group generates.
+
+\textbf{Background.}
+I hold an MSc in Pharmaceutical Biotechnology (HAW Hamburg), an MSc in
+Computational Biology (Universität Tübingen), and completed doctoral research
+in Computational Lipidomics at TUM. I am legally authorised to work in Austria
+and am available from June 2026. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

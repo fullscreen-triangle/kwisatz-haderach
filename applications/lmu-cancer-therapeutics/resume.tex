@@ -1,0 +1,241 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD/Postdoc, In Vivo Cancer Therapeutics
+% LMU University Hospital, Prof. Lars Lindner, Sarcoma / Hyperthermia / Drug Delivery
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Mass spectrometry-based lipid systems characterisation, multi-omics statistical
+  modelling, federated learning for distributed clinical analysis.
+  Departed programme to pursue independent computational research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Drug delivery, formulation science, pharmacokinetics, biopharmaceutical process
+  development.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Cell culture, molecular biology, biochemical laboratory techniques.
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems.}
+  MHC binding affinity correlates with parent protein categorical richness
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). AUC 0.81 vs NetMHCpan 0.68.
+  Predicts sarcoma (collagen isoforms, $R \approx 10^{5.5}$) and pancreatic
+  cancer proteins as primary immune targets; explains immunologically cold
+  tumour phenotypes from structural first principles. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency as unique viable diagnostic criterion;
+  AUC$=1.00$; 25/25 validation experiments. Sparse $\ell_1$ LP for minimum-side-effect
+  therapeutic target selection. \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  Disease vector $\mathbf{D}\in[0,1]^8$ across eight cellular oscillator classes
+  (including membrane potential $D_M$ and calcium $D_{Ca}$, directly responsive
+  to hyperthermia); $\mathcal{O}(N\log N)$ trajectory to target state;
+  sparse LP for minimum-intervention combination therapy selection.
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{lavoisier}{
+  \textbf{Lipidomics and Mass Spectrometry Pipeline.}
+  Complete pipeline for lipid species characterisation: MS1/MS2 ion annotation,
+  spectral library matching, feature extraction. Dual-pipeline architecture:
+  numerical + CNN visual pipeline (PyTorch); 98.9\,\% accuracy against NIST.
+  Ray distributed computing; $>$100\,GB mzML support. Applicable to liposomal
+  formulation characterisation and phospholipid phase transition analysis.
+  Virtual instrument: \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{borgia}{
+  \textbf{First-Principles Molecular Spectroscopy and Cheminformatics.}
+  Derives atomic structure, molecular spectroscopic properties, and lipid
+  phase transition temperatures from bounded phase space geometry alone ---
+  no empirical parameters. The Triple Equivalence Theorem (oscillatory dynamics
+  $=$ categorical state enumeration $=$ partition operations) enables prediction
+  of DPPC/DSPC vibrational spectra and phase transition temperatures from
+  molecular geometry. Validated: nine elements against NIST electron configurations;
+  six molecules (H$_2$ through C$_6$H$_6$) with self-consistency errors $<$1.63\%.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{syndrome}{
+  \textbf{Tumour Microenvironment State, Immunopeptidology, and Therapy Optimisation.}
+  Four live tools at \href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app}
+  (3-channel DFT spectral embedding, 36D cosine similarity $\rho$, $O(cL\log L)$):
+  neoantigen identifier (dual threshold $\Delta\rho_\text{self}>0.15$ and
+  $\rho_\text{MHC}>0.72$) for identifying which peptides released by hyperthermia-mediated
+  lysis become immunogenic; antibiotic/cytotoxic resistance predictor
+  (drug--enzyme spectral complementarity $\rho$, validated against TEM-1/Ampicillin,
+  GyrA/Ciprofloxacin, AAC(3)-IV/Gentamicin).
+  Disease vector $\mathbf{D}\in[0,1]^8$; membrane potential ($D_M$) and calcium
+  ($D_{Ca}$) oscillators model bilayer thermal stress and immunogenic cell death
+  signalling. Sparse $\ell_1$ LP selects minimum-intervention combination of
+  hyperthermia dose, liposomal drug concentration, and immunotherapy agent.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{gospel}{
+  \textbf{Tumour Genomics and Neoantigen Analysis.}
+  Processes million-scale VCF files at $10^6$ variants/second; RNA-seq integration;
+  Bayesian network inference, Gaussian mixture models. Validated against gnomAD v3.1.2,
+  UK Biobank. Applicable to somatic variant profiling in sarcoma and pancreatic cancer.
+  Live: \href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{shakespear}{
+  \textbf{Protein Analysis Instrument.}
+  Folding, trajectory, catalysis, and dynamics via Kuramoto oscillator synchronization
+  in S-entropy space. Applicable to oncoprotein structural analysis and characterisation
+  of hyperthermia-released tumour antigens.
+  Live: \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}.
+  \href{https://github.com/fullscreen-triangle/shakespear}{github.com/fullscreen-triangle/shakespear}
+}
+
+\cvitem{crown-prince}{
+  \textbf{Geometric Pharmacology and Therapeutic Effect Trajectories.}
+  Drug-target binding as $K_d = \exp(-\Delta M \cdot \ln b)$ from partition geometry;
+  39/39 NIST validations; zero free parameters; 50\,MB vs DrugBank 12\,GB.
+  Therapeutic Effect Trajectory paper derives PD/PK/ADME from first principles.
+  Cell Spectral Hologram: tumour cell input $\to$ sparse $\eta^*$ therapeutic
+  perturbation vector identifying minimum-cytotoxicity drug target combinations.
+  Live: \href{https://crown-prince-four-courners.vercel.app/tools/spectrum}{crown-prince-four-courners.vercel.app/tools/spectrum}.
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2021--present}{Independent Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Multi-omics analysis frameworks, first-principles molecular spectroscopy,
+  tumour microenvironment modelling, and scientific data tools. All systems publicly
+  deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry pipelines for lipid species characterisation (peak detection,
+  ion annotation, LIPID MAPS database integration), multi-omics statistical modelling,
+  federated learning for distributed clinical analysis. Python, Java.
+  Instrumentation: TIMS-PASEF, QTOF, ion trap.
+}
+
+\cventry{2019}{Therapeutic Lipid Production Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time process monitoring and dynamic programming / linear programming optimisation
+  for industrial photobioreactor production of \textbf{therapeutic lipids}. Python, C.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated characterisation pipeline for LC-MS/MS and MALDI-TOF data; protein
+  identification and quantification from biological samples.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery from cell plasma
+  and serum; protocol optimisation and statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Mass Spectrometry}{
+  LC-MS/MS, MALDI-TOF / MALDI MSI, UPLC-MS/MS, TIMS-PASEF, QTOF;
+  lipid species annotation (LIPID MAPS, LipidBlast), phospholipid characterisation,
+  spectral library matching (NIST), metabolite identification
+}
+
+\cvitem{Drug Delivery / Formulation}{
+  Thermosensitive liposomal systems, phospholipid phase transitions,
+  liposome characterisation by mass spectrometry; therapeutic lipid production
+  and process optimisation; pharmacokinetics and drug distribution modelling
+}
+
+\cvitem{Cancer Biology}{
+  Tumour microenvironment modelling, neoantigen prediction, somatic variant
+  profiling, immune evasion mechanisms, CRISPR screen analysis (MAGeCK),
+  pathway analysis (KEGG, Reactome, GSEA)
+}
+
+\cvitem{ML / Statistics}{
+  PyTorch, scikit-learn, XGBoost; Bayesian networks, Gaussian mixture models,
+  variational Bayes; survival analysis; multi-omics integration (MOFA, UMAP)
+}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript, Java, C, SQL, Bash}
+
+\cvitem{Infrastructure}{
+  Ray, Dask, Docker, FastAPI, AWS, PostgreSQL, memory-mapped I/O for large datasets
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

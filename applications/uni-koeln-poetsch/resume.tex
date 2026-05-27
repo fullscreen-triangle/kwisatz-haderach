@@ -1,0 +1,166 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Daten- und IT-Manager*in für Omics-Daten
+% Poetsch-Gruppe, Institut für Genetik / CECAD, Universität zu Köln
+% Kennziffer TUV2605-02
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  HPC mass spectrometry pipelines ($>$100\,GB mzML), multi-omics statistical modelling,
+  federated learning across distributed clinical sites. Departed to pursue independent
+  computational research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Sequence analysis, variant calling, RNA-seq quantification, pathway analysis;
+  bioinformatics pipeline development.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Full-time development of production-grade scientific data pipelines, HPC analysis
+  frameworks, and data management infrastructure. All systems publicly documented,
+  validated, and deployed.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics at HPC scale: peak detection, ion annotation (LIPID MAPS,
+  LipidBlast, HMDB), multi-omics integration, federated processing across clinical
+  sites. $>$100\,GB mzML dataset management.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline for proteomics and glycomics;
+  standardised SOP development for data acquisition and processing.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics; data normalisation, statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT INFRASTRUCTURE AND DATA MANAGEMENT TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Infrastructure and Data Management Tools}
+
+\cvitem{lavoisier}{
+  \textbf{HPC Omics Data Pipeline.}
+  Dual-pipeline MS analysis (numerical MS1/MS2 + CNN visual classification, PyTorch);
+  memory-mapped I/O for datasets of arbitrary size; HDF5 structured output;
+  Ray distributed execution across HPC nodes; 98.9\,\% NIST accuracy.
+  Used for $>$100\,GB mzML datasets in lipidomics and metabolomics contexts.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{pdsvm}{
+  \textbf{Scientific Data Retrieval Infrastructure.}
+  Purpose-Driven Shader VM: formalises metadata schema design as a retrieval
+  problem rather than a convention problem. Each data object is indexed by
+  three structured metadata coordinates $(S_k, S_t, S_e)\in[0,1]^3$;
+  retrieval via Morton-ordered ternary trie runs in $O(k)$ time independent
+  of collection size (373$\times$ speedup over linear scan at $N=10^5$).
+  Directly applicable to HPC storage quota management and data lifecycle
+  tracking for omics collections.
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Multi-Stage Scientific Data Pipeline.}
+  8-stage RAG and analysis pipeline with Rust core (10--50$\times$ speedup);
+  structured metadata at ingestion; SOPs implemented as Turbulance DSL protocol
+  specs; FastAPI REST interface; Docker/Kubernetes deployment.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{gospel}{
+  \textbf{Genomic Variant and Multi-Omics Analysis.}
+  $10^6$ variants/second VCF processing; RNA-seq integration; Bayesian network
+  inference, Gaussian mixture models. Validated: 1000 Genomes Ph.\ 3, gnomAD v3.1.2,
+  UK Biobank. Pathway analysis (KEGG, Reactome).
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{HPC / Infrastructure}{
+  Ray, Dask, SLURM-compatible pipeline design; Docker, Kubernetes;
+  memory-mapped I/O; HDF5, Parquet; quota management; parallel filesystem patterns
+}
+
+\cvitem{Languages}{
+  Python (primary), R, Rust, Bash, SQL, TypeScript
+}
+
+\cvitem{Bioinformatics}{
+  samtools, BWA, STAR, DESeq2, Nextflow (pipeline patterns); FASTQ/BAM/VCF/BED/bigWig;
+  variant calling, RNA-seq quantification, ATAC-seq/ChIP-seq data types;
+  pathway analysis (KEGG, Reactome, GSEA); LIPID MAPS, HMDB, NIST
+}
+
+\cvitem{ML / DL}{
+  PyTorch; CNNs, LSTMs, Transformers; scikit-learn, XGBoost;
+  knowledge distillation for lightweight inference; RAG pipelines
+}
+
+\cvitem{Data Management}{
+  Metadata schema design; naming convention standardisation;
+  SOP authoring and enforcement; data lifecycle management;
+  documentation for mixed technical/non-technical audiences
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

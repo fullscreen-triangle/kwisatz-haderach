@@ -1,0 +1,191 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Bioinformatiker*in, Genomsequenzierung / Onkologie
+% Institut für Klinische Genetik, Universitätsklinikum Dresden — Ref. 1943
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Multi-omics statistical modelling, large-scale MS-based molecular profiling,
+  federated bioinformatics pipelines across distributed clinical sites. Python, Java.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Sequence analysis, variant calling, RNA-seq quantification, population genetics,
+  bioinformatics pipeline development, statistical bioinformatics.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  MHC binding affinity correlates with categorical richness ($r=0.73$, $p<10^{-12}$,
+  $n=2{,}847$ IEDB peptides). AUC 0.81 vs.\ NetMHCpan 0.68. \textit{Manuscript.}
+}
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency; AUC$=1.00$; 25/25 experiments; sparse $\ell_1$ LP
+  for personalised therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	CANCER GENOMICS AND BIOINFORMATICS TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Cancer Genomics and NGS Analysis Tools}
+
+\cvitem{gospel}{
+  \textbf{Cancer Genome Sequencing Pipeline.}
+  $10^6$ variants/second VCF processing; somatic variant detection and
+  tumour-normal comparison; structural variant analysis; population frequency
+  annotation (gnomAD~v3.1.2, 1000~Genomes Phase~3, UK~Biobank);
+  ClinVar / COSMIC / OMIM API integration; RNA-seq quantification and
+  differential expression; pathway analysis (KEGG, Reactome, GSEA);
+  protein structure analysis (RDKit). Ray distributed, Docker-deployable.
+  Validated on three major reference databases; $10^6$ variants/sec throughput.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{ML for Cancer Genomics: Neoantigen, Resistance, and Therapy Identification.}
+  Spectral DFT on three physicochemical channels; 36-dimensional cosine similarity
+  $\rho$; $\mathcal{O}(cL\log L)$.
+  \textbf{Neoantigen:} $\rho_\mathrm{MHC}>0.72$ + $\Delta\rho_\mathrm{self}>0.15$;
+  converts tumour VCF to ranked neoantigen list for immunotherapy candidate selection.
+  \textbf{Resistance:} drug-enzyme spectral complementarity $\rho\geq0.50$;
+  validated against TEM-1/Ampicillin, GyrA/Ciprofloxacin, AAC(3)-IV/Gentamicin.
+  \textbf{Therapy identification:} disease vector $\mathbf{D}\in[0,1]^8$;
+  AUC$=1.00$; sparse $\ell_1$ LP for minimum-intervention therapy selection.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Large-Scale Multi-Omics Data Pipeline.}
+  Dual-pipeline analysis: numerical + CNN (PyTorch); 98.9\,\% NIST accuracy;
+  Ray distributed; $>$100\,GB mzML/HDF5 support; memory-mapped I/O;
+  API integration (LIPID MAPS, LipidBlast, HMDB, NIST); Docker deployable.
+  Architecture for clinical-scale automated NGS data flow maintenance.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Multi-Stage Analysis Pipeline with Database Integration.}
+  8-stage metacognitive pipeline; structured API queries across heterogeneous
+  databases; Rust core (10--50$\times$ speedup); FastAPI REST interface;
+  Docker/Kubernetes; automated validation and logging at each stage.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Cancer genomics pipelines (NGS, VCF, RNA-seq), ML for cancer immunology
+  (neoantigen, resistance, therapy identification), large-scale multi-omics
+  data infrastructure. All systems publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics at HPC scale: peak detection, ion annotation, multi-omics
+  integration, federated pipeline maintenance across distributed clinical sites.
+  Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline; SOP development; reproducibility
+  validation; clinical sample processing.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery; sample preparation;
+  statistical validation against reference standards.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{NGS / Genomics}{
+  VCF processing (GATK-compatible), somatic variant calling, RNA-seq quantification,
+  targeted resequencing, structural variants; population annotation
+  (gnomAD, 1000~Genomes, UK~Biobank); ClinVar, COSMIC, OMIM API integration;
+  pathway analysis (KEGG, Reactome, GSEA); PLINK bed/bim/fam format; samtools
+}
+
+\cvitem{ML / Bioinformatics}{
+  PyTorch (CNNs, LSTMs, Transformers); scikit-learn, XGBoost;
+  Bayesian networks; GMMs; variational Bayes;
+  sparse $\ell_1$ regularisation; spectral DFT for sequence analysis;
+  neoantigen prediction; drug resistance modelling
+}
+
+\cvitem{Pipeline / Infrastructure}{
+  Python (primary), Rust, Java, Bash, SQL;
+  Ray, Dask; Docker, Kubernetes, FastAPI;
+  memory-mapped I/O; HDF5, mzML, Parquet;
+  REST / GraphQL API clients; Git, CI/CD
+}
+
+\cvitem{Omics Data}{
+  LIPID MAPS, LipidBlast, HMDB, NIST, IEDB;
+  LC-MS/MS, MALDI-TOF, UPLC-MS/MS, TIMS-PASEF;
+  VCF, FASTQ, BAM, BED, GTF
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

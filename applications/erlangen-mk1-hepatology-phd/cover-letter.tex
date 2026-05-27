@@ -1,0 +1,134 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+20 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+PD Dr.\ med.\ Dr.\ rer.\ physiol.\ Peter Dietrich \\
+Medizinische Klinik 1 \\
+Universitätsklinikum Erlangen \\
+Ref.\ he\_030\_PD
+
+\vspace{1.5em}
+
+\textbf{Re: Doktorand (m/w/d) --- Bioinformatik, Hepatologie / Onkologie (Ref.\ he\_030\_PD)}
+
+\vspace{1em}
+
+Dear PD Dr.\ Dietrich,
+
+I am applying for the doctoral position (Ref.\ he\_030\_PD) in bioinformatic
+analysis of human and murine tissues.
+The combination of single-cell and bulk RNA sequencing analysis with a
+hepatology and oncology focus describes precisely the analytical domain
+for which I have developed and validated computational tools over the
+past four years.
+
+\textbf{RNA-seq analysis infrastructure.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+handles the full RNA-seq analysis pipeline: read alignment and quantification,
+differential expression analysis across conditions and cohorts, splicing analysis,
+and integration with variant calling outputs for somatic mutation-expression
+correlation.
+Validated against 1000~Genomes Phase~3, gnomAD~v3.1.2, and UK~Biobank,
+it processes $10^6$ variants per second with ClinVar, KEGG, and Reactome
+pathway annotation built in.
+For the comparison of human and murine transcriptomes --- a methodological
+challenge specific to this project --- Gospel handles species-aware analysis
+with ortholog mapping, differential gene expression across species, and
+cross-species pathway conservation testing.
+These comparisons are central to translational validation studies:
+establishing which molecular phenotypes identified in murine models
+are conserved in human patient tissue.
+
+\textbf{Single-cell sequencing analysis.}
+For single-cell RNA-seq, my primary contribution is the statistical
+inference layer: variational Bayes posterior approximation at
+$\mathcal{O}(10^6)$ latent variable scale, probabilistic graphical
+models for multi-omics integration, and Gaussian mixture models for
+cell population structure.
+These methods sit directly below the standard Scanpy/Seurat pipeline ---
+Leiden clustering and UMAP are dimensionality reduction steps whose
+statistical behaviour I understand from the underlying geometry.
+For hepatology-specific single-cell analysis this matters concretely:
+the liver contains many rare cell types (hepatic stellate cells,
+Kupffer cells, sinusoidal endothelial cells, periportal vs.\ pericentral
+hepatocytes) whose identification requires probabilistic models that
+handle low cell counts robustly, not just nearest-neighbour clustering.
+RNA velocity and diffusion pseudotime --- trajectory inference for
+fibrogenesis progression, tumour microenvironment remodelling, or
+immune cell recruitment sequences --- are directly supported by the
+Gaussian process infrastructure I have built.
+
+\textbf{Hepatocellular carcinoma immunobiology.}
+The oncology component of this project most likely involves the
+hepatic tumour microenvironment: immune evasion, cytokine signalling
+between tumour and stromal cells, or HCC neoantigen biology.
+The \href{https://syndrome-seven.vercel.app/tools}{Syndrome} framework
+I have developed computes spectral complementarity between molecular
+sequences to predict MHC-I/II binding (AUC\,$0.81$ vs.\ NetMHCpan\,$0.68$
+on 2,847 IEDB peptides), identify neoantigens from somatic mutation
+data, and score immune escape variants via single amino acid substitution scanning.
+For an RNA-seq study of HCC, this provides a direct bridge between
+gene expression data and immunopeptidological function: identifying
+which tumour-expressed transcripts generate immunogenic peptides,
+which mutant peptides escape T cell recognition, and how the immune
+state of the tumour microenvironment (quantified as the immune activation
+dimension $D_\mathrm{Imm}$ of the disease state vector $\mathbf{D}\in[0,1]^8$)
+correlates with treatment response.
+
+\textbf{Molecular biology and in vivo experience.}
+My computational background is primary, but it is grounded in wet lab
+experience.
+At Universitätsklinikum Hamburg-Eppendorf (2017--2018) I worked directly
+in the Glycomics and Proteomics laboratory: automated LC-MS/MS and
+MALDI-TOF pipeline operation, clinical sample processing, and data
+quality control for multi-centre clinical cohort studies.
+At TUM / Bayerisches Forschungsinstitut (2019--2021) I maintained
+computational pipelines processing MS omics data from clinical cohorts,
+working closely with the wet lab teams producing the data.
+I understand sample preparation constraints, how technical variation
+from different dissection or fixation protocols propagates into
+sequencing data quality, and how to flag analytical artefacts that
+originate in the biological protocol rather than the analysis.
+The murine tissue component of this project is an opportunity to extend
+that grounding to in vivo experimental design, which I pursue actively.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen, 2018--2019)
+and an MSc in Pharmaceutical Biotechnology (HAW Hamburg, 2014--2017),
+with doctoral research in Computational Lipidomics at TUM / Bayerisches
+Forschungsinstitut (2019--2021).
+I am legally resident in Germany with full work authorisation.
+English is native; German is conversational.
+I am available from 1 July 2026.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

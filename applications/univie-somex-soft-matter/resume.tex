@@ -1,0 +1,186 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — University Assistant (predoctoral), Soft Matter / Biophysics
+% SoMeX Lab, Faculty of Physics, University of Vienna — Job-ID 5570
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Science}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  First-principles physical modelling, high-dimensional spectral data analysis,
+  distributed scientific computing. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Computational biophysics, statistical physics of biological systems,
+  molecular modelling, bioinformatics.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Physical chemistry, colloidal systems, cell culture, analytical chemistry.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE — SOFT MATTER AND BIOPHYSICS
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{gas-giant}{
+  \textbf{First-Principles Fluid Dynamics and Rheology.}
+  Derives kinetic gas theory, Navier-Stokes, viscosity, diffusion, and thermal
+  conductivity from bounded phase space geometry via Kirchhoff circuit laws ---
+  zero empirical parameters.
+  Viscosity: $\mu = \tau_c \times g$ (partition lag $\times$ coupling strength);
+  yielding transition = phase transition in partition structure (yield stress
+  $\sigma_y$ = partition floor of bounded oscillatory system).
+  Validation: viscosity 2.9\,\% MAE across 12 pure liquids; Poiseuille flow
+  0.9\,\% error; adiabatic expansion 0.1--0.3\,\% error.
+  Directly applicable to first-principles prediction of rheological properties
+  in yield stress fluids and colloidal suspensions.
+  Live: \href{https://gas-giant.vercel.app/simulate}{gas-giant.vercel.app/simulate}.
+  \href{https://github.com/fullscreen-triangle/gas-giant}{github.com/fullscreen-triangle/gas-giant}
+}
+
+\cvitem{lagrangian}{
+  \textbf{First-Principles Optical Physics for DDM.}
+  Resonant Stack theorem: Beer-Lambert absorption, Kirchhoff circuit law, and
+  thermal emission are formally identical operations ($T=1/e=0.3679$ in all
+  three representations). Provides first-principles model of image contrast
+  and optical signal formation in DDM: the partition geometry governing bulk
+  absorption governs evanescent and scattered light dynamics in the microscope.
+  GPU shader telescope: 10/10 benchmarks, $6.9\times10^{-5}$ median error.
+  Live: \href{https://space-observatory-xi.vercel.app}{space-observatory-xi.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/lagrangian}{github.com/fullscreen-triangle/lagrangian}
+}
+
+\cvitem{olduvai}{
+  \textbf{Collective Biological Motion Analysis.}
+  Axiom $\oint\mathbf{J}\cdot d\mathbf{A}=0$ (zero net current through closed
+  surface in biological motion field); derives conservation laws for collective
+  dynamics. Rambling/trembling decomposition of motion: supraspinal vs.\ peripheral
+  components. Validated on 86 nights wearable sensor data; AUC$=1.00$ for
+  Parkinson's/ataxia/healthy classification. Framework extends to bacterial
+  collective dynamics: velocity field as current field, topological constraints
+  as conservation conditions.
+  Live: \href{https://rembling-trambling.vercel.app}{rembling-trambling.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/olduvai}{github.com/fullscreen-triangle/olduvai}
+}
+
+\cvitem{helicopter}{
+  \textbf{Multi-Modal Microscopy Analysis.}
+  Sequential constraint exclusion across fluorescence, brightfield, phase-contrast,
+  and spectral channels; twelve modalities; sub-nanometre effective resolution.
+  Image analysis pipeline applicable to spinning-disk and wide-field DDM data;
+  Python-based, GPU-accelerated, browser-deployable.
+  Live:
+  \href{https://hieronymus-omega.vercel.app/observe/microscopy}{hieronymus-omega.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{borgia}{
+  \textbf{Zero-Parameter Molecular Spectroscopy.}
+  Electronic transitions, absorption, emission, and vibrational modes from
+  bounded phase space geometry. Triple Equivalence: GPU shader = physical
+  spectrometer. Applicable to spectral characterisation of colloidal and
+  molecular soft matter systems.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Physics Developer}{Bitspark GmbH}{}{}{
+  First-principles frameworks for fluid dynamics, optical physics, biological
+  collective motion, and molecular spectroscopy. All systems validated and
+  publicly deployed.
+}
+
+\cventry{2019--2021}{Computational Research}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Large-scale spectral data analysis, distributed scientific computing
+  (Ray, Dask), federated learning for multi-site data. Python, Java.
+}
+
+\cventry{2019}{Process Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time sensor data acquisition and ML-based optimisation for industrial
+  photobioreactors. Fluid dynamics in biological systems context. Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Physics / Soft Matter}{
+  First-principles fluid dynamics (Kirchhoff/Navier-Stokes); rheology theory
+  (yield stress, viscosity, viscoelasticity from partition geometry);
+  optical physics (Beer-Lambert, scattering, DDM signal formation);
+  collective motion conservation laws; thermodynamic phase transitions;
+  Banach contraction mappings; spectral analysis (DFT)
+}
+
+\cvitem{Programming}{
+  Python (primary — NumPy, SciPy, PyTorch, OpenCV, Ray);
+  Rust (performance-critical computation);
+  JavaScript/TypeScript (WebGPU shaders);
+  Bash, SQL; MATLAB (familiar)
+}
+
+\cvitem{Image Analysis / Microscopy}{
+  Multi-modal microscopy fusion (fluorescence, brightfield, phase-contrast,
+  spectral); GPU-accelerated image processing; CNN-based feature extraction;
+  instrument-level Python control; large-scale image pipeline construction
+}
+
+\cvitem{Infrastructure}{
+  Ray, Dask; Docker, FastAPI; WebGPU compute shaders;
+  memory-mapped I/O for large datasets; HDF5
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent (C1+)}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

@@ -1,0 +1,148 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Andre Franke \\
+Institut für Klinische Molekularbiologie (IKMB) \\
+Universitätsklinikum Schleswig-Holstein, Campus Kiel \\
+Ref.\ 28608
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position --- Computational Immunology / IBD Genomics (Ref.\ 28608)}
+
+\vspace{1em}
+
+Dear Prof.\ Franke,
+
+I am applying for the PhD position in computational immunology at IKMB (Ref.\ 28608).
+The position covers immune repertoire analysis, single-cell sequencing, and the
+microbiome--host genetics interface in intestinal inflammation --- precisely the
+application domain for a computational immunopeptidology toolkit I have developed
+and deployed over the past four years.
+The specific analytical questions the position describes --- which epitopes drive
+mucosal T cell responses, how immune repertoires shift across IBD patient cohorts,
+how host genetic variation modulates inflammatory microbiome interactions ---
+are computationally tractable with the spectral methods and Bayesian inference
+infrastructure I have built.
+
+\textbf{Computational immunopeptidology for IBD T cell biology.}
+The \href{https://syndrome-seven.vercel.app/tools}{Syndrome} framework applies
+3-channel discrete Fourier transforms (hydropathy, volume, charge) to compute
+spectral complementarity $\rho$ between any two molecular sequences in
+$\mathcal{O}(cL\log L)$.
+For IBD, the three directly applicable tools are:
+\begin{itemize}
+  \item \textbf{MHC binding predictor}: $\rho \geq 0.72$ for binding prediction;
+    AUC\,$=0.81$ vs.\ NetMHCpan\,$=0.68$ on 2,847 IEDB peptides
+    ($r=0.73$, $p<10^{-12}$).
+    Applicable to patient-specific HLA scanning: given a patient's HLA haplotype
+    and the microbial peptide landscape from their metagenomics data, predict
+    which microbial epitopes will be presented and drive mucosal T cell activation.
+  \item \textbf{Neoantigen / cross-reactive epitope identification}: dual threshold
+    $\Delta\rho_\mathrm{self} > 0.15$ (sufficient divergence from self) and
+    $\rho_\mathrm{MHC} > 0.72$ (sufficient binding affinity).
+    In IBD, this identifies microbial epitopes with high cross-reactivity risk
+    to intestinal self-antigens --- the computational screen for molecular
+    mimicry candidates.
+  \item \textbf{Escape predictor}: systematic single amino acid substitution scan
+    scoring $E(v) = -\max\rho(v, \mathrm{self}) + w \cdot \rho(v, \mathrm{target})$.
+    For immune repertoire analysis, this maps how observed TCR sequences relate to
+    the epitope landscape: which receptor variants maintain target recognition
+    while minimising autoreactive cross-reactivity.
+\end{itemize}
+These tools are live at \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+and require no local installation, making them directly usable by wet-lab
+collaborators without computational infrastructure.
+
+\textbf{IBD genomics and microbiome--host genetics.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+implements large-scale genomics analysis at $10^6$ variants per second:
+somatic and germline variant calling, RNA-seq quantification and differential
+expression, Bayesian network inference for multi-omics integration, and
+Gaussian mixture models for population structure.
+Validated against 1000~Genomes Phase~3, gnomAD~v3.1.2, and UK~Biobank ---
+the same cohort scales as IBD GWAS studies.
+The Bayesian network module performs multi-omics integration directly:
+host genotype variation as upstream nodes conditioning metagenomics and
+transcriptomics distributions downstream, with posterior inference across
+the joint graph.
+This is the computational structure for microbiome--host genetics analysis:
+identifying which host genetic variants (IBD GWAS loci) modulate microbial
+community composition and mucosal inflammatory gene expression simultaneously,
+rather than correlating the two separately.
+
+\textbf{Disease state trajectory and therapeutic target selection.}
+The Syndrome framework's disease state layer represents patient state as a vector
+$\mathbf{D} \in [0,1]^8$ with dimensions including immune activation ($D_\mathrm{Imm}$),
+mucosal barrier integrity ($D_\mathrm{Bar}$), ATP synthesis coherence ($D_\mathrm{ATP}$),
+and circadian regulatory coherence ($D_\mathrm{Circ}$).
+Trajectory inference uses a Bayesian $P(R \mid Q)$ posterior gating structure,
+giving a principled model of disease progression rather than a cross-sectional
+score.
+For minimum-intervention target identification --- which single pathway
+perturbation most efficiently restores the disease state vector toward
+remission --- the framework uses a sparse $\ell_1$ linear program, validated
+at AUC\,$=1.00$ across 25/25 validation experiments.
+In the IBD context, this provides a computational framework for
+personalised therapeutic target prioritisation from single-cell multi-omics
+data: patient state characterisation from scRNA-seq and TCR-seq jointly,
+followed by LP-based identification of the minimal intervention set.
+
+\textbf{Single-cell methods and repertoire analysis.}
+My primary single-cell experience is through the Bayesian inference layer:
+variational Bayes posterior approximation at $\mathcal{O}(10^6)$ latent
+variable scale (Gospel), probabilistic graphical models for multi-omics
+integration, and Gaussian processes for trajectory inference.
+Scanpy and Seurat are familiar from MSc training and independent study;
+the statistical models underlying UMAP-based clustering and RNA velocity
+are directly related to the Bayesian dimensionality reduction infrastructure
+I have built.
+TCR/BCR clonotype analysis --- the combinatorial structure of V(D)J recombination,
+clonal expansion statistics, and cross-patient repertoire comparison --- is a
+sequence analysis problem where the spectral complementarity methods in Syndrome
+apply directly: $\rho$ as a distance measure between TCR sequences, enabling
+clustering of functionally similar clonotypes without requiring MSA.
+The PhD provides the experimental immunology context (patient samples, immune
+phenotyping, metagenomics protocols) that gives these computational methods
+their biological grounding.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen, 2018--2019)
+and conducted doctoral research in Computational Lipidomics at TUM\slash
+Bayerisches Forschungsinstitut (2019--2021), working on ML for
+large-scale MS omics data in clinical cohorts.
+I am legally resident in Germany with full work authorisation.
+English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

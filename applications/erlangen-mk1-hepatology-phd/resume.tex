@@ -1,0 +1,193 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Doktorand, Bioinformatik / Hepatologie / Onkologie
+% Medizinische Klinik 1, Universitätsklinikum Erlangen
+% Ref. he_030_PD — PD Dr. Peter Dietrich
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  ML for large-scale MS omics data in clinical cohorts; multi-omics statistical
+  modelling; distributed inference across federated clinical sites.
+  Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical bioinformatics, Bayesian methods,
+  computational systems biology, ML for biological sequences.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Molecular biology, cell culture, fermentation, analytical chemistry,
+  quality assurance in pharmaceutical production.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Biochemistry, cell biology, molecular genetics, protein chemistry.
+}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  Spectral complementarity framework for immunopeptidology: MHC-I/II binding
+  AUC\,$0.81$ vs.\ NetMHCpan\,$0.68$ ($r=0.73$, $p<10^{-12}$, $n=2{,}847$
+  IEDB peptides); neoantigen identification from somatic mutations;
+  immune escape predictor for tumour immunology.
+  \textit{Manuscript. AIMe Registry for Artificial Intelligence.}
+}
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Hierarchical Bayesian disease state $\mathbf{D}\in[0,1]^8$; AUC$=1.00$;
+  25/25 validation experiments; sparse $\ell_1$ LP for personalised therapeutic
+  target selection from multi-omics data.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	BIOINFORMATICS AND SEQUENCING TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Bioinformatics and Sequencing Analysis}
+
+\cvitem{gospel}{
+  \textbf{RNA-seq and Genomics Analysis Pipeline.}
+  Read alignment and quantification; differential expression across conditions
+  and cohorts; splicing analysis; somatic and germline variant calling;
+  species-aware analysis with ortholog mapping for human/murine comparison;
+  cross-species pathway conservation.
+  Bayesian network multi-omics integration (genomics $\to$ transcriptomics $\to$
+  metagenomics as conditional probability graph).
+  $10^6$ variants/second; ClinVar, KEGG, Reactome annotation; gnomAD, 1000~Genomes,
+  UK~Biobank validated. Ray distributed, Docker deployable.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{single-cell}{
+  \textbf{Single-Cell RNA-seq Statistical Infrastructure.}
+  Variational Bayes posterior approximation at $\mathcal{O}(10^6)$ latent variables;
+  Gaussian mixture models for rare cell population identification (hepatic stellate
+  cells, Kupffer cells, sinusoidal endothelial cells, periportal/pericentral
+  hepatocytes); Gaussian process trajectory inference (fibrogenesis progression,
+  tumour microenvironment remodelling, immune recruitment).
+  Scanpy and Seurat pipelines (UMAP, Leiden, RNA velocity, diffusion pseudotime);
+  AnnData / HDF5; probabilistic dimensionality reduction underlying UMAP geometry.
+}
+
+\cvitem{syndrome}{
+  \textbf{HCC Immunopeptidology Toolkit.}
+  Tumour neoantigen identification from somatic mutation data;
+  MHC-I/II binding prediction (AUC\,$0.81$); immune escape scoring via
+  substitution scan $E(v)=-\max\rho(v,\mathrm{self})+w\cdot\rho(v,\mathrm{target})$;
+  disease state $\mathbf{D}\in[0,1]^8$ including $D_\mathrm{Imm}$
+  (tumour immune activation) for TME characterisation from RNA-seq data.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+}
+
+\cvitem{lavoisier}{
+  \textbf{Mass Spectrometry Omics Pipeline.}
+  MS1/MS2 processing + CNN spectral classification; 98.9\,\% NIST accuracy;
+  $>100$\,GB mzML at clinical cohort scale.
+  Applicable to proteomics and metabolomics integration with RNA-seq data.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Computational Biology Researcher}{Bitspark GmbH}{Munich}{}{
+  Computational immunopeptidology, large-scale genomics, Bayesian multi-omics
+  integration, and clinical data infrastructure for oncology and pharmacology.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  ML for clinical MS omics data; distributed pipeline maintenance; multi-omics
+  integration across federated clinical sites. Close collaboration with wet lab
+  teams: understanding sample preparation constraints and protocol artefacts
+  in downstream data. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Wet lab: automated LC-MS/MS and MALDI-TOF pipeline operation;
+  clinical sample processing (tissue, serum, CSF); data annotation and
+  quality control for multi-centre clinical cohort studies.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Sequencing Analysis}{
+  RNA-seq (alignment, quantification, DE, splicing); scRNA-seq (Scanpy, Seurat,
+  UMAP, Leiden, RNA velocity, diffusion pseudotime); human/murine comparative
+  transcriptomics; FASTQ, BAM, VCF; samtools, Nextflow; AnnData / HDF5
+}
+
+\cvitem{Statistical / ML}{
+  R (Bioconductor, DESeq2, edgeR, limma, ggplot2); Python (PyTorch, scikit-learn,
+  scanpy, pandas); variational Bayes; probabilistic graphical models; Gaussian processes;
+  MCMC (NUTS/HMC); sparse regularisation ($\ell_1$); GMMs
+}
+
+\cvitem{Oncology / Immunology}{
+  Neoantigen identification; MHC binding prediction; tumour immune escape scoring;
+  tumour microenvironment characterisation from scRNA-seq; disease state
+  quantification ($\mathbf{D}\in[0,1]^8$); therapeutic target prioritisation
+}
+
+\cvitem{Wet Lab}{
+  LC-MS/MS, MALDI-TOF; cell culture; clinical sample processing (tissue, serum);
+  PCR; protein biochemistry; pharmaceutical production (fermentation, downstream)
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany continuously since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

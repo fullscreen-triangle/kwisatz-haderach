@@ -1,0 +1,202 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD Position, Probabilistic Metabolic Flux Analysis
+% HDS-LEE Graduate School, Forschungszentrum Jülich — Ref. 2025D-179
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  MS-based lipidomics at HPC scale: isotopologue quantification, multi-omics
+  statistical modelling, federated inference across distributed clinical sites.
+  Departure to pursue independent computational research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical inference, Bayesian methods,
+  computational systems biology, metabolic network analysis.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{Backward Training Principle.}
+  Formal proof: a model calibrated at the worst-case misspecification instance
+  is calibrated at all less-misspecified instances by feasibility inclusion.
+  Forward Training Collapse Theorem (positive VC failure gap for easy-to-hard
+  direction); Sample Complexity Theorem ($(N{+}1)\times$ savings for depth-$N$
+  cascades). Directly applicable to hierarchical Bayesian MFA misspecification.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Hierarchical Bayesian model with loop-holonomy self-consistency diagnostic;
+  AUC$=1.00$; sparse $\ell_1$ LP for minimum-intervention parameter selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{purpose + homo-veloce}{
+  \textbf{Backward Training Principle --- Misspecification-Robust Model Training.}
+  Formal proof that calibration at the hardest (most misspecified) instance
+  propagates to all less-misspecified sub-models by feasibility inclusion.
+  $\mathcal{C}_\mathrm{hard}\subseteq\mathcal{C}_\mathrm{easy}$ implies
+  $\epsilon$-competence transfers downward without retraining.
+  Forward Training Collapse Theorem: positive VC failure gap for the conventional
+  easy-to-hard calibration direction.
+  homo-veloce: distils Gaussian process and physics-based solvers into lightweight
+  neural surrogates via knowledge distillation --- same pattern as neural ODE
+  surrogates for metabolic network simulation.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+
+\cvitem{gospel}{
+  \textbf{Hierarchical Bayesian Multi-Omics Inference.}
+  Bayesian network inference for multi-omics integration; variational Bayes
+  posterior approximation at $\mathcal{O}(10^6)$ latent variable scale;
+  Gaussian mixture models for population structure; continuous shrinkage priors.
+  Validated: 1000~Genomes, gnomAD~v3.1.2, UK~Biobank.
+  Architecture applicable to hierarchical flux posterior inference with
+  stoichiometric network priors.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{Probabilistic State Inference with Sparse Regularisation.}
+  Eight-dimensional latent state $\mathbf{D}\in[0,1]^8$ with coherence indices
+  $\eta_i\in[0,1]$; Bayesian P(R\,|\,Q) posterior gating; $\mathcal{O}(N\log N)$
+  trajectory; sparse $\ell_1$ LP for minimum-norm parameter selection.
+  AUC$=1.00$ in 25/25 validation experiments.
+  Analogous to flux vector inference under thermodynamic feasibility constraints.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Metabolomics / Lipidomics Data Pipeline (MFA Input Layer).}
+  Dual-pipeline MS analysis: numerical isotopologue quantification + CNN
+  spectral classification (PyTorch); 98.9\,\% NIST accuracy; Ray-distributed
+  HPC; $>$100\,GB mzML support; memory-mapped I/O.
+  Processes the primary measurement data for $^{13}$C-MFA:
+  isotopically labelled mass spectra at production scale.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{HPC-Scale Inference Pipeline.}
+  Rust core (15--50$\times$ speedup via PyO3 bindings); Ray-distributed
+  parallel chain execution; FastAPI orchestration; Docker/Kubernetes.
+  Demonstrates the Python + Rust + Ray HPC architecture applicable to
+  large-scale MCMC and variational inference for metabolic flux posteriors.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Hierarchical Bayesian modelling, differentiable probabilistic inference,
+  HPC-scale distributed sampling, metabolomics and genomics data pipelines.
+  All systems publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics: isotopologue quantification, peak detection, ion annotation
+  (LIPID MAPS, LipidBlast), multi-omics statistical modelling, federated
+  inference for distributed clinical data. Python, Java.
+}
+
+\cventry{2019}{Process Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time sensor data acquisition; dynamic programming and LP for
+  photobioreactor optimisation. Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Bayesian Methods}{
+  Variational Bayes (ELBO optimisation); MCMC (NUTS, HMC, Metropolis-Hastings);
+  hierarchical / multi-level models; continuous shrinkage priors; probabilistic
+  graphical models; Bayesian network inference; automatic differentiation
+  (PyTorch \texttt{autograd}); normalising flows; Laplace approximation
+}
+
+\cvitem{Metabolic Flux Analysis}{
+  Stoichiometric network modelling; isotopologue balance equations;
+  $^{13}$C-MFA data structures (mzML, isotopologue distributions);
+  matrix effects and measurement uncertainty in MS-based quantification;
+  LIPID MAPS, LipidBlast, HMDB metabolite databases
+}
+
+\cvitem{HPC / Scientific Computing}{
+  Python (primary); Rust with PyO3 bindings (15--50$\times$ speedup);
+  C (Fraunhofer context); Ray distributed sampling; Dask; Docker, Kubernetes;
+  memory-mapped I/O; Linux HPC environment; SLURM-compatible pipelines
+}
+
+\cvitem{ML / Probabilistic Programming}{
+  PyTorch; JAX-compatible automatic differentiation; scikit-learn;
+  knowledge distillation from physics / ODE solvers to neural surrogates;
+  sparse $\ell_1$ regularisation; Gaussian processes
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

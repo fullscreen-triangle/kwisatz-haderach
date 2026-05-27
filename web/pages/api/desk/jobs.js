@@ -22,11 +22,15 @@ function loadAppDetail(appId) {
       result[fname.replace('.json', '')] = JSON.parse(fs.readFileSync(fpath, 'utf-8'));
     }
   }
-  for (const fname of ['resume.md', 'cover_letter.md']) {
+  for (const [fname, key] of [
+    ['resume.md', 'resumemd'],
+    ['cover_letter.md', 'cover_lettermd'],
+    ['resume.tex', 'resumetex'],
+    ['cover_letter.tex', 'cover_lettertex'],
+    ['narrative.txt', 'narrative'],
+  ]) {
     const fpath = path.join(dir, fname);
-    if (fs.existsSync(fpath)) {
-      result[fname.replace('.md', '').replace('_', '')] = fs.readFileSync(fpath, 'utf-8');
-    }
+    if (fs.existsSync(fpath)) result[key] = fs.readFileSync(fpath, 'utf-8');
   }
   return result;
 }

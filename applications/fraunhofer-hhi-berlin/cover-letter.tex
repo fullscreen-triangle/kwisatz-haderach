@@ -1,0 +1,140 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Dr.\ Moritz Kleinert \\
+Photonic Biosensors \\
+Fraunhofer-Institut für Nachrichtentechnik --- Heinrich-Hertz-Institut (HHI) \\
+Berlin \\
+Ref.\ 84447
+
+\vspace{1.5em}
+
+\textbf{Re: Wissenschaftliche*r Mitarbeiter*in für Biochemie und Oberflächenfunktionalisierung (Ref.\ 84447)}
+
+\vspace{1em}
+
+Dear Dr.\ Kleinert,
+
+I am applying for the scientist position in biochemistry and surface
+functionalization at Fraunhofer HHI (Ref.\ 84447).
+My background combines formal biochemistry training and practical
+protein-handling experience with independent computational work on the
+optical physics and molecular recognition problems that underlie photonic
+biosensor performance.
+The surface chemistry specific to photonic integrated chips is the aspect
+I have not done on the bench; the biochemical foundation, the understanding
+of evanescent-field sensing mechanisms, and the analytical tools for
+biosensor signal processing are in place.
+
+\textbf{Biochemistry and assay development background.}
+My BSc in Biochemistry and Cell Biology (Jacobs University Bremen) and
+MSc in Pharmaceutical Biotechnology (HAW Hamburg) together cover the
+full biochemical toolkit the position requires: protein purification and
+handling, antibody-based detection assays, bioconjugation strategies,
+ELISA development, and quality and reproducibility standards in bioanalytical
+method development.
+At the Universitätsklinikum Hamburg-Eppendorf (2017--2018) I developed
+automated LC-MS/MS and MALDI-TOF pipelines for proteomics and glycomics ---
+work that required systematic protein immobilisation on MALDI targets,
+surface preparation, and strict protocol standardisation to achieve
+reproducible ion signals across sample series.
+At the University Medical Center Groningen (2013) I performed UPLC-MS/MS
+shotgun proteomics for cancer biomarker discovery, which required developing
+sample preparation and digestion protocols validated against a reference
+standard. These are the skills of assay development and experimental
+validation; the substrate here is PIC chip surfaces rather than MS plates,
+but the biochemical logic --- controlled surface chemistry, selective
+capture, non-specific binding suppression, reproducibility at the device
+level --- is the same.
+
+\textbf{Optical physics and photonic biosensing mechanisms.}
+The detection mechanism in label-free photonic biosensing is a refractive
+index change in the evanescent field at the waveguide surface.
+Understanding where that signal comes from --- and how large it should be
+for a given analyte-receptor interaction --- requires first-principles optics.
+The \href{https://github.com/fullscreen-triangle/lagrangian}{Lagrangian}
+platform I developed proves Beer-Lambert absorption, Kirchhoff circuit laws,
+and thermal emission as formally identical operations via the Resonant Stack
+theorem: transmittance $T = 1/e = 0.3679$ is the universal fixed point in all
+three representations. This is exactly the physics of evanescent field coupling
+and absorption in a waveguide: the same partition-geometry argument that governs
+bulk absorption governs the sensing layer interaction.
+The \href{https://honjo-masamune.vercel.app/tools}{Borgia} framework derives
+electronic transitions, absorption, and emission spectra of molecules from
+bounded phase space geometry alone, with zero empirical parameters.
+Validated against NIST for nine elements and six molecules (self-consistency
+errors $<$1.63\,\%). For photonic biosensor design, this means I can predict
+the absorption cross-section and refractive index contribution of surface-bound
+molecules from molecular structure, before running the experiment --- useful for
+pre-screening linker chemistries and bioreceptor candidates.
+
+\textbf{Molecular recognition and receptor--analyte binding.}
+The quantitative output of a label-free biosensor is the binding kinetics
+and equilibrium $K_d$ of the receptor--analyte interaction.
+The \href{https://github.com/fullscreen-triangle/crown-prince}{Crown Prince}
+framework derives dissociation constants from bounded phase space geometry:
+$K_d$ is determined by the partition structure of the receptor--ligand
+bounded oscillatory system, without empirical fitting.
+Validated against 39 NIST compounds.
+The \href{https://syndrome-seven.vercel.app/tools/mhc-binding}{Syndrome}
+platform implements spectral DFT-based molecular recognition: three
+physicochemical channels (hydropathy, volume, charge) → Fourier transform
+→ 36-dimensional cosine similarity $\rho$; binding is predicted when
+$\rho \geq \rho^* = 0.72$ with $O(cL\log L)$ complexity.
+The mathematical structure is identical to what a photonic biosensor measures:
+spectral complementarity between receptor and analyte, with a threshold
+separating bound from unbound states.
+This gives me a computational layer for receptor design and binding affinity
+estimation that complements experimental validation on the chip.
+
+\textbf{Signal analysis and data evaluation.}
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier}
+framework processes spectral data at $>$100\,GB scale: dual-pipeline numerical
+and CNN-based analysis (PyTorch), 98.9\,\% NIST feature-extraction accuracy,
+Ray distributed computing. The signal analysis problem in photonic biosensing
+(extracting binding signal from interferometric or resonance-shift data against
+background noise and matrix interference) is structurally identical to the
+spectral peak extraction and ion annotation problem in mass spectrometry.
+I can therefore bring both analytical rigour and practical tooling to the
+data evaluation component of the role.
+
+\textbf{Background.}
+I hold a BSc in Biochemistry and Cell Biology (Jacobs University Bremen),
+an MSc in Pharmaceutical Biotechnology (HAW Hamburg), and an MSc in
+Computational Biology (Universität Tübingen), and I conducted doctoral
+research in Computational Lipidomics at TUM.
+I am legally resident in Germany with full work authorisation and available
+immediately, including relocation to Berlin.
+English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

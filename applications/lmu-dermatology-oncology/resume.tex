@@ -1,0 +1,231 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wissenschaftlicher Mitarbeiter, Dermato-Onkologie
+% LMU Klinikum, Prof. Lucie Heinzerling
+% Focus: predictive test for immunotherapy response, microbiome-tumour interaction
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Mass spectrometry-based metabolomics, multi-omics statistical modelling, federated
+  learning for distributed clinical analysis. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems.}
+  Structural model of adaptive immune selectivity: MHC binding affinity correlates
+  with parent protein categorical richness ($r=0.73$, $p<10^{-12}$, $n=2{,}847$
+  IEDB peptides). AUC 0.81 vs NetMHCpan 0.68. Generates patient-level predictions
+  about checkpoint inhibitor response: which antigens will be presented, which
+  checkpoint is the operative target, and which microbiome-associated proteins
+  alter the presentation landscape. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency as unique viable immunotherapy response classifier.
+  AUC$=1.00$; 25/25 validation experiments pass. Sparse $\ell_1$ LP for minimum-side-effect
+  therapeutic combination selection (checkpoint inhibitor + microbiome modulation
+  + adjuvant therapy). \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  Disease vector $\mathbf{D}\in[0,1]^8$ integrating genetic expression oscillator
+  ($D_G$, tumour transcriptomics), membrane potential oscillator ($D_M$, microbiome
+  barrier effects), and calcium oscillator ($D_{Ca}$, immune signalling state).
+  Sparse LP for minimum-intervention immunotherapy + microbiome combination selection.
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{lavoisier}{
+  \textbf{Metabolomics and Lipidomics Mass Spectrometry Pipeline.}
+  Complete pipeline from raw mzML to annotated metabolite table: MS1/MS2 ion
+  annotation, spectral library matching (NIST, LIPID MAPS, LipidBlast), feature
+  extraction. Dual numerical + CNN visual pipeline (PyTorch); 98.9\,\% NIST accuracy;
+  Ray distributed computing; $>$100\,GB mzML support.
+  Applicable to microbiome metabolite panels (SCFAs, bile acids, indoles, polyamines)
+  and skin tumour lipidomic profiling.
+  Virtual instrument:
+  \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{borgia}{
+  \textbf{First-Principles Molecular Spectroscopy for Metabolite Characterisation.}
+  Derives spectroscopic properties of metabolites from bounded phase space geometry
+  --- no empirical parameters, no reference standard required. The Triple Equivalence
+  Theorem (oscillatory dynamics $=$ categorical state enumeration $=$ partition
+  operations) enables characterisation of novel microbial metabolites without
+  calibration curves. Validated against NIST for nine elements and six molecules
+  with zero free parameters; self-consistency errors $<$1.63\%.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{gospel}{
+  \textbf{Tumour Genomics, Metagenomics, and RNA-seq Integration.}
+  $10^6$ variants/second VCF processing; RNA-seq quantification; Bayesian network
+  inference, Gaussian mixture models. Applicable to tumour neoantigen profiling,
+  somatic variant calling in melanoma, and microbiome metagenomics sequencing.
+  Validated: 1000 Genomes Phase~3, gnomAD v3.1.2, UK Biobank.
+  Live: \href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{crown-prince}{
+  \textbf{Geometric Pharmacology and Tumour Cell Spectral Diagnostics.}
+  Derives drug-target binding as $K_d = \exp(-\Delta M \cdot \ln b)$ from partition
+  geometry; Hill equation as limiting case. Cell Spectral Hologram: tumour cell input
+  $\to$ IR/Raman/fluorescence superposition $\to$ loop-holonomy disease diagnostic
+  (AUC\,$=$\,1.00) $\to$ sparse $\eta^*$ therapeutic perturbation vector.
+  39/39 NIST binding validations; zero free parameters; 50\,MB vs DrugBank 12\,GB.
+  Live: \href{https://crown-prince-four-courners.vercel.app/tools/spectrum}{crown-prince-four-courners.vercel.app/tools/spectrum}.
+}
+
+\cvitem{syndrome}{
+  \textbf{Immunopeptidology Tools and Combination Therapy Optimisation.}
+  Four live tools at \href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app}
+  operating via 3-channel DFT spectral embedding (36D cosine similarity $\rho$,
+  $O(cL\log L)$, no database):
+  MHC binding predictor ($\rho_\text{MHC}$, default threshold 0.72);
+  neoantigen identifier (dual criterion: $\Delta\rho_\text{self}>0.15$ for immune
+  detection AND $\rho_\text{MHC}>0.72$ for presentation, scored as
+  $\rho_\text{MHC}\times\Delta\rho_\text{self}$);
+  immune escape predictor ($E(v)=-\max\rho(v,\mathrm{Ab})+w\cdot\rho(v,\mathrm{rec})$);
+  antibiotic resistance predictor (drug--enzyme spectral complementarity).
+  Disease vector $\mathbf{D}\in[0,1]^8$; sparse $\ell_1$ LP for
+  minimum-intervention checkpoint inhibitor $+$ microbiome combination selection.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2021--present}{Independent Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Multi-omics frameworks, first-principles molecular spectroscopy, immunotherapy
+  response modelling. All systems publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry pipeline for lipid metabolite characterisation: peak detection,
+  ion annotation (LIPID MAPS, LipidBlast), feature engineering, multi-omics
+  statistical modelling, federated learning for distributed clinical analysis.
+  Python, Java. Instrumentation: TIMS-PASEF, QTOF, ion trap.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF characterisation pipeline for proteins and
+  glycans from biological samples; protein identification and quantification.
+}
+
+\cventry{2019}{Therapeutic Lipid Production}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Dynamic and linear programming methods for optimisation of therapeutic lipid
+  production in industrial photobioreactors. Python, C.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery from serum.
+  Protocol optimisation and statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Metabolomics / Lipidomics}{
+  LC-MS/MS, MALDI-TOF, UPLC-MS/MS, TIMS-PASEF, QTOF; metabolite annotation
+  (NIST, HMDB, LIPID MAPS, LipidBlast); SCFA, bile acid, indole, and lipid
+  species identification; spectral library matching; feature extraction from
+  mzML/mzXML
+}
+
+\cvitem{Immunology / Oncology}{
+  MHC-I/II peptide presentation modelling, neoantigen prediction, checkpoint
+  inhibitor response prediction, tumour microenvironment analysis, pathway analysis
+  (KEGG, Reactome, GSEA), single-cell RNA-seq (Scanpy/Seurat)
+}
+
+\cvitem{Microbiome Analytics}{
+  Metagenomics pipeline (sequence alignment, taxonomic classification, variant
+  calling), microbial metabolite panel design, microbiome-host interaction
+  multi-omics integration
+}
+
+\cvitem{ML / Statistics}{
+  PyTorch, scikit-learn, XGBoost; Bayesian networks, Gaussian mixture models,
+  variational Bayes; survival analysis; multi-omics integration (MOFA, UMAP)
+}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript, Java, C, SQL, Bash}
+
+\cvitem{Infrastructure}{
+  Ray, Dask, Docker, FastAPI, AWS, PostgreSQL, memory-mapped I/O for large datasets
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

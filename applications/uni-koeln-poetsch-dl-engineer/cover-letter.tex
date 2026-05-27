@@ -1,0 +1,154 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Anna Poetsch \\
+Poetsch Group --- Institut für Genetik / CECAD \\
+Universität zu Köln \\
+\texttt{apoetsch@uni-koeln.de} \\
+Ref.\ Wiss2604-09
+
+\vspace{1.5em}
+
+\textbf{Re: Deep Learning Engineer --- Omics Data / Genomics (Ref.\ Wiss2604-09)}
+
+\vspace{1em}
+
+Dear Prof.\ Poetsch,
+
+I am applying for the Deep Learning Engineer position in the Poetsch group
+(Ref.\ Wiss2604-09). The position describes building deep learning
+infrastructure on omics data for the lab and the broader research community ---
+converting theoretical concepts into working code, implementing state-of-the-art
+algorithms, and creating internal tools that accelerate research.
+This is exactly the kind of work I have been doing independently for four years,
+across genomics, transcriptomics, mass spectrometry, and immunopeptidology data.
+The frameworks I have built are not academic exercises; they are deployed,
+validated, and operational systems that I can bring into the lab's infrastructure.
+
+\textbf{Deep learning for genomics and omics data.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+implements the full genomics analysis pipeline at production scale:
+$10^6$ variants per second VCF processing, RNA-seq quantification and differential
+expression, Bayesian network inference for multi-omics integration, and Gaussian
+mixture models for population structure.
+Validated against 1000~Genomes Phase~3, gnomAD~v3.1.2, and UK~Biobank.
+For the Poetsch group's work on genomic changes in aging and cancer, Gospel
+provides the computational backbone for somatic variant calling,
+tumour mutational burden analysis, and integrating genomic with transcriptomic
+data across patient cohorts.
+
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+demonstrates the specific DL pattern the position describes --- implementing and
+evaluating a state-of-the-art algorithm from a recent academic paper and deploying
+it as a research tool. The dual-pipeline design combines:
+\begin{itemize}
+  \item A numerical pipeline (standard MS1/MS2 processing, peak detection,
+    spectral library matching) validated against NIST at 98.9\,\% accuracy.
+  \item A CNN-based visual pipeline (PyTorch) that converts mass spectra
+    into temporal image sequences and applies image classification
+    networks --- moving from the academic literature on spectral imaging
+    into a working, distributed production system (Ray, $>$100\,GB mzML support).
+\end{itemize}
+This is precisely the "from academic papers to working code" task the position
+lists as a core responsibility. The same architectural pattern --- parallel
+classical and deep learning pipelines with cross-validated accuracy metrics ---
+applies directly to genomics data: a classical variant calling pipeline alongside
+a CNN or Transformer-based variant pathogenicity predictor, both sharing the
+same input pre-processing layer.
+
+\textbf{Algorithm implementation and internal tooling.}
+The position emphasises creating internal tools that speed up research:
+automated evaluation frameworks, data annotation tools, specialized libraries.
+I have built all three categories:
+
+\textit{Automated evaluation frameworks:} Every framework I have built includes
+automated validation against reference standards with quantified accuracy metrics.
+The Lavoisier pipeline runs automated benchmarking against the NIST mass spectral
+library on each build; Gospel validates variant call accuracy against gnomAD
+population frequencies and Clinvar annotations; the Syndrome immunopeptidology
+tools benchmark against the IEDB peptide database.
+
+\textit{Data annotation tools:} The
+\href{https://syndrome-seven.vercel.app/tools}{Syndrome} live tools provide
+browser-based annotation for genomic sequences --- MHC binding prediction,
+neoantigen identification, immune escape scoring --- requiring no local
+installation. This is the kind of interactive annotation tool that lab members
+with varying computational expertise can use directly.
+
+\textit{Specialised libraries:} The Rust core of
+\href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+is a specialised library for high-throughput Bayesian inference, fuzzy logic,
+and evidence propagation, providing 15--50$\times$ speedup over Python via
+PyO3 bindings. The same library architecture --- Rust performance-critical
+operations exposed to Python via clean API --- is the standard approach for
+building genomics DL libraries where inference throughput matters.
+
+\textbf{Aging and cancer genomics: domain context.}
+The Poetsch group's focus on genomic changes in aging and cancer is the
+application domain I have studied most intensively from a computational
+perspective.
+For cancer: the Syndrome framework's four live immunopeptidology tools
+(neoantigen identification, MHC binding, immune escape, drug resistance)
+directly analyse the somatic mutations and immune interactions relevant to
+cancer genomics. The Crown Prince platform derives tumour cell diagnostics
+from spectral hologram representations, with AUC$\,=1.00$ on the loop-holonomy
+self-consistency diagnostic.
+For aging: the \href{https://rembling-trambling.vercel.app}{Olduvai}
+framework analyses biological motion degradation patterns across aging
+(Parkinson's, ataxia, healthy ageing), validated on 86 nights of wearable
+sensor data. The D$\in[0,1]^8$ disease vector in Syndrome has an explicit
+circadian regulatory oscillator dimension ($D_\mathrm{Circ}$) and ATP synthesis
+coherence dimension ($D_\mathrm{ATP}$) --- the two cellular dimensions most
+directly coupled to the aging process at the genomic expression level.
+Connecting genomic variation data (from Gospel's variant analysis) to these
+cellular phenotype dimensions is the kind of integrative analysis the position
+is structured to enable.
+
+\textbf{Equivalent experience in place of a completed doctorate.}
+The position specifies a PhD in CS, Bioinformatics, or AI ``or equivalent
+experience level.''
+I completed doctoral research in Computational Lipidomics at TUM /
+Bayerisches Forschungsinstitut (2019--2021) and have since worked full-time
+as an independent researcher, producing peer-reviewed-quality manuscripts
+(three submitted, affiliated with AIMe Registry and TUM Weihenstephan) and
+building twelve deployed, validated computational platforms.
+The depth and scope of this independent research is the equivalent experience
+the position's clause refers to.
+
+I work primarily in Python with PyTorch; Rust for performance-critical
+components; Ray for distributed computing; Docker and Kubernetes for deployment.
+English is native; German is conversational.
+I am legally resident in Germany with full work authorisation and available
+from July 2026.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

@@ -1,0 +1,253 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — ML for Medical Imaging / Neurogenomics / Neuronal Modelling
+% Hertie Institute, University of Tübingen
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+%	PERSONAL INFORMATION
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Doctoral research in mass spectrometry-based lipidomics, multi-omics statistical modelling,
+  and scientific computing. Departed programme to pursue independent computational research.
+}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{lavoisier}{
+  Mass-spectrometry metabolomics analysis framework. Dual-pipeline architecture: numerical
+  pipeline for MS1/MS2 analysis; visual pipeline converting spectra to temporal image
+  sequences analysed by CNN (PyTorch). 98.9\% feature extraction accuracy against NIST
+  reference libraries. Distributed computing via Ray; supports $>$100\,GB mzML datasets.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  Whole-genome variant analysis and RNA-seq integration. Processes million-scale VCF files
+  at $10^6$ variants/second; Bayesian network inference, Gaussian mixture models,
+  variational Bayes. Validated against 1000 Genomes Phase 3, gnomAD v3.1.2, UK Biobank.
+  Deployable sequence homology search tool at
+  \href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{helicopter}{
+  Multi-modal microscopy image analysis combining fluorescence, brightfield, phase-contrast,
+  and spectral modalities via sequential exclusion. Achieves effective sub-nanometre
+  structural resolution from twelve measurement modalities without dependence on optical
+  resolution.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{syndrome}{
+  Cellular disease state and immunopeptidology framework. Disease vector
+  $\mathbf{D}\in[0,1]^8$ (eight oscillator classes); $\mathcal{O}(N\log N)$ trajectory;
+  loop-holonomy diagnostic AUC$=1.00$ (25/25 experiments); sparse LP for therapeutic
+  target selection. Four live immunopeptidology tools at
+  \href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app}
+  (3-channel DFT spectral embedding, 36D cosine similarity $\rho$, $O(cL\log L)$,
+  no database lookup): MHC binding predictor; neoantigen identifier
+  (dual threshold $\Delta\rho_\text{self}>0.15$ and $\rho_\text{MHC}>0.72$,
+  batch-ranked by $\rho_\text{MHC}\times\Delta\rho_\text{self}$); immune escape
+  predictor for antibody evasion with maintained receptor binding; antibiotic
+  resistance predictor via drug--enzyme spectral complementarity.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{brut}{
+  \textbf{Camera-Based Physiological State Inversion (rPPG).}
+  Layered Beer--Lambert forward model of forehead skin: state space
+  $(m, [\mathrm{Hb}]_\mathrm{tot}, S_{O_2}, \eta)$; algebraic inverse by
+  channel separation (blue$\to$melanin, red$\to$Hb, green$\to$SpO$_2$ trend,
+  AC$\to$vasodilation). Recovers melanin (0.5\% median error), total
+  haemoglobin (10\%), vasodilation $\to$ skin temperature; oxygenation
+  structural ceiling $\sim$40\% (RGB-bandwidth-limited, stated explicitly).
+  $Q_{10}$ cardiac decomposition: $\mathrm{HR}_\mathrm{obs} = \mathrm{HR}_\mathrm{int}
+  + \Delta\mathrm{HR}_\mathrm{met} + \Delta\mathrm{HR}_{O_2} + \Delta\mathrm{HR}_\mathrm{auto}$,
+  isolating autonomic neural drive.
+  Real-time WebGPU browser, $1\,\mathrm{Hz}$ state estimates, 8\% CPU.
+  Live: \href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app}.
+}
+
+\cvitem{olduvai}{
+  \textbf{Closed-Circuit Nervous System Dynamics.}
+  Derives musculoskeletal and neurological dynamics from $\oint \mathbf{J}\cdot d\mathbf{A} = 0$
+  (no external biological ground). Rambling/trembling decomposition of postural control
+  into supraspinal (cortical, $f < f_c$) and peripheral (spinal, $f > f_c$) components.
+  $Q_\text{motor} = 290.9$\,mC/s; $Q_\text{thought} = 133.5$\,mC/s from 86 consecutive
+  nights of wearable data. Validated: Parkinson's disease, cerebellar ataxia, aging,
+  dual-task. Deafferentation paradox as circuit interruption (directly applicable to
+  retinal photoreceptor loss). Loop-holonomy disease detection AUC\,$=$\,1.00.
+  Live: \href{https://rembling-trambling.vercel.app/tools/rambling}{rembling-trambling.vercel.app/tools/rambling}.
+}
+
+\cvitem{homo-veloce}{
+  Multi-modal physiological data integration for biomechanical modelling. Gradient
+  boosting (XGBoost), Gaussian processes, 1D CNNs, LSTMs, Graph Neural Networks,
+  Transformers on anthropometric, biomechanical, and physiological time-series.
+  Knowledge distillation from physics-based solvers to lightweight neural networks
+  for real-time inference.
+  \href{https://github.com/fullscreen-triangle/homo-veloce}{github.com/fullscreen-triangle/homo-veloce}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems: Specificity through VDJ Recombination Categorical Filter Cascades.}
+  \newline
+  MHC binding affinity correlates with parent protein categorical richness
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). Predicts autoimmune target
+  proteins (collagen, recoverin, $\alpha$-enolase) from conformational entropy and
+  isoform diversity. AUC 0.81 vs NetMHCpan 0.68. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  \newline
+  Eight cellular oscillator classes with coherence indices $\eta_i\in[0,1]$; disease
+  vector $\mathbf{D}\in[0,1]^8$; $\mathcal{O}(N\log N)$ trajectory computation.
+  Calcium signalling oscillator ($D_{Ca}$) directly applicable to photoreceptor state
+  modelling. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  \newline
+  Loop-holonomy self-consistency as unique viable diagnostic criterion. AUC$=1.00$ vs
+  0.896 for template comparison; 25/25 validation experiments pass. Sparse $\ell_1$ LP
+  for minimum-side-effect therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM School of Life Sciences Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Viral Infection as Host-State-Dependent Categorical Resonance.}
+  \newline
+  Infection probability as categorical overlap integral derived from first principles.
+  Oscillatory Incompleteness Theorem. \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2019--2021}{Computational Lipidomics}{Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry data pipeline: peak detection, ion annotation, feature engineering,
+  statistical modelling of multi-omics datasets. Federated learning for distributed
+  clinical analysis. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated pipeline for proteomics and glycomics characterisation of LC-MS/MS and
+  MALDI-TOF data.
+}
+
+\cventry{2019}{Bioprocess Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time process monitoring and ML-based optimisation for industrial photobioreactors.
+  Dynamic and linear programming methods, Python, C.
+}
+
+\cventry{2013}{Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery. Protocol optimisation
+  and statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{ML / DL}{
+  PyTorch, scikit-learn, XGBoost; CNNs, LSTMs, Transformers, Graph Neural Networks,
+  Gaussian processes; knowledge distillation, variational Bayes, Bayesian networks,
+  Gaussian mixture models
+}
+
+\cvitem{Medical Imaging}{
+  Multi-modal microscopy (fluorescence, brightfield, phase-contrast, spectral),
+  mass spectrometry imaging, computer vision pipelines (OpenCV), image segmentation
+}
+
+\cvitem{Genomics / Bioinformatics}{
+  Variant calling (VCF), RNA-seq quantification, sequence alignment, pathway analysis
+  (KEGG, Reactome), single-cell analysis, protein structure (RDKit, GROMACS)
+}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript/JavaScript, Java, C, SQL, Bash}
+
+\cvitem{Infrastructure}{
+  Distributed computing (Ray, Dask), Docker, HPC (Azure, AWS), Git, PostgreSQL,
+  Jupyter, memory-mapped I/O for large-scale data
+}
+
+\cvitem{Data Formats}{
+  mzML, mzXML, FASTA, BAM, VCF, HDF5, DICOM, HDF5, JSON
+}
+
+\cvitem{Lab Platforms}{
+  LC-MS/MS (QTOF, Quadrupole, Ion trap), MALDI-TOF, TIMS-PASEF, qPCR, NGS,
+  Fluorescence and Atomic Force Microscopy, DLS, SPR
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

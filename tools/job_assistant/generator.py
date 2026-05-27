@@ -17,6 +17,7 @@ from .assessor import EligibilityReport
 
 _MODEL = "claude-sonnet-4-6"
 _MAX_TOKENS = 2048
+_MAX_TOKENS_LATEX = 4096
 
 _KEY_ENV = "ANTHROPIC_API_KEY"
 
@@ -158,6 +159,135 @@ def generate_assessment_narrative(posting: JobPosting, report: EligibilityReport
     )
 
     return _call(system, user)
+
+
+def generate_latex_resume(posting: JobPosting, report: EligibilityReport) -> Optional[str]:
+    """Return a compilable LaTeX CV, or None if API unavailable."""
+    profile_json = json.dumps(
+        {k: v for k, v in PROFILE.items() if k not in ("honest_gaps",)},
+        indent=2,
+        ensure_ascii=False,
+    )
+    lang_note = (
+        "Write all text in German (formal Sie-form)."
+        if posting.language == "de" and _looks_german_company(posting.raw_text)
+        else "Write all text in English."
+    )
+
+    system = (
+        "You are a LaTeX expert. Generate a compilable one-page professional CV for a software developer.\n\n"
+        "CRITICAL RULES:\n"
+        "- Output ONLY the complete LaTeX source. No markdown fences. No explanation before or after.\n"
+        "- Must compile cleanly with: pdflatex file.tex\n"
+        "- Use ONLY these standard packages: geometry, fontenc (T1), lmodern, hyperref, enumitem, titlesec, parskip\n\n"
+        "Use exactly this document skeleton:\n"
+        r"\documentclass[11pt,a4paper]{article}" "\n"
+        r"\usepackage[a4paper,left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}" "\n"
+        r"\usepackage[T1]{fontenc}" "\n"
+        r"\usepackage{lmodern}" "\n"
+        r"\usepackage[colorlinks=true,urlcolor=blue,linkcolor=black]{hyperref}" "\n"
+        r"\usepackage{enumitem}" "\n"
+        r"\usepackage{titlesec}" "\n"
+        r"\usepackage{parskip}" "\n"
+        r"\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]" "\n"
+        r"\titlespacing*{\section}{0pt}{10pt}{4pt}" "\n"
+        r"\setlist[itemize]{leftmargin=1.5em,itemsep=1pt,topsep=2pt,parsep=0pt}" "\n"
+        r"\pagestyle{empty}" "\n"
+        r"\begin{document}" "\n"
+        "...\n"
+        r"\end{document}" "\n\n"
+        "Sections: header (name + contact), Summary, Technical Skills, Projects, Education.\n"
+        "Do not invent experience. Frame independent project work as professional. "
+        "Escape special LaTeX characters in URLs and text (_ # & % $)."
+    )
+
+    user = (
+        f"{lang_note}\n\n"
+        f"CANDIDATE PROFILE:\n{profile_json}\n\n"
+        f"JOB POSTING:\n{posting.raw_text[:3000]}\n\n"
+        f"DETECTED TECH STACK: {', '.join(posting.tech_stack)}\n"
+        f"ELIGIBILITY SCORE: {report.total}/100\n"
+    )
+
+    client = _client()
+    if client is None:
+        return None
+    try:
+        msg = client.messages.create(
+            model=_MODEL,
+            max_tokens=_MAX_TOKENS_LATEX,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return msg.content[0].text
+    except Exception as exc:
+        print(f"  ✗  LaTeX resume generation failed: {exc}", file=sys.stderr)
+        return None
+
+
+def generate_latex_cover_letter(posting: JobPosting, report: EligibilityReport) -> Optional[str]:
+    """Return a compilable LaTeX cover letter, or None if API unavailable."""
+    lang_is_german = posting.language == "de"
+
+    system = (
+        "You are a LaTeX expert. Generate a compilable professional cover letter in LaTeX.\n\n"
+        "CRITICAL RULES:\n"
+        "- Output ONLY the complete LaTeX source. No markdown fences. No explanation.\n"
+        "- Must compile cleanly with: pdflatex file.tex\n"
+        "- Use ONLY: geometry, fontenc (T1), lmodern, parskip\n"
+        "- Escape special LaTeX characters (_ # & % $) in all text\n\n"
+        "Use this skeleton:\n"
+        r"\documentclass[11pt,a4paper]{article}" "\n"
+        r"\usepackage[a4paper,left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}" "\n"
+        r"\usepackage[T1]{fontenc}" "\n"
+        r"\usepackage{lmodern}" "\n"
+        r"\usepackage{parskip}" "\n"
+        r"\pagestyle{empty}" "\n"
+        r"\begin{document}" "\n"
+        r"\begin{flushright}Kundai Farai Sachikonye\\" "\n"
+        r"Germany\\" "\n"
+        r"\today" "\n"
+        r"\end{flushright}" "\n"
+        r"\vspace{1em}" "\n"
+        "[letter body — 4 short paragraphs max]\n"
+        r"\vspace{1em}" "\n"
+        r"Kind regards,\\[8pt]" "\n"
+        r"Kundai Farai Sachikonye" "\n"
+        r"\end{document}"
+    )
+
+    lang_note = (
+        "Write in German, formal Sie. Reference Henning Zacher if company is Softwarepiloten/KanzleiPilot."
+        if lang_is_german
+        else "Write in English."
+    )
+
+    user = (
+        f"{lang_note}\n\n"
+        f"CANDIDATE: {PROFILE['name']}\n"
+        f"APPLYING TO: {posting.title} at {posting.company}\n\n"
+        f"CANDIDATE SUMMARY: {PROFILE['summary']}\n\n"
+        f"KEY PROJECTS:\n"
+        + "\n".join(f"- {p['name']}: {p['description']}" for p in PROFILE["projects"])
+        + f"\n\nJOB POSTING:\n{posting.raw_text[:2500]}\n\n"
+        f"HONEST GAPS TO ADDRESS:\n"
+        + "\n".join(f"- {n}" for n in report.notes[:4])
+    )
+
+    client = _client()
+    if client is None:
+        return None
+    try:
+        msg = client.messages.create(
+            model=_MODEL,
+            max_tokens=_MAX_TOKENS_LATEX,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return msg.content[0].text
+    except Exception as exc:
+        print(f"  ✗  LaTeX cover letter generation failed: {exc}", file=sys.stderr)
+        return None
 
 
 def _looks_german_company(text: str) -> bool:

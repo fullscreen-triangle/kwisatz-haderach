@@ -1,0 +1,138 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+16 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Leibniz-Institut für Analytische Wissenschaften --- ISAS --- e.V. \\
+Arbeitsgruppe Mehrdimensionale OMICS-Datenanalyse \\
+Dortmund, Germany \\
+Reference: 398\_2026
+
+\vspace{1.5em}
+
+\textbf{Re: Doktorand:in (m/w/d) --- Mehrdimensionale OMICS-Datenanalyse}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the doctoral position in the Multi-Dimensional OMICS Data Analysis
+research group. The combination of modalities in this position --- phenotypic,
+microscopic, PET/MRI, MALDI MSI, and LC-MS/MS data --- is precisely what I have
+built an integrated computational framework to handle. The relevant tools are publicly
+deployed and available without installation:
+
+\begin{itemize}
+  \item Genomics and sequence analysis:
+    \href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}
+  \item Mass spectrometry (MALDI MSI / LC-MS) experiment design and simulation:
+    \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+  \item Microscopy image analysis (PNG / JPG / TIFF, GPU-accelerated):
+    \href{https://hieronymus-omega.vercel.app/observe/microscopy}{hieronymus-omega.vercel.app/observe/microscopy}
+  \item Protein analysis (folding, trajectory, catalysis, dynamics):
+    \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}
+  \item Cheminformatics (molecular spectroscopy, docking, fingerprints, 3D structure, GPU):
+    \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}
+\end{itemize}
+
+\textbf{Multi-dimensional OMICS integration.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework processes
+whole-genome variant data at $10^6$ variants per second, integrates RNA-seq
+quantification, and applies Bayesian network inference and Gaussian mixture models
+for multi-omics statistical modelling. It has been validated against 1000 Genomes
+Phase~3, gnomAD v3.1.2, and UK Biobank, and covers the full pipeline from
+variant calling through pathway analysis (KEGG, Reactome) to functional annotation.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+provides the MALDI MSI and LC-MS/MS layer: a dual pipeline combining numerical
+MS1/MS2 analysis with a CNN-based visual pipeline (PyTorch) that converts spectra
+into temporal image sequences, achieving 98.9\,\% feature extraction accuracy
+against the NIST reference library and supporting memory-mapped I/O for datasets
+exceeding 100\,GB. For the microscopy modality, the
+\href{https://github.com/fullscreen-triangle/helicopter}{Helicopter} platform
+fuses fluorescence, brightfield, phase-contrast, and spectral channels through
+sequential constraint exclusion across twelve measurement modalities, reducing
+structural ambiguity from ${\sim}10^{60}$ configurations to a unique assignment.
+Together these five systems address all major data types listed in this position
+within a shared S-entropy coordinate framework that makes cross-modal registration
+tractable. The
+\href{https://github.com/fullscreen-triangle/shakespear}{Shakespear} framework
+adds protein-level analysis --- folding, trajectory, catalysis, and dynamics via
+Kuramoto oscillator synchronization in S-entropy space --- directly relevant to
+proteomics readouts and protein-state transitions in the multi-omics pipeline.
+The \href{https://honjo-masamune.vercel.app/tools}{Honjo-Masamune} platform
+provides zero-parameter GPU-accelerated molecular spectroscopy (vibrational modes,
+docking, 3D structure, fingerprints) running entirely in the browser, addressing
+the metabolite and small-molecule identification layer.
+
+\textbf{AI-based personalized risk assessment.}
+This is where the theoretical work I have developed is most directly applicable.
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+computes personalised disease state as a vector $\mathbf{D}\in[0,1]^8$ across
+eight cellular oscillator classes (protein, enzyme, channel, membrane, ATP, genetic
+expression, calcium, circadian), each with a coherence index $\eta_i\in[0,1]$.
+The framework locates the patient's current state within a partition geometry on
+the $[0,1]^8$ hypercube, computes an $\mathcal{O}(N\log N)$ trajectory to the
+healthy attractor, and selects the minimum-side-effect therapeutic intervention
+via sparse $\ell_1$ linear programming. This is a personalized risk assessment
+model in the sense the position describes: patient-specific state, validated
+biomarker readouts as coherence indices, and a computed trajectory rather than
+a population-level risk score.
+
+A companion paper, \textit{On Disease Epistemology in Blind Receiver} (affiliated
+with the AIMe Registry and TUM School of Life Sciences Weihenstephan), proves that
+loop-holonomy self-consistency is the unique viable disease diagnostic criterion,
+achieving AUC$\,=1.00$ versus 0.896 for template comparison with 25/25 validation
+experiments passing, and providing a sparse LP for therapeutic target selection.
+
+\textbf{Large language models and AI tooling.}
+The position specifically lists LLM experience. Beyond using LLM APIs, I have
+formalised a training principle for domain-specific models:
+the \href{https://github.com/fullscreen-triangle/purpose}{Purpose} framework proves
+that training exclusively at the hardest single-objective regime (the pure-intent
+regime) yields competence across all constrained sub-regimes by feasibility inclusion
+rather than generalisation --- with $(N{+}1)\times$ sample savings and an exponential
+$2^{N-1}\times$ saving for binary-nested constraint cascades.
+The \href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+system implements an 8-stage RAG pipeline with adaptive hybrid LLM and mathematical
+solver selection and a Rust backend providing 10--50$\times$ speedup for
+compute-intensive stages. For the OMICS context this means: not deploying a
+general-purpose model on specialised data, but training or selecting a model whose
+capability envelope was defined by the hardest instances of the target domain.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and I completed doctoral research in
+Computational Lipidomics at TUM / Bayerisches Forschungsinstitut, covering mass
+spectrometry pipelines, federated learning for distributed clinical analysis, and
+multi-omics modelling. I am legally resident in Germany with full work authorisation
+and am available immediately. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

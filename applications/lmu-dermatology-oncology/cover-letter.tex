@@ -1,0 +1,171 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+16 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Lucie Heinzerling \\
+Klinik und Poliklinik für Dermatologie und Allergologie \\
+Bereich Dermato-Onkologie \\
+LMU Klinikum, Campus Innenstadt, München
+
+\vspace{1.5em}
+
+\textbf{Re: Wissenschaftlicher Mitarbeiter (m/w/d) --- Dermato-Onkologie}
+
+\vspace{1em}
+
+Dear Prof.\ Heinzerling,
+
+I am applying for the scientific staff position in Dermato-Oncology. The core task
+you describe --- developing and validating a predictive test for immunotherapy response
+--- is the exact problem I have been building a theoretical and computational framework
+to address. The framework generates specific, validated predictions about which patients'
+tumours will respond to checkpoint inhibitor therapy, derived from first principles
+rather than from empirical correlation of clinical variables. I can bring both the
+theoretical model and the metabolomics infrastructure to this programme.
+
+\textbf{A predictive test for immunotherapy response.}
+My manuscript \textit{On the Thermodynamic Consequences of Categorical Completion
+on Biological Systems} derives a structural model of adaptive immune selectivity:
+MHC molecules present peptides preferentially from proteins with high categorical
+richness $R$ --- quantifying isoform diversity, conformational entropy, and
+post-translational modification density. The central empirical result is
+$r = 0.73$, $p < 10^{-12}$ across 2,847 IEDB peptides for MHC-I binding
+affinity; adding the $R$ term to NetMHCpan raises AUC from 0.68 to 0.81
+($p < 0.001$, DeLong test). For melanoma specifically, this generates a
+patient-level prediction: tumours with high mutational burden produce neoepitopes
+whose categorical richness distribution determines whether anti-PD-1 or
+anti-CTLA-4 therapy will generate an effective response --- not just
+\textit{whether} the tumour is immunogenic, but \textit{which} checkpoint
+is the right target and \textit{which} antigens will expand after treatment.
+A companion paper, \textit{On Disease Epistemology in Blind Receiver} (affiliated
+with the AIMe Registry and TUM School of Life Sciences Weihenstephan), provides
+the binary complement: the loop-holonomy self-consistency criterion achieves
+AUC$\,=1.00$ (25/25 validation experiments) as a disease state diagnostic, and
+a sparse $\ell_1$ linear programme selects the minimum-side-effect therapeutic
+target combination. Together these two results --- a quantitative response
+predictor and a binary state classifier --- constitute the architecture of the
+predictive test the position describes.
+The underlying spectral method is now deployed as four live tools at
+\href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app}:
+an MHC binding predictor (3-channel DFT spectral embedding → 36-dimensional
+cosine similarity $\rho$, $O(cL\log L)$, no database lookup);
+a neoantigen identifier applying a dual threshold
+$\Delta\rho_\text{self} > 0.15$ (immune detection) and $\rho_\text{MHC} > 0.72$
+(MHC presentation), with batch ranking by $\rho_\text{MHC} \times \Delta\rho_\text{self}$;
+and an immune escape predictor that scans all single-amino-acid substitutions
+for variants satisfying $E(v) = -\max\rho(v,\mathrm{Ab}) + w\cdot\rho(v,\mathrm{rec})$
+--- antibody evasion with receptor binding maintained.
+For melanoma neoantigen vaccine design, you can enter a patient's somatic
+mutation directly and receive an immediate prediction of MHC presentation
+probability and immune detectability, without a database query and at
+$O(cL\log L)$ cost per peptide.
+
+\textbf{Metabolomics.}
+My doctoral research at TUM / Bayerisches Forschungsinstitut was in Computational
+Lipidomics: mass spectrometry-based analysis of lipid species covering peak
+detection, ion annotation against LIPID MAPS and LipidBlast databases, feature
+engineering, and multi-omics statistical modelling. Lipidomics is the largest
+and most structurally complex sub-discipline of metabolomics, and the analytical
+pipelines are identical. At Fraunhofer Institut IGB I worked on production
+optimisation of therapeutic lipids; at the Universitätsklinikum Hamburg-Eppendorf
+I built automated pipelines for LC-MS/MS and MALDI-TOF characterisation of
+proteins and glycans from biological samples.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+I built extends this into a deployable analytical platform: the virtual mass
+spectrometry instrument at
+\href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+runs forward simulation of spectroscopy experiments in the browser, achieving
+98.9\,\% feature extraction accuracy against the NIST reference library
+and supporting mzML datasets exceeding 100\,GB via distributed computing.
+For the microbiome-immunotherapy connection specifically, the relevant metabolite
+classes --- short-chain fatty acids, bile acids, indoles, and polyamines --- are
+exactly the panel measured in current predictive biomarker studies for checkpoint
+inhibitor response in melanoma (Gopalakrishnan et al., Matson et al.), and these
+are a standard metabolomics measurement problem. The underlying
+\href{https://github.com/fullscreen-triangle/borgia}{Borgia} framework derives
+their spectroscopic properties from bounded phase space geometry alone, making it
+possible to characterise novel microbial metabolites without calibration curves
+against reference standards --- a significant advantage when the relevant
+microbiome metabolite panel is not yet fully characterised.
+
+\textbf{Microbiome --- tumour interaction as multi-omics integration.}
+The mechanistic link between microbiome composition and immunotherapy outcome
+is a data integration problem: metagenomics characterises which microbial species
+are present; metabolomics characterises what those species produce;
+tumour genomics characterises the antigen landscape; clinical outcomes connect
+the three. This is precisely the multi-dimensional data integration problem
+the tools I have built are designed for.
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+processes whole-genome VCF files at $10^6$ variants/second with RNA-seq
+integration, covering the tumour genomics and metagenomics sequencing dimensions,
+validated against 1000 Genomes Phase~3, gnomAD v3.1.2, and UK Biobank.
+Sequence homology search is available directly at
+\href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}.
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+integrates these dimensions into a patient-level disease vector
+$\mathbf{D} \in [0,1]^8$ --- the genetic expression oscillator ($D_G$) captures
+tumour transcriptomic state; the membrane potential oscillator ($D_M$) captures
+microbiome-induced barrier integrity changes; the calcium oscillator ($D_{Ca}$)
+captures the downstream immune signalling state. The sparse LP for therapeutic
+target selection then identifies the minimum-intervention combination ---
+which microbiome modulation strategy (probiotics, faecal transplant, antibiotic
+preconditioning) combined with which checkpoint inhibitor --- needed to move the
+patient's state from the observed disease trajectory to the responder trajectory.
+
+\textbf{Tumour cell spectral diagnostic.}
+The \href{https://crown-prince-four-courners.vercel.app}{Crown Prince} platform
+implements the Cell Spectral Hologram: given a tumour cell type --- including HeLa
+and melanoma lines --- the framework constructs a spectral superposition from
+first-principles coupling matrices $K_{ij}$ derived via the Tripartite Isomorphism
+(oscillatory dynamics $=$ categorical partition structure $=$ biological membrane
+processes). The hologram feeds directly into the loop-holonomy diagnostic, producing
+a binary disease state classification and a sparse $\eta^*$ therapeutic perturbation
+vector identifying which molecular targets, when modulated, return the cell to the
+healthy attractor with minimum intervention. Drug-target binding affinities emerge
+as $K_d = \exp(-\Delta M \cdot \ln b)$ from partition geometry, validated against
+39/39 NIST binding measurements with zero free parameters --- a 50\,MB representation
+covering the same pharmacological space as the 12\,GB DrugBank reference.
+This constitutes a second layer of the predictive test architecture: the categorical
+richness model (AUC 0.81) identifies which patients will respond to checkpoint
+inhibition; the Cell Spectral Hologram (AUC 1.00) identifies which molecular targets
+should be perturbed and in what combination.
+Live: \href{https://crown-prince-four-courners.vercel.app/tools/spectrum}{crown-prince-four-courners.vercel.app/tools/spectrum}.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and completed doctoral research
+in Computational Lipidomics at TUM. Published work is affiliated with the AIMe
+Registry and TUM School of Life Sciences Weihenstephan. I am legally resident
+in Germany with full work authorisation and am available from June 2026.
+English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

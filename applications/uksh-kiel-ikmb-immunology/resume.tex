@@ -1,0 +1,196 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD Position, Computational Immunology / IBD Genomics
+% IKMB, Prof. Andre Franke, UKSH Campus Kiel — Ref. 28608
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  ML for large-scale omics data in clinical cohorts, multi-omics statistical
+  modelling, distributed inference across federated clinical sites.
+  Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical bioinformatics, Bayesian methods,
+  computational systems biology, ML for biological sequences.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  Spectral complementarity $\rho$ for MHC-I/II binding: AUC 0.81 vs.\ NetMHCpan 0.68
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides).
+  Neoantigen identification from dual $\rho$ threshold. \textit{Manuscript.}
+}
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Hierarchical Bayesian disease state $\mathbf{D}\in[0,1]^8$; AUC$=1.00$;
+  25/25 validation experiments; sparse $\ell_1$ LP for personalised therapeutic
+  target selection. \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	COMPUTATIONAL IMMUNOLOGY AND GENOMICS TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Computational Immunology and Genomics Tools}
+
+\cvitem{syndrome}{
+  \textbf{Immunopeptidology Toolkit for IBD Immune Analysis.}
+  3-channel DFT (hydropathy, volume, charge) $\to$ 36D cosine similarity $\rho$;
+  $\mathcal{O}(cL\log L)$; no training data.
+  \textbf{MHC binding predictor:} $\rho\geq0.72$; AUC 0.81 vs.\ NetMHCpan 0.68
+  on 2,847 IEDB peptides. Patient HLA scanning: predict which microbial peptides
+  from metagenomics are presented and drive mucosal T cell activation.
+  \textbf{Cross-reactive epitope screen:} dual threshold
+  $\Delta\rho_\mathrm{self}>0.15$ + $\rho_\mathrm{MHC}>0.72$ for molecular
+  mimicry candidates (microbial epitopes cross-reactive to intestinal self-antigens).
+  \textbf{Escape predictor:} $E(v)=-\max\rho(v,\mathrm{self})+w\cdot\rho(v,\mathrm{target})$;
+  maps TCR variants maintaining target recognition while minimising autoreactive risk.
+  \textbf{Disease state layer:} $\mathbf{D}\in[0,1]^8$ including $D_\mathrm{Imm}$
+  (immune activation), $D_\mathrm{Bar}$ (mucosal barrier), $D_\mathrm{ATP}$,
+  $D_\mathrm{Circ}$; sparse $\ell_1$ LP for minimum-intervention target selection.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{gospel}{
+  \textbf{Large-Scale Genomics Pipeline for IBD Variant Analysis.}
+  $10^6$ variants/second VCF processing; germline and somatic variant calling;
+  RNA-seq quantification and differential expression; Bayesian network inference
+  for multi-omics integration (host genotype $\to$ metagenomics $\to$ transcriptomics
+  as conditional graph); GMMs for population structure.
+  Validated: 1000~Genomes Phase~3, gnomAD~v3.1.2, UK~Biobank.
+  ClinVar, KEGG, Reactome API integration; Ray distributed; Docker deployable.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{HPC Inference Pipeline with Automated Evaluation.}
+  Rust core (15--50$\times$ speedup via PyO3 bindings); Ray-distributed parallel
+  execution; FastAPI orchestration; Docker/Kubernetes.
+  8-stage metacognitive pipeline with automated benchmarking at each stage.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Multi-Omics Data Pipeline.}
+  Dual pipeline: numerical MS1/MS2 processing + CNN spectral classification (PyTorch);
+  98.9\,\% NIST accuracy; Ray distributed; $>$100\,GB mzML; memory-mapped I/O;
+  HDF5 storage. Applicable to metagenomics data preprocessing pipelines at cohort scale.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Computational immunopeptidology, large-scale genomics, Bayesian multi-omics
+  integration, and HPC pipeline development. All systems publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  ML for clinical omics cohorts: CNN spectral classification, distributed pipeline
+  maintenance, multi-omics integration across federated clinical sites. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline; clinical sample processing;
+  data annotation and quality control for clinical cohort studies.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Computational Immunology}{
+  MHC binding prediction (spectral DFT, validated vs.\ NetMHCpan);
+  T cell epitope identification; cross-reactive epitope screening;
+  TCR/BCR sequence analysis; V(D)J combinatorial statistics;
+  immune repertoire distance metrics (spectral $\rho$ clustering);
+  neoantigen identification; immune escape scoring
+}
+
+\cvitem{Genomics / Multi-Omics}{
+  GWAS-scale variant analysis (gnomAD, UK~Biobank, 1000~Genomes validated);
+  RNA-seq quantification and differential expression; metagenomics pipeline
+  integration; Bayesian network multi-omics integration (host genotype,
+  metagenomics, transcriptomics joint inference); population structure (GMMs)
+}
+
+\cvitem{Bayesian Methods / Statistics}{
+  Variational Bayes (ELBO optimisation); hierarchical / multi-level models;
+  probabilistic graphical models; Bayesian network inference;
+  sparse $\ell_1$ regularisation; Gaussian processes; MCMC (NUTS/HMC);
+  continuous shrinkage priors; automatic differentiation (PyTorch \texttt{autograd})
+}
+
+\cvitem{Single-Cell / Sequencing}{
+  Scanpy / Seurat pipelines (UMAP, Leiden, diffusion pseudotime);
+  RNA velocity trajectory inference; probabilistic dimensionality reduction;
+  HDF5 / AnnData; FASTQ, BAM, VCF data structures; samtools; Nextflow
+}
+
+\cvitem{Languages / Infrastructure}{
+  Python (primary), R, Rust, Java, TypeScript, Bash;
+  Ray distributed; Docker, Kubernetes; memory-mapped I/O;
+  gnomAD, ClinVar, KEGG, Reactome APIs; Git, CI/CD
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

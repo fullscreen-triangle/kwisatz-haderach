@@ -1,0 +1,182 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+17 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Ulrike Auer \\
+EagleBurgmann Germany GmbH \& Co.\ KG \\
+\texttt{Ulrike.Auer@eagleburgmann.com}
+
+\vspace{1.5em}
+
+\textbf{Re: Scientific Innovator --- AI-Driven Engineering (f/m/d)}
+
+\vspace{1em}
+
+Dear Ms Auer,
+
+I am applying for the Scientific Innovator position. I have built original
+systems at each layer the role describes --- agentic LLM workflows, surrogate
+models for physics-based simulation, and a formal training principle for
+domain-specific models --- and I can demonstrate all of them running live in
+a browser before you read further:
+
+\begin{itemize}
+  \item Multi-model RAG pipeline with hybrid LLM + mathematical solver selection:
+    \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+  \item Agentic OS interface (O($\log_k N$) specialist cascade routing):
+    \href{https://github.com/fullscreen-triangle/zangalewa}{github.com/fullscreen-triangle/zangalewa}
+  \item Domain-specific model training (Backward Training Principle):
+    \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+  \item First-principles gas and fluid dynamics (Navier-Stokes from partition theory, viscosity 2.9\,\% MAE):
+    \href{https://gas-giant.vercel.app/simulate}{gas-giant.vercel.app/simulate}
+\end{itemize}
+
+\textbf{Surrogate models and the surrogate training problem.}
+The central challenge in building surrogate models for FEM/CFD simulation is not
+the architecture --- it is the training distribution. Conventional approaches
+build surrogates incrementally from less to more demanding operating conditions.
+My \href{https://github.com/fullscreen-triangle/purpose}{Purpose} framework
+establishes the opposite as the formally optimal strategy: the
+\textbf{Backward Training Principle} proves that a model $\epsilon$-competent
+on the hardest single-objective instance (the \emph{pure-intent regime}) is
+$\epsilon$-competent on every less-constrained sub-regime by \emph{feasibility
+inclusion}, not by generalisation. For a seal, the pure-intent regime is the
+most extreme operating condition --- highest pressure, temperature, and
+chemical exposure simultaneously --- from which all normal operating envelopes
+are feasibility restrictions. Training the surrogate there produces a model
+that works across the full design space without
+re-training. A Forward Training Collapse Theorem establishes a provably
+positive VC failure-gap for the conventional direction; a Sample Complexity
+Theorem gives $(N+1)\times$ savings for $N$-layer constraint cascades.
+I have already applied this pattern in practice:
+\href{https://github.com/fullscreen-triangle/homo-veloce}{homo-veloce}
+is a surrogate model system that distils physics-based biomechanics solvers
+(Gaussian processes and graph neural networks over physical simulation outputs)
+into lightweight neural networks for real-time inference --- the same pattern
+FEM/CFD surrogate development requires.
+
+\textbf{CFD and fluid simulation from first principles.}
+The position lists FEM/CFD simulation as one of the skill areas and surrogate
+modelling as the target application. The
+\href{https://gas-giant.vercel.app/simulate}{Gas Giant} platform I have built
+takes a different approach: rather than training a surrogate on CFD data, it
+derives the governing equations from the same bounded phase space axiom.
+Kirchhoff circuit laws map analytically to the Navier-Stokes equations;
+viscosity emerges as $\mu = \tau_c \times g$ (partition lag times coupling
+strength) rather than as a phenomenological fit. The gas-to-liquid transition
+occurs at network density thresholds $\rho_C \approx 0.3$--$0.7$, with no
+fitted transition parameter.
+Validation: 2.9\,\% mean absolute error across 12 pure liquids for viscosity;
+0.9\,\% mean error for Poiseuille flow parabolic velocity profiles.
+Temperature emerges as $T = (\hbar/k_B) \cdot dM/dt$ --- a processing
+rate identity --- from which the ideal gas law $PV = Nk_BT$ and the
+adiabatic invariant $PV^\gamma = \mathrm{const}$ follow as corollaries,
+validated to $U/({\tfrac{3}{2}}Nk_BT) = 1.000 \pm 0.2\%$.
+For sealing technology specifically, the fluid dynamics around the seal face ---
+viscosity, diffusion, pressure gradients, flow regime transitions --- are
+exactly what the /fluids tool computes, from partition geometry rather than
+from empirical correlations.
+
+\textbf{Digital twin and condition monitoring.}
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+encodes system state as a vector $\mathbf{D} \in [0,1]^8$ across
+eight monitoring dimensions, each with a coherence index $\eta_i \in [0,1]$
+computed from sensor time-series regularity. The framework computes
+$\mathcal{O}(N \log N)$ state trajectories and selects the
+minimum-intervention maintenance action via sparse $\ell_1$ linear programming.
+This architecture was developed for biological systems but the formalism is
+domain-agnostic: the eight oscillator classes map directly onto the relevant
+condition monitoring dimensions for rotating or dynamic sealing equipment
+(leakage rate, vibration spectrum, temperature distribution, pressure differential,
+wear pattern, corrosion state, fatigue index, and interfacial geometry).
+The sparse LP answers the predictive maintenance question directly: which
+component to address, when, and in what order, to minimise downtime and
+avoid cascading failure.
+The \href{https://github.com/fullscreen-triangle/verum}{Verum} framework
+adds a complementary state-reconstruction layer: a vehicle modelled as a
+20-node oscillatory circuit graph, where each subsystem's state is its
+categorical depth $V_i = -\log_2 P(\sigma_i)$ and edge conductances derive
+from a universal transport formula unifying electrical, thermal, viscous, and
+diffusive coupling. A Banach contraction mapping (Lipschitz constant
+$\lambda \in [0.3, 0.7]$) guarantees reconstruction of the complete state from
+33\,\% surface observations alone --- validated on 2023 Formula One telemetry
+(Bahrain GP, 13,794 samples, convergence residual $7.2 \times 10^{-9}$,
+ICE-Turbo fault detected 13~laps before failure event). The same architecture
+maps directly onto sealing equipment: the circuit graph nodes are pressure
+differential, temperature, vibration, wear state, and interfacial geometry;
+the surface sensors are the observed boundary conditions; the complete
+condition monitoring vector is the hidden state recovered by the contraction.
+
+\textbf{Agentic workflows and LLM engineering assistants.}
+\href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+is an 8-stage metacognitive RAG pipeline with adaptive hybrid selection between
+LLM reasoning and mathematical solvers, backed by a Rust engine providing
+10--50$\times$ speedup over Python for compute-intensive stages.
+\href{https://github.com/fullscreen-triangle/zangalewa}{Zangalewa} is the
+Minimum Sufficient Interceptor sitting at the boundary of a blank-screen OS:
+a user types a natural language request; the system extracts semantic coordinates
+via a hierarchical $k$-ary specialist cascade requiring $O(\log_k N)$
+small-model invocations, and routes to the correct tool or expert sub-model.
+A Sufficiency Theorem proves the parameter budget is $O(D \cdot b \cdot \log|\Sigma|)$,
+independent of the downstream tool space size. For an LLM engineering
+assistant that must route between FEM queries, material databases, maintenance
+logs, and design automation tools, this is the architecture that keeps the
+routing layer small and the specialist tools deep.
+
+\textbf{Distributed sensor coordination.}
+A digital twin for sealing technology aggregates sensor streams from multiple
+physical sites under real-time timing and security constraints. The
+\href{https://github.com/fullscreen-triangle/pylon}{Pylon} framework I have
+developed addresses this directly: it proves a structural identity between
+distributed networks and ideal gases ($PV = Nk_BT$, validated to 0.6\%
+on a 128-node, $10^6$-packet testbed) and derives coordination protocols
+from that identity, achieving $33\times$ throughput improvement, $20\times$
+jitter reduction, and $1000\times$ faster recovery versus conventional
+approaches. Security derives from the Second Law of Thermodynamics rather
+than cryptographic hardness: any coordinated sensor spoofing attack requires
+a thermodynamically forbidden entropy reduction, giving 100\% detection with
+0\% false positives. The precision-by-difference synchronisation layer
+($\Delta P(v_i, k) = T_\mathrm{ref}(k) - t_i(k)$ against an atomic clock
+reference) provides 87\,ns phase coherence across nodes --- the timing
+substrate that makes the condition-monitoring state vector $\mathbf{D}$
+in the Syndrome framework trustworthy at the sensor level.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen), an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and completed doctoral research
+in computational science at TUM. My primary languages are Python (PyTorch,
+scikit-learn, Ray), Rust for performance-critical components, and TypeScript
+for deployment. I am legally resident in Germany with full work authorisation,
+available immediately, and the Wolfratshausen location is a short commute
+from where I currently live. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

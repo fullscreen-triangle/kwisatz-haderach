@@ -1,0 +1,199 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wissenschaftliche*r Mitarbeiter*in, KI- und Datenethik
+% Institut für Medizin- und Datenethik (IMDE), Universität Heidelberg
+% ONCOverse Project — Job-ID V000015525
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  ML for large-scale clinical omics cohorts; multi-omics statistical modelling;
+  distributed inference across federated clinical sites.
+  Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical bioinformatics, Bayesian methods,
+  computational systems biology, ML for biological sequences.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  First-principles AI diagnostic framework with zero trained parameters; MHC-I/II
+  binding AUC 0.81 vs.\ NetMHCpan 0.68 ($n=2{,}847$ IEDB peptides);
+  neoantigen identification; cancer immune escape predictor.
+  \textit{Manuscript. AIMe Registry for Artificial Intelligence.}
+}
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Normative disease state representation $\mathbf{D}\in[0,1]^8$;
+  AUC$=1.00$ across 25/25 validation experiments;
+  sparse $\ell_1$ LP for minimum-intervention therapeutic target selection;
+  first-principles derivation of disease axes (immune, barrier, metabolic,
+  circadian). \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+\cvitem{2025}{
+  \textbf{On the Epistemology of Purpose in Artificial Intelligence.}
+  Formal normative framework for AI system design: VC dimension and
+  PAC-learnability bounds; twelve falsifiable predictions; first-principles
+  derivation of AI transparency requirements.
+  \textit{Manuscript. AIMe Registry for Artificial Intelligence.}
+}
+
+%----------------------------------------------------------------------------------------
+%	AI ETHICS AND ONCOLOGY TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{AI Ethics Foundations: Oncology Systems Built}
+
+\cvitem{syndrome}{
+  \textbf{Auditable AI for Cancer Immunopeptidology.}
+  3-channel DFT (hydropathy, volume, charge) $\to$ cosine similarity $\rho$;
+  zero free parameters trained on patient data; all predictions reproducible
+  from algorithm alone, independent of training cohort.
+  \textbf{Oncology applications:} neoantigen identification for pancreatic
+  cancer (KRAS-mutant PDAC immune evasion); MHC binding prediction;
+  escape predictor for therapeutic vaccine design;
+  disease state $\mathbf{D}\in[0,1]^8$ with $D_\mathrm{Imm}$ (immune activation)
+  and $D_\mathrm{Bar}$ (barrier integrity).
+  \textbf{Access design:} browser-deployable (WebGPU), 50\,MB footprint;
+  no GPU cluster required.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+}
+
+\cvitem{crown-prince}{
+  \textbf{Pharmacological AI with Interpretable Geometry.}
+  PD/PK/ADME trajectories derived from molecular geometry; $K_d$ from
+  bounded phase-space geometry; Hill equation as limiting case;
+  validated 39/39 against NIST with zero empirical parameters.
+  Ethical property: therapeutic target predictions are geometrically
+  grounded, not statistical associations from potentially biased training data.
+  \href{https://github.com/fullscreen-triangle/crown-prince}{github.com/fullscreen-triangle/crown-prince}
+}
+
+\cvitem{gospel}{
+  \textbf{Federated Multi-Omics Infrastructure.}
+  $10^6$ variants/second; Bayesian network multi-omics integration
+  (host genotype $\to$ metagenomics $\to$ transcriptomics conditional graph);
+  validated: 1000~Genomes, gnomAD~v3.1.2, UK~Biobank.
+  Relevant to ONCOverse data governance: practical experience of what data flows
+  across multi-site clinical studies, where pseudonymisation fails,
+  and what consent architecture the analysis methods require.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+%----------------------------------------------------------------------------------------
+%	AI ETHICS EXPERTISE
+%----------------------------------------------------------------------------------------
+
+\section{AI Ethics Competencies}
+
+\cvitem{Explainability}{
+  Technical specification of algorithmic transparency beyond procedural compliance:
+  distinction between post-hoc explainability (SHAP, LIME) and structural
+  auditability (first-principles, zero-parameter models); analysis of when each
+  is ethically sufficient for clinical decision support
+}
+
+\cvitem{Algorithmic Fairness}{
+  Identification of demographic bias entry points in clinical AI pipelines:
+  training data composition, threshold selection, population generalisability
+  gaps, validation cohort vs.\ deployment context mismatch; quantitative
+  fairness metrics (equalized odds, calibration across subgroups)
+}
+
+\cvitem{Access Equity}{
+  Infrastructure-level access analysis: delivery architecture as determinant
+  of equitable access (browser vs.\ GPU cluster); computational cost as
+  barrier to adoption in resource-limited clinical settings;
+  design-time vs.\ post-deployment access intervention
+}
+
+\cvitem{Data Governance}{
+  Multi-site clinical data ethics: re-identification risk in pseudonymised
+  multi-omics data; consent architecture constraints imposed by analysis methods;
+  federated vs.\ centralised data pooling tradeoffs; GDPR and clinical trial
+  data protection in AI research contexts
+}
+
+\cvitem{Normative Frameworks}{
+  Formal treatment of normative commitments in AI system design:
+  disease ontology as ethical choice; threshold selection as value judgement;
+  minimum-intervention principles in therapeutic AI; patient autonomy
+  in algorithmic clinical decision support
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Researcher}{Bitspark GmbH}{}{}{
+  Design, implementation, validation, and deployment of AI diagnostic systems
+  in oncology, pharmacology, immunopeptidology, and multi-omics.
+  All systems publicly deployed with independently verifiable validation numbers.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  ML for clinical omics cohorts; distributed pipeline maintenance; multi-omics
+  integration across federated clinical sites. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline; clinical sample processing;
+  data annotation and quality control for clinical cohort studies.
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany continuously since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

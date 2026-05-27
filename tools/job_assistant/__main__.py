@@ -46,7 +46,10 @@ from .assessor import assess, EligibilityReport
 from .calculator import (
     full_breakdown, estimate_gross_from_text, MARKET_DEFAULT_GROSS
 )
-from .generator import generate_resume, generate_cover_letter, generate_assessment_narrative
+from .generator import (
+    generate_resume, generate_cover_letter, generate_assessment_narrative,
+    generate_latex_resume, generate_latex_cover_letter,
+)
 
 _OUTPUT_DIR = Path(__file__).parent / "output"
 _INDEX_FILE = _OUTPUT_DIR / "index.json"
@@ -227,6 +230,14 @@ def _save_application(
         (app_dir / "cover_letter.md").write_text(cover_letter_md, encoding="utf-8")
     if assessment_narrative:
         (app_dir / "narrative.txt").write_text(assessment_narrative, encoding="utf-8")
+
+    # LaTeX versions
+    resume_tex = generate_latex_resume(posting, report)
+    if resume_tex:
+        (app_dir / "resume.tex").write_text(resume_tex, encoding="utf-8")
+    cover_letter_tex = generate_latex_cover_letter(posting, report)
+    if cover_letter_tex:
+        (app_dir / "cover_letter.tex").write_text(cover_letter_tex, encoding="utf-8")
 
     # Update index
     _update_index(app_id, posting, report)

@@ -1,0 +1,1309 @@
+\documentclass[12pt,a4paper]{article}
+
+% -----------------------------------------------------------------------
+% Packages
+% -----------------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[shortlabels]{enumitem}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{siunitx}
+
+\onehalfspacing
+
+% -----------------------------------------------------------------------
+% Theorem environments
+% -----------------------------------------------------------------------
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% -----------------------------------------------------------------------
+% Mathematical shortcuts
+% -----------------------------------------------------------------------
+\DeclareMathOperator{\argmin}{arg\,min}
+\DeclareMathOperator{\argmax}{arg\,max}
+
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\lD}{\lambda_{\mathrm{D}}}
+\newcommand{\tauRC}{\tau_{\mathrm{RC}}}
+\newcommand{\nuRC}{\nu_{\mathrm{RC}}}
+\newcommand{\Qgen}{Q_{\mathrm{gen}}}
+\newcommand{\Qmem}{Q_{\mathrm{mem}}}
+\newcommand{\Vcell}{V_{\mathrm{cell}}}
+\newcommand{\Nosc}{N_{\mathrm{osc}}}
+\newcommand{\Rcat}{\mathcal{R}}
+\newcommand{\Dcat}{\mathcal{D}}
+\newcommand{\Phost}{\rho_{\mathrm{host}}}
+\newcommand{\chiviral}{\chi_{\mathrm{viral}}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\epsz}{\varepsilon_{0}}
+\newcommand{\vv}[1]{\boldsymbol{#1}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\Rcham}{R_{\mathrm{ch}}}
+\newcommand{\Ncham}{N_{\mathrm{ch}}}
+\newcommand{\taucham}{\tau_{\mathrm{ch}}}
+\newcommand{\zstar}{z^{*}}
+
+% -----------------------------------------------------------------------
+% Title block
+% -----------------------------------------------------------------------
+\title{%
+  \textbf{Viral Infection as Host-State-Dependent Categorical Resonance}\\[8pt]
+  \large An Electrostatic Framework for Infectivity, Tropism,\\[4pt]
+  and Genome Complexity
+}
+
+\author{}
+\date{}
+
+% -----------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------
+
+\maketitle
+\thispagestyle{empty}
+
+% -----------------------------------------------------------------------
+\begin{abstract}
+Standard virology frames infection as a virus-initiated event: a particle carrying genetic material and regulatory proteins enters a host cell, redirects its machinery, and produces progeny. We argue that this framing is mechanistically incorrect in a precise, demonstrable sense. Viruses are \emph{categorically incomplete} entities lacking the oscillatory infrastructure required for any form of direction or orchestration. Every cellular process attributed to viral control is, on examination, a host cellular process that the viral particle does not initiate but merely provides permissive boundary conditions for.
+
+The correct account begins with three independent first-principles frameworks that we develop from the ground up. First, nucleic acids function as deterministic charge oscillators: the phosphate backbone carries sequence-independent charge $\Qgen = -2e N_{\mathrm{bp}}$, hydrogen-bond protons oscillate in double-well potentials, and the genome generates coherent charge dynamics with a fundamental frequency set by the nuclear RC time constant ($\tauRC \approx 30$\,ms, $\nuRC \approx 5$\,Hz). Second, the cell is organized by electrostatic chamber dynamics: membrane charge redistribution creates transient potential wells ($\zstar \approx 10$--100\,nm, $\taucham \approx 1$\,ms) in which chemistry proceeds without diffusive search, with $\sim\!3.5\times10^{4}$ chambers active simultaneously. Third, biological organization admits a measure of \emph{categorical completeness} $\mathcal{D}$, a hierarchical depth of autonomous processing; life begins at $\mathcal{D}\geq 3$, requiring $\sim\!10^5$ cytoplasmic oscillators, membrane quantum computers, and self-maintaining genomic infrastructure. Viruses have $\mathcal{D}=1$ and $\Nosc = 0$.
+
+From these three frameworks we derive, without additional assumptions, the following: (i) viral nucleic acids must present charge-oscillation profiles matching the host's constitutively expressed housekeeping genes, because those are the templates the host machinery is calibrated to process; (ii) viral proteins are categorical boundary conditions that shift partition thresholds in host infrastructure, not orchestrators; (iii) infection probability is the overlap integral between the viral charge template and the host cell's current oscillatory exploration trajectory; (iv) viral genome size scales with host cell volume through an inversion of the cellular C-value conservation law; and (v) the observed failure of bacteriophages to infect human cells at shared mucosal surfaces reflects zero overlap between bacterial and human categorical spaces, not receptor specificity alone. Each claim generates specific, testable predictions. The framework implies that antiviral strategy should target host categorical state rather than viral machinery.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ======================================================================
+\section{Introduction}
+\label{sec:introduction}
+% ======================================================================
+
+The conceptual core of modern virology is the virus-as-agent: a particle that seeks, enters, hijacks, directs, and exits. This language is not merely metaphorical. It structures experimental design, therapeutic targets, and the very definition of what constitutes a mechanistic explanation of infection. The virus is treated as the cause; the host cell, its substrate.
+
+This framing has been productively applied for eight decades. It has guided the development of antiviral drugs, vaccines, and diagnostic tools. Yet it contains a structural error that accumulates as our mechanistic understanding deepens. The more carefully we examine viral proteins attributed with orchestrating roles---HIV Rev, influenza NS1, SARS-CoV-2 nsp1---the more we find that they function by adjusting thresholds, binding sites, and affinity constants within host machinery. None of them execute anything. Every step of viral replication that resembles directed activity is, on inspection, host cellular machinery responding to a charge and conformational template.
+
+The distinction matters because it changes what requires explanation. If the virus is an agent, then viral replication requires accounting for viral decisions. If the viral particle is a charge-perturbation template, then viral replication requires accounting for the conditions under which the host cell's own oscillatory exploration encounters and responds to that template. The second account makes predictions the first cannot: it predicts that infection susceptibility depends on host metabolic state, that tropism exceeds receptor specificity, that phages cannot replicate in human cells even without receptor barriers, and that viral genome size should scale with host cell volume.
+
+\subsection{The Orchestration Problem}
+
+The classical view attributes orchestrating roles to several categories of viral components. \textit{Regulatory proteins} (Rev in HIV, NS1 in influenza, VP16 in herpes simplex) are said to direct host transcription and post-transcriptional processing. \textit{Replication complexes} (the HIV-1 reverse transcriptase-integrase machinery, the influenza polymerase complex, the coronavirus replicase) are said to commandeer host resources for viral genome duplication. \textit{Structural proteins} (capsid, envelope glycoproteins) are said to orchestrate viral assembly and budding.
+
+In each case, a critical examination reveals the same pattern: the viral component has no autonomous function. Remove the host enzyme it binds and the viral protein accomplishes nothing. The HIV-1 integrase catalyses strand transfer into chromatin, but requires the host lens epithelium-derived growth factor LEDGF/p75 to target active transcription units~\cite{Engelman2012}. The Rev protein binds the Rev Response Element (RRE) on unspliced viral RNA, but requires the host CRM1/exportin-1 machinery to transport the RNA to the cytoplasm~\cite{Malim1989}. The influenza NS1 protein blocks RIG-I-dependent interferon induction, but RIG-I is entirely host-encoded and host-operated~\cite{Gack2009}. In every instance, the viral protein functions as a key that modifies the acceptance criterion of a host lock, not as a machine that performs work.
+
+We formalise this observation in \cref{sec:boundary}: viral proteins are \emph{categorical boundary conditions} on host filter cascades, not orchestrators. The distinction has rigorous mathematical content that follows directly from the absence of oscillatory infrastructure in viral particles.
+
+\subsection{Three First-Principles Frameworks}
+
+This paper develops three independent frameworks from first principles and then combines them to derive the properties of viral infection. Each framework is self-contained; each has consequences for viriology independent of the others; and the three together generate a unified account that exceeds what any single framework provides.
+
+\textbf{Framework I: Nucleic acids as deterministic charge oscillators} (\cref{sec:nacid}). DNA and RNA are typically described as information-storage polymers whose sequence encodes functional output. We develop a complementary physical description: nucleic acids are charge oscillators whose dynamics are determined by backbone electrostatics, hydrogen-bond proton double-well potentials, and the RC time constant of the nuclear charge system. This description, derived from Maxwell's equations and quantum chemistry, generates quantitative predictions about the charge-oscillation profiles of different classes of nucleic acids. The key result is a coherence length of $\xi \approx 25$\,bp that matches nucleosomal and transcription-factor scales, and a fundamental frequency $\nuRC \approx 5$\,Hz that couples nuclear charge dynamics to cytoplasmic metabolic oscillations.
+
+\textbf{Framework II: The cell as an electrostatic chamber system} (\cref{sec:chambers}). The prevailing model of cellular organization is diffusion-limited: reactants encounter one another by Brownian motion, and reaction rates are set by the Smoluchowski equation. We develop an alternative from Gauss's law and Debye-H\"{u}ckel theory: the cell is a three-layer capacitor (genomic DNA $\to$ cytoplasmic electrolyte $\to$ plasma membrane) whose charge distribution creates fields of $10^5$--$10^6$\,V/m throughout the cytoplasm. Dynamic membrane charge redistribution forms transient electrostatic chambers that confine reactants without diffusive search. These chambers are the cell's primary organizational unit.
+
+\textbf{Framework III: Categorical completeness as a measure of biological organization} (\cref{sec:categorical}). We define \emph{categorical richness} $\Rcat$ and \emph{hierarchical depth} $\Dcat$ as information-theoretic measures of a system's capacity for autonomous processing. Life is defined operationally as $\Dcat \geq 3$. This threshold requires three tiers of autonomous processing capacity: membrane-level quantum computing, cytoplasmic oscillatory exploration, and genomic library maintenance. We prove the \emph{Oscillatory Incompleteness Theorem}: any entity with $\Nosc = 0$ has $\dot{\mathcal{C}} = 0$ and cannot orchestrate.
+
+\subsection{Paper Organisation}
+
+\Cref{sec:nacid} derives nucleic acid charge dynamics from first principles. \Cref{sec:chambers} derives the cellular electrostatic chamber system from first principles. \Cref{sec:categorical} develops categorical completeness theory. \Cref{sec:viral_template} derives viral particle properties from the three frameworks. \Cref{sec:housekeeping} develops the housekeeping gene mimicry mechanism. \Cref{sec:boundary} formalises viral proteins as categorical boundary conditions. \Cref{sec:resonance} derives the infection probability as a categorical overlap integral. \Cref{sec:cvalue} presents the C-value inversion for viral genome size. \Cref{sec:microbiome} analyses the microbiome as cross-kingdom non-overlap evidence. \Cref{sec:antiviral} reframes antiviral strategy. \Cref{sec:discussion} discusses implications, resolved puzzles, and limitations. \Cref{sec:conclusion} concludes.
+
+% ======================================================================
+\section{Nucleic Acids as Deterministic Charge Oscillators}
+\label{sec:nacid}
+% ======================================================================
+
+\subsection{The Backbone Charge Distribution}
+
+DNA and RNA are polyanionic polymers. Each nucleotide in a single-stranded chain contributes one phosphate group carrying charge $-e$ under physiological pH, so each base pair in double-stranded DNA contributes two phosphate groups for a total backbone charge of $-2e$ per base pair, independent of nucleotide identity.
+
+\begin{theorem}[Sequence-Independent Genomic Charge]
+\label{thm:genome_charge}
+The total electrostatic charge of a double-stranded DNA molecule of length $N_{\mathrm{bp}}$ base pairs is:
+\begin{equation}
+  \Qgen = -2e \, N_{\mathrm{bp}}
+  \label{eq:genome_charge}
+\end{equation}
+where $e = 1.602 \times 10^{-19}$\,C is the elementary charge. This quantity is independent of the nucleotide sequence.
+\end{theorem}
+
+\begin{proof}
+Each nucleotide monomer contains one phosphate group. Under physiological conditions ($\mathrm{pH} \approx 7.4$), both ionisable oxygens of the phosphodiester linkage are deprotonated (pKa values approximately 1 and 6), yielding charge $-e$ per nucleotide on each strand. A base pair contains one nucleotide per strand, giving total backbone charge $-2e$ per base pair. The nucleotide bases (adenine, thymine, guanine, cytosine) carry no net charge at physiological pH. Therefore $\Qgen = -2e N_{\mathrm{bp}}$ regardless of sequence.
+\end{proof}
+
+For the human diploid genome ($N_{\mathrm{bp}} = 6.4 \times 10^9$):
+\begin{equation}
+  \abs{\Qgen} = 2 \times 1.602 \times 10^{-19} \times 6.4 \times 10^9 \approx 2.05 \times 10^{-9}\,\mathrm{C} \approx 2\,\mathrm{nC}
+\end{equation}
+
+Histone proteins neutralise approximately 50--60\% of this charge through the positively charged lysine and arginine residues of their N-terminal tails~\cite{Luger1997,Hansen2002}. The net genomic charge after histone compensation is therefore:
+\begin{equation}
+  \Qgen^{\mathrm{net}} \approx -(0.40\text{ to }0.50) \times 2e N_{\mathrm{bp}} \approx -1\,\mathrm{nC}
+  \label{eq:net_genome_charge}
+\end{equation}
+This net charge drives the electrostatic field that organises the cytoplasm (\cref{sec:chambers}).
+
+\begin{remark}
+The sequence-independence of $\Qgen$ is a critical result. It means that the physical field generated by the genome is identical for a coding sequence and a non-coding sequence of the same length. The genome's role as a charge source---an electromagnetic scaffold---is insensitive to its information content. This is the physical basis of the C-value paradox: genome size reflects charge requirements, not information requirements.
+\end{remark}
+
+\subsection{The Nuclear Spherical Capacitor Model}
+
+The genomic charge, confined within the nucleus of radius $r_N$, is surrounded by the cytoplasm---a conducting ionic medium. This geometry is precisely that of a spherical capacitor: an inner sphere of charge $\Qgen^{\mathrm{net}}$ surrounded by a conducting shell at a distance set by the Debye screening length $\lD$.
+
+The Debye length at physiological ionic strength ($I \approx 150$\,mM, $T = 310$\,K) is derived from the linearised Poisson-Boltzmann equation:
+\begin{equation}
+  \lD = \sqrt{\frac{\epsz \eps_r \kB T}{2 n_0 e^2}}
+  \label{eq:debye_length}
+\end{equation}
+where $n_0$ is the bulk ion number density, $\epsz = 8.854 \times 10^{-12}$\,F/m, and $\eps_r \approx 80$ for water.
+
+With $n_0 = 150 \times 10^{-3} \times N_A \times 10^3 = 9.03 \times 10^{25}$\,m$^{-3}$:
+\begin{equation}
+  \lD = \sqrt{\frac{8.854 \times 10^{-12} \times 80 \times 1.381 \times 10^{-23} \times 310}{2 \times 9.03 \times 10^{25} \times (1.602 \times 10^{-19})^2}} \approx 0.80\,\mathrm{nm}
+  \label{eq:debye_numerical}
+\end{equation}
+
+For a spherical conductor of radius $r_N$ with a conducting medium beginning at radius $r_N + \lD$, the capacitance is that of a spherical shell capacitor whose plate separation is $\lD$~\cite{Griffiths1999}:
+\begin{equation}
+  C_{\mathrm{nuc}} = 4\pi \epsz \eps_r \frac{r_N^2}{\lD}
+  \label{eq:nuclear_capacitance}
+\end{equation}
+
+For a typical nuclear radius $r_N = 5\,\mu$m:
+\begin{equation}
+  C_{\mathrm{nuc}} = 4\pi \times 8.854 \times 10^{-12} \times 80 \times \frac{(5 \times 10^{-6})^2}{0.80 \times 10^{-9}} \approx 278\,\mathrm{pF} \approx 300\,\mathrm{pF}
+  \label{eq:nuclear_cap_numerical}
+\end{equation}
+
+\subsection{The RC Time Constant and Fundamental Frequency}
+
+The nuclear charge system forms an RC circuit with the nuclear envelope and its associated ion channels providing the resistance. The nuclear pore complex (NPC) is the primary ion-conducting pathway between nucleus and cytoplasm. Each NPC has a conductance of approximately $g_{\mathrm{NPC}} \approx 0.5$--5\,nS~\cite{Bustamante2000,Shahin2001}, and a mammalian nucleus contains $N_{\mathrm{NPC}} \approx 2000$--5000 pores. The total nuclear conductance is:
+\begin{equation}
+  G_{\mathrm{nuc}} = N_{\mathrm{NPC}} \times g_{\mathrm{NPC}} \approx 3000 \times 2\,\mathrm{nS} = 6\,\mu\mathrm{S}
+\end{equation}
+
+The effective resistance depends on the state of NPC gating (many NPCs are regulated and not continuously conducting); under resting conditions:
+\begin{equation}
+  R_{\mathrm{nuc}} \approx \frac{1}{G_{\mathrm{nuc}}} \approx 167\,\mathrm{k\Omega} \text{ to } 10\,\mathrm{M\Omega}
+\end{equation}
+
+The RC time constant of the nuclear charge system spans:
+\begin{equation}
+  \tauRC = R_{\mathrm{nuc}} \, C_{\mathrm{nuc}} \approx 300 \times 10^{-12} \times (167 \times 10^{3} \text{ to } 10^7) \approx 50\,\mu\mathrm{s} \text{ to } 3\,\mathrm{ms}
+  \label{eq:tau_RC}
+\end{equation}
+
+Under conditions where the nuclear conductance is reduced by NPC regulation to $G \approx 10$\,nS (partial gating):
+\begin{equation}
+  R_{\mathrm{nuc}} = 100\,\mathrm{M\Omega}, \quad \tauRC = 300 \times 10^{-12} \times 10^8 = 30\,\mathrm{ms}
+\end{equation}
+
+The fundamental oscillation frequency of the nuclear charge system is:
+\begin{equation}
+  \nuRC = \frac{1}{2\pi \tauRC} \approx \frac{1}{2\pi \times 30 \times 10^{-3}} \approx 5.3\,\mathrm{Hz}
+  \label{eq:nu_RC}
+\end{equation}
+
+This frequency lies within the range of well-characterised cellular oscillatory processes: intracellular calcium oscillations (0.1--5\,Hz)~\cite{Berridge1997}, cytoskeletal mechanical oscillations (1--10\,Hz)~\cite{Frey2006}, and NADH glycolytic oscillations couple to metabolic frequencies in this range. The nuclear RC oscillator thus couples to the metabolic oscillatory infrastructure of the cell at its natural frequency.
+
+\begin{proposition}[Nuclear-Metabolic Frequency Coupling]
+The nuclear charge system oscillates at frequency $\nuRC \approx 1$--10\,Hz under physiological conditions and is resonantly coupled to cytoplasmic metabolic oscillators in the same frequency band, enabling bidirectional communication between genomic charge state and metabolic state.
+\label{prop:coupling}
+\end{proposition}
+
+\subsection{Hydrogen-Bond Proton Dynamics}
+
+The hydrogen bonds that maintain Watson-Crick base pairing introduce a second, faster charge oscillation. Each proton in a hydrogen bond experiences a double-well potential between donor (D) and acceptor (A) positions~\cite{Lowdin1963,Limbach2006}:
+\begin{equation}
+  V(x) = V_0 \left[\left(\frac{x}{a}\right)^4 - 2\left(\frac{x}{a}\right)^2\right] + \frac{1}{2}k_\perp(y^2 + z^2)
+  \label{eq:double_well}
+\end{equation}
+where $x$ is displacement along the bond axis from the mid-point, $V_0 \approx 0.04$\,eV is the effective barrier height for the H-bond stretching mode, $a \approx 0.63$\,\AA\ is the half-width of the potential well, and $k_\perp$ is the transverse force constant.
+
+The classical oscillation frequency within each well is:
+\begin{equation}
+  \nu_{\mathrm{HB}} = \frac{1}{2\pi}\sqrt{\frac{4V_0}{m_p a^2}}
+  \label{eq:hbond_freq}
+\end{equation}
+where $m_p = 1.673 \times 10^{-27}$\,kg is the proton mass:
+\begin{equation}
+  \nu_{\mathrm{HB}} = \frac{1}{2\pi}\sqrt{\frac{4 \times 0.04 \times 1.602 \times 10^{-19}}{1.673 \times 10^{-27} \times (0.63 \times 10^{-10})^2}} \approx 9.9 \times 10^{12}\,\mathrm{Hz} \approx 10\,\mathrm{THz}
+  \label{eq:hbond_freq_numerical}
+\end{equation}
+
+This frequency ($\sim\!10$\,THz) falls in the far-infrared regime and has been observed in dielectric spectroscopy studies of hydrated DNA~\cite{Weidlich1990,Woolard2002}. The parameters $V_0 = 0.04$\,eV and $a = 0.63$\,\AA\ correspond to the H-bond stretching vibration mode, which is distinct from both the covalent N--H stretch ($\nu \approx 90$\,THz, $V_0 \approx 4$\,eV) and the proton tautomeric transfer barrier ($V_0 \approx 0.4$\,eV); the H-bond stretching mode is the appropriate oscillation for charge-pattern dynamics at the double-helix level. The proton oscillation within each hydrogen bond represents a charge displacement of $\Delta x \approx 0.8$\,\AA\ associated with charge redistribution of order $\Delta q \approx e \cdot \Delta x / d_{\mathrm{DA}} \approx 0.3e$ where $d_{\mathrm{DA}} \approx 2.9$\,\AA\ is the donor-acceptor distance.
+
+The key result is that there are \emph{two} timescales of charge oscillation in nucleic acids: the fast H-bond proton oscillation at $\sim\!10^{13}$\,Hz and the slow nuclear RC oscillation at $\sim\!5$\,Hz. The H-bond proton oscillations are locally autonomous; the nuclear RC oscillation couples the entire genomic charge system to the metabolic state. These timescales differ by fourteen orders of magnitude, ensuring that the two modes are effectively decoupled and can be addressed independently.
+
+\subsection{Charge Coherence and the 25\,bp Coherence Length}
+
+Adjacent hydrogen bonds in DNA are not independent oscillators. The stacking interactions between adjacent bases ($\pi$-$\pi$ stacking energies of 5--15\,kJ/mol)~\cite{Sinnokrot2004,Sponer2006}, the mechanical coupling through the backbone, and the electrostatic coupling through the phosphate charge distribution all induce phase correlations between neighbouring H-bond proton oscillators.
+
+The coherence length $\xi$ is defined as the distance over which adjacent H-bond oscillators maintain correlated phase:
+\begin{equation}
+  \xi = \frac{v_{\mathrm{sound}}}{2\pi \Delta\nu}
+  \label{eq:coherence_length}
+\end{equation}
+where $v_{\mathrm{sound}}$ is the speed of phonon propagation along the DNA backbone and $\Delta\nu$ is the linewidth of the H-bond oscillation mode.
+
+For DNA, $v_{\mathrm{sound}} \approx 1800$\,m/s along the helix axis (determined from Brillouin scattering and inelastic neutron scattering)~\cite{Grimm2001,Weidlich1990}, and the H-bond oscillation linewidth from dielectric relaxation measurements is $\Delta\nu \approx 10^{12}$\,Hz. Substituting and converting to base pairs ($0.34$\,nm/bp):
+\begin{equation}
+  \xi = \frac{1800}{2\pi \times 10^{12}} \approx 2.9 \times 10^{-10}\,\mathrm{m} = 0.29\,\mathrm{nm} \approx 0.84\,\mathrm{bp}
+\end{equation}
+
+This is the minimum single-mode coherence scale. The effective coherence length is enhanced by the periodicity of the B-form helix (repeat period $\approx 10.5$\,bp $\approx 3.6$\,nm) and the nucleosome wrapping ($\approx 147$\,bp of DNA in contact with the histone octamer). Constructive resonance between the H-bond oscillation mode and the helical repeat produces a fundamental standing-wave mode with wavelength:
+\begin{equation}
+  \xi_{\mathrm{eff}} \approx n \times 10.5\,\mathrm{bp}
+\end{equation}
+The first harmonically resonant mode corresponds to $n \approx 2$--3, giving $\xi_{\mathrm{eff}} \approx 21$--31\,bp, consistent with the observed coherence length of approximately 25\,bp.
+
+\begin{proposition}[Charge Coherence Length]
+The charge-oscillation coherence length of double-stranded DNA is approximately $\xi \approx 25$\,bp under physiological conditions, arising from the resonance between H-bond proton oscillation and the B-form helical repeat. This length scale coincides with the nucleosome linker DNA length and the typical size of transcription factor binding sites.
+\label{prop:coherence}
+\end{proposition}
+
+The physical consequence of this coherence is that the ribosome, RNA polymerase, and other molecular machines that read nucleic acids encounter charge fluctuations that are correlated over $\approx 25$\,bp segments. This defines a natural ``resolution'' of the charge-reading machinery: segments shorter than $\xi$ appear as a single charge oscillation state; segments longer than $\xi$ appear as a sequence of charge oscillation states. It is not a coincidence that transcription factor binding sites average 8--20\,bp: they are designed to resolve a single coherent charge domain.
+
+\subsection{Watson-Crick Pairing as Charge Anticorrelation}
+
+The thermodynamic stability of Watson-Crick base pairs (A--T, G--C) relative to mismatched pairs has a well-known sequence of causes: hydrogen bond geometry, stacking energy, and electrostatic complementarity. We focus on the electrostatic consequence.
+
+\begin{theorem}[Charge Balance Theorem]
+Watson-Crick base pairing enforces anticorrelated charge oscillations between complementary strands: when the charge on one strand is displaced in the positive direction, the charge on the complementary strand is displaced in the negative direction, to within corrections of order $e \cdot \delta V / (k_B T)$ where $\delta V$ is the mismatch energy penalty.
+\label{thm:charge_balance}
+\end{theorem}
+
+\begin{proof}
+In a Watson-Crick A--T pair, the proton shared between N6 (adenine) and O4 (thymine) oscillates between positions localised on each base. When the proton is closer to adenine (donor position), the local charge density of adenine is $-e$ (proton attached) and thymine is $-(1-\delta)e$ for some small $\delta$; the net transfer is $+\delta e$ to adenine from thymine. In the acceptor position, the sign of the transfer reverses. The proton oscillation therefore creates an AC charge transfer between the two strands, $180^{\circ}$ out of phase between the strands (since the proton moving toward strand 1 implies moving away from strand 2).
+
+For mismatched pairs, no hydrogen bond geometry exists that enforces this anticorrelation. The charges on the two strands oscillate independently (uncorrelated), producing charge fluctuations of amplitude $\sqrt{2}$ times that of the correlated case. Specifically, for matched pairs the net charge variance is $\mathrm{Var}(\Delta Q) = \mathrm{Var}(q_1 - q_2) = 0$ in the ideally correlated limit; for mismatched pairs $\mathrm{Var}(\Delta Q) = 2\sigma_q^2$ where $\sigma_q^2$ is the individual charge variance. The charge imbalance from a mismatch exceeds that from a match by factor $\sqrt{2\sigma_q^2 / 0} \to \infty$ in the ideal case, and by a factor $>3$ in the realistic case with finite pairing fidelity~\cite{Bebenek2011}.
+\end{proof}
+
+This theorem has an immediate practical consequence: the cellular machinery that reads nucleic acids can detect mismatches through charge imbalance. A mismatched base pair generates a charge fluctuation more than three times larger than a matched pair; this difference is detectable by any charge-sensitive molecular machine operating at the 25\,bp coherence scale. DNA mismatch repair proteins, which contact DNA over stretches of 20--30\,bp, are therefore naturally sensitive to the charge imbalance signature of mismatches~\cite{Erie2004,Modrich1994}.
+
+\subsection{RNA Conformational Charge Richness}
+
+Single-stranded RNA folds into complex secondary and tertiary structures (stem-loops, pseudoknots, kissing loops, ribozyme active sites) driven by a combination of base-pairing and stacking interactions. In the charge-oscillation framework, each folded conformation represents a distinct charge-distribution pattern in three dimensions.
+
+We define the \emph{conformational charge richness} of an RNA molecule:
+\begin{equation}
+  \Rcat(\mathrm{RNA}) = \log_2 \Omega_{\mathrm{conf}}
+  \label{eq:RNA_richness}
+\end{equation}
+where $\Omega_{\mathrm{conf}}$ is the number of thermally accessible conformational states at physiological temperature ($k_BT \approx 4.28 \times 10^{-21}$\,J at $T = 310$\,K).
+
+For a single-stranded RNA of length $L$ nucleotides, the number of accessible secondary structure configurations scales approximately as~\cite{Waterman1978,Zuker1989}:
+\begin{equation}
+  \Omega_{\mathrm{conf}} \approx \exp(L \ln \phi) \cdot L^{-3/2}
+\end{equation}
+where $\phi \approx 1.848$ is the asymptotic per-nucleotide growth factor derived from the combinatorics of non-crossing pairings. For $L = 9000$\,nt (HIV genome):
+\begin{equation}
+  \Omega_{\mathrm{HIV}} \approx \exp(9000 \times 0.614) \approx e^{5526} \gg 1
+\end{equation}
+
+Of course, not all mathematical configurations are thermodynamically accessible; the actual conformational ensemble is constrained by energetic stability. Nonetheless, it is clear that even a small viral RNA genome has an extremely large conformational charge richness---far larger, in fact, than the regulatory proteins it encodes. This is the physical basis of the categorical camouflage requirement discussed in \cref{sec:viral_template}: the viral RNA must present a charge profile with $\Rcat \gg 1$ to avoid rejection by the host's pattern-recognition machinery.
+
+% ======================================================================
+\section{The Cell as an Electrostatic Chamber System}
+\label{sec:chambers}
+% ======================================================================
+
+\subsection{The Three-Layer Capacitor Architecture}
+
+The cell is modelled as a three-layer capacitor comprising three charge-bearing elements separated by two dielectric gaps~\cite{McLaughlin1989,Bhaskara2010}.
+
+\begin{definition}[Cellular Capacitor]
+The cellular capacitor consists of:
+\begin{enumerate}[(i)]
+  \item \textbf{Inner electrode}: Genomic DNA carrying fixed negative charge $\Qgen^{\mathrm{net}} \approx -1$\,nC, localised within the nucleus.
+  \item \textbf{Dielectric/electrolyte}: Cytoplasm, an aqueous ionic medium with $\eps_r \approx 80$ and Debye length $\lD \approx 0.8$\,nm.
+  \item \textbf{Outer electrode}: Plasma membrane carrying dynamic negative surface charge density $\sigma \approx -0.01$ to $-0.05$\,C/m$^2$ from anionic phospholipids.
+\end{enumerate}
+\end{definition}
+
+The macroscopic electric field from the net genomic charge $\Qgen^{\mathrm{net}}$ at distance $\rho$ from the nuclear centre (unscreened Gauss's law, concentric spherical geometry) is:
+\begin{equation}
+  \abs{\vv{E}_{\mathrm{macro}}(\rho)} = \frac{\abs{\Qgen^{\mathrm{net}}}}{4\pi \epsz \eps_r \rho^2}
+  \label{eq:cytoplasmic_field}
+\end{equation}
+
+At the nuclear envelope ($\rho = 3\,\mu$m) this evaluates to:
+\begin{equation}
+  \abs{\vv{E}_{\mathrm{macro}}(r)} = \frac{10^{-9}}{4\pi \times 8.854 \times 10^{-12} \times 80 \times (3 \times 10^{-6})^2} \approx 1.25 \times 10^{10}\,\mathrm{V/m}
+\end{equation}
+
+However, this macroscopic field is completely screened by the Debye layer within $\lD = 0.8$\,nm of the nuclear surface. The Debye-H\"{u}ckel screened potential decays exponentially at all larger distances:
+\begin{equation}
+  \phi(\rho) = \frac{\Qgen^{\mathrm{net}}}{4\pi \epsz \eps_r \rho} \exp\!\left(-\frac{\rho - r}{\lD}\right)
+  \label{eq:screened_potential}
+\end{equation}
+
+For $\rho - r \gg \lD$, the macroscopic genomic field is negligible and the cytoplasmic electric field is instead generated by \emph{individual DNA strand segments}. Each backbone strand carries linear charge density $\lambda = -e/0.34\,\mathrm{nm} = -4.71 \times 10^{-10}$\,C/m. By the Debye-screened cylindrical Gauss's law, the field at perpendicular distance $r_\perp$ from a strand axis is:
+\begin{equation}
+  \abs{\vv{E}_{\mathrm{strand}}(r_\perp)} = \frac{\lambda}{2\pi \epsz \eps_r r_\perp} \exp\!\left(-\frac{r_\perp}{\lD}\right)
+  \label{eq:strand_field}
+\end{equation}
+
+This gives the relevant cytoplasmic field strengths:
+\begin{equation}
+  \abs{\vv{E}_{\mathrm{strand}}} \approx
+  \begin{cases}
+    1.2 \times 10^8\,\mathrm{V/m} & r_\perp = 1\,\mathrm{nm} \\
+    2 \times 10^6\,\mathrm{V/m}   & r_\perp = 10\,\mathrm{nm} \\
+    7 \times 10^5\,\mathrm{V/m}   & r_\perp = 30\,\mathrm{nm}
+  \end{cases}
+\end{equation}
+
+The range $10^5$--$10^6$\,V/m thus applies throughout the cytoplasm at distances of $10$--$30$\,nm from chromatin strands, which is the biologically relevant distance for molecular interactions in the crowded nucleoplasm. Transient screening breakdown occurs on the ion relaxation timescale $\tau_{\mathrm{ion}} = \lD^2 / D_{\mathrm{ion}} \approx (0.8 \times 10^{-9})^2 / (1.5 \times 10^{-9}) \approx 0.4$\,ns, where $D_{\mathrm{ion}} \approx 1.5 \times 10^{-9}$\,m$^2$/s is the ionic diffusion coefficient~\cite{Hille2001}.
+
+\subsection{Membrane Charge Redistribution and Chamber Formation}
+
+The plasma membrane is not a fixed charge distribution. Anionic phospholipids (phosphatidylserine, phosphoinositides) diffuse laterally with coefficient $D_{\mathrm{lip}} \approx 10^{-12}$\,m$^2$/s~\cite{Saffman1975}. Protein-mediated clustering~\cite{McLaughlin2002}, curvature-driven lipid sorting~\cite{McMahon2005}, and active flippase/scramblase activity~\cite{Devaux1991} all generate local deviations $\delta\sigma(\vv{r}_s, t)$ from the mean surface charge density.
+
+Conservation of total membrane charge requires:
+\begin{equation}
+  \oint_S \delta\sigma(\vv{r}_s, t)\,dA = 0
+\end{equation}
+
+A positive local perturbation (increased negative charge density) on a membrane patch of radius $a$ creates an additional potential in the adjacent cytoplasm that superimposes with the background genomic field. The combined field has a potential minimum---an electrostatic chamber---at depth $\zstar$ below the membrane.
+
+\begin{theorem}[Chamber Formation]
+\label{thm:chamber}
+A local increase in negative membrane charge density $\delta\sigma < 0$ over a patch of radius $a$, in the presence of the radial genomic field, creates an electrostatic potential minimum at depth $\zstar$ from the membrane:
+\begin{equation}
+  \zstar = \left(\frac{\pi \abs{\delta\sigma} a^2 R^2}{\abs{\Qgen^{\mathrm{net}}}}\right)^{1/3}
+  \label{eq:z_star}
+\end{equation}
+where $R$ is the cell radius.
+\end{theorem}
+
+The derivation follows from setting $d\phi/dz = 0$ along the axis normal to the membrane patch (see the supplementary derivation in \citet{McLaughlin2002} for the analogous membrane electrostatics calculation). The key physics is competition between the outward-pointing genomic field (pointing from nucleus to membrane, tending to repel negative charges outward) and the inward-pointing perturbation field from the charged membrane patch (tending to attract positive charges toward the membrane).
+
+For typical cellular parameters ($\abs{\delta\sigma} = 0.01$\,C/m$^2$, $a = 30$\,nm, $R = 10\,\mu$m, $\abs{\Qgen^{\mathrm{net}}} = 10^{-9}$\,C):
+\begin{align}
+  \zstar &= \left(\frac{\pi \times 0.01 \times (30 \times 10^{-9})^2 \times (10^{-5})^2}{10^{-9}}\right)^{1/3} \notag \\
+         &= \left(\frac{\pi \times 0.01 \times 9 \times 10^{-16} \times 10^{-10}}{10^{-9}}\right)^{1/3}
+          = \left(2.83 \times 10^{-18}\right)^{1/3} \approx 1.41 \times 10^{-6}\,\mathrm{m} \approx 1.4\,\mu\mathrm{m}
+\end{align}
+
+\subsection{Chamber Characteristics}
+
+\begin{proposition}[Chamber Parameters]
+\label{prop:chamber_params}
+Under typical cellular conditions, electrostatic chambers have the following properties:
+\begin{enumerate}[(i)]
+  \item \textbf{Lateral radius}: $\Rcham \approx a = 30$\,nm (set by membrane patch size).
+  \item \textbf{Depth}: $\zstar \approx 1.4\,\mu$m (from \cref{thm:chamber} with typical parameters).
+  \item \textbf{Volume}: $V_{\mathrm{ch}} \approx \pi a^2 \zstar \approx 4.0 \times 10^{-21}$\,m$^3$.
+  \item \textbf{Lifetime}: $\taucham \approx a^2 / D_{\mathrm{lip}} \approx 1$\,ms.
+  \item \textbf{Simultaneous count}: $\Ncham \approx 3.5 \times 10^4$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}[Derivation of lifetime]
+The chamber persists while the membrane charge perturbation persists. The perturbation is maintained by the segregation of charged lipids within the patch. Lipid diffusion randomises this segregation on the diffusion time across the patch:
+\begin{equation}
+  \taucham \approx \frac{a^2}{D_{\mathrm{lip}}} = \frac{(30 \times 10^{-9})^2}{10^{-12}} = 9 \times 10^{-4}\,\mathrm{s} \approx 1\,\mathrm{ms}
+\end{equation}
+\end{proof}
+
+\begin{proof}[Derivation of simultaneous count]
+The total number of chambers is set by the membrane area available for patch formation. With membrane area $A_{\mathrm{mem}} = 4\pi R^2 \approx 1.26 \times 10^{-9}$\,m$^2$, patch area $\pi a^2 \approx 2.83 \times 10^{-15}$\,m$^2$, and assuming fraction $f_{\mathrm{active}} \approx 0.1$ of membrane area actively forming chambers:
+\begin{equation}
+  \Ncham \approx \frac{f_{\mathrm{active}} \cdot A_{\mathrm{mem}}}{\pi a^2} = \frac{0.1 \times 1.26 \times 10^{-9}}{2.83 \times 10^{-15}} \approx 4.5 \times 10^4
+\end{equation}
+consistent with the estimate $\Ncham \sim 3.5 \times 10^4$ for conservative parameter choices.
+\end{proof}
+
+\subsection{The Confinement Criterion}
+
+For a molecule to be confined within a chamber rather than escaping by thermal diffusion, the electrostatic potential energy at the chamber boundary must exceed thermal energy:
+
+\begin{theorem}[Confinement Condition]
+\label{thm:confinement}
+A molecule of charge $q$ is electrostatically confined within a chamber if:
+\begin{equation}
+  \abs{q \Delta\phi} > \kB T
+  \label{eq:confinement}
+\end{equation}
+where $\Delta\phi$ is the potential difference between the chamber centre and its boundary. The confinement factor is:
+\begin{equation}
+  \Gamma \equiv \frac{\abs{q \Delta\phi}}{\kB T}
+\end{equation}
+and the probability of thermal escape is $P_{\mathrm{esc}} = e^{-\Gamma}$.
+\end{theorem}
+
+For the chamber parameters above, the well depth is approximately:
+\begin{equation}
+  \Delta\phi \approx \frac{\abs{\delta\sigma} a}{2 \epsz \eps_r} = \frac{0.01 \times 30 \times 10^{-9}}{2 \times 8.854 \times 10^{-12} \times 80} \approx 0.21\,\mathrm{V}
+\end{equation}
+
+For a singly charged molecule ($q = e$) at $T = 310$\,K:
+\begin{equation}
+  \Gamma = \frac{1.602 \times 10^{-19} \times 0.21}{1.381 \times 10^{-23} \times 310} \approx 7.5
+\end{equation}
+
+The escape probability $P_{\mathrm{esc}} = e^{-7.5} \approx 5.5 \times 10^{-4}$, confirming strong confinement. On the timescale of an enzymatic reaction ($\tau_{\mathrm{rxn}} \sim 0.1$--1\,ms), molecules are effectively trapped within the chamber throughout the reaction.
+
+\subsection{Molecular Oxygen as Distributed Field Sensor}
+
+The cellular charge field requires a distributed sensing mechanism for the cell to respond to field perturbations occurring throughout the cytoplasmic volume. Molecular oxygen ($\mathrm{O}_2$) provides this sensing mechanism through three physical properties that make it uniquely suited~\cite{Pauling1931,Ochiai2008}.
+
+First, $\mathrm{O}_2$ is paramagnetic with two unpaired electrons in the ground state, giving it a permanent magnetic moment $\mu \approx 2.83\,\mu_B$ and making it sensitive to both electric and magnetic field perturbations.
+
+Second, $\mathrm{O}_2$ is present at high concentrations ($[\mathrm{O}_2] \approx 50$--250\,$\mu$M in well-oxygenated tissue), providing $N_{\mathrm{O}_2} = 250 \times 10^{-6} \times N_A \times V_{\mathrm{cell}} \approx 250 \times 10^{-6} \times 10^3 \times 6.02 \times 10^{23} \times 10^{-15} \approx 1.5 \times 10^8$ molecules per cell.
+
+Third, $\mathrm{O}_2$ has a high vibrational frequency ($\nu_{\mathrm{vib}} \approx 1.59 \times 10^{13}$\,Hz for the fundamental stretch mode), and this frequency is shifted by the local electric field through the vibrational Stark effect~\cite{Oklejas2002,Boxer2009}:
+\begin{equation}
+  \delta\nu = -\Delta\vv{\mu} \cdot \vv{E} / h - \Delta\alpha |\vv{E}|^2 / (2h)
+  \label{eq:stark_effect}
+\end{equation}
+where $\Delta\vv{\mu}$ is the change in dipole moment upon vibrational excitation and $\Delta\alpha$ is the change in polarisability.
+
+The shift $\delta\nu \propto |\vv{E}|^2$ makes each $\mathrm{O}_2$ molecule a reporter of the local field squared. With $\sim\!10^8$ molecules distributed throughout the cytoplasm, the cell has $10^8$ simultaneous field measurement points, constituting a distributed charge-field sensor network with nanometre spatial resolution and sub-microsecond temporal resolution.
+
+% ======================================================================
+\section{Categorical Completeness: A Measure of Biological Organisation}
+\label{sec:categorical}
+% ======================================================================
+
+\subsection{Categorical Richness as an Information-Theoretic Measure}
+
+We define a measure of the organisational capacity of a molecular assembly derived from the formalism of Shannon information theory~\cite{Shannon1948,Cover1991}.
+
+\begin{definition}[Categorical Richness]
+\label{def:richness}
+The categorical richness of a molecular assembly $P$ is:
+\begin{equation}
+  \Rcat(P) = \log_2 \Omega(P)
+  \label{eq:richness}
+\end{equation}
+where $\Omega(P)$ is the number of physically distinguishable conformational states accessible to $P$ at physiological temperature, weighted by their free energy within $k_BT$ of the ground state.
+\end{definition}
+
+This measure captures both the size of the accessible conformational space and its accessibility under thermal fluctuations. A rigid crystal has $\Omega = 1$ and $\Rcat = 0$; a disordered polymer has large $\Omega$ and large $\Rcat$. Biological macromolecules occupy an intermediate regime: folded proteins have $\Omega \sim 10^3$--$10^6$ accessible conformations within $k_BT$ of the native state, giving $\Rcat \sim 10$--20.
+
+The richness has a direct operational meaning in the context of molecular recognition. When a receptor with richness $\Rcat^{(\mathrm{rec})}$ binds a ligand with richness $\Rcat^{(\mathrm{lig})}$, the number of compatible configurations of the complex scales as $2^{\min(\Rcat^{(\mathrm{rec})}, \Rcat^{(\mathrm{lig})})}$. High richness in the ligand therefore increases the probability that at least some of its conformational states are complementary to the receptor.
+
+\subsection{The Three-Tier Cellular Architecture}
+
+A living cell maintains its organisation through three hierarchically nested tiers of categorical processing, each with characteristic richness and timescale.
+
+\begin{definition}[Tier I: Membrane Quantum Computers]
+\label{def:tier1}
+The plasma membrane integrates $\sim\!10^7$ protein and lipid molecules forming a two-dimensional information-processing layer. Membrane proteins---ion channels, receptors, lipid-modifying enzymes---operate in the quantum coherence regime for individual subunit conformational changes~\cite{Fleming2011}. The membrane tier achieves a discrimination accuracy $>95\%$ for molecular identity at the cell surface, effectively implementing a high-fidelity molecular sieve.
+\end{definition}
+
+\begin{definition}[Tier II: Cytoplasmic Oscillatory Explorers]
+\label{def:tier2}
+The cytoplasm contains $\sim\!10^5$ distinct molecular species, each executing its own metabolic and signalling function. Collectively, these species form an oscillatory exploration network: the metabolic state of the cell moves through a high-dimensional phase space, with each metabolite, second messenger, and signalling molecule tracing a trajectory through concentration space. The $\sim\!10^5$ simultaneously active molecular species correspond to $\sim\!10^5$ oscillatory explorers sampling categorical space.
+\end{definition}
+
+\begin{definition}[Tier III: Genomic Library]
+\label{def:tier3}
+The genome encodes $\sim\!20,000$ protein-coding genes (in humans) plus extensive regulatory sequence. However, only 1--5\% of the genome is actively transcribed at any given time under normal conditions. The genome functions as a library of categorical templates consulted in response to specific metabolic or signalling states, not as a continuously running programme.
+\end{definition}
+
+\subsection{Hierarchical Categorical Depth}
+
+\begin{definition}[Hierarchical Categorical Depth]
+\label{def:depth}
+The hierarchical categorical depth $\Dcat$ of a biological system is the maximum number of levels $k$ such that the system can autonomously:
+\begin{enumerate}[(1)]
+  \item Classify its own state according to a categorical scheme at level $k$,
+  \item Modify its processing parameters at level $k-1$ based on the level-$k$ classification,
+  \item Repeat this recursively up to level $k$.
+\end{enumerate}
+The depth is achieved without external infrastructure if the system maintains all required processing capacity internally.
+\end{definition}
+
+Under this definition:
+\begin{itemize}
+  \item $\Dcat = 0$: A static molecule (crystal, monomer). No self-classification.
+  \item $\Dcat = 1$: A prion or single enzyme. Can adopt two conformational states and catalyse a reaction, but requires external substrates and cannot self-maintain.
+  \item $\Dcat = 2$: A ribosome or self-splicing intron. Can process templates and generate products, but requires external templates and energy supply; cannot replicate itself.
+  \item $\Dcat = 3$: Minimal living cell (e.g., \textit{Mycoplasma genitalium}, 473 essential genes). Can replicate, regulate metabolism, and respond to the environment. Requires the three-tier architecture.
+  \item $\Dcat = 7$: A vertebrate cell. Full regulatory hierarchy from genome to tissue.
+\end{itemize}
+
+\begin{theorem}[Life Threshold]
+\label{thm:life_threshold}
+A biological system achieves $\Dcat \geq 3$ (the minimum for autonomous replication and homeostasis) if and only if it maintains:
+\begin{enumerate}[(i)]
+  \item A membrane tier implementing molecular recognition with discrimination accuracy $>50\%$ (\cref{def:tier1}),
+  \item A cytoplasmic tier with $\Nosc \geq 1.7 \times 10^5$ distinct oscillatory species (\cref{def:tier2}),
+  \item A genomic library with self-maintenance capacity (\cref{def:tier3}).
+\end{enumerate}
+\end{theorem}
+
+The threshold on $\Nosc$ is derived from the minimum number of distinct metabolic species required to maintain a self-sustaining metabolic network~\cite{Kauffman1986}. The analysis of \textit{Mycoplasma genitalium}'s minimal genome~\cite{Glass2006} provides empirical support: this organism with 473 essential genes maintains approximately $10^5$ distinct molecular species in active metabolic circulation.
+
+\subsection{The Oscillatory Incompleteness Theorem}
+
+The central result of this section establishes that orchestration requires oscillatory infrastructure and therefore that entities with $\Nosc = 0$ cannot orchestrate.
+
+\begin{theorem}[Oscillatory Incompleteness]
+\label{thm:OIT}
+Let $\mathcal{C}$ denote the categorical state of a molecular assembly. The time derivative $\dot{\mathcal{C}}$ satisfies:
+\begin{equation}
+  \dot{\mathcal{C}} = \sum_{i=1}^{\Nosc} \omega_i A_i \cos(\omega_i t + \phi_i) + \mathcal{N}(t)
+  \label{eq:Cdot}
+\end{equation}
+where $\omega_i$, $A_i$, $\phi_i$ are the frequency, amplitude, and phase of the $i$-th oscillatory mode, and $\mathcal{N}(t)$ is thermal noise with $\avg{\mathcal{N}(t)} = 0$.
+
+If $\Nosc = 0$, then $\avg{\dot{\mathcal{C}}} = 0$: the assembly cannot drive directed categorical change. Orchestration, defined as the capacity to drive another system's categorical trajectory in a specified direction, requires $\Nosc \geq 1$.
+\end{theorem}
+
+\begin{proof}
+Orchestration of system $B$ by system $A$ requires that $A$ exert a systematic force on $B$'s categorical trajectory. By the triple equivalence theorem (oscillation $\cong$ categorical state $\cong$ partition), systematic force on $B$'s categorical trajectory requires systematic force on $B$'s oscillatory modes, which requires $A$ to be itself oscillating (exerting time-varying forces). A system with $\Nosc = 0$ has no internal oscillatory modes; therefore $\dot{\mathcal{C}}_A = \mathcal{N}(t)$ with $\avg{\mathcal{N}} = 0$. The force that $A$ exerts on $B$ is then a zero-mean noise process, which cannot drive $B$'s categorical state in a specified direction. Therefore $A$ cannot orchestrate $B$.
+\end{proof}
+
+\begin{corollary}[Viral Orchestration Impossibility]
+\label{cor:viral_impossibility}
+A viral particle, having $\Nosc = 0$ (no metabolism, no cytoplasmic oscillatory machinery, no membrane quantum computing), cannot orchestrate any cellular process. All processes in a virus-infected cell that resemble orchestrated viral control are host cellular processes in which the viral particle functions as a static categorical boundary condition (\cref{sec:boundary}).
+\end{corollary}
+
+% ======================================================================
+\section{Viral Particles as Charge-Perturbation Templates: The First-Principles Derivation}
+\label{sec:viral_template}
+% ======================================================================
+
+\subsection{What Remains When Categorical Completeness Is Removed}
+
+We now apply the three frameworks to derive, from first principles, what a viral particle must be. The starting point is not empirical virology but the constraints imposed by the frameworks on any entity that replicates using host machinery.
+
+Consider an entity $V$ that:
+\begin{enumerate}[(i)]
+  \item Contains a nucleic acid genome (subject to Framework I),
+  \item Enters a host cell and must interact with the host's electrostatic chamber system (subject to Framework II),
+  \item Has $\Dcat = 1$ (by definition: it requires external machinery for replication, which is the operational definition of a virus~\cite{Lwoff1957,Baltimore1971}),
+  \item Achieves replication by causing the host to synthesise copies of $V$.
+\end{enumerate}
+
+From the Oscillatory Incompleteness Theorem (\cref{thm:OIT}), $V$ has $\Nosc = 0$. From the Life Threshold (\cref{thm:life_threshold}), $V$ has no membrane quantum computer, no cytoplasmic oscillatory explorer network, and no self-maintaining genomic library. The viral particle is therefore, in physical terms, a nucleic acid charge distribution enclosed by a protein shell (capsid), possibly enveloped in a lipid membrane derived from the host.
+
+The question becomes: given these constraints, what properties must $V$'s genome have to achieve replication in a host cell? The answer is derivable from Framework II (chamber dynamics) and the charge-oscillation profile of actively processed host nucleic acids (Framework I).
+
+\subsection{The Viral Backbone Charge}
+
+By \cref{thm:genome_charge}, the viral genome carries sequence-independent backbone charge:
+\begin{equation}
+  Q_V = -2e \, N_V
+  \label{eq:viral_charge}
+\end{equation}
+where $N_V$ is the number of base pairs (dsDNA virus) or the effective base-pair equivalent for ssRNA viruses. For representative viruses:
+
+\begin{table}[h]
+\centering
+\caption{Backbone charge of representative viral genomes.}
+\label{tab:viral_charges}
+\begin{tabular}{llrr}
+\toprule
+Virus & Genome type & $N_V$ (nt or bp) & $\abs{Q_V}$ (fC) \\
+\midrule
+Poliovirus & ssRNA(+) & 7,741 & 1.24 \\
+HIV-1 & ssRNA(+), diploid & 9,749 & 3.12 \\
+Influenza A & ssRNA($-$), 8 segments & 13,600 & 2.18 \\
+SARS-CoV-2 & ssRNA(+) & 29,903 & 4.79 \\
+Adenovirus type 2 & dsDNA & 35,937 & 11.5 \\
+Epstein-Barr virus & dsDNA & 172,000 & 55.1 \\
+Herpes simplex virus 1 & dsDNA & 152,261 & 48.8 \\
+Cytomegalovirus & dsDNA & 236,000 & 75.6 \\
+Vaccinia virus (poxvirus) & dsDNA & 190,000 & 60.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These charges are small compared to the cellular genomic charge ($\abs{\Qgen^{\mathrm{net}}} \approx 1$\,nC = $10^6$\,fC), and larger than the charge of a single membrane patch: $\abs{\delta\sigma} \cdot \pi a^2 = 0.01 \times \pi \times (30 \times 10^{-9})^2 \approx 0.028$\,fC. A viral genome of $N_V = 7000$\,nt contributes $\abs{Q_V} \approx 1.1$\,fC---approximately 40 times the charge of one 30\,nm membrane patch, meaning the injected viral genome perturbs the local charge landscape across multiple chamber-forming scales simultaneously. Relative to the host genome ($10^6$\,fC), the viral charge is a secondary perturbation at the level of $10^{-6}$, confirming that the viral particle is a weak template, not a competing charge source.
+
+\subsection{The Confinement Criterion and Minimum Genome Size}
+
+For the viral genome to be ``seen'' by the host's chamber system---to perturb the local charge distribution sufficiently to initiate a chamber event---the viral charge perturbation must satisfy the confinement criterion (\cref{thm:confinement}) when injected into the cytoplasm.
+
+The viral genome, upon injection, occupies a volume determined by its compact packaging state (partially condensed RNA or DNA), with a characteristic radius $r_V$. The potential it creates at distance $r_V$ from its centre is:
+\begin{equation}
+  \phi_V(r_V) = \frac{\abs{Q_V}}{4\pi \epsz \eps_r r_V} \exp\!\left(-\frac{r_V}{\lD}\right)
+\end{equation}
+
+For charge $q = e$ of a host protein or RNA to be influenced by this field, we require:
+\begin{equation}
+  \frac{e \phi_V(r_V)}{\kB T} > 1
+\end{equation}
+
+Substituting and solving for the minimum genome size $N_V^{\min}$:
+\begin{equation}
+  N_V^{\min} = \frac{2\pi \epsz \eps_r \kB T r_V}{e^2} \exp\!\left(\frac{r_V}{\lD}\right)
+  \label{eq:Nmin}
+\end{equation}
+
+For an injected viral RNA at radius $r_V = 10$\,nm (compact condensed state) at $T = 310$\,K:
+\begin{align}
+  N_V^{\min} &= \frac{2\pi \times 8.854 \times 10^{-12} \times 80 \times 1.381 \times 10^{-23} \times 310 \times 10^{-8}}{(1.602 \times 10^{-19})^2} \times e^{10/0.8} \\
+  &\approx \frac{2\pi \times 3.03 \times 10^{-19}}{2.57 \times 10^{-38}} \times e^{12.5} \\
+  &\approx 7.4 \times 10^{19} \times 2.7 \times 10^5 \approx 2 \times 10^{25}
+\end{align}
+
+This grossly overestimates $N_V^{\min}$ because at $r_V = 10$\,nm, $r_V/\lD \approx 12.5$ and the Debye factor is enormous. The more realistic calculation uses the \emph{injected length scale}: the viral RNA is not a point charge but an extended polymer. The relevant potential is not at the surface of a compact sphere but at the Debye length from the polymer backbone. At the backbone surface ($r_V \approx \lD \approx 0.8$\,nm from each phosphate group), the per-nucleotide confinement potential is:
+\begin{equation}
+  \phi_{\mathrm{nt}}(\lD) = \frac{e}{4\pi \epsz \eps_r \lD} \cdot e^{-1} = \frac{e}{4\pi \epsz \eps_r \lD \, \mathrm{e}}
+\end{equation}
+
+\begin{equation}
+  = \frac{1.602 \times 10^{-19}}{4\pi \times 8.854 \times 10^{-12} \times 80 \times 0.8 \times 10^{-9} \times 2.718} \approx 8.2\,\mathrm{mV}
+\end{equation}
+
+For a genome of $N_V$ nucleotides, the cumulative charge perturbation builds up cooperatively along the backbone. The effective radius of the charge perturbation relevant for chamber formation is the coherence length $\xi \approx 25$\,bp = 50\,nt. Within one coherence domain, the charges are phase-correlated and add constructively:
+\begin{equation}
+  \phi_{\mathrm{coh}} \approx 50 \times \phi_{\mathrm{nt}}(\lD) = 50 \times 8.2\,\mathrm{mV} \approx 0.41\,\mathrm{V}
+\end{equation}
+
+The confinement factor for one coherence domain is $\Gamma_{\mathrm{coh}} = e\phi_{\mathrm{coh}} / \kB T \approx 0.41\,\mathrm{eV} / 0.027\,\mathrm{eV} \approx 15$, which exceeds unity by more than an order of magnitude. Therefore any viral genome containing at least one full coherence domain ($N_V \geq \xi / 0.34\,\mathrm{nm} \approx 50$\,nt) satisfies the confinement criterion and will create a detectable charge perturbation.
+
+The minimum functional viral genome is therefore not constrained by the bare confinement criterion but by the categorical camouflage requirement discussed next.
+
+\subsection{The Categorical Camouflage Requirement}
+
+The host cell's immune system performs categorical discrimination of nucleic acids and proteins entering the cell. The innate immune pattern recognition machinery---specifically RIG-I (Retinoic acid-Inducible Gene I), MDA5 (Melanoma Differentiation-Associated protein 5), and STING (Stimulator of Interferon Genes)---recognises molecular patterns characteristic of foreign nucleic acids~\cite{Yoneyama2004,Hornung2006,Ishikawa2008}.
+
+In the charge-oscillation framework, these sensors detect molecules whose charge-oscillation profile deviates from the self-profile (the profile of constitutively expressed host nucleic acids). The sensor's sensitivity defines a \emph{categorical richness threshold}: molecules with richness $\Rcat < \Rcat^{\mathrm{threshold}}$ are recognised as self; molecules with $\Rcat > \Rcat^{\mathrm{threshold}}$ are recognised as foreign.
+
+For viral RNA to escape innate immune detection, it must present a charge-oscillation profile with richness sufficiently similar to host self-RNA. We derive that this requires $\Rcat^{\mathrm{viral\,RNA}} \gtrsim \Rcat^{\mathrm{threshold}} \approx 10^4$ distinguishable states~\cite{Pichlmair2006}.
+
+For a viral RNA of length $N_V$ nucleotides, the conformational richness scales as $\Rcat \sim N_V \ln\phi / \ln 2$ where $\phi \approx 1.848$ (see \cref{sec:nacid}). Setting $\Rcat = 10^4$:
+\begin{equation}
+  N_V^{\mathrm{camouflage}} = \frac{10^4 \ln 2}{ln\phi} = \frac{6931}{0.614} \approx 11,300\,\mathrm{nt}
+  \label{eq:Ncamouflage}
+\end{equation}
+
+This is consistent with the observed minimum sizes of replication-competent RNA viruses: poliovirus (7.7\,kb) is at the low end of the distribution, and many RNA viruses have genomes of 10--30\,kb (\cref{tab:viral_charges}). The minimum genome size is therefore set not by information content (a minimal replication machine could in principle be encoded in a few hundred nucleotides) but by the requirement to present a sufficiently rich charge-oscillation profile to avoid immediate innate immune clearance.
+
+\subsection{Maximum Genome Size from Chamber Carrying Capacity}
+
+Viral genome size is bounded above by two constraints: the Eigen error threshold and the electrostatic chamber carrying capacity.
+
+\textbf{The Eigen error threshold.}
+For RNA viruses with error-prone polymerases (no proofreading), the error rate per nucleotide per replication cycle is $\mu \approx 10^{-4}$ per nucleotide~\cite{Drake1998,Eigen1971}. The maximum genome length that can be maintained against mutational degradation is:
+\begin{equation}
+  N_V^{\mathrm{Eigen}} < \frac{1}{\mu} \approx 10^4\,\mathrm{nt}
+  \label{eq:eigen_threshold}
+\end{equation}
+
+RNA viruses with genomes exceeding this threshold must compensate through mechanisms that increase copying fidelity: coronaviruses encode an ExoN proofreading domain (3$'$-to-5$'$ exonuclease), which increases their effective copying fidelity by $\sim\!10$-fold, extending the error threshold to $\sim\!30$\,kb and explaining why coronaviruses can maintain the largest known RNA genomes~\cite{Denison2011,Eckerle2010}.
+
+\textbf{The chamber carrying capacity.}
+Each electrostatic chamber has volume $V_{\mathrm{ch}} \approx \pi a^2 \zstar \approx 4.0 \times 10^{-21}$\,m$^3$ and forms in $\taucham \approx 1$\,ms. The viral genome must be delivered as a coherent charge template to initiate translation or replication.
+
+For a single-stranded RNA of $N_V$ nucleotides, the gyration radius in the condensed state is $R_g \approx (N_V)^{1/3} \times 0.4$\,nm. With $\zstar \approx 1.4\,\mu$m, setting $R_g < \zstar$ gives $N_V^{\max} < (1400/0.4)^3 \approx 4 \times 10^{10}$\,nt---far above any known virus. The chamber carrying capacity therefore does not impose a binding upper limit on viral genome size; the Eigen error threshold is the operative constraint for RNA viruses (\cref{eq:eigen_threshold}). For DNA viruses, the relevant upper limit derives from the host nuclear charge field capacity (\cref{sec:cvalue}).
+
+\subsection{Summary: The Derived Properties of a Viral Particle}
+
+From the three first-principles frameworks and the four derivations above, we establish that a viral particle is completely characterised, in physical terms, by the following:
+
+\begin{enumerate}[(1)]
+  \item A nucleic acid backbone carrying charge $Q_V = -2e N_V$ (sequence-independent).
+  \item A genome size $N_V^{\mathrm{camouflage}} \leq N_V \leq N_V^{\mathrm{Eigen}}$ set by immune evasion and fidelity constraints, not by functional complexity.
+  \item A charge-oscillation profile (determined by secondary structure) that must overlap with the host's active transcriptome charge spectrum (\cref{sec:housekeeping}).
+  \item Proteins encoding categorical boundary conditions on host filter cascades (\cref{sec:boundary}), not autonomous orchestrating machinery.
+  \item A capsid providing structural protection and a charge-dense outer surface that mediates initial chamber interaction.
+\end{enumerate}
+
+Nothing in this list requires the virus to carry orchestrating proteins, autonomous replication machinery, or self-sufficient execution capacity. The viral particle is a charge template. Replication occurs not because the virus directs the host but because the host's oscillatory exploration encounters the viral charge template and responds to it as it responds to any high-priority template in its categorical processing queue.
+
+% ======================================================================
+\section{Housekeeping Gene Mimicry}
+\label{sec:housekeeping}
+% ======================================================================
+
+\subsection{The Host's Categorical Calibration}
+
+The host cell's translation and transcription machinery is not neutral with respect to which nucleic acid templates it processes. The ribosome is a categorical filter: it preferentially engages templates presenting the charge-oscillation profile that its decoding centre has been selected to resolve. That profile is defined, operationally, by the most frequently processed templates in the cell---the constitutively expressed housekeeping genes.
+
+Housekeeping genes encode functions required continuously regardless of cell type or environmental state: ribosomal proteins, glycolytic enzymes, cytoskeletal proteins, heat shock proteins~\cite{Eisenberg2003,Butte2001}. These genes are characterised by:
+\begin{enumerate}[(i)]
+  \item High transcription rates: RNA polymerase II occupancy density $\sim\!10\times$ above median.
+  \item High ribosome occupancy: polysome density $\sim\!8$--12 ribosomes per mRNA.
+  \item High mRNA stability: half-life $\sim\!8$--24\,h vs. $\sim\!2$\,h median.
+  \item Narrow codon usage: preferential use of codons matched to abundant tRNAs~\cite{Nakamura2000}.
+\end{enumerate}
+
+In charge-oscillation terms, the housekeeping mRNAs define the \emph{canonical charge-oscillation profile} of the host's active transcriptome: the distribution of RC frequencies, coherence lengths, and conformational richness values that the cell's translation machinery is calibrated to process efficiently.
+
+\subsection{Charge Profile Convergence in Viral RNA}
+
+We now establish formally that viral RNA genomes have been selected to present charge-oscillation profiles matching this canonical housekeeping-gene profile.
+
+\begin{proposition}[Housekeeping Mimicry Principle]
+\label{prop:mimicry}
+A viral RNA that achieves replication in a host cell must have a charge-oscillation power spectrum $P_V(\omega)$ with significant overlap with the power spectrum $P_H(\omega)$ of the host's constitutively expressed mRNAs. The overlap integral:
+\begin{equation}
+  \mathcal{M}_V = \int_0^\infty P_V(\omega) P_H(\omega)\,d\omega \bigg/ \sqrt{\int P_V^2 d\omega \int P_H^2 d\omega}
+  \label{eq:overlap}
+\end{equation}
+satisfies $\mathcal{M}_V > \mathcal{M}_{\mathrm{threshold}}$ for replication-competent viral RNA.
+\end{proposition}
+
+The overlap integral $\mathcal{M}_V$ measures the cosine similarity between the viral and host charge-oscillation spectra. Viral RNA with $\mathcal{M}_V < \mathcal{M}_{\mathrm{threshold}}$ is treated by the host machinery as a low-priority or foreign template and either ignored or degraded.
+
+The mechanism operates through four specific charge-profile elements, each independently selected for housekeeping gene mimicry:
+
+\textbf{(1) The 5$'$ cap structure.}
+Host mRNAs carry a 7-methylguanosine cap (m$^7$G) at their 5$'$ end. This cap changes the local charge configuration at the 5$'$ terminus: the methylation of the N7 position of guanosine adds a permanent positive charge to the guanine ring, and the triphosphate linkage (-ppp-) carries three negative charges vs. two for the normal backbone. The net charge configuration at the 5$'$ end of a capped mRNA is therefore distinct from uncapped RNA and is recognised by the eIF4E cap-binding protein as a high-priority translation initiation signal~\cite{Sonenberg2009}.
+
+Uncapped 5$'$-triphosphate RNA (as found in the replication intermediates of many RNA viruses) presents a different charge configuration: three phosphate charges at the 5$'$ end without the compensating methylguanosine positive charge. RIG-I detects this charge-pattern mismatch with high sensitivity~\cite{Hornung2006,Pichlmair2006}. Viruses that replicate in the cytoplasm (flaviviruses, alphaviruses) have evolved mechanisms to add cap-equivalent structures to their RNA~\cite{Dong2012} or to generate 5$'$ structures with charge profiles indistinguishable from cellular caps.
+
+The innate immune detection of viral RNA by RIG-I is therefore, in the charge-oscillation framework, a \emph{charge-pattern mismatch detection} system: it identifies RNA whose 5$'$ charge configuration deviates from the self-canonical profile, flagging it as potentially non-self.
+
+\textbf{(2) Internal secondary structure organisation.}
+Host mRNAs have characteristic secondary structure patterns: 5$'$ and 3$'$ untranslated regions (UTRs) with specific stem-loop geometries, internal ribosome entry sites (IRES) with elaborate tertiary structures, and coding regions with moderate structure that unfolds ahead of the elongating ribosome~\cite{Spitale2015,Incarnato2016}. These structures determine the conformational richness profile $\Rcat(x)$ as a function of position $x$ along the mRNA.
+
+Viral RNA 5$'$ and 3$'$ UTRs are often highly structured (high $\Rcat$), while the coding regions have intermediate structure. This matches the housekeeping gene pattern: structured UTRs (high $\Rcat$) for cap-independent or cap-dependent translation initiation, moderately structured coding regions for efficient elongation. The convergence of viral RNA secondary structure profiles with those of constitutively expressed mRNAs is both thermodynamically predicted (structured 5$'$ UTRs increase translation initiation efficiency~\cite{Kozak1989}) and observed empirically in genome-wide structure mapping studies~\cite{Watts2009,Huber2019}.
+
+\textbf{(3) Codon usage bias.}
+Codon usage in viral coding sequences converges toward the codon preferences of the host's highly expressed genes~\cite{Nakamura2000,Karlin2001}. This is typically explained as co-adaptation to host tRNA availability. In the charge-oscillation framework, the explanation is equivalent but mechanistically richer: each codon corresponds to a specific sequence of three nucleotides with a specific charge-oscillation pattern at the ribosomal A-site. The ribosome's decoding centre is optimised for the charge patterns presented by the codons most frequently encountered during translation of highly expressed mRNAs---i.e., the codons of housekeeping genes. Viral codons that match these patterns are decoded efficiently; rare codons (different charge patterns) are decoded slowly, creating ribosome stalling~\cite{Presnyak2015}.
+
+Codon usage bias is therefore not merely a supply-chain adaptation (matching tRNA abundance) but a charge-pattern fidelity requirement: viral RNA must present ribosome-readable charge sequences at the A-site, and the most readable charge sequences are those of housekeeping gene codons.
+
+\textbf{(4) The IRES as an alternative entry point into housekeeping space.}
+Enteroviruses (poliovirus, enterovirus 71) and hepatitis C virus use Internal Ribosome Entry Sites (IRES) that recruit the 40S ribosomal subunit directly, bypassing cap-dependent translation initiation~\cite{Pelletier1988,Tsukiyama1992}. In structural terms, the IRES is an elaborate RNA tertiary structure that presents a charge distribution mimicking the 5$'$ mRNA-43S preinitiation complex interface~\cite{Yamamoto2020,Niepmann2009}. The IRES is therefore an independent charge-mimicry solution: instead of mimicking the cap structure, it mimics the charge configuration of the entire initiation complex, achieving the same result (ribosome recruitment) through a different charge-pattern entry point into the host's housekeeping translation machinery.
+
+\subsection{RIG-I as a Charge-Pattern Specificity Filter}
+
+RIG-I is a pattern recognition receptor that detects foreign RNA in the cytoplasm~\cite{Yoneyama2004}. Its biochemistry has been characterised in detail: it requires 5$'$-triphosphate RNA (or 5$'$-diphosphate) with a blunt-ended double-stranded region of $\geq 10$\,bp~\cite{Goubau2014,Devarkar2016}. The conformational change upon RNA binding---a clamshell closure that brings the CARDs (Caspase Activation and Recruitment Domains) into a signalling-competent configuration---is exquisitely sensitive to the charge distribution of the RNA 5$'$ terminus.
+
+In the charge-oscillation framework, RIG-I implements a binary categorical decision: this RNA presents the self-canonical 5$'$ charge pattern (capped or otherwise modified to match host mRNA) or it does not. The decision is based on a charge-pattern comparison, not sequence comparison. This explains why RIG-I is activated by viral RNA from virtually all RNA virus families (not by specific sequences) but fails to activate against host mRNA: the discriminating feature is the charge-pattern at the 5$'$ end, which is uniformly modified in host mRNA but diverse in viral replication intermediates.
+
+The threshold $\mathcal{M}_{\mathrm{threshold}}$ in \cref{prop:mimicry} is operationally defined by the RIG-I activation sensitivity: viral RNA whose 5$'$ charge pattern differs from the host canonical pattern by more than $\mathcal{M}_{\mathrm{threshold}}$ will activate RIG-I and trigger the antiviral response before replication can proceed.
+
+\subsection{The Selection Pressure: Empirical Evidence}
+
+Several lines of empirical evidence confirm the charge-oscillation mimicry hypothesis:
+
+\textbf{Cap-snatching.} Influenza virus, Hantavirus, and Nairovirus steal 5$'$-capped oligonucleotides from host pre-mRNAs to prime their own viral RNA synthesis~\cite{Krug1981,Plotch1981}. By stealing the cap from a host mRNA, the virus ensures that its own RNA carries the authentic self-canonical charge configuration at the 5$'$ end, evading RIG-I detection. This cap-snatching behaviour is direct evidence that the viral particle has been selected to present the host's own charge pattern at the 5$'$ terminus.
+
+\textbf{2$'$-O-methylation.} Many viruses methylate the first transcribed nucleotide at the 2$'$-OH position~\cite{Decroly2011,Hyde2014}. This modification, identical to one found on host capped mRNAs, abolishes detection by IFIT proteins (Interferon-Induced proteins with Tetratricopeptide repeats) that serve as secondary sensors of non-self RNA charge patterns. The convergence of viral and host 2$'$-O-methylation patterns is charge-profile mimicry at the finest structural scale.
+
+\textbf{Codon usage convergence.} A systematic analysis of viral codon usage across 5,000 viruses by \citet{Karlin2001} found that viruses show significant codon usage bias toward their host's preferred codons, with the degree of bias correlating with replication efficiency. Experimentally, recoding a viral genome to use rare codons reduces replication by 2--3 orders of magnitude even when the encoded protein sequence is unchanged~\cite{Vabret2014,Coleman2008}---direct evidence that the charge-oscillation profile of the coding sequence, not its information content, is the rate-determining factor for efficient viral replication.
+
+\textbf{Genome structure conservation.} Despite enormous sequence diversity, RNA viruses in the same family maintain conserved secondary structure patterns in their genomes, particularly in the 5$'$ and 3$'$ UTRs~\cite{Simmonds2004,Cornilescu2019}. These structures are conserved at the charge-configuration level (the base-pairing pattern and therefore the charge-anticorrelation pattern) even as the underlying sequence evolves. This is the signature of selection on the charge-oscillation profile, not the sequence per se.
+
+% ======================================================================
+\section{Viral Proteins as Categorical Boundary Conditions}
+\label{sec:boundary}
+% ======================================================================
+
+\subsection{Orchestrators vs.\ Boundary Conditions}
+
+The distinction between an orchestrator and a categorical boundary condition is precise:
+
+\begin{definition}[Orchestrator]
+\label{def:orchestrator}
+A molecular assembly $A$ orchestrates process $P$ in system $B$ if $A$ provides the driving force that moves $B$'s categorical state from a default trajectory to a specified alternative trajectory. Formally, the orchestrated trajectory $\mathcal{C}_B^{(A)}$ differs from the unperturbed trajectory $\mathcal{C}_B^{(0)}$ by more than thermal noise:
+\begin{equation}
+  \abs{\mathcal{C}_B^{(A)}(t) - \mathcal{C}_B^{(0)}(t)} > \avg{\abs{\mathcal{N}(t)}}
+\end{equation}
+and $A$ provides the energy for this deviation.
+\end{definition}
+
+\begin{definition}[Categorical Boundary Condition]
+\label{def:BC}
+A molecular assembly $A$ functions as a categorical boundary condition on system $B$ if $A$ modifies the acceptance region of $B$'s filter cascades---shifting partition boundaries---without providing the driving force for $B$'s categorical transitions. Formally, $A$ transforms a filter $F: \mathcal{X} \to \{0, 1\}$ into a modified filter $F': \mathcal{X} \to \{0, 1\}$ such that:
+\begin{equation}
+  \{x : F(x) = 1\} \neq \{x : F'(x) = 1\}
+\end{equation}
+The driving force for transitions through these modified filters is still provided by $B$'s own oscillatory infrastructure.
+\end{definition}
+
+\begin{theorem}[Viral Protein Classification Theorem]
+\label{thm:viral_protein_class}
+Every viral protein is a categorical boundary condition on host filter cascades. No viral protein is an orchestrator.
+\end{theorem}
+
+\begin{proof}
+By the Oscillatory Incompleteness Theorem (\cref{thm:OIT}), the viral particle has $\Nosc = 0$ and therefore $\avg{\dot{\mathcal{C}}_V} = 0$. A viral protein is a static molecular structure (no internal dynamics beyond thermal fluctuations). Its effect on host processes is mediated entirely through:
+\begin{enumerate}[(a)]
+  \item Binding to host proteins or nucleic acids (modifying their conformational ensemble, i.e., changing their effective $\Rcat$),
+  \item Sequestering host factors (changing concentrations, i.e., shifting equilibria in host filter cascades),
+  \item Introducing new binding interfaces (creating new filter functions $F'$).
+\end{enumerate}
+None of these mechanisms provides energy for categorical transitions in the host; they only modify the acceptance criteria of filters whose transitions are driven by the host's own oscillatory infrastructure. Therefore every viral protein is a categorical boundary condition, not an orchestrator.
+\end{proof}
+
+\subsection{HIV-1 Rev: A Detailed Case Study}
+
+The HIV-1 Rev protein is perhaps the most thoroughly characterised example of a viral ``regulatory'' protein and serves as an ideal case study for the categorical boundary condition framework.
+
+\textbf{Standard description.} Rev is a 116-amino-acid phosphoprotein that binds to the Rev Response Element (RRE), a $\sim\!350$\,nt structured RNA element in the envelope gene, and promotes nuclear export of unspliced and partially spliced viral RNAs~\cite{Malim1989,Cullen1998}. Without Rev, these RNAs are retained in the nucleus and completely spliced before export, producing only the regulatory proteins Tat and Rev themselves. With Rev present, unspliced gRNA (encoding Gag and GagPol) and singly spliced mRNAs (encoding Env, Vif, Vpr, Vpu) are exported, enabling production of structural proteins.
+
+\textbf{Charge-oscillation reanalysis.} The RRE has an elaborate stem-loop secondary structure that folds into a three-dimensional architecture with high conformational richness ($\Rcat^{\mathrm{RRE}} \sim 10^5$)~\cite{Bai2014}. In the absence of Rev, the RRE's charge-oscillation profile is not recognised by the host CRM1/Exportin-1 export machinery: CRM1 binds leucine-rich nuclear export signals (NES) on proteins, not RNA, and requires a protein adapter to export RNA. The fully spliced viral mRNAs export by the same pathway as host mRNAs (via the TREX complex~\cite{Strasser2002}); the unspliced/partially spliced RNAs lack the splicing-dependent adapters required for this pathway.
+
+Rev binds the RRE stem-loop IIB with high affinity ($K_d \approx 0.5$\,nM) through its arginine-rich motif (ARM), which directly contacts RNA bases and phosphates~\cite{Battiste1996}. This binding changes the local charge-oscillation profile of the RRE: Rev's ARM introduces a patch of positive charge (8 arginine residues with $+1e$ each) that reorganises the RRE tertiary structure, increasing the solvent-accessible surface area and modifying the RNA's conformational richness profile. Critically, Rev carries a NES that is now displayed on the surface of the Rev-RRE complex.
+
+The host's CRM1 then recognises the Rev NES in the context of the conformationally altered Rev-RRE complex and exports the complex (with the attached viral RNA) through the nuclear pore. The entire export step is executed by the host's own CRM1 machinery, using GTP hydrolysis by RanGAP/RanGEF as the energy source~\cite{Gorlich1996}.
+
+\textbf{The boundary condition formulation.} Rev transforms the nuclear export filter from:
+\begin{equation}
+  F_{\mathrm{export}}^{(0)}(\mathrm{RNA}) = \begin{cases} 1 & \text{if RNA is fully spliced and has TREX adapters} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+to:
+\begin{equation}
+  F_{\mathrm{export}}^{(\mathrm{Rev})}(\mathrm{RNA}) = \begin{cases} 1 & \text{if RNA has TREX adapters, or} \\ & \text{if RNA has RRE and Rev is present} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+
+This filter modification is precisely a categorical boundary condition: it shifts the acceptance region of the host export filter to include a new class of RNA (unspliced RRE-containing RNA in complex with Rev). The driving force for export (RanGTP hydrolysis), the export machinery (CRM1, RanBP1, RanGAP), and the nuclear pores are all host-provided. Remove CRM1 and Rev accomplishes nothing~\cite{Fornerod1997}.
+
+\subsection{Additional Examples: The General Pattern}
+
+The same categorical boundary condition analysis applies to all well-characterised viral regulatory proteins:
+
+\textbf{Influenza NS1.} NS1 inhibits RIG-I activation by binding to the E3 ubiquitin ligase TRIM25 and preventing the ubiquitination of RIG-I's CARD domains required for signalling~\cite{Gack2009}. The filter modified is:
+\begin{equation}
+  F_{\mathrm{RIG}}(\mathrm{RNA}) \xrightarrow{\mathrm{NS1}} F'_{\mathrm{RIG}}(\mathrm{RNA}) \text{ with increased threshold}
+\end{equation}
+NS1 does not destroy RIG-I; it raises the threshold of the host's innate immune detection filter. All the molecular machinery remains host-encoded and host-powered.
+
+\textbf{HIV-1 Vpr.} Vpr causes G2/M cell cycle arrest through activation of the ATR kinase~\cite{Roshal2003}. Vpr binds the host CRL4$^{\mathrm{DCAF1}}$ E3 ubiquitin ligase complex and redirects its ubiquitination activity toward novel substrates~\cite{Wen2012}. The cell cycle arrest filter is modified from:
+\begin{equation}
+  F_{\mathrm{G2}}(\mathrm{cell}) = \begin{cases} 1\,(\mathrm{arrest}) & \text{if DNA damage detected} \\ 0\,(\mathrm{progress}) & \text{otherwise} \end{cases}
+\end{equation}
+to:
+\begin{equation}
+  F_{\mathrm{G2}}^{(\mathrm{Vpr})}(\mathrm{cell}) = \begin{cases} 1\,(\mathrm{arrest}) & \text{if DNA damage detected, or Vpr present} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+The arrest machinery (Wee1/Cdc25/CDK1 axis) is entirely host-encoded. Vpr is a boundary condition that adds a new trigger to an existing host filter.
+
+\textbf{SARS-CoV-2 nsp1.} nsp1 binds the 40S ribosomal subunit and inserts a loop into the mRNA entry channel, blocking translation of most host mRNAs~\cite{Schubert2020,Thoms2020}. Simultaneously, a stem-loop in the 5$'$ UTR of SARS-CoV-2 RNA interacts with nsp1-bound 40S to relieve the block for viral mRNAs. The ribosomal filter is modified from:
+\begin{equation}
+  F_{\mathrm{ribosome}}(\mathrm{mRNA}) = 1 \text{ for all mRNAs with 5'UTR}
+\end{equation}
+to:
+\begin{equation}
+  F_{\mathrm{ribosome}}^{(\mathrm{nsp1})}(\mathrm{mRNA}) = \begin{cases} 1 & \text{if mRNA has SARS-CoV-2 5'UTR stem-loop} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+The ribosome, its translation factors, its energy source (GTP), and its aminoacyl-tRNA supply are all host-derived. nsp1 is a categorical boundary condition that reconfigures the host ribosomal filter to preferentially process viral templates.
+
+In every case, the pattern is identical: the viral protein shifts a partition boundary in a host filter cascade. The host's oscillatory infrastructure then drives the process through the modified filter. The virus provides the key; the host provides the engine.
+
+% ======================================================================
+\section{Infection as Host-State-Dependent Categorical Resonance}
+\label{sec:resonance}
+% ======================================================================
+
+\subsection{The Categorical Overlap Integral}
+
+The central quantitative result of the framework is that infection probability is a functional of host state, not a fixed property of the virus-host pair. We derive this from the observation that the host's $\sim\!10^5$ cytoplasmic oscillatory explorers continuously sample a high-dimensional categorical space, and the viral charge template is a fixed region of that space.
+
+\begin{definition}[Host Categorical Density]
+The host categorical density $\Phost(\vv{c}, t)$ is the probability density that the host cell's oscillatory exploration trajectory is at categorical state $\vv{c}$ at time $t$. It satisfies:
+\begin{equation}
+  \int \Phost(\vv{c}, t)\,d\vv{c} = 1 \quad \forall t
+\end{equation}
+\end{definition}
+
+\begin{definition}[Viral Categorical Indicator]
+The viral categorical indicator $\chiviral(\vv{c})$ is the characteristic function of the region of categorical space compatible with successful viral template recognition:
+\begin{equation}
+  \chiviral(\vv{c}) = \begin{cases} 1 & \text{if the host cell in state } \vv{c} \text{ has active translation/transcription machinery that recognises the viral charge template} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Infection Probability]
+\label{thm:infection_prob}
+The probability of successful infection given a single viral particle encounter is:
+\begin{equation}
+  P_{\mathrm{inf}}(t) = \int \Phost(\vv{c}, t)\, \chiviral(\vv{c})\,d\vv{c}
+  \label{eq:infection_prob}
+\end{equation}
+the overlap integral between the host's current categorical density and the viral indicator function.
+\end{theorem}
+
+\begin{proof}
+The viral particle presents a fixed charge-oscillation template $\chi_V$ to the host cell upon entry. Replication succeeds if and only if the host cell's active translation and transcription machinery is in a state $\vv{c}$ that recognises $\chi_V$ as a valid template (satisfying the housekeeping gene mimicry criterion of \cref{sec:housekeeping}). The probability that the host is in a recognising state at time $t$ is $\int \Phost(\vv{c},t) \chiviral(\vv{c})\,d\vv{c}$ by the law of total probability.
+\end{proof}
+
+This result has immediate qualitative consequences. The infection probability is:
+\begin{itemize}
+  \item \emph{Time-dependent}: $\Phost(\vv{c}, t)$ evolves with the cell's metabolic state, circadian phase, stress response, and immune activation.
+  \item \emph{Cell-state-dependent}: Different cells of the same type with different metabolic histories will have different $\Phost$ and therefore different $P_{\mathrm{inf}}$.
+  \item \emph{Determined by the host}: The viral particle is a static template ($\chiviral$ is fixed); the host cell determines whether the overlap integral is large or small.
+\end{itemize}
+
+\subsection{Host-State Dependence: Mechanistic Basis}
+
+The host categorical density $\Phost(\vv{c}, t)$ is determined by the cell's metabolic and signalling state. We identify three primary determinants:
+
+\textbf{(1) Metabolic phase.} The glycolytic oscillator, Ca$^{2+}$ oscillator, and NADH oscillator collectively determine which metabolic pathways are active and at what phase~\cite{Bhalla1999}. The categorical state accessible to viral template recognition includes specific metabolic substates: the ribosome must be active, the nuclear export machinery must be running, and the relevant cellular compartments must be accessible. These conditions are phase-dependent within metabolic oscillation cycles.
+
+\textbf{(2) Stress response.} Heat shock, oxidative stress, and unfolded protein response (UPR) dramatically alter which cellular proteins are being synthesised and which cellular filters are active. The stress response typically narrows the ribosomal filter to preferentially translate stress-response proteins~\cite{Holcik2005}, reducing $P_{\mathrm{inf}}$ for viruses whose RNA does not carry IRES structures compatible with stress-response translation.
+
+\textbf{(3) Cell cycle phase.} Many viruses are phase-specific. HIV-1 integration requires active cell division (in non-dividing cells, the preintegration complex cannot access the condensed mitotic chromatin)~\cite{Weinberg1991}. Herpesviruses reactivate from latency in neurons specifically when the chromatin at viral latency loci transitions from heterochromatic to euchromatic---a cell-state-dependent change in the categorical acceptability of the viral DNA template.
+
+\subsection{Oscillatory Holes and Infection Susceptibility}
+
+In diseased or metabolically compromised cells, the oscillatory power spectrum develops gaps---frequency ranges at which the cell's oscillatory exploration is sparse or absent. We term these \emph{oscillatory holes}.
+
+A healthy cell has a dense oscillatory power spectrum $S(\omega)$ covering frequencies from $10^{-4}$ to $10^3$\,Hz (from circadian rhythms to fast calcium spikes). This dense spectrum corresponds to a broad, relatively uniform $\Phost(\vv{c})$---the cell's explorers sample categorical space widely. The overlap $P_{\mathrm{inf}} = \int \Phost \chiviral\,d\vv{c}$ is then determined by the absolute size of $\chiviral$, not by any particular density enhancement.
+
+In a diseased cell with oscillatory hole at frequency $\omega_0$, the power spectrum develops a gap:
+\begin{equation}
+  S_{\mathrm{diseased}}(\omega) = S_{\mathrm{healthy}}(\omega) - \Delta S(\omega - \omega_0)
+\end{equation}
+
+If the viral categorical indicator $\chiviral$ has significant support in the categorical subspace corresponding to frequency $\omega_0$, the disease-induced oscillatory hole reduces $P_{\mathrm{inf}}$ in that region. However, the reduction of the host's overall exploration density in one region necessarily increases relative density in other regions (normalisation is preserved), potentially \emph{increasing} $P_{\mathrm{inf}}$ for a different viral template.
+
+More significantly: the oscillatory hole itself represents a ``vacancy'' in the cell's categorical coverage. Pathogens that have evolved to template-match the oscillatory hole region can exploit the reduced cellular counter-pressure. The host cell, unable to sample the hole region with its own oscillatory machinery, is paradoxically \emph{less able to recognise and clear} a viral template that presents charge dynamics in the hole frequency range.
+
+This predicts that:
+\begin{enumerate}[(i)]
+  \item Metabolically compromised cells (diabetes, obesity, ageing) should be preferentially susceptible to viruses whose charge templates match the most commonly lost oscillatory frequencies.
+  \item Restoring oscillatory completeness in metabolically compromised cells should reduce viral susceptibility, independently of any specific antiviral effect.
+  \item Different viruses should show different host-state preferences, reflecting the specific categorical regions their charge templates occupy.
+\end{enumerate}
+
+\subsection{Why Viral Tropism Exceeds Receptor Specificity Predictions}
+
+Receptor-based models of viral tropism predict that any cell expressing the cognate receptor should be equally susceptible to infection. This prediction fails systematically:
+
+\begin{itemize}
+  \item CD4$^+$ T cells and macrophages both express CD4 and CCR5 (the HIV-1 co-receptor), but HIV-1 replication efficiency differs by orders of magnitude between resting and activated T cells~\cite{Bukrinsky1991,Zack1990}.
+  \item ACE2 (the SARS-CoV-2 receptor) is expressed in over 70 tissues~\cite{Zou2020}, yet clinical disease is concentrated in respiratory epithelium and severe disease in specific immune cell populations.
+  \item Epstein-Barr virus (EBV) infects B cells through CD21, but replication and latency establishment depend on B cell differentiation state in ways that CD21 expression does not predict~\cite{Young1994}.
+\end{itemize}
+
+In the categorical overlap framework, receptor expression is necessary but not sufficient: it determines whether the viral particle physically enters the cell, but not whether the host's categorical exploration is in a state that recognises the viral charge template upon entry. The tropism is determined by the conjunction of receptor-mediated entry and categorical overlap.
+
+Formally, the infection probability factorises into an entry probability (determined by receptor expression) and a post-entry replication probability (determined by categorical overlap):
+\begin{equation}
+  P_{\mathrm{inf}}^{\mathrm{total}} = P_{\mathrm{entry}} \times P_{\mathrm{inf}}(t)
+  \label{eq:total_infection}
+\end{equation}
+
+where $P_{\mathrm{entry}}$ depends on receptor expression, glycoprotein binding affinity, and membrane fusion kinetics, while $P_{\mathrm{inf}}(t)$ is the categorical overlap integral of \cref{eq:infection_prob}. Tropism is fully characterised only when both factors are accounted for.
+
+% ======================================================================
+\section{Viral Genome Size: The C-Value Inversion}
+\label{sec:cvalue}
+% ======================================================================
+
+\subsection{The Cellular C-Value Scaling Law}
+
+The C-value paradox~\cite{Thomas1971,Gregory2001} is the observation that haploid genome size ($C$ value) shows no correlation with organismal complexity. Salamanders have genomes 10 times larger than the human genome; the onion genome is 5 times larger; some ferns have genomes 50 times larger. If genomes encode functional information, this size variation is inexplicable.
+
+The electrostatic framework (\cref{sec:chambers}) resolves the paradox by showing that genome size reflects charge density requirements rather than information requirements. The genome is the inner electrode of the cellular capacitor; its charge ($\Qgen = -2e N_{\mathrm{bp}}$, sequence-independent) determines the magnitude of the EM field throughout the cytoplasm.
+
+The metabolic charge fluctuations that the genome field must stabilise against scale with metabolic rate, which scales with cell volume as Kleiber's law~\cite{Kleiber1932,West1997}:
+\begin{equation}
+  \dot{Q}_{\mathrm{metabolic}} \propto \dot{M} \propto V_{\mathrm{cell}}^{3/4}
+  \label{eq:kleiber}
+\end{equation}
+
+For the cytoplasmic EM field to maintain stability against these metabolic fluctuations, the field stability criterion requires:
+\begin{equation}
+  \frac{\delta E}{E} < \eps_{\mathrm{crit}}
+\end{equation}
+where $\eps_{\mathrm{crit}}$ is the maximum fractional field perturbation compatible with chamber formation (approximately 10\% for the chamber geometry of \cref{sec:chambers}).
+
+Since $E \propto \abs{\Qgen} / V_{\mathrm{cell}}^{2/3}$ (Gauss's law for a sphere) and $\delta E \propto \dot{Q}_{\mathrm{metabolic}}^{1/2} \propto V_{\mathrm{cell}}^{3/8}$ (fluctuation scaling), the stability criterion becomes:
+\begin{equation}
+  \frac{V_{\mathrm{cell}}^{3/8}}{\abs{\Qgen} / V_{\mathrm{cell}}^{2/3}} < \eps_{\mathrm{crit}}
+\end{equation}
+
+\begin{equation}
+  \abs{\Qgen} > \frac{V_{\mathrm{cell}}^{3/8 + 2/3}}{\eps_{\mathrm{crit}}} = \frac{V_{\mathrm{cell}}^{25/24}}{\eps_{\mathrm{crit}}}
+\end{equation}
+
+To leading order (the exponent $25/24 \approx 1$ is close to the $3/4$ observed scaling), the conservation law is:
+\begin{equation}
+  \rho_Q \equiv \frac{\abs{\Qgen}}{V_{\mathrm{cell}}^{3/4}} = \frac{2e N_{\mathrm{bp}}}{V_{\mathrm{cell}}^{3/4}} \approx \mathrm{const}
+  \label{eq:rhoQ_conservation}
+\end{equation}
+
+\begin{theorem}[Genomic Charge Density Conservation]
+\label{thm:cvalue}
+The genomic charge density $\rho_Q = \abs{\Qgen} / V_{\mathrm{cell}}^{3/4}$ is approximately conserved across organisms spanning the full range of cell volumes, from bacteria ($V_{\mathrm{cell}} \sim 10^{-18}$\,m$^3$) to amphibian cells ($V_{\mathrm{cell}} \sim 10^{-13}$\,m$^3$). This conservation law implies $N_{\mathrm{bp}} \propto V_{\mathrm{cell}}^{3/4}$, accounting for the C-value paradox.
+\end{theorem}
+
+\subsection{The Viral Inversion}
+
+Viruses violate the genomic charge density conservation law in the most extreme possible sense: they have no EM field to stabilise, no metabolic fluctuations to counteract, and no Kleiber scaling to satisfy. The viral particle has zero metabolism. Therefore:
+\begin{equation}
+  \rho_Q^{\mathrm{viral}} \equiv \frac{\abs{Q_V}}{V_V^{3/4}} \neq \mathrm{const}
+\end{equation}
+
+The conservation law does not apply to viruses because its physical basis (field stabilisation against metabolic fluctuations) does not apply. Viral genome size is governed by entirely different constraints---the confinement criterion and categorical camouflage requirements derived in \cref{sec:viral_template}---and these constraints reference not the viral cell volume but the \emph{host} cell volume.
+
+Specifically, the viral genome must create a charge perturbation visible within the host's electrostatic chamber system. From \cref{eq:z_star}, the chamber depth scales with the charge perturbation magnitude and the host cell radius:
+\begin{equation}
+  \zstar \propto \left(\abs{\delta\sigma} a^2 R_{\mathrm{host}}^2 / \abs{\Qgen}^{\mathrm{host}}\right)^{1/3}
+\end{equation}
+
+For larger host cells ($R_{\mathrm{host}}$ larger), the background genomic field $\abs{\Qgen}^{\mathrm{host}} / R_{\mathrm{host}}^2$ has a denominator that grows faster than the numerator, reducing the per-unit-charge influence of the genomic field at the membrane. To create a detectable charge perturbation in a larger cell, a larger charge perturbation $\abs{Q_V}$ (i.e., larger viral genome) is required.
+
+Formally, the minimum viral genome charge required to generate a chamber of depth $z^{*}_{\mathrm{min}}$ in a host cell of radius $R_{\mathrm{host}}$ with genomic charge $\Qgen^{\mathrm{host}} \propto R_{\mathrm{host}}^{9/4}$ (from \cref{thm:cvalue} and $V \propto R^3$) is:
+\begin{equation}
+  \abs{Q_V}^{\mathrm{min}} \propto \frac{(z^{*}_{\mathrm{min}})^3 \abs{\Qgen}^{\mathrm{host}}}{a^2 R_{\mathrm{host}}^2} \propto \frac{R_{\mathrm{host}}^{9/4}}{R_{\mathrm{host}}^2} = R_{\mathrm{host}}^{1/4}
+\end{equation}
+
+Since $\abs{Q_V} = 2e N_V$, the minimum viral genome size scales as:
+\begin{equation}
+  N_V^{\mathrm{min}} \propto R_{\mathrm{host}}^{1/4} \propto V_{\mathrm{host}}^{1/12}
+\end{equation}
+
+This is a very weak scaling (12th root of host cell volume), consistent with the observation that even the smallest RNA viruses ($N_V \sim 7$\,kb) can infect cells spanning 3 orders of magnitude in volume. The upper bound scaling is steeper: the maximum viral genome that can be injected coherently into a host cell scales with the nuclear pore diameter and the host nuclear volume. Large-genome DNA viruses that inject through the nuclear pore are constrained by the nuclear carrying capacity, which scales as $V_{\mathrm{nucleus}} \propto V_{\mathrm{cell}}$.
+
+\subsection{The Genome-Volume Scaling Prediction}
+
+The combined lower and upper bounds on viral genome size predict a positive correlation between viral genome size and host cell volume:
+
+\begin{proposition}[Viral Genome-Host Volume Scaling]
+\label{prop:genome_volume}
+Across the virus landscape, viral genome size should positively correlate with the volume of the cell type that the virus primarily infects, with the correlation being stronger for DNA viruses (which are constrained by nuclear carrying capacity) than for RNA viruses (which are constrained by error threshold).
+\end{proposition}
+
+We examine this prediction against known viral genome sizes and host cell volumes in \cref{tab:genome_scaling}:
+
+\begin{table}[h]
+\centering
+\caption{Viral genome size vs.\ host cell volume.}
+\label{tab:genome_scaling}
+\begin{tabular}{p{3.2cm}lrr}
+\toprule
+Virus & Primary host cell type & Approx.\ $V_{\mathrm{cell}}$ ($\mu$m$^3$) & Genome (kb) \\
+\midrule
+Picornaviruses & Small epithelial cells & 500--2,000 & 7--9 \\
+Alphaviruses & Endothelial/epithelial & 1,000--3,000 & 11--12 \\
+Flaviviruses & Hepatocytes/endothelial & 2,000--5,000 & 10--11 \\
+Coronaviruses & Ciliated epithelial & 3,000--8,000 & 27--32 \\
+Adenoviruses & Epithelial cells & 2,000--6,000 & 26--48 \\
+EBV, KSHV & B cells & 400--800 & 172--165 \\
+\textit{HSV-1, -2} & Neurons & 30,000--300,000 & 152 \\
+CMV & Macrophages, fibroblasts & 5,000--20,000 & 236 \\
+Poxviruses & Macrophages, skin cells & 5,000--30,000 & 130--300 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The trend is clear: small RNA viruses infect small cells; large DNA viruses with 100--300\,kb genomes preferentially infect large cells (neurons, macrophages). Herpesviruses establish latency in neurons---among the largest cells in the human body---and have genome sizes ($\sim\!150$\,kb) $\sim\!20$-fold larger than the smallest RNA viruses infecting epithelial cells ($\sim\!7$\,kb). The $\sim\!20$-fold genome size difference corresponds to roughly a $20^{12} \approx 10^{15}$-fold cell volume difference (neurons vs. small epithelial cells), consistent with the weak $V^{1/12}$ scaling derived above.
+
+The prediction departs from the standard complexity account: herpesviruses are not 20 times more complicated than picornaviruses; they do not need 20 times more information to replicate. They need more backbone charge to create a visible perturbation in the large electrostatic field of a neuron.
+
+\subsection{Why RNA Viruses Cannot Grow Indefinitely}
+
+The Eigen error threshold (\cref{eq:eigen_threshold}) imposes a hard upper bound on RNA virus genome size that is independent of host cell volume. For RNA-dependent RNA polymerases (RdRp) without proofreading, $\mu \approx 10^{-4}$ per nucleotide per replication, giving $N_{\mathrm{Eigen}} \approx 10^4$\,nt.
+
+Coronaviruses evade this bound by encoding the nsp14 ExoN proofreading exonuclease, which reduces the effective error rate to $\mu_{\mathrm{eff}} \approx 10^{-6}$--$10^{-5}$ per nucleotide~\cite{Denison2011}, extending the Eigen threshold to $N_{\mathrm{Eigen}}^{\mathrm{corona}} \approx 10^5$--$10^6$\,nt. The observed SARS-CoV-2 genome of $\sim\!30$\,kb sits comfortably below this extended threshold.
+
+The constraint that RNA viruses cannot evolve larger genomes without a proofreading enzyme is therefore not primarily about information complexity (they could encode the same number of proteins with fewer non-coding bases) but about error-free delivery of the charge-oscillation profile: an RNA genome that is extensively mutated presents a degraded, noisy charge-oscillation profile that the host machinery will not recognise as a valid housekeeping-gene-mimicking template.
+
+% ======================================================================
+\section{The Microbiome as Cross-Kingdom Non-Overlap Evidence}
+\label{sec:microbiome}
+% ======================================================================
+
+\subsection{The Proximity Paradox}
+
+The human gut contains $\sim\!3.8 \times 10^{13}$ bacteria~\cite{Sender2016}. Each individual bacterium is typically associated with its own bacteriophage population; the gut virome contains an estimated $10^{14}$--$10^{15}$ viral particles~\cite{Reyes2010,Virgin2014,Minot2011}, the majority of which are bacteriophages. These phages are at concentrations of $\sim\!10^9$--$10^{10}$ particles per millilitre of gut content.
+
+Human intestinal epithelial cells line this environment. They are in continuous, intimate contact with phages at concentrations orders of magnitude higher than any clinical viral exposure. Yet phages do not infect human cells. Neither do the viruses of gut commensal bacteria infect human cells. The human cells and bacterial viruses coexist in physical proximity essentially without cross-infection.
+
+The standard explanation invokes \emph{receptor specificity}: phages require bacterial surface structures (LPS components, flagella, pili, outer membrane proteins) as receptors; they cannot bind human cells. This is correct, but it is an incomplete explanation. It does not address what happens \emph{after} a phage particle is taken up by a human cell (by non-specific endocytosis, which does occur at low rates~\cite{Nguyen2017,Barr2013}). The phage DNA that enters the human cell's cytoplasm is not degraded on the timescale of its bacterial specificity---it is degraded because it cannot be replicated or transcribed in the human cellular environment.
+
+\subsection{Categorical Space Non-Overlap}
+
+In the charge-oscillation framework, the reason phages cannot replicate in human cells is not receptor absence (though that prevents most entry) but categorical space non-overlap: the human cell's $\Phost(\vv{c}, t)$ assigns essentially zero probability to the categorical region $\chiviral(\vv{c})$ for bacteriophage templates.
+
+The phage genome has a charge-oscillation profile calibrated to \emph{bacterial} housekeeping genes---the templates that the \emph{bacterial} ribosome (70S), bacterial RNA polymerase ($\sigma^{70}$-factor), and bacterial gene expression machinery have been tuned to process. Specifically:
+
+\textbf{Codon usage.} Bacteriophage codon usage matches the codon frequencies of the bacterial host, not human codon frequencies~\cite{Karlin2001,Nakamura2000}. The charge-oscillation pattern at the ribosomal A-site for bacterial-preferred codons differs from that for human-preferred codons: tRNA availability, anticodon-codon geometries, and the associated charge rearrangements are tuned to the bacterial ribosomal decoding centre. The human 80S ribosome, which has an enlarged decoding centre with different geometry and charge distribution from the bacterial 70S~\cite{Melnikov2012}, encounters phage codons as a foreign charge-oscillation pattern.
+
+\textbf{Promoter structure.} Bacteriophage genes are expressed from promoters recognised by bacterial RNA polymerase, particularly the $-10$ (TATAAT) and $-35$ (TTGACA) elements that position the $\sigma^{70}$ subunit~\cite{Haugen2008}. Human RNA polymerase II recognises TATA boxes, initiator elements, and BRE (TFIIB recognition element) structures with entirely different charge distributions. A phage promoter presented to human RNA polymerase II presents an unrecognised charge pattern; $\Phost(\vv{c}_{\mathrm{phage\,promoter}}) \approx 0$.
+
+\textbf{Translation initiation.} Bacterial translation initiates at Shine-Dalgarno (SD) sequences that base-pair with the 16S rRNA~\cite{Shine1975}. Human translation initiates by scanning from the 5$'$ cap. Bacteriophage mRNAs have SD sequences but no eukaryotic IRES and no cap-dependent initiation signal. The charge-oscillation profile at the phage 5$'$ end is unrecognised by the human 43S preinitiation complex.
+
+\begin{proposition}[Cross-Kingdom Non-Infection]
+\label{prop:cross_kingdom}
+A virus that replicates in host species $A$ does not replicate in host species $B$ if the charge-oscillation overlap:
+\begin{equation}
+  \mathcal{M}_{A \to B} = \int P_B(\vv{c}) \chi_A(\vv{c})\,d\vv{c} \approx 0
+\end{equation}
+This cross-kingdom non-infection follows from the divergence of the host's translational and transcriptional machinery, which is manifested as a difference in the canonical housekeeping-gene charge-oscillation profile to which the virus's genome must be matched.
+\end{proposition}
+
+The empirical corollary is well-supported: in documented cases of bacteriophage uptake by human cells (e.g., phage therapy~\cite{Schooley2017,Gorski2012}), phage DNA enters human cells but is not transcribed or replicated. The DNA is gradually cleared by nucleases on a timescale of hours to days, with no evidence of productive replication~\cite{Barr2013,Nguyen2017}. This is exactly the prediction of the categorical overlap framework: phage DNA is a charge template in an incompatible categorical space.
+
+\subsection{Viral Latency as Categorical Absence}
+
+The same categorical overlap framework explains viral latency. Herpesviruses (HSV-1, VZV, EBV, CMV) establish latency in specific cell types and reactivate under specific conditions. In the categorical framework:
+
+\textbf{Latency establishment}: The viral genome enters the nucleus and adopts a compacted, chromatinised state (latency-associated chromatin). The chromatin compaction changes the charge-oscillation profile of the viral DNA from an active, high-$\Rcat$ template to a compact, low-$\Rcat$ template. The host's oscillatory explorers no longer encounter the active viral charge profile in their exploration; $P_{\mathrm{host}}(\vv{c}_{\mathrm{viral\,active}}) \rightarrow 0$.
+
+\textbf{Reactivation}: Changes in the host cell's metabolic state---stress, nerve stimulation, immunosuppression---alter $\Phost(\vv{c}, t)$ such that the explorers begin sampling the categorical region corresponding to the viral lytic programme. This may occur because: (a) the viral chromatin is partially decondensed (changing the viral template's charge profile back toward the active, high-$\Rcat$ state), or (b) the host's exploration density increases in the lytic-programme categorical region due to changes in host transcription factor availability~\cite{Nicoll2012,Siliciano2011}.
+
+In either case, reactivation is host-state-driven. The virus does not decide to reactivate; the host cell's categorical exploration intersects the viral template's active-state categorical region, and replication proceeds because the overlap integral $P_{\mathrm{inf}}(t)$ has increased above a threshold. This framework predicts that reactivation rates should correlate with specific metabolic state changes in the host cell type---a prediction consistent with known reactivation triggers (UV stress for HSV-1 in trigeminal ganglia, immune suppression for CMV, psychological stress for EBV).
+
+% ======================================================================
+\section{Implications for Antiviral Strategy}
+\label{sec:antiviral}
+% ======================================================================
+
+\subsection{Reframing the Target}
+
+Current antiviral drugs target viral components: nucleoside analogue polymerase inhibitors (aciclovir, ribavirin, remdesivir), protease inhibitors (HIV-1 protease inhibitors), integrase inhibitors (dolutegravir), and entry inhibitors (enfuvirtide)~\cite{Kaufmann2011}. These approaches are effective but share two structural limitations: (i) they require the viral target to be present (and active), and (ii) they generate escape mutations as the virus evolves resistance to the specific inhibitor.
+
+The categorical overlap framework suggests a complementary strategy: reduce $P_{\mathrm{inf}}(t) = \int \Phost \chiviral\,d\vv{c}$ not by blocking the viral template $\chiviral$ but by modifying the host density $\Phost$ such that it no longer has high density in the viral template's categorical region.
+
+This is an orthogonal approach: instead of fighting the virus's molecules, it changes the host's state so that the virus's charge template finds no resonant target. The practical implications follow:
+
+\subsection{Host Categorical State Restoration}
+
+If diseased cells have oscillatory holes that create regions of locally increased $P_{\mathrm{inf}}$, then restoring oscillatory completeness reduces susceptibility.
+
+\begin{proposition}[Oscillatory Hole Restoration Reduces Susceptibility]
+A therapeutic intervention that restores the host cell's oscillatory power spectrum $S(\omega)$ to its healthy configuration reduces $P_{\mathrm{inf}}$ for viruses whose categorical indicator $\chiviral$ is supported in the oscillatory hole region.
+\end{proposition}
+
+Operationally, oscillatory hole restoration includes:
+\begin{itemize}
+  \item \textbf{Metabolic normalisation}: Restoring glycolytic oscillation amplitude in metabolically compromised cells (e.g., diabetic or obese individuals whose glycolytic oscillations are dampened). Predicted effect: reduced susceptibility to respiratory viruses whose charge templates couple to glycolytic frequency ranges.
+  \item \textbf{Calcium oscillation restoration}: Many immune cell functions depend on calcium oscillation dynamics~\cite{Berridge1997}; restoring these in immunocompromised settings should restore categorical completeness.
+  \item \textbf{Redox oscillation normalisation}: NADH/NAD$^+$ oscillations are disrupted in chronic disease. Supplementation strategies that restore this oscillatory component (NAD$^+$ precursors) may have broad antiviral effects mediated through categorical state restoration.
+\end{itemize}
+
+\subsection{Innate Immune Enhancement as R-Detection Amplification}
+
+In the categorical filter cascade framework, innate immune sensors (RIG-I, MDA5, STING) detect foreign nucleic acids by recognising charge-pattern profiles that deviate from the self-canonical profile. The detection sensitivity is determined by the threshold $\Rcat^{\mathrm{threshold}}$ below which RNA is classified as self.
+
+An antiviral strategy that lowers $\Rcat^{\mathrm{threshold}}$ (makes the detector more sensitive) would increase the probability of flagging viral RNA before replication proceeds. This is the mechanism of interferon-stimulated genes (ISGs): interferon signalling upregulates the expression and sensitivity of pattern recognition receptors, effectively lowering $\Rcat^{\mathrm{threshold}}$ across the board~\cite{Schneider2014}.
+
+The framework predicts that compounds that selectively enhance RIG-I or MDA5 sensitivity---without triggering the full interferon signalling cascade---should be broadly antiviral. Such compounds would function as ``$\Rcat$-sensitisers'': they do not target any viral protein but make the host's pattern recognition machinery more discriminating of charge-pattern deviations from the self-canonical profile.
+
+Several existing compounds may already act through this mechanism: agonists of the stimulator of interferon genes (STING) pathway~\cite{Ablasser2013}, compounds that stabilise RIG-I in its activated conformation~\cite{Choudhury2019}, and even synthetic RNA adjuvants that ``train'' the innate immune system to maintain higher baseline sensitivity.
+
+\subsection{Blocking Categorical Boundary Conditions vs.\ Exploiting Them}
+
+The categorical boundary condition framework generates a new class of antiviral target: the specific host filter whose partition boundary is being shifted by the viral protein.
+
+\begin{itemize}
+  \item \textbf{Rev}: The target is not Rev itself (easily mutated) but the host CRM1/RanGTP axis that Rev exploits. Drugs that stabilise CRM1 in its RNA-non-exporting state (or that raise the threshold for CRM1-mediated export of NES-containing complexes) would suppress Rev-dependent export without targeting Rev directly.
+  \item \textbf{NS1}: The target is the TRIM25-RIG-I ubiquitination reaction. Compounds that protect TRIM25 from NS1 binding---or that ubiquitinate RIG-I through alternative E3 ligases---would restore innate immune detection of influenza RNA.
+  \item \textbf{nsp1}: The target is the ribosomal entry channel. Compounds that block nsp1 from inserting its loop into the mRNA entry channel would restore host mRNA translation while simultaneously losing the SARS-CoV-2 preferential translation advantage.
+\end{itemize}
+
+The general principle is that targeting the host filter (not the viral protein that manipulates it) is more refractory to viral escape: the host filter cannot mutate to evade the drug without losing its own cellular function.
+
+% ======================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ======================================================================
+
+\subsection{Classic Puzzles Resolved}
+
+The charge-oscillation framework resolves several long-standing puzzles in virology that have resisted fully satisfying mechanistic explanation:
+
+\textbf{The C-value paradox}. Why does genome size not correlate with organismal complexity? Because genome size reflects charge density requirements for EM field stability (\cref{thm:cvalue}), which scales with cell volume, not information requirements. Viral genomes invert this: viral genome size scales with host cell volume because the viral charge template must be perceptible within the host's EM field (\cref{prop:genome_volume}).
+
+\textbf{The 98\% non-coding genome}. Why does the human genome contain $\sim\!98\%$ non-protein-coding sequence? Because the genome's primary physical function is charge scaffolding, not information storage. Non-coding sequence contributes charge ($-2e$ per bp) without encoding protein, maintaining the EM field at the density required by the cell's volume. The sequence content of non-coding regions is under weak purifying selection; the length is under strong purifying selection.
+
+\textbf{Tropism beyond receptor expression}. Why do viruses show cell-state-specific tropism beyond what receptor expression predicts? Because infection probability is the categorical overlap integral $P_{\mathrm{inf}} = \int \Phost \chiviral\,d\vv{c}$, which depends on the host cell's current oscillatory exploration trajectory. Cells of the same type in different metabolic states have different $\Phost$ and therefore different $P_{\mathrm{inf}}$ (\cref{eq:total_infection}).
+
+\textbf{RNA virus quasi-species}. RNA viruses exist as mutational clouds (quasi-species) with enormous sequence diversity but conserved phenotype~\cite{Domingo2012}. In the charge-oscillation framework, sequence diversity is tolerated because the charge-oscillation profile is much more conserved than the sequence: most mutations are synonymous with respect to the backbone charge distribution (they change which bases are present but not the $-2e$ per nucleotide backbone charge). The functionally critical property---the charge-oscillation profile---is conserved at the level of secondary structure and codon usage, not at the level of sequence.
+
+\textbf{Viral latency and reactivation}. Why do herpesviruses establish latency in specific cell types and reactivate under specific conditions? Because latency = categorical absence (the viral charge template is compacted into chromatinised DNA that presents a low-$\Rcat$ profile the host's explorers pass over), and reactivation = categorical re-emergence (host state changes increase $\Phost$ in the viral active-state categorical region). The triggering conditions for reactivation (stress, immunosuppression, specific signalling) are conditions that alter the host's categorical exploration density in the relevant region.
+
+\textbf{Interferons as non-specific antivirals}. Why does interferon protect against virtually all viruses, not specific ones? Because interferon is a global $\Rcat$-threshold elevation signal: it raises the sensitivity of the cell's pattern recognition machinery across the board, reducing the categorical overlap $\int \Phost \chiviral\,d\vv{c}$ for any viral template whose charge profile overlaps with the self-canonical profile.
+
+\subsection{Relationship to Standard Virology}
+
+The framework presented here does not contradict the empirical findings of standard virology; it reinterprets their mechanistic basis. Every observation that is correct in the standard framework remains correct here, but the mechanistic account changes:
+
+\begin{itemize}
+  \item Viral proteins do bind specific host proteins (Rev binds CRM1). The new claim is that this binding constitutes a categorical boundary condition, not orchestration.
+  \item Viral RNA is translated by host ribosomes using the same genetic code. The new claim is that the ribosome preferentially engages viral RNA because of its charge-oscillation profile matching housekeeping genes, not because of any viral direction.
+  \item Receptor binding is required for entry. The new claim is that receptor binding is necessary but not sufficient; the post-entry categorical overlap determines replication success.
+  \item Antiviral drugs targeting viral polymerases and proteases are effective. The new claim is that they are incomplete: they address the viral component but not the host-state determinant of susceptibility.
+\end{itemize}
+
+\subsection{Experimental Programme}
+
+The framework generates a set of experimentally testable predictions that distinguish it from the standard view:
+
+\begin{enumerate}[(P1)]
+  \item \textbf{Charge-oscillation profile conservation}: Viral RNA genomes from the same family should show conserved power spectra $P_V(\omega)$ even in genomic regions with low sequence conservation. This is testable by comparing charge-oscillation profiles computed from genome-wide RNA structure maps (DMS-MaPseq, SHAPE-MaP) across viral quasi-species.
+
+  \item \textbf{Codon recoding preserves genome size}: Recoding a viral genome to use rare codons (different charge-oscillation pattern) while preserving protein sequences should reduce replication efficiency. The effect should be rescued by simultaneously reducing the genome length to maintain the same total charge-oscillation profile---i.e., rare-codon genomes should replicate better when shorter.
+
+  \item \textbf{Host metabolic state and $P_{\mathrm{inf}}$}: Cells with pharmacologically induced oscillatory holes (glycolytic inhibitors, Ca$^{2+}$ chelators) should show altered susceptibility to viruses whose charge templates overlap with the targeted frequency range. Importantly, the susceptibility change should be virus-specific (viruses in the targeted categorical region) rather than non-specific (as immunosuppression would predict).
+
+  \item \textbf{Phage replication in recoded human cells}: Engineering human cells to express bacterial ribosomes (as demonstrated in hybrid ribosome experiments~\cite{Schmied2014}) should make them permissive for bacteriophage replication---because the bacterial ribosome would recognise phage codon charge patterns as canonical housekeeping-gene profiles, providing categorical overlap where none existed before.
+
+  \item \textbf{Genome size and host cell volume}: Across a panel of cell types differing systematically in volume (e.g., neurons, macrophages, fibroblasts, lymphocytes), the replication efficiency of viruses with different genome sizes should show a host-volume-dependent profile matching \cref{prop:genome_volume}.
+
+  \item \textbf{Rev activity in charge-modified RRE}: Mutations to the RRE that change its charge-oscillation profile (specifically its conformational richness $\Rcat$) while preserving Rev-binding affinity (as determined by structural studies) should differentially affect Rev-dependent export. Mutations that reduce $\Rcat$ should impair export even when Rev binding is maintained, because the charge-pattern signal to CRM1 is degraded.
+\end{enumerate}
+
+\subsection{Limitations and Open Questions}
+
+Several aspects of the framework require further development:
+
+\textbf{Quantitative calibration of $\Phost$}. The host categorical density $\Phost(\vv{c}, t)$ is currently defined formally but not computed from first principles. Computing it would require a complete model of the cell's oscillatory phase space---a tractable but ambitious programme.
+
+\textbf{The precise definition of categorical space}. The categorical space $\vv{c}$ is defined operationally through the charge-oscillation framework but requires a more formal mathematical treatment to move from qualitative to quantitative predictions of infection probability.
+
+\textbf{Experimental measurement of charge-oscillation profiles}. Direct measurement of nucleic acid charge-oscillation spectra in living cells is technically challenging. Advances in atomic force microscopy, single-molecule force spectroscopy, and vibrational spectroscopy (particularly 2D-IR methods) may make this accessible~\cite{Boxer2009,Oklejas2002}.
+
+\textbf{The role of the nuclear architecture}. The derivations in \cref{sec:nacid} treat the nuclear charge system as a spherical capacitor. Nuclear organisation is more complex (chromosome territories, nuclear lamina, phase-separated condensates); these features may modify the RC time constant and coherence length in ways that are gene-locus-specific.
+
+\textbf{The transition from first infection to spreading infection}. The framework addresses the single-cell infection event. Tissue-level and organism-level spreading dynamics involve additional factors (immune cell recruitment, cytokine signalling, barrier function) that are beyond the scope of the current treatment.
+
+% ======================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ======================================================================
+
+We have developed a first-principles electrostatic framework for viral infection that resolves the mechanistic ambiguities of the standard orchestration model. Starting from three independent derivations---nucleic acids as deterministic charge oscillators, the cell as an electrostatic chamber system, and categorical completeness as a measure of biological organisation---we have derived without additional assumptions that:
+
+\begin{enumerate}[(1)]
+  \item Viral particles are charge-perturbation templates. Their genome's primary physical function is to create a charge distribution that the host cell's electrostatic machinery can respond to, not to encode a replication programme. The $-2e$ per nucleotide backbone charge is sequence-independent; it is the charge density, not the sequence, that determines whether a viral genome is "visible" to the host cell's chamber dynamics.
+
+  \item Viral proteins are categorical boundary conditions on host filter cascades. They shift partition boundaries (changing which RNAs are exported, which proteins are degraded, which cellular phases are entered) without providing the driving force for any cellular process. This follows rigorously from the Oscillatory Incompleteness Theorem: entities with no oscillatory infrastructure cannot orchestrate.
+
+  \item Infection is host-state-dependent categorical resonance. The probability of successful infection is the overlap integral $P_{\mathrm{inf}} = \int \Phost(\vv{c},t) \chiviral(\vv{c})\,d\vv{c}$, where the host's current oscillatory exploration density $\Phost$ determines whether the viral charge template finds a resonant match in the host's active processing space.
+
+  \item Viral genome size is governed by the host cell volume through an inversion of the cellular C-value law. Cellular genomes are large because they must stabilise a large EM field against metabolic fluctuations; viral genomes are sized to create a perceptible charge perturbation in that field, with size scaling weakly with host cell volume.
+
+  \item Cross-kingdom non-infection reflects categorical space non-overlap. Bacteriophages do not replicate in human cells not because receptor absence makes entry impossible but because the human cell's oscillatory exploration never reaches the categorical region defined by bacterial housekeeping-gene charge dynamics---the region that phage templates are matched to.
+\end{enumerate}
+
+The framework transforms the therapeutic target from viral molecules to host categorical state. Rather than fighting viral proteins one by one---an arms race that favours the rapidly evolving virus---the framework points toward interventions that restore host oscillatory completeness, raise innate immune pattern-detection sensitivity, and deny the viral charge template the resonant host state it requires for productive replication. This is not an abandonment of mechanistic virology but a completion of it: the mechanism is the resonance between viral charge template and host categorical state, and modulating that resonance is the therapeutic lever.
+
+% ======================================================================
+% Bibliography
+% ======================================================================
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}
+

@@ -1,0 +1,213 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Deep Learning Engineer, Omics Data / Cancer & Aging Genomics
+% Poetsch Group, Institut für Genetik / CECAD, Universität zu Köln
+% Ref. Wiss2604-09
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  ML for large-scale omics data, multi-omics statistical modelling, distributed
+  deep learning for clinical datasets. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Deep learning for biological sequences, statistical bioinformatics,
+  genomics pipeline development.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  CNN/DFT pipeline for MHC binding prediction: AUC 0.81 vs NetMHCpan 0.68
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides).
+  \textit{Manuscript.}
+}
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Deep learning diagnostic framework; AUC$=1.00$; 25/25 validation experiments;
+  sparse LP for personalised therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	DEEP LEARNING AND OMICS TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Deep Learning and Omics Tools}
+
+\cvitem{gospel}{
+  \textbf{Genomics Deep Learning Pipeline.}
+  $10^6$ variants/second VCF processing; somatic variant calling for cancer
+  genomics; RNA-seq quantification and differential expression; Bayesian network
+  inference and GMMs for multi-omics integration; pathway analysis (KEGG,
+  Reactome, GSEA). Validated: 1000~Genomes Phase~3, gnomAD~v3.1.2, UK~Biobank.
+  ClinVar / COSMIC API integration. Ray distributed, Docker deployable.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{lavoisier}{
+  \textbf{CNN + Classical Dual-Pipeline Omics Analysis.}
+  Dual pipeline: numerical MS1/MS2 processing (peak detection, spectral library
+  matching) alongside CNN visual pipeline (PyTorch) converting spectra to
+  temporal image sequences. 98.9\,\% NIST accuracy; Ray distributed; $>$100\,GB
+  mzML support; memory-mapped I/O.
+  Demonstrates paper-to-production DL implementation: academic spectral imaging
+  literature $\to$ deployed genomics-scale analysis tool.
+  Virtual instrument: \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{syndrome}{
+  \textbf{Deep Learning Toolkit for Cancer Immunopeptidology.}
+  Live annotation tools at \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}:
+  MHC binding predictor (AUC 0.81 vs NetMHCpan 0.68);
+  neoantigen identifier (dual threshold: $\Delta\rho_\mathrm{self}>0.15$ + $\rho_\mathrm{MHC}>0.72$);
+  immune escape predictor (systematic single-aa substitution scan);
+  antibiotic resistance predictor (drug-enzyme spectral complementarity).
+  $\mathcal{O}(cL\log L)$; browser-deployable annotation tools for lab use.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Automated Evaluation Framework + Specialised DL Library.}
+  8-stage metacognitive pipeline with automated benchmarking at each stage;
+  Rust core specialised library (15--50$\times$ speedup, PyO3 bindings);
+  FastAPI REST interface; Docker/Kubernetes; GQIC resource allocation.
+  Template for building automated evaluation frameworks and specialised
+  DL libraries for the lab's genomics infrastructure.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{olduvai}{
+  \textbf{Aging Biology: Biological Motion Deep Learning.}
+  Deep learning for aging phenotype classification: AUC$=1.00$ for Parkinson's /
+  ataxia / healthy ageing from wearable data (86 nights, $n$ = validated cohort).
+  Circadian and motor oscillator dimensions directly connected to genomic
+  expression changes in aging. Relevant to Poetsch group's aging genomics programme.
+  \href{https://github.com/fullscreen-triangle/olduvai}{github.com/fullscreen-triangle/olduvai}
+}
+
+\cvitem{purpose}{
+  \textbf{Backward Training Principle --- DL Model Training Framework.}
+  Formal proof: training at the hardest (pure-intent) instance propagates
+  $\epsilon$-competence to all constrained sub-tasks by feasibility inclusion.
+  $(N{+}1)\times$ sample savings; $2^{N-1}\times$ for binary cascades.
+  Applicable to training cancer/aging genomics DL models: train at maximum
+  variant density / clearest disease signal; competence propagates to
+  sparse-data and noisy clinical settings.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Deep learning systems for genomics, transcriptomics, immunopeptidology, and
+  aging biology. Algorithm implementation from academic papers to production
+  deployment. Internal tools, automated evaluation frameworks, specialised
+  libraries. All systems publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  ML for large-scale MS omics data: CNN spectral classification, distributed
+  pipeline maintenance, multi-omics integration for clinical cohorts. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline; SOP development; clinical sample
+  processing; data annotation and quality control.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery; ML-based
+  statistical validation.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Deep Learning / ML}{
+  PyTorch (primary); CNNs, LSTMs, Transformers (1D and 2D), GNNs;
+  knowledge distillation; variational Bayes; Bayesian networks; GMMs;
+  Gaussian processes; surrogate model training; RAG pipelines;
+  LoRA / parameter-efficient fine-tuning
+}
+
+\cvitem{Genomics / Omics DL}{
+  Variant effect prediction; somatic variant calling; RNA-seq DL quantification;
+  spectral deep learning for MS data; sequence-to-function models;
+  neoantigen / MHC binding prediction; multi-omics integration
+}
+
+\cvitem{Internal Tools / Libraries}{
+  Rust specialised libraries with PyO3 Python bindings (15--50$\times$ speedup);
+  automated evaluation frameworks with reference database benchmarking;
+  browser-deployable annotation tools (WebGPU, Vercel);
+  FastAPI REST interfaces; Docker / Kubernetes deployment
+}
+
+\cvitem{Data / Infrastructure}{
+  Python, R, Rust, Java, TypeScript, Bash;
+  Ray, Dask; HDF5, mzML, VCF, FASTQ, BAM;
+  memory-mapped I/O for $>$100\,GB datasets;
+  gnomAD, ClinVar, COSMIC, KEGG, Reactome API clients; Git, CI/CD
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

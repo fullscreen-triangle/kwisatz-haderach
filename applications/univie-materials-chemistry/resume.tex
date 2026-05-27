@@ -1,0 +1,211 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Predoctoral PhD, Inorganic & Materials Chemistry
+% University of Vienna, Dr. Jia Min Chin, Job-ID 5571
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Molecular characterisation by mass spectrometry, multi-omics statistical
+  modelling, scientific computing pipelines.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Colloidal self-assembly and nanoparticulate systems: \textbf{inverse micelle
+  synthesis and protein encapsulation} (surfactant selection, $w_0$ control,
+  cavity environment optimisation for stabilisation of folded proteins in
+  non-polar media); lipid nanoparticle and liposome preparation; characterisation
+  by DLS, zeta potential, and electron microscopy; formulation science;
+  pharmacokinetics.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Physical chemistry, spectroscopy, inorganic chemistry, cell biology laboratory.
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT RELEVANT TO POSITION
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on
+  Biological Systems.}
+  Derives spectroscopic and binding selectivity from categorical richness of
+  molecular structures. $r=0.73$, $p<10^{-12}$, $n=2{,}847$ peptides.
+  Framework applicable to DNA/peptide-directed MOF/COF nucleation.
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	THEORETICAL FRAMEWORK
+%----------------------------------------------------------------------------------------
+
+\section{Theoretical and Computational Frameworks}
+
+\cvitem{borgia}{
+  \textbf{First-Principles Molecular Spectroscopy (Cheminformatics).}
+  Derives atomic shell structure ($C(n){=}2n^2$, selection rules, Pauli exclusion),
+  molecular vibrational modes, and harmonic network topology from a single axiom
+  (bounded phase space admitting partition and nesting) --- no empirical parameters.
+  Harmonic networks: modes with rational frequency ratios $\omega_i/\omega_j = p/q$
+  ($\max(p,q) \leq 10$) form coupled networks; closed loops act as virtual resonant
+  cavities. Applicable to predicting IR/Raman fingerprints of novel MOF/COF linker
+  combinations before synthesis. Validated: nine elements (NIST electron
+  configurations); six molecules H$_2$--C$_6$H$_6$ with self-consistency
+  errors $<$1.63\%, zero adjustable parameters.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}
+  (vibrational modes, docking, 3D structure, network topology, all browser-side).
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{lagrangian}{
+  \textbf{Astronomical and Molecular Optical Computation.}
+  Three peer-review-ready papers, all benchmarks passing.
+  (1)~\textit{Harmonic-Scattering Loop Coupling}: transfer-matrix framework for
+  resolving multiple coupled molecular resonators; machine-precision reconstruction;
+  18/18 benchmarks. Directly applicable to inter-linker vibrational coupling in
+  MOF/COF frameworks.
+  (2)~\textit{Resonant Stack}: proves Beer--Lambert absorption
+  $\equiv$ chromatographic separation $\equiv$ Kirchhoff radiation (same transfer
+  function $T = 1/e$); vibrational predictions simultaneously cover IR, Raman, and
+  thermal emission spectra.
+  (3)~\textit{Gravitational Constant}: derives $G$ from bounded phase-space partition
+  structure via three independent routes; matches CODATA~2018 at depth $n=8$,
+  machine epsilon at $n=27$; 43/43 benchmarks.
+  Live: \href{https://space-observatory-xi.vercel.app/}{space-observatory-xi.vercel.app};
+  \href{https://github.com/fullscreen-triangle/lagrangian}{github.com/fullscreen-triangle/lagrangian}
+}
+
+\cvitem{composition-inflation}{
+  \textbf{Anisotropy from Field-Driven Alignment.}
+  The composition-inflation theorem ($T(n,d) = d(d{+}1)^{n-1}$) predicts how
+  external field alignment depth translates to anisotropy ratio in charge transport
+  and optical response: conductivity enhancement scales combinatorially with the
+  number of field-aligned oscillation cycles during crystal growth.
+  Provides quantitative, testable predictions connecting synthesis parameters
+  (field strength, duration, temperature) to transport tensor components.
+}
+
+\cvitem{lavoisier}{
+  \textbf{Mass Spectrometry Characterisation Pipeline.}
+  Dual numerical + CNN pipeline; 98.9\,\% accuracy against NIST; $>$100\,GB
+  mzML support. Applicable to characterisation of molecular building blocks,
+  framework linkers, and guest molecules by high-resolution MS.
+  Live: \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2021--present}{Independent Research Developer}{Bitspark GmbH}{}{}{
+  First-principles molecular spectroscopy, computational chemistry, multi-scale
+  physical modelling. All frameworks publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Molecular characterisation of lipid species by mass spectrometry (TIMS-PASEF,
+  QTOF, ion trap): peak detection, ion annotation, feature engineering.
+  Multi-omics statistical modelling.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated characterisation of glycan and protein structures from LC-MS/MS and
+  MALDI-TOF data; enzymatic protein digestion, peptide fractionation, LC separation,
+  protein identification and quantification. Direct hands-on peptide handling.
+}
+
+\cventry{2019}{Colloidal Materials Production}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Production and characterisation of therapeutic lipid colloidal materials.
+  DLS, particle size distribution, process monitoring and optimisation.
+  Python, C.
+}
+
+\cventry{2013}{Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics: protein digestion, peptide-level LC-MS/MS
+  identification from complex biological matrices. Protocol optimisation.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Spectroscopy / Characterisation}{
+  Mass spectrometry (LC-MS/MS, MALDI-TOF, TIMS-PASEF, QTOF); IR and Raman
+  spectroscopy (theoretical); UV-Vis; NMR (academic); dynamic light scattering;
+  zeta potential; NIST spectral library matching
+}
+
+\cvitem{Colloidal / Nanomaterial Systems}{
+  Inverse micelle synthesis; protein encapsulation in colloidal cavities;
+  lipid nanoparticle and liposome preparation; colloidal stabilisation;
+  characterisation by DLS, zeta potential, electron microscopy;
+  directed assembly; pharmaceutical formulation
+}
+
+\cvitem{Computational Chemistry}{
+  First-principles molecular spectroscopy (Borgia framework); vibrational mode
+  prediction; harmonic network topology; molecular docking; 3D structure analysis;
+  GPU-accelerated cheminformatics (WebGL2 / fragment shaders)
+}
+
+\cvitem{ML / Data Analysis}{
+  PyTorch, scikit-learn; CNNs for spectral data; Bayesian networks; Gaussian
+  mixture models; distributed computing (Ray); Python, R, Rust
+}
+
+\cvitem{Data Formats}{
+  mzML, mzXML, FASTA, HDF5, CIF (crystallographic information files — read-only)
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

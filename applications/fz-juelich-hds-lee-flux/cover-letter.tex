@@ -1,0 +1,169 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Forschungszentrum Jülich GmbH \\
+HDS-LEE Graduate School \\
+52428 Jülich, Germany \\
+Ref.\ 2025D-179
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position --- Probabilistic Metabolic Flux Analysis (Ref.\ 2025D-179)}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the doctoral position in probabilistic metabolic flux analysis
+within the HDS-LEE graduate school (Ref.\ 2025D-179).
+The position's core challenge --- developing a Bayesian inference framework
+robust to model misspecification for hybrid model- and data-driven metabolism
+modelling --- sits at the intersection where I have worked most intensively:
+hierarchical Bayesian models, differentiable probabilistic inference, and
+large-scale biological data, with the specific application domain being
+metabolic measurement data from my doctoral research in Computational
+Lipidomics at TUM.
+
+\textbf{Bayesian inference, hierarchical models, and model misspecification.}
+The fundamental difficulty in metabolic flux analysis (MFA) is that the
+stoichiometric model $\dot{\mathbf{x}} = S\mathbf{v}$ is always misspecified:
+unmeasured fluxes, unknown regulatory interactions, compartment-averaging
+artefacts, and isotope label dilution all introduce systematic deviations
+between model and data that point estimates cannot detect.
+A Bayesian hierarchical approach handles misspecification by placing priors
+over model parameters \emph{and} over the degree of model inadequacy: the
+posterior distribution over flux vectors $p(\mathbf{v} \mid \mathbf{m})$
+captures both estimation uncertainty and structural uncertainty jointly.
+
+I have built and applied hierarchical Bayesian models in two directly relevant
+contexts. The \href{https://github.com/fullscreen-triangle/gospel}{Gospel}
+genomic analysis framework implements Bayesian network inference for
+multi-omics data integration, using variational Bayes for posterior
+approximation in models with $\mathcal{O}(10^6)$ latent variables.
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} disease
+modelling framework uses Bayesian P(R\,|\,Q) --- the posterior probability of
+answer quality given query class --- as a gating mechanism over an
+eight-dimensional latent state, with continuous shrinkage priors over the
+coherence indices $\eta_i \in [0,1]$.
+For the MFA context, these translate directly: the latent flux vector
+$\mathbf{v}$ plays the role of the disease state $\mathbf{D}$; the
+isotopomer balance equations play the role of the stoichiometric network;
+and the hierarchical prior over flux magnitudes encodes the biological
+constraints (thermodynamic feasibility, capacity constraints, mass balance)
+analogously to the sparse $\ell_1$ regularisation I use for minimum
+intervention selection.
+
+Beyond methodology, I have a theoretical result directly applicable to the
+model misspecification problem. The \textbf{Backward Training Principle}
+(developed in the \href{https://github.com/fullscreen-triangle/purpose}{Purpose}
+framework) proves that a model calibrated at the worst-case misspecification
+scenario --- the hardest, most constrained instance of the inference problem
+--- is calibrated at all less-misspecified instances by feasibility inclusion:
+\[
+\mathcal{C}_{\mathrm{hard}} \subseteq \mathcal{C}_{\mathrm{easy}}
+\implies
+\epsilon\text{-competence on } \mathcal{C}_{\mathrm{hard}}
+\implies
+\epsilon\text{-competence on } \mathcal{C}_{\mathrm{easy}}.
+\]
+For a Bayesian MFA framework, the worst-case misspecification is the fully
+unidentified model (maximum parameter uncertainty, minimum data information);
+calibration there propagates to all better-identified sub-models.
+A Forward Training Collapse Theorem establishes a positive Vapnik-Chervonenkis
+failure gap for the conventional easy-to-hard approach; a Sample Complexity
+Theorem gives $(N{+}1)\times$ savings for a cascade of depth $N$.
+This is a formal contribution to the project's goal of designing hierarchical
+models that capture misspecification robustly.
+
+\textbf{Differentiable programming and HPC-optimised sampling.}
+The project calls for differentiable, scalable inference algorithms using
+automatic differentiation and HPC-optimised sampling in Python and C++.
+My implementations use PyTorch as the primary differentiable computing
+substrate: every model in my frameworks is built on \texttt{torch.autograd}
+so that gradients through the full model --- including through stochastic
+nodes via the reparameterisation trick --- are available for gradient-based
+MCMC (NUTS, HMC) and variational inference (ELBO optimisation).
+For HPC scale, I implement distributed sampling via
+\href{https://github.com/ray-project/ray}{Ray}: multiple Markov chains run
+in parallel across cluster nodes, with shared memory for the likelihood
+evaluation and asynchronous parameter collection.
+For performance-critical likelihood evaluations, I implement in Rust and
+expose to Python via PyO3 bindings, achieving 15--25$\times$ speedup over
+pure Python for the inner loops of MCMC sampling.
+The \href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+framework demonstrates this architecture in a deployed system: 8-stage
+inference pipeline with Rust core, Ray-distributed parallel execution,
+and Python orchestration layer.
+
+\textbf{Metabolic measurement data and flux analysis background.}
+My doctoral research at TUM / Bayerisches Forschungsinstitut (2019--2021)
+was in Computational Lipidomics: mass spectrometry-based quantification of
+lipid species across hundreds of samples from distributed clinical sites.
+Lipidomics is the downstream measurement of lipid metabolic fluxes --- the
+lipid species abundances in a sample are the integrated outputs of the
+synthesis, modification, transport, and degradation reactions in the lipid
+metabolic network.
+The pipeline I worked on covered: peak detection and alignment across
+mzML files $>$100\,GB, ion annotation against LIPID MAPS and LipidBlast,
+multi-omics integration combining lipidomics with clinical covariates, and
+federated statistical modelling across distributed sites.
+This gives me direct familiarity with the data structures and measurement
+uncertainties (isotopologue distributions, matrix effects, ion suppression)
+that a probabilistic MFA framework must handle.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier}
+framework I subsequently built automates this pipeline at production scale:
+dual numerical and CNN-based spectral analysis, 98.9\,\% NIST accuracy,
+Ray-distributed for HPC, $>$100\,GB mzML support.
+Isotopically labelled metabolomics data (the primary input to $^{13}$C-MFA)
+is structurally identical to the lipidomics data I have processed: the
+difference is the labelling scheme applied to the sample, not the measurement
+instrument or data format.
+
+\textbf{Open-source contributions and collaborative research.}
+All frameworks I have built are publicly available on GitHub with documentation,
+validation reports, and reproducibility instructions. I contribute to
+open-source scientific computing projects and have implemented library-level
+components (Rust statistical kernels, Python API wrappers for genomic
+databases, WebGPU compute shaders for physical simulation) that are used
+in the deployed applications.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and conducted
+doctoral research in Computational Lipidomics at TUM. I work primarily in
+Python and Rust; C experience from Fraunhofer IGB and scientific computing
+contexts. I am legally resident in Germany with full work authorisation and
+available immediately; willing to relocate to Jülich.
+English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

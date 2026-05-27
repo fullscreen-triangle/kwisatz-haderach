@@ -1,0 +1,168 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\[6pt]
+15 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Philipp Berens \\
+Hertie Institute for AI in Brain Health \\
+Department of Data Science \\
+University of Tübingen / University Hospital Tübingen
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position --- ML for Medical Imaging, Neurogenomics and Neuronal Modelling}
+
+\vspace{1em}
+
+Dear Prof.\ Berens,
+
+I am applying for the PhD position in machine learning for medical imaging,
+neurogenomics, and neuronal modelling at the Hertie Institute. I completed
+my MSc in Computational Biology at the University of Tübingen and am applying
+because the three research pillars of this position --- medical imaging, neurogenomics,
+and neuronal modelling --- correspond closely to independent research I have been
+conducting over the past year, and because Tübingen is where I developed the
+computational biology foundation that this work builds on.
+
+On the medical imaging side, I have built
+\href{https://github.com/fullscreen-triangle/helicopter}{helicopter}, a multi-modal
+microscopy image analysis framework that combines fluorescence, brightfield,
+phase-contrast, and spectral modalities through sequential constraint satisfaction.
+The architecture avoids the typical dependency on single-modality optical resolution
+by treating each physical measurement as an independent exclusion factor, reducing
+structural ambiguity from $\sim$10$^{60}$ configurations to unique solutions. Separately,
+\href{https://github.com/fullscreen-triangle/lavoisier}{lavoisier}, my mass-spectrometry
+metabolomics pipeline, implements a dual-pipeline architecture --- one numerical, one
+based on converting spectra into temporal image sequences analysed by a convolutional
+neural network (PyTorch) --- that achieves 98.9\% feature extraction accuracy against
+NIST reference libraries. Building ML pipelines for biological imaging data where ground
+truth is ambiguous and data is structurally heterogeneous is the specific problem these
+tools address.
+
+A third imaging context: the BRUT Observatory
+(\href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app})
+inverts a layered Beer--Lambert optical model of forehead skin to recover
+four physiological state parameters from standard RGB camera pixels and the
+AC modulation amplitude of the cardiac signal: melanin index (median
+$0.5\%$ relative error), total haemoglobin ($10\%$), a vasodilation factor
+(exact, from AC amplitude), and a derived skin-temperature estimate via
+thermoregulatory linearisation. From the recovered state the observed heart
+rate is decomposed as
+$\mathrm{HR}_\mathrm{obs} = \mathrm{HR}_\mathrm{int} + \Delta\mathrm{HR}_\mathrm{met}
++ \Delta\mathrm{HR}_{O_2} + \Delta\mathrm{HR}_\mathrm{auto}$,
+isolating the genuine sympathovagal drive from thermal ($Q_{10}$-mediated)
+and hypoxic (chemoreceptor) contributions. The inverse is algebraic ---
+channel separation (blue identifies melanin, red identifies Hb, green
+identifies oxygenation trend, AC amplitude identifies vasodilation) ---
+and runs in sub-microsecond time. The full pipeline runs in real time
+in a WebGPU-enabled browser at $1\,\mathrm{Hz}$ state estimates from a
+$720\mathrm{p}$ webcam. The paper is candid: oxygenation from three-band
+RGB has a structural error ceiling near $40\%$ and is best treated as a
+relative-trend signal rather than a clinical reading. The autonomic residual
+$\Delta\mathrm{HR}_\mathrm{auto}$ --- the neural-drive component that
+does not arise from temperature or hypoxia --- connects directly to the
+neuronal modelling pillar of this position.
+
+On the neurogenomics side, \href{https://github.com/fullscreen-triangle/gospel}{gospel}
+is a whole-genome variant analysis framework that processes million-scale VCF files
+alongside RNA-seq expression matrices, validated against 1000 Genomes Phase 3,
+gnomAD v3.1.2, and UK Biobank. The system integrates Bayesian network inference,
+Gaussian mixture models for noise characterisation, and variational Bayes for approximate
+inference. For retinal neurogenomics specifically, the genomic variant and expression
+analysis capabilities map directly onto the kinds of datasets generated in
+ophthalmological research: identifying genetic determinants of retinal disease requires
+exactly this kind of joint variant-and-expression pipeline operating at scale.
+
+On the neuronal modelling side, I have developed a formal mathematical framework ---
+published as \textit{Syndrome: Categorical Resolution of Disease Trajectories} ---
+for representing cellular state through eight oscillator classes, one of which is the
+calcium signalling oscillator ($D_{Ca}$). Retinal photoreceptors are paradigmatically
+calcium-dependent: the phototransduction cascade is fundamentally a calcium-mediated
+signal. The coherence index formalism I have developed ($\eta_{Ca} \in [0,1]$ from
+regularity of calcium oscillations) provides a quantitative, computationally tractable
+representation of photoreceptor health state that could be derived from
+electrophysiological or imaging data. A companion paper ---
+\textit{On Disease Epistemology in Blind Receiver} --- proves that loop-holonomy
+self-consistency of the biochemical circuit (AUC$=$1.00 vs 0.896 for template comparison
+across 25 validation experiments) is the unique viable diagnostic criterion when template
+states are unavailable, which is the regime of early retinal disease.
+
+Separately, I have developed a first-principles model of nervous system dynamics as
+a closed electrical circuit. The foundational axiom --- $\oint \mathbf{J} \cdot d\mathbf{A} = 0$,
+no external charge ground --- derives that centre-of-pressure motion decomposes into
+two independent components: \textit{rambling} (supraspinal drift, frequency below a
+critical $f_c$) and \textit{trembling} (peripheral oscillation, above $f_c$), corresponding
+to cortical and spinal contributions respectively. Validated across 86 consecutive
+nights of wearable data at five recording sites and across Parkinson's disease,
+cerebellar ataxia, aging, and dual-task conditions, the framework extracts
+$Q_\text{motor} = 290.9$\,mC/s and $Q_\text{thought} = 133.5$\,mC/s as empirical
+constants from longitudinal data, with a dream-to-thought charge ratio of 0.975
+matching the theoretical prediction $\sqrt{0.95}$ from first principles.
+The deafferentation paradox --- that sensory deafferentation does not suppress neural
+oscillation but maintains it --- is reinterpreted as circuit interruption: the
+oscillator continues because it has no external ground to discharge into.
+This connects directly to retinal disease: photoreceptor degeneration is
+visual deafferentation, and the maintained oscillatory activity in ganglion cells
+following photoreceptor loss is precisely what this circuit model predicts.
+The live tools are available at
+\href{https://rembling-trambling.vercel.app/tools/rambling}{rembling-trambling.vercel.app}.
+
+I have also considered the specific connection to ophthalmological autoimmunity.
+My paper on \textit{VDJ Recombination Categorical Filter Cascades} predicts that proteins
+with high categorical richness $R$ --- quantifying isoform diversity, conformational entropy,
+and downstream connectivity --- are preferentially targeted by the immune system
+($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). Retinal antigens implicated in
+autoimmune retinopathy (recoverin, $\alpha$-enolase, CRABP-1) are precisely the kind
+of proteins with high conformational flexibility and isoform diversity that would be
+predicted to cross the categorical threshold. This is a specific, testable connection to
+the group's interest in diseased retinal biology.
+The spectral framework underlying the MHC binding prediction is now deployed at
+\href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app}: the MHC binding
+predictor converts a peptide sequence into a 36-dimensional spectral embedding via
+3-channel DFT and returns cosine similarity $\rho$ against the MHC groove aperture
+in $O(cL\log L)$ without a database query. The neoantigen tool applies a simultaneous
+dual threshold --- self-distinction $\Delta\rho_\text{self} > 0.15$ and MHC presentation
+$\rho_\text{MHC} > 0.72$ --- to any wild-type / mutant peptide pair, returning whether
+the mutation is immunologically visible and presentable. Applied to recoverin peptides,
+this provides a direct in-browser test of which specific residues, when mutated or
+post-translationally modified, cross the autoimmune threshold.
+
+My programming work is primarily Python and Rust, with R from my bioinformatics training.
+I am not an ophthalmologist and would not claim to be: the retinal domain knowledge is
+what a doctoral programme provides. I am applying because the ML methodology --- building
+pipelines that extract signal from structurally complex, high-dimensional biological
+imaging and genomics data, and modelling disease state from multi-modal biological
+measurements --- is precisely what I have been building for a year, and because Tübingen
+is where I am equipped to do this work well.
+
+I am available immediately, fully authorised to work in Germany (Aufenthaltserlaubnis),
+and would welcome the opportunity to discuss this application.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

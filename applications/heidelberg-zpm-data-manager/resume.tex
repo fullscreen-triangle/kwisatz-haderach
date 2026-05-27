@@ -1,0 +1,171 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Data Manager*in, ZPM Heidelberg
+% Pathologisches Institut, Zentrum für Personalisierte Medizin
+% Job-ID V000015540
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  ML for large-scale clinical omics cohorts; multi-omics data integration
+  across federated clinical sites; distributed pipeline maintenance.
+  Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical bioinformatics, Bayesian methods,
+  computational systems biology, ML for biological sequences.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	ONCOLOGY DATA INFRASTRUCTURE
+%----------------------------------------------------------------------------------------
+
+\section{Oncology Data Infrastructure}
+
+\cvitem{syndrome}{
+  \textbf{Cancer Patient and Tumour Characterisation Framework.}
+  Structured disease state representation $\mathbf{D}\in[0,1]^8$ capturing
+  immune activation ($D_\mathrm{Imm}$), barrier integrity ($D_\mathrm{Bar}$),
+  metabolic ($D_\mathrm{ATP}$), circadian ($D_\mathrm{Circ}$), and four
+  additional dimensions; Bayesian $P(R\mid Q)$ disease trajectory inference;
+  sparse $\ell_1$ LP for therapeutic target selection; AUC$=1.00$
+  across 25/25 validation experiments.
+  Neoantigen identification, MHC binding prediction (AUC\,$0.81$ on 2,847
+  IEDB peptides), immune escape scoring.
+  Browser-deployable, no server infrastructure required.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+}
+
+\cvitem{gospel}{
+  \textbf{Clinical Genomics Data Pipeline.}
+  $10^6$ variants/second; germline and somatic variant calling; RNA-seq
+  quantification and differential expression; Bayesian network multi-omics
+  integration (host genotype $\to$ metagenomics $\to$ transcriptomics);
+  ClinVar, KEGG, Reactome API integration for variant annotation.
+  Validated: gnomAD~v3.1.2, 1000~Genomes Phase~3, UK~Biobank.
+  Ray distributed, Docker deployable.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Clinical Mass Spectrometry Data Pipeline.}
+  Dual pipeline: numerical MS1/MS2 processing + CNN spectral classification;
+  98.9\,\% NIST accuracy; $>$100\,GB mzML at clinical cohort scale;
+  memory-mapped I/O for low-memory environments; HDF5 storage.
+  Applicable to translational proteomics and metabolomics data management.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{HPC Inference and Data Processing Pipeline.}
+  Rust core (15--50$\times$ speedup via PyO3); Ray-distributed parallel
+  execution; FastAPI orchestration; 8-stage metacognitive pipeline with
+  automated benchmarking. Applicable to ZPM batch data processing workflows.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Computational Biology Researcher}{Bitspark GmbH}{Munich}{}{
+  Design, implementation, and validation of clinical data infrastructure for
+  oncology, multi-omics integration, and pharmacology. All systems publicly
+  deployed with independently verifiable validation against established standards.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Multi-omics data integration across federated clinical sites; distributed
+  pipeline maintenance; ML for clinical MS cohort data. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline operation; clinical sample
+  processing and quality control; data annotation and documentation for
+  clinical cohort studies; multi-centre sample logistics coordination.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Data Analytics}{
+  R (statistical analysis, Bioconductor pipelines, ggplot2, tidyverse);
+  Python (pandas, numpy, scipy, scikit-learn, PyTorch);
+  statistical modelling, Bayesian inference, dimensionality reduction (PCA, UMAP);
+  clinical cohort data quality assurance
+}
+
+\cvitem{Clinical Data}{
+  Genomic data standards: VCF, BAM, FASTQ; gnomAD, ClinVar, KEGG, Reactome;
+  multi-omics integration (genomics, transcriptomics, proteomics, metabolomics);
+  clinical trial data workflows; GDPR-compliant multi-site data handling;
+  patient data pseudonymisation; AnnData / HDF5 structured clinical data
+}
+
+\cvitem{Data Infrastructure}{
+  Relational and document databases; REST API integration;
+  Ray distributed processing; Docker and Kubernetes;
+  memory-mapped I/O for large dataset handling;
+  CI/CD pipeline maintenance; Git version control
+}
+
+\cvitem{Communication}{
+  Technical documentation for clinical and non-technical audiences;
+  scientific manuscript writing (formal mathematical apparatus,
+  quantitative validation); interdisciplinary project coordination
+  (clinicians, computational researchers, IT teams);
+  user training and support for analytical tools
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany continuously since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

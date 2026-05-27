@@ -1,0 +1,141 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Anna Poetsch \\
+Institut für Genetik / CECAD \\
+Universität zu Köln \\
+\texttt{apoetsch@uni-koeln.de} \\
+Kennziffer: TUV2605-02
+
+\vspace{1.5em}
+
+\textbf{Re: Daten- und IT-Manager*in für Omics-Daten (TUV2605-02)}
+
+\vspace{1em}
+
+Dear Prof.\ Poetsch,
+
+I am applying for the Data and IT Manager position in your group at CECAD
+(Kennziffer TUV2605-02).
+My background is unusual for this kind of role: I combine hands-on HPC omics
+data experience from doctoral research in Computational Lipidomics at TUM
+with independent development of production-grade data analysis pipelines
+at $>$100\,GB scale and formal work on scientific data management infrastructure.
+The combination is directly suited to what the position describes.
+
+\textbf{HPC storage and omics data at scale.}
+During my doctoral research at TUM and the Bayerisches Forschungsinstitut
+(2019--2021) I worked on mass spectrometry-based lipidomics at HPC scale:
+mzML dataset management exceeding 100\,GB per study, federated processing across
+distributed clinical sites, peak detection and ion annotation against LIPID MAPS
+and LipidBlast, and multi-omics statistical modelling combining lipidomics with
+clinical covariates. I am therefore familiar with the practical challenges the
+position addresses: data generated faster than it is curated, inconsistent naming
+across research groups, and metadata that cannot be recovered without the original
+analyst.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+I subsequently built encodes the solutions I worked out to those problems:
+a dual-pipeline MS analysis system with memory-mapped I/O for datasets of any
+size, structured metadata at ingestion, HDF5 output with consistent schema,
+and Ray-distributed processing for multi-node HPC execution.
+The 98.9\,\% NIST feature-extraction accuracy is a byproduct of getting the
+data structure right first.
+
+\textbf{Metadata schemas, naming conventions, and data lifecycle management.}
+The most important practical question in large-scale omics data management is
+``given any file on the storage system, can you reconstruct what it contains,
+where it came from, and what depends on it?'' --- without asking the person who
+created it.
+I have formalised this problem mathematically and computationally in the
+Purpose-Driven Shader VM (PDSVM) framework, which represents every scientific
+data object as a structured coordinate in a three-dimensional metadata space
+$(S_k, S_t, S_e) \in [0,1]^3$ (knowledge entropy, temporal entropy, evolution
+entropy) and retrieves any object in $O(k)$ operations independent of
+collection size, via a ternary trie over Morton-ordered metadata coordinates.
+In practice this means: metadata schema design is not a convention problem,
+it is a retrieval problem; the schema is correct when any query on the collection
+can be answered without full scan.
+For the Poetsch group's HPC storage, the same principle translates concretely:
+folder hierarchies and naming conventions should be derived from the query patterns
+the group actually needs to run (sample, timepoint, treatment, replicate, modality)
+rather than from how data happens to arrive; and metadata schemas should be
+validated by checking that the $k$ fields jointly address all retrieval cases,
+not by committee consensus.
+
+\textbf{SOPs, pipeline standardisation, and ML/DL integration.}
+I write SOPs as part of framework development: every tool I publish includes
+structured documentation specifying input formats, parameter ranges, expected
+outputs, and validation criteria.
+For the data analysis pipeline layer, I am experienced with Python and R for
+all standard omics operations, and with workflow management in distributed
+environments (Ray, Dask, Docker, Kubernetes, FastAPI).
+The position mentions ML and Deep Learning in the pipeline context.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} pipeline
+includes a CNN-based spectral classification stage (PyTorch) alongside the
+numerical pipeline; the \href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+RAG system integrates Rust-accelerated (10--50$\times$) inference with
+Python orchestration and provides a working template for incorporating
+LLM-based document extraction into a scientific data pipeline.
+I am therefore positioned to implement DL-augmented analysis steps as
+standardised pipeline stages, not as one-off scripts.
+
+\textbf{Bioinformatics ecosystem and genomics data types.}
+My MSc in Computational Biology (Universität Tübingen, 2018--2019) covered
+the standard NGS stack: sequence alignment, variant calling (VCF), RNA-seq
+quantification, and downstream pathway analysis (KEGG, Reactome).
+I have practical familiarity with samtools for BAM file operations and with
+Nextflow pipeline patterns from the bioinformatics community.
+The Poetsch group's data --- including genome-wide sequencing assays relevant
+to aging and cancer epigenomics --- is data I understand at both the format
+level (FASTQ, BAM, BED, bigWig) and the biological level.
+This matters for the part of the role the job description flags explicitly:
+consulting researchers on data organisation best practices requires understanding
+what their data actually contains and what downstream operations it will need to
+support.
+
+\textbf{Communication and interdisciplinary collaboration.}
+The position requires working effectively with both technical and non-technical
+users. My independent research has required the same skill in a different
+register: translating between the mathematical structure of a data problem and
+the practical requirements of a wet-lab or clinical collaborator.
+I have documented complex frameworks for audiences ranging from algorithm
+implementers to experimental biologists, and the resulting documentation is
+public and actively maintained.
+
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and I conducted doctoral research
+in Computational Lipidomics at TUM.
+I am legally resident in Germany with full work authorisation and am available
+from July 2026 or earlier. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

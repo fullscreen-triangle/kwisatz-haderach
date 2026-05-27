@@ -1,0 +1,116 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{plain}
+
+\begin{document}
+
+\begin{center}
+  {\large\textbf{Research Proposal}} \\[6pt]
+  {\large Partition Geometry as a Predictive Framework for Soft Matter Rheology
+  and Differential Dynamic Microscopy} \\[6pt]
+  Kundai Farai Sachikonye --- Application for predoctoral position, SoMeX Lab
+  (Job-ID 5570)
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Central Question}
+
+Can the rheological properties of yield stress fluids and the intermediate
+scattering functions measured by Differential Dynamic Microscopy (DDM) be
+predicted from first principles --- without empirical fitting --- using a single
+unified framework based on bounded phase space geometry?
+
+\subsection*{Background and Motivation}
+
+Yield stress fluids (concentrated emulsions, colloidal gels, polymer networks,
+biological hydrogels) are among the most practically important and theoretically
+challenging soft matter systems. Their defining property --- the existence of a
+critical stress $\sigma_y$ below which the material behaves as a solid and above
+which it flows --- is typically treated phenomenologically: the Herschel-Bulkley
+or Bingham models fit experimental flow curves but provide no prediction of $\sigma_y$
+from molecular or colloidal parameters.
+
+DDM offers a powerful experimental route to the dynamic properties of such systems:
+the image structure function $D(\mathbf{q}, \Delta t)$ gives access to the
+intermediate scattering function $f(\mathbf{q}, \Delta t)$ without the
+sample constraints of DLS, enabling in-situ characterisation of structure and
+dynamics during flow.
+Yet the interpretation of DDM data in yield stress fluids remains challenging:
+the spatial and temporal heterogeneity of these materials, and the optical
+complexity of concentrated colloidal dispersions, make connecting $D(\mathbf{q}, \Delta t)$
+to mechanical properties non-trivial.
+
+\subsection*{Proposed Framework}
+
+I propose to develop and test a first-principles connection between the
+rheological behaviour and DDM-measured dynamics of model yield stress systems,
+using the bounded phase space (BPS) framework I have developed.
+
+\textbf{Step 1 --- Rheological predictions from partition geometry.}
+In the BPS framework, every soft matter system is a bounded oscillatory system
+characterised by S-entropy coordinates $(S_k, S_t, S_e) \in [0,1]^3$.
+Viscosity is $\mu = \tau_c \times g$, where $\tau_c$ is the partition lag
+(timescale of spectral mode transitions) and $g$ is the coupling strength
+(off-diagonal elements of the spectral coherence matrix).
+The yield stress $\sigma_y$ corresponds to the partition floor: the minimum
+S-entropy coordinate $S_e^{\min} = 1/m > 0$ (Floor Theorem, where $m$ is the
+number of spectral modes), below which the ordered phase cannot sustain coherence.
+This gives a structural prediction: $\sigma_y$ is proportional to the spectral
+coherence floor of the colloidal assembly, which can be computed from particle
+size distribution and volume fraction before any mechanical measurement.
+
+\textbf{Step 2 --- DDM structure function from optical partition geometry.}
+The image structure function $D(\mathbf{q}, \Delta t) = 2[S(\mathbf{q}) -
+\mathrm{Re}\{S(\mathbf{q}, \Delta t)\}]$, where $S(\mathbf{q}, \Delta t)$
+is the dynamic structure factor.
+In the BPS framework, the optical signal in a DDM experiment is governed by
+the Resonant Stack theorem: the transmittance $T = 1/e$ is the universal
+fixed point of the Beer-Lambert-Kirchhoff equivalence, and the image contrast
+encoding particle dynamics is a projection of the partition structure function
+onto the imaging wave vector $\mathbf{q}$.
+This gives a predictive model for $D(\mathbf{q}, \Delta t)$ from the same
+partition geometry that predicts $\mu$ and $\sigma_y$ --- a single framework
+connecting rheology to DDM without separate fitting.
+
+\textbf{Step 3 --- Experimental validation in the SoMeX Lab.}
+The proposal would be tested against measurements on two model systems:
+(i) Carbopol microgel suspensions (archetypal soft yield stress fluid;
+well-characterised by the lab's Anton Paar MCR 702e and ShearView rheometer);
+(ii) hard-sphere colloidal suspensions near the glass transition
+(DDM-accessible via the lab's sCMOS camera systems and fastDDM code).
+For each system, the BPS framework predicts $\sigma_y$ and the shape of
+$D(\mathbf{q}, \Delta t)$ from the particle parameters alone.
+Agreement or disagreement with measurement is a direct test of whether the
+partition geometry captures the relevant physics.
+
+\subsection*{Expected Outcomes and Timeline}
+
+Year 1: Implement BPS rheology predictions for Carbopol and hard-sphere systems;
+compare to ShearView measurements; extend fastDDM analysis to extract
+structure functions for BPS validation.
+
+Year 2--3: Extend to biologically relevant yield stress systems (mucus, cytoskeletal
+networks, bacterial biofilm matrices) and to active matter DDM (bacterial suspensions),
+where the $\oint \mathbf{J}\cdot d\mathbf{A} = 0$ conservation law for collective
+motion provides an additional first-principles constraint on $f(\mathbf{q}, \Delta t)$.
+
+The outcome, if the predictions hold, would be a validated first-principles
+connection between particle-level structure and macroscopic rheological
+and optical observables in soft matter systems --- a contribution both to
+fundamental soft matter physics and to the practical characterisation of
+biological fluids and active matter.
+
+\end{document}

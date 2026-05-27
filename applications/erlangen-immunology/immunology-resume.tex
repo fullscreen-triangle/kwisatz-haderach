@@ -1,0 +1,222 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Computational Immunology PhD, UK Erlangen (Job 12900)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+%	PERSONAL INFORMATION
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Doctoral research in mass spectrometry-based lipidomics, multi-omics statistical modelling,
+  and scientific computing. Departed programme to pursue independent computational research.
+}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems: Specificity through VDJ Recombination Categorical Filter Cascades.}
+  \newline
+  Proposes that adaptive immunity operates through categorical equivalence class filtering.
+  MHC binding affinity correlates with parent protein categorical richness
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). Adding the richness term to
+  NetMHCpan improves AUC from 0.68 to 0.81. Framework predicts autoimmune targets
+  (collagen, myelin, insulin) from protein conformational entropy and isoform diversity.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver: Cellular Ignorance, Group Blindness,
+  and Self-Consistency as the Unique Basis of Disease Detection.}
+  \newline
+  Proves via two axioms that template-based diagnosis is epistemologically impossible at
+  every biological scale. Disease is formalised as loop-holonomy defect in the biochemical
+  circuit ($H_\ell \neq \mathrm{Id}$); holonomy test achieves AUC$=1.00$ vs 0.896 for
+  template comparison. Therapy is sparse $\ell_1$ LP for loop-closure restoration.
+  25/25 numerical validation experiments pass.
+  \textit{Manuscript. AIMe Registry / TUM School of Life Sciences Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  \newline
+  Mathematical framework for disease trajectory computation through partition geometry.
+  Eight cellular oscillator classes (protein, enzyme, channel, membrane, ATP, genetic
+  expression, calcium, circadian) each yield a coherence index $\eta_i\in[0,1]$;
+  disease vector $\mathbf{D}\in[0,1]^8$ encodes pathological signatures with
+  $\mathcal{O}(N\log N)$ trajectory resolution.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{Viral Infection as Host-State-Dependent Categorical Resonance.}
+  \newline
+  Derives infection probability as a categorical overlap integral from first principles
+  (Maxwell electrostatics, quantum chemistry). Proves the Oscillatory Incompleteness
+  Theorem: viral particles cannot orchestrate host machinery.
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{lavoisier}{
+  Mass-spectrometry metabolomics analysis framework. Dual numerical and computer-vision
+  pipeline; 98.9\% feature extraction accuracy against NIST glycan reference library;
+  neural networks (PyTorch), distributed computing (Ray), supports $>$100\,GB mzML
+  datasets via memory-mapped I/O.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  Whole-genome variant analysis and RNA-seq integration framework. Processes million-scale
+  VCF files at $10^6$ variants/second; Bayesian network inference, Gaussian mixture models,
+  variational Bayes. Validated against 1000 Genomes Phase 3, gnomAD v3.1.2, UK Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{helicopter}{
+  Multi-modal microscopy image analysis. Combines fluorescence, brightfield, phase-contrast,
+  and spectral modalities through sequential exclusion to resolve structural ambiguity
+  beyond single-modality optical limits.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{syndrome}{
+  Implementation of the categorical disease trajectory framework. Oscillator coherence
+  computation, disease vector representation, trajectory resolution via constraint
+  satisfaction. Python/Rust.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2019--2021}{Computational Lipidomics}{Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry-based lipidomics pipeline: peak detection (Java), ion database
+  annotation (PHP/Python), feature engineering, statistical modelling, and front-end
+  visualisation of multi-omics datasets. Federated learning architecture for distributed
+  analysis across clinical sites.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{Python}{
+  Automated container-based pipeline for standardised proteomics and glycomics
+  characterisation of LC-MS/MS and MALDI-TOF data. High-throughput sample processing
+  and statistical QC.
+}
+
+\cventry{2019}{Bioprocess Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{Python, C}{
+  Real-time process monitoring and data acquisition for industrial algae photobioreactors.
+  Dynamic and linear programming methods for production optimisation of therapeutic lipids.
+}
+
+\cventry{2013}{Biomarker Discovery}{University Medical Center Groningen}{}{Python}{
+  UPLC-MS/MS shotgun proteomics protocol optimisation for cervical cancer biomarker
+  discovery in cell plasma and serum.
+}
+
+\cventry{2013}{Pharmacokinetics}{Leibniz Lungenzentrum}{}{Data Analysis}{
+  Quantification of matrix suppression effects in anti-TB drug efficacy measurement
+  in CHO lung cells using Selected Reaction Monitoring LC-MS.
+}
+
+\cventry{2012}{Metabolomics}{University of Zimbabwe}{}{Data Analysis}{
+  Development and optimisation of a plant metabolite characterisation pipeline
+  using LC and UV-spectrometry.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript/JavaScript, Java, C, SQL, Bash}
+
+\cvitem{Bioinformatics}{
+  Single-cell RNA-seq analysis, variant calling (VCF), mass spectrometry data processing
+  (mzML, mzXML, FASTA, BAM), sequence alignment, pathway analysis (KEGG, Reactome),
+  protein structure analysis (RDKit, GROMACS)
+}
+
+\cvitem{Statistics / ML}{
+  Bayesian networks, Gaussian mixture models, variational Bayes, Gaussian processes,
+  gradient boosting, graph neural networks, LSTMs, Transformers, PyTorch, scikit-learn,
+  NumPy, SciPy, Pandas
+}
+
+\cvitem{Omics Platforms}{
+  LC-MS/MS (QTOF, Quadrupole, Ion trap), MALDI-TOF, TIMS-PASEF, Native-MS,
+  UPLC-MS/MS, qPCR, NGS, DLS, Fluorescence and Atomic Force Microscopy, SPR
+}
+
+\cvitem{Infrastructure}{
+  Docker, distributed computing (Ray, Dask), HPC (Azure, AWS Lambda), Git,
+  PostgreSQL, Neo4j, Jupyter
+}
+
+\cvitem{Data Formats}{
+  mzML, mzXML, FASTA, BAM, VCF, HDF5, SBML, AniML, NeuroML, JSON
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

@@ -1,3 +1,5 @@
+import 'dc/dist/style/dc.css';
+import '../styles/dc-dark.css';
 import "@fancyapps/ui/dist/fancybox.css";
 import 'flickr-justified-gallery/src/fjGallery.css';
 import 'swiper/css';

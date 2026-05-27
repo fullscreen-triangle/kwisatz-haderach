@@ -1,0 +1,169 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wissenschaftliche*r Mitarbeiter*in, Biochemie und Oberflächenfunktionalisierung
+% Fraunhofer HHI, Photonic Biosensors, Berlin
+% Ref. 84447
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Mass spectrometry-based lipidomics, high-dimensional spectral data analysis,
+  multi-omics statistical modelling. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Protein biochemistry, bioconjugation, immunoassay development,
+  biopharmaceutical process design, analytical chemistry.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Protein structure and function, cell biology, analytical biochemistry,
+  organic chemistry.
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Optical physics and molecular spectroscopy from first principles; biosensor
+  signal analysis; molecular recognition modelling; binding affinity prediction;
+  large-scale spectral data pipelines.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics at HPC scale: peak detection, ion annotation (LIPID MAPS,
+  LipidBlast, HMDB), multi-omics integration, federated processing.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline for proteomics and glycomics:
+  protein immobilisation on analytical surfaces, sample preparation protocol
+  standardisation, reproducibility validation, SOP development.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery: sample digestion
+  and preparation protocols, statistical validation against reference standards.
+}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT COMPUTATIONAL TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Computational Tools for Biosensor Applications}
+
+\cvitem{lagrangian}{
+  \textbf{First-Principles Optical Physics.}
+  Resonant Stack theorem proves Beer-Lambert absorption, Kirchhoff circuit law,
+  and thermal emission as formally identical operations ($T=1/e=0.3679$ in all
+  three representations). Directly applicable to evanescent field coupling and
+  waveguide absorption in PIC biosensors; enables first-principles prediction
+  of sensing layer refractive index contributions from molecular structure.
+  GPU shader telescope: 10/10 benchmarks, $6.9\times10^{-5}$ median error.
+  Live: \href{https://space-observatory-xi.vercel.app}{space-observatory-xi.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/lagrangian}{github.com/fullscreen-triangle/lagrangian}
+}
+
+\cvitem{borgia}{
+  \textbf{Zero-Parameter Molecular Spectroscopy.}
+  Derives electronic transitions, absorption, emission, and vibrational modes
+  from bounded phase space geometry --- zero empirical parameters.
+  Applicable to pre-screening linker chemistries and bioreceptor candidates:
+  predict absorption cross-sections and refractive index contributions from
+  molecular structure before running chip experiments.
+  Validated against NIST: nine elements, six molecules; errors $<$1.63\,\%.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{crown-prince + syndrome}{
+  \textbf{Binding Affinity and Molecular Recognition.}
+  Crown Prince: $K_d$ from bounded phase space geometry; Hill equation as
+  limiting case; validated against 39 NIST compounds. Applicable to
+  receptor--analyte $K_d$ estimation without empirical docking.
+  Syndrome: spectral DFT molecular recognition ($\rho\geq0.72$ binding
+  threshold; $O(cL\log L)$; same physics as label-free biosensor spectral
+  complementarity). MHC-binding tool live at
+  \href{https://syndrome-seven.vercel.app/tools/mhc-binding}{syndrome-seven.vercel.app}.
+}
+
+\cvitem{lavoisier}{
+  \textbf{Spectral Data Analysis Pipeline.}
+  Dual-pipeline analysis: numerical + CNN visual (PyTorch); 98.9\,\% NIST
+  accuracy; Ray distributed; $>$100\,GB dataset support; memory-mapped I/O.
+  Signal extraction methodology directly applicable to interferometric and
+  resonance-shift biosensor readouts.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Biochemistry}{
+  Protein purification and handling; antibody-based assay development (ELISA,
+  lateral flow); bioconjugation and immobilisation strategies; MALDI sample
+  surface preparation; digestion and sample prep protocols; reproducibility
+  and QC in bioanalytical method development
+}
+
+\cvitem{Analytical Chemistry}{
+  LC-MS/MS, MALDI-TOF, UPLC-MS/MS, TIMS-PASEF, QTOF;
+  ion annotation (LIPID MAPS, LipidBlast, HMDB, NIST);
+  spectral data analysis (numerical and CNN-based pipelines)
+}
+
+\cvitem{Computational / ML}{
+  Python (primary), R, Rust; PyTorch; scikit-learn; Ray, Dask;
+  Docker, FastAPI; first-principles optical and molecular physics modelling
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

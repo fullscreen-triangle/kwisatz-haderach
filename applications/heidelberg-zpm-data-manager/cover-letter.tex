@@ -1,0 +1,138 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+20 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Frau Lisa Merkel \\
+Pathologisches Institut --- Zentrum für Personalisierte Medizin (ZPM) \\
+Universitätsklinikum Heidelberg \\
+Im Neuenheimer Feld 224, 69120 Heidelberg \\
+Job-ID: V000015540
+
+\vspace{1.5em}
+
+\textbf{Re: Data Manager*in --- Onkologie, ZPM Heidelberg (V000015540)}
+
+\vspace{1em}
+
+Dear Frau Merkel,
+
+I am applying for the Data Manager position (V000015540) at the ZPM Heidelberg.
+My interest in this role is specific: the ZPM operates at the interface between
+clinical oncology and translational research, and that is precisely the context
+in which the data management problems are hardest.
+In purely clinical settings, data flows are standardised.
+In purely research settings, data structures are investigator-defined.
+At the interface, neither set of conventions applies cleanly, and managing
+data quality requires understanding what the data will be used for --- not just
+that it has been entered correctly.
+
+\textbf{Oncology data infrastructure at clinical scale.}
+Over the past four years I have built the analytical layer that sits downstream
+of clinical data collection in oncology.
+The \href{https://syndrome-seven.vercel.app/tools}{Syndrome} framework processes
+patient and tumour characterisation data to produce neoantigen predictions,
+MHC binding assessments, immune escape scores, and a structured disease state
+representation $\mathbf{D}\in[0,1]^8$ with dimensions including immune activation,
+mucosal barrier integrity, metabolic, and circadian components.
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} pipeline
+handles genomic variant calling, somatic mutation analysis, RNA-seq quantification,
+and multi-omics integration from clinical cohort data, validated against
+gnomAD, 1000~Genomes, and UK~Biobank at $10^6$ variants per second.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} pipeline
+processes mass spectrometry data ($>100$\,GB mzML) from clinical samples with
+98.9\,\% NIST classification accuracy.
+Building these systems required understanding, at each step, how clinical
+data is generated, what the quality failure modes are, and what the downstream
+analysis requires from the upstream documentation.
+That is the same understanding the ZPM data manager role requires in the
+other direction: knowing what the research and certification use cases need
+in order to maintain the right data quality upstream.
+
+\textbf{Clinical data experience.}
+At Universitätsklinikum Hamburg-Eppendorf (2017--2018) I worked directly
+in the Glycomics and Proteomics laboratory, processing clinical samples,
+operating automated LC-MS/MS and MALDI-TOF pipelines, and managing data
+annotation and quality control for clinical cohort studies.
+At TUM / Bayerisches Forschungsinstitut (2019--2021) I worked on
+multi-omics data integration across federated clinical sites, maintaining
+distributed data processing pipelines and managing data quality across
+heterogeneous institutional data structures.
+I am familiar with the practical constraints of clinical data: incomplete
+records, inconsistent coding, retrospective vs.\ prospective collection
+differences, and the documentation requirements for certification and
+reporting that differ from what researchers want.
+
+\textbf{eCRF development and EDC systems.}
+I do not have prior experience with Onkostar specifically, and I want to
+be direct about that.
+What I bring instead is deep familiarity with the data structures
+that tumour documentation systems capture and the analysis pipelines
+that consume them.
+eCRF design is a data modelling problem: the form must capture exactly
+what the downstream analysis requires, in a structure that clinicians
+can complete reliably under time pressure.
+I have made those modelling decisions from the analysis side many times,
+and I expect the learning curve on Onkostar's specific interface to be short.
+
+\textbf{Scientific publications and reporting.}
+The position includes contributing to scientific publications and
+certification reporting.
+I have written formal manuscripts with full mathematical apparatus ---
+theorem statements, validation experiments, quantitative performance claims
+--- and I am comfortable with the standards of precision clinical research
+publications require.
+For the ZPM context, this means I can contribute to translational
+manuscripts that span clinical data, genomics, and computational analysis,
+not just to methods sections.
+
+\textbf{Interdisciplinary coordination.}
+The ZPM brings together pathologists, oncologists, computational researchers,
+and IT infrastructure teams.
+The data manager sits at the centre of that coordination.
+My work has required continuous communication across exactly this range
+of expertise: explaining computational methods to clinicians, explaining
+clinical constraints to software engineers, and translating between the
+two in project planning and documentation.
+User training and support --- another component of this role --- are familiar
+from deploying tools that wet-lab and clinical collaborators use without
+local computational infrastructure.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen), an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and a BSc in Biochemistry and
+Cell Biology (Jacobs University Bremen).
+I conducted doctoral research in Computational Lipidomics at TUM (2019--2021).
+I have lived in Germany continuously since 2011.
+English is native; German is conversational.
+I am available immediately.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

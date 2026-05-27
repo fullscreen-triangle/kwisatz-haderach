@@ -1,0 +1,118 @@
+/*
+ * Dark-theme overrides for dc.js charts.
+ * Imported globally in _app.js after dc/dist/style/dc.css.
+ * Scope: only affects .dc-chart and .dc-data-table elements.
+ */
+
+/* SVG text ----------------------------------------------------------------- */
+.dc-chart text,
+.dc-chart .axis text {
+  fill: rgba(187, 187, 187, 0.6) !important;
+  font-size: 11px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Axis paths and ticks ----------------------------------------------------- */
+.dc-chart .axis path,
+.dc-chart .axis line {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Grid lines --------------------------------------------------------------- */
+.dc-chart .grid-line line,
+.dc-chart .grid-line.horizontal line,
+.dc-chart .grid-line.vertical line {
+  stroke: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Chart backgrounds -------------------------------------------------------- */
+.dc-chart svg,
+.dc-chart rect.background {
+  background: transparent !important;
+  fill: transparent !important;
+}
+
+/* Brush selection overlay -------------------------------------------------- */
+.dc-chart .brush .selection {
+  fill: rgba(20, 191, 181, 0.15) !important;
+  stroke: rgba(20, 191, 181, 0.4) !important;
+}
+
+.dc-chart .brush .overlay {
+  fill: transparent !important;
+}
+
+/* Pie slice labels ---------------------------------------------------------- */
+.dc-chart .pie-label {
+  fill: rgba(187, 187, 187, 0.5) !important;
+  font-size: 10px !important;
+}
+
+/* Row chart text ----------------------------------------------------------- */
+.dc-chart .row text {
+  fill: rgba(187, 187, 187, 0.7) !important;
+}
+
+/* Selected/highlighted bars ------------------------------------------------ */
+.dc-chart .deselected .bar,
+.dc-chart .deselected .pie-slice path {
+  opacity: 0.25 !important;
+}
+
+/* Data table --------------------------------------------------------------- */
+.dc-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: 'Roboto', sans-serif;
+  color: rgba(187, 187, 187, 0.75);
+}
+
+.dc-data-table thead tr th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(187, 187, 187, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-weight: 700;
+}
+
+.dc-data-table tbody tr td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dc-data-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Section headers in data table -------------------------------------------- */
+.dc-data-table .dc-table-group td {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(20, 191, 181, 0.7);
+  padding: 12px 10px 4px;
+  font-weight: 700;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Legend ------------------------------------------------------------------- */
+.dc-legend-item text {
+  fill: rgba(187, 187, 187, 0.55) !important;
+  font-size: 10px !important;
+}
+
+/* Number display ----------------------------------------------------------- */
+.dc-chart .number-display {
+  font-size: 32px;
+  color: #14bfb5;
+}

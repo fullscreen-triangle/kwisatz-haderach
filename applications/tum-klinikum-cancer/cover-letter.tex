@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+16 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Roland Rad \\
+Institute of Molecular Oncology and Functional Genomics \\
+TUM Klinikum Rechts der Isar \\
+Munich, Germany
+
+\vspace{1.5em}
+
+\textbf{Re: PhD / Postdoc Position --- Cancer Biology and/or Bioinformatics (26\_05\_001)}
+
+\vspace{1em}
+
+Dear Prof.\ Rad,
+
+I am applying for a position in the Institute of Molecular Oncology and Functional
+Genomics, specifically in the area of computational large-scale data integration.
+My background is computational biology with doctoral research at TUM, and the tools
+I have built for large-scale genomic data analysis are publicly deployed.
+The sequence homology search tool built on the
+\href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework is available at
+\href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}
+and can be used directly without installation.
+
+\textbf{Large-scale genomic data integration.}
+Gospel is a whole-genome variant analysis and RNA-seq integration framework designed
+for the scale that massively parallel CRISPR and transposon screens generate.
+It processes million-scale VCF files at $10^6$ variants per second using Bayesian
+network inference, Gaussian mixture models, and variational Bayes for multi-omics
+integration. It has been validated against 1000 Genomes Phase~3, gnomAD v3.1.2,
+and UK Biobank, and handles the full pipeline from variant calling and RNA-seq
+quantification through pathway analysis (KEGG, Reactome) and functional annotation.
+The multi-dimensional integration problem that arises when combining CRISPR screen
+readouts, somatic mutation profiles, transcriptomics, and clinical outcomes is
+precisely what the framework was designed for.
+
+\textbf{Cancer biology and immune mechanisms.}
+My manuscript \textit{On the Thermodynamic Consequences of Categorical Completion
+on Biological Systems} develops a model of adaptive immune selectivity that predicts
+cancer-associated proteins as primary targets from structural first principles.
+MHC binding affinity correlates with the categorical richness of the parent
+protein's isoform and post-translational modification landscape
+($r = 0.73$, $p < 10^{-12}$, $n = 2{,}847$ IEDB peptides); the model achieves
+AUC 0.81 against NetMHCpan's 0.68, and explicitly predicts collagen isoforms and
+tumour-associated antigens as primary immune targets.
+A companion paper, \textit{On Disease Epistemology in Blind Receiver}, proves that
+loop-holonomy self-consistency is the unique viable diagnostic criterion for
+disease state identification (AUC$\,=1.00$, 25/25 validation experiments) and
+provides a sparse $\ell_1$ linear program for therapeutic target selection with
+minimum off-target effects; it is affiliated with the AIMe Registry and TUM
+School of Life Sciences Weihenstephan.
+
+\textbf{Cancer cell state transitions.}
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+models cellular state through eight oscillator classes (protein, enzyme, membrane,
+channel, ATP, genetic expression, calcium, circadian), each with a coherence index
+$\eta_i \in [0,1]$, computing a disease vector $\mathbf{D} \in [0,1]^8$ that
+locates the cell's current state in a partition geometry on the $[0,1]^8$ hypercube.
+Trajectory computation runs in $\mathcal{O}(N\log N)$; therapeutic target selection
+uses sparse LP to identify the minimum-intervention path from disease state to
+healthy attractor. Applied to cancer biology, the framework addresses cell fate
+transitions and metastatic progression as trajectory completion problems within
+this state space --- a natural extension of the institute's interest in cell fate
+transitions and the molecular mechanisms of metastasis.
+
+\textbf{Multi-omics and imaging.}
+For the metabolomics and imaging dimensions of multi-dimensional data integration,
+\href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+provides a virtual mass spectrometry instrument running force-free simulation
+in the browser, with a downloadable Rust executable for large-scale local runs.
+The underlying framework processes mzML datasets exceeding 100\,GB via Ray
+distributed computing and reaches 98.9\,\% feature extraction accuracy against
+the NIST library.
+For protein-level analysis, \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}
+provides a browser-based instrument for protein folding, molecular trajectory,
+catalysis, and dynamics via Kuramoto oscillator synchronization in S-entropy
+space --- directly applicable to the oncoproteins and cancer-associated structural
+changes identified from CRISPR screen readouts.
+For small-molecule and drug target analysis,
+\href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}
+provides zero-parameter GPU-accelerated molecular spectroscopy including docking,
+3D structure, fingerprints, and network analysis, running entirely in the browser.
+
+\textbf{Institutional context.}
+I completed doctoral research in Computational Lipidomics at TUM / Bayerisches
+Forschungsinstitut, where I developed mass spectrometry pipelines and federated
+learning architectures for distributed clinical analysis. Published work is
+affiliated with the AIMe Registry and TUM School of Life Sciences Weihenstephan.
+I am legally resident in Germany with full work authorisation and am available
+immediately. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

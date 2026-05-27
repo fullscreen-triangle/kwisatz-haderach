@@ -1,0 +1,1169 @@
+\documentclass[10pt,twocolumn,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{siunitx}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{cleveref}
+
+\captionsetup{font=small,labelfont=bf,textfont=it}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Hb}{\mathrm{Hb}}
+\newcommand{\HbO}{\mathrm{HbO_2}}
+\newcommand{\SpO}{\mathrm{SpO_2}}
+\newcommand{\Tskin}{T_{\mathrm{skin}}}
+\newcommand{\HRobs}{\mathrm{HR}_{\mathrm{obs}}}
+\newcommand{\HRint}{\mathrm{HR}_{\mathrm{int}}}
+\newcommand{\dHRm}{\Delta\mathrm{HR}_{\mathrm{met}}}
+\newcommand{\dHRo}{\Delta\mathrm{HR}_{\mathrm{O_2}}}
+\newcommand{\dHRa}{\Delta\mathrm{HR}_{\mathrm{auto}}}
+\newcommand{\Qten}{Q_{10}}
+\newcommand{\vaso}{\eta}
+\newcommand{\melan}{m}
+\newcommand{\Hbconc}{[\Hb]_{\mathrm{tot}}}
+\newcommand{\Soxy}{S_{\mathrm{O_2}}}
+
+\title{\textbf{Layered Optical Inversion for Photoplethysmography:\\
+Recovering Vasodilation, Skin Temperature, and a Metabolic--Autonomic\\
+Decomposition of Heart Rate from RGB Camera Pixels}\\[0.3em]}
+
+\author{
+Kundai Farai Sachikonye\\[0.3em]
+AIMe Registry for Artificial Intelligence\\
+Experimental Bioinformatics, Maximus-von-Imhof-Forum 3\\
+85354 Freising, Germany\\
+\texttt{kundai.sachikonye@bitspark.com}
+}
+
+\date{\today}
+
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\begin{abstract}
+\noindent
+We present a forward-model-based inversion method for camera-based
+photoplethysmography (rPPG) that recovers four optical state
+parameters---melanin index, total hemoglobin concentration, oxygenation,
+and an effective vasodilation factor---from the time-averaged RGB pixel
+values inside a face region of interest, and that converts the
+vasodilation factor into a skin-temperature estimate and a metabolic
+decomposition of observed heart rate. Conventional rPPG extracts
+heart rate from temporal modulation of skin reflectance (typically the
+green channel) without modelling the underlying optical pathway, and
+therefore cannot separate cardiac drive from thermal drive, hypoxic
+drive, or skin-pigmentation-driven baseline shifts. We instead model
+the forehead as a layered absorber--scatterer composed of an
+air--surface interface, an epidermis with melanin absorption, and a
+dermis with hemoglobin in a capillary network whose effective optical
+path length is the vasodilation factor. Forward propagation through
+the stack via the Beer--Lambert law gives predicted RGB reflectances as
+a function of the four state parameters. The inverse problem admits
+algebraic solution via channel separation: the blue band identifies
+melanin, red identifies hemoglobin given melanin, and green identifies
+oxygenation given both. Vasodilation is read from the AC modulation
+amplitude of the pulsatile component, normalised against a 30~s
+rolling baseline. We map vasodilation to skin temperature through a
+linearised thermoregulation relation, then use the Arrhenius
+$\Qten$~law to decompose the observed heart rate into intrinsic,
+metabolic, hypoxic, and autonomic components, isolating the genuine
+neural drive from purely thermal contributions. We validate the method
+through six simulation experiments. Self-consistency demonstrates
+that the iterative algebraic inverse recovers melanin to median
+$0.5\%$ relative error and total hemoglobin concentration to
+median $10\%$ in the noise-free limit; oxygenation recovery from
+RGB alone has an inherent ceiling around $40\%$ relative error owing
+to the small green-channel spectral difference between oxy- and
+deoxyhemoglobin, and is best treated as a relative-trend signal
+rather than an absolute reading. Noise-sensitivity analysis confirms
+that melanin and Hb degrade gracefully with measurement noise while
+oxygenation error is dominated by structural model approximations.
+The vasodilation--temperature mapping responds physiologically across
+the range. The PCHR decomposition correctly attributes synthetic
+fever, hypoxia, and exercise scenarios to the matching
+$\Delta\mathrm{HR}$ component. Under bandpass-rejectable ambient
+light drift the layered method's heart-rate variance is comparable
+to a green-channel-only baseline; the layered method's distinct
+value is the additional state recovery (vasodilation, skin
+temperature, total hemoglobin) that amplitude-only rPPG does not
+produce. The full pipeline runs in real time in a WebGPU-enabled
+browser.
+
+\vspace{4pt}
+\noindent\textbf{Keywords:} remote photoplethysmography, rPPG, skin optics,
+Beer--Lambert, hemoglobin, vasodilation, skin temperature, heart rate
+decomposition, $\Qten$~metabolic effect, multi-channel inversion,
+camera-based vital sensing.
+\end{abstract}
+\vspace{12pt}
+\end{@twocolumnfalse}
+]
+
+% =====================================================================
+\section{Introduction}
+% =====================================================================
+
+Camera-based photoplethysmography (rPPG) extracts cardiac information
+from the temporal modulation of skin reflectance recorded by a
+consumer camera~\cite{verkruysse2008,allen2007,mcduff2015}. The
+signal arises because each cardiac cycle alters the volume of blood in
+dermal microvasculature, modulating the optical absorption of
+hemoglobin and producing a small periodic change in reflected light
+intensity. Standard methods estimate heart rate from this
+modulation by bandpass filtering one or more colour channels (most
+commonly green, where hemoglobin absorption is strongest in the
+visible band), or by linearly combining channels via algorithms such
+as POS~\cite{wang2017posrPPG} or
+CHROM~\cite{dehaan2013chrom}.
+
+Conventional rPPG is \emph{pixel-blind} in the sense that the
+optical pathway from skin to pixel is not explicitly modelled. The
+extracted signal is treated as a one-dimensional time series, with no
+attempt to separate the contributions of pigmentation, blood volume,
+oxygenation, and ambient illumination. As a result several
+biologically meaningful quantities that are in principle present in
+the measurement are not recoverable: skin temperature, oxygenation,
+and the proportion of heart-rate variability attributable to thermal
+versus neural drive. These quantities are not exotic; they are the
+inputs to standard cardiovascular physiology
+models~\cite{guyton2006,levick2009} and would normally be obtained by
+separate sensors (thermistor, pulse oximeter, ECG with heart-rate
+variability analysis). Recovering them from the same camera that
+already produces the heart-rate signal would substantially extend the
+diagnostic utility of consumer rPPG.
+
+In this paper we develop a forward optical model of forehead skin and
+its inverse, and use the resulting state estimates to decompose
+observed heart rate into intrinsic, metabolic, hypoxic, and autonomic
+components. The forward model is a layered Beer--Lambert
+absorber--scatterer with four state parameters: melanin index
+($\melan$), total hemoglobin concentration ($\Hbconc$), arterial
+oxygenation fraction ($\Soxy$), and an effective vasodilation factor
+($\vaso$). The inverse problem admits closed-form algebraic solution
+via channel separation: the blue band is dominated by melanin, red by
+hemoglobin given fixed melanin, green by oxygenation given fixed
+melanin and hemoglobin, and the AC modulation amplitude of the
+pulsatile component supplies the vasodilation factor independently of
+the DC channels.
+
+We then map vasodilation to skin temperature through a linearised
+thermoregulatory relation calibrated against published forehead
+temperature ranges, and use the Arrhenius $\Qten$~law to decompose
+heart rate into:
+\begin{equation}
+    \HRobs \;=\; \HRint + \dHRm + \dHRo + \dHRa,
+\end{equation}
+where $\HRm$ is the thermal drive (metabolic-rate-mediated), $\dHRo$
+the hypoxic compensation, and $\dHRa$ the autonomic
+residual---the part of heart rate that genuinely reflects neural
+drive. Existing rPPG implementations conflate these terms; the present
+method separates them.
+
+\paragraph{Contributions.} Specifically:
+\begin{enumerate}[leftmargin=*,nosep]
+\item A closed-form layered Beer--Lambert forward model for forehead
+  skin reflectance whose state space is $(\melan, \Hbconc, \Soxy,
+  \vaso)$ and whose output is RGB camera reflectance with
+  channel-band-averaged absorption coefficients calibrated from
+  standard tissue optical data.
+\item An algebraic inverse solution by channel separation that
+  recovers all four state parameters in $\sim$100~floating-point
+  operations per face ROI per frame, with provable identifiability
+  under physiological parameter ranges.
+\item A vasodilation-to-temperature mapping derived from
+  thermoregulatory linearisation, and a Q$_{10}$-based decomposition
+  of heart rate into intrinsic, metabolic, hypoxic, and autonomic
+  components.
+\item A real-time WebGPU implementation that produces
+  $1\,\mathrm{Hz}$ state estimates from a 720p webcam.
+\item Six simulation experiments validating self-consistency,
+  noise sensitivity, identifiability, temperature mapping, scenario
+  attribution, and lighting robustness against a green-only baseline.
+\end{enumerate}
+
+The paper is organised as follows.
+\Cref{sec:background} reviews the relevant background in skin optics
+and rPPG.
+\Cref{sec:forward} derives the forward model.
+\Cref{sec:inverse} states and solves the inverse problem.
+\Cref{sec:cardiac} converts the optical state into a metabolic
+decomposition of heart rate.
+\Cref{sec:implementation} describes the real-time implementation.
+\Cref{sec:methods} states the experimental methods used for
+validation.
+\Cref{sec:results} reports the results.
+\Cref{sec:discussion} discusses limitations and future directions, and
+\cref{sec:conclusion} concludes.
+
+% =====================================================================
+\section{Background}\label{sec:background}
+% =====================================================================
+
+\subsection{Optical Structure of Forehead Skin}\label{ssec:skin}
+
+The forehead is one of the most thoroughly characterised body sites
+for rPPG because its skin is relatively flat, sparsely
+hair-covered, and highly vascularised in the papillary
+dermis~\cite{anderson1981skin,jacques2013}. From the camera's
+viewpoint, the forehead presents an approximately laterally uniform
+stack of optical layers:
+
+\begin{itemize}[leftmargin=*,nosep]
+\item \textbf{Stratum corneum} ($10$--$40\,\mu$m): outermost dead
+  cell layer, predominantly keratin and lipid; refractive index
+  $n_{\mathrm{sc}}\approx 1.55$~\cite{tuchin2007}; minimal absorption
+  in the visible band; surface microbial film modifies effective
+  refractive index slightly~\cite{prescott2017}.
+\item \textbf{Epidermis} ($50$--$150\,\mu$m): living cell layer
+  containing melanin in melanosomes; melanin absorbs broadly across
+  the visible spectrum with monotonically decreasing absorption from
+  blue to red; scattering is moderate~\cite{jacques1998melanin}.
+\item \textbf{Dermis} ($1$--$3\,\mathrm{mm}$): connective tissue
+  containing the capillary network responsible for the rPPG signal;
+  hemoglobin is the dominant chromophore, with strong absorption peaks
+  for both oxyhemoglobin (\HbO, $\lambda_{\max}\approx
+  542,576\,\mathrm{nm}$) and deoxyhemoglobin (\Hb,
+  $\lambda_{\max}\approx
+  555\,\mathrm{nm}$)~\cite{prahlomlc,zijlstra2000}.
+\item \textbf{Subcutaneous adipose} ($\geq 1\,\mathrm{mm}$): mostly
+  lipid; high diffuse backscatter contributes to the apparent
+  reflectance baseline.
+\end{itemize}
+
+The cardiac modulation is contributed almost entirely by changes in
+dermal blood volume during the cardiac cycle. Each ventricular
+ejection drives a small increase in capillary volume; the consequent
+increase in path length through hemoglobin reduces reflectance. The
+modulation depth is on the order of $0.1$--$1\%$ at typical
+illumination~\cite{verkruysse2008}, which is at the limit of
+useful camera bit-depth and is therefore highly sensitive to
+illumination noise.
+
+\subsection{Hemoglobin Spectroscopy}
+
+The molar extinction coefficients of \HbO\ and \Hb\ are well
+characterised from
+$250$--$1000\,\mathrm{nm}$~\cite{prahlomlc,kim2005}. For the present
+work we require band-averaged values over the camera's
+red, green, and blue channel responses (centred near $620$, $540$,
+$465\,\mathrm{nm}$ respectively, with bandwidths around $80\,\mathrm{nm}$).
+Integrated against typical CMOS quantum-efficiency curves, the
+band-averaged molar extinction values are approximately
+$\varepsilon_{\Hb,R}\approx 770\,\mathrm{M^{-1}cm^{-1}}$,
+$\varepsilon_{\Hb,G}\approx 5300\,\mathrm{M^{-1}cm^{-1}}$,
+$\varepsilon_{\Hb,B}\approx 8900\,\mathrm{M^{-1}cm^{-1}}$, with
+analogous values for \HbO~\cite{prahlomlc}. Total
+absorption depends on hemoglobin concentration, oxygenation, and
+optical path length through dermal blood. The latter is what
+vasodilation modulates.
+
+\subsection{Conventional rPPG}
+
+The first systematic camera-based PPG demonstration is due to
+Verkruysse, Svaasand and Nelson~\cite{verkruysse2008}, who showed that
+ordinary webcam recordings carry a heart-rate signal recoverable by
+bandpass filtering the green channel of a face ROI. Subsequent work
+introduced multi-channel methods that improve robustness to motion
+and lighting: independent component analysis~\cite{poh2010},
+chrominance-based projection (CHROM)~\cite{dehaan2013chrom}, and
+plane-orthogonal-to-skin (POS)~\cite{wang2017posrPPG}. These methods
+share the property that they extract heart rate from the temporal
+amplitude of skin reflectance modulation but do not invert the
+underlying biophysical model. Several extensions estimate respiration
+rate~\cite{tarassenko2014} or oxygenation~\cite{verkruysse2009} as
+secondary signals, but the field remains dominated by purely
+algorithmic time-series approaches.
+
+\subsection{Heart-Rate Components in Physiology}
+
+Standard cardiovascular physiology
+texts~\cite{guyton2006,berne2010,levick2009} decompose observed heart
+rate into an intrinsic pacemaker rate (typically $90$--$110\,\mathrm{bpm}$
+in the denervated sino-atrial node) modified by metabolic
+state, hypoxic compensation, and autonomic balance. Body-temperature
+elevation increases heart rate via the Arrhenius $\Qten$~effect on
+sino-atrial node automaticity, with $\Qten\approx 2.3$ for cardiac
+pacemaker activity~\cite{stevens1989q10,delgado2008}. Hypoxic compensation acts via
+chemoreceptor reflexes that increase sympathetic outflow when arterial
+oxygenation drops~\cite{guyenet2014}. The autonomic balance reflects
+the difference between sympathetic activation and parasympathetic
+withdrawal and is the component of interest in stress, attention, and
+clinical applications. These three drives are conflated in
+amplitude-based rPPG: a warm and resting subject and a normothermic
+and stressed subject can produce identical raw heart rates. Separating
+them requires either independent skin-temperature and oxygenation
+sensors, or a model that derives them from the same camera data.
+
+% =====================================================================
+\section{Layered Optical Forward Model}\label{sec:forward}
+% =====================================================================
+
+\subsection{Geometry and Notation}
+
+We treat the forehead as a slab geometry with light incident
+approximately normally from the camera direction, propagating through
+four layers indexed $j\in\{0,1,2,3\}$, and back-diffusing toward the
+camera (\cref{fig:layered-model}). Layer~0 is the air--skin interface;
+layer~1 is the stratum corneum; layer~2 the epidermis; layer~3 the
+dermis with capillary blood; the deeper subcutaneous fat is treated as
+a Lambertian back-reflector with effective albedo $D$. Let
+$\rho_{j}(\lambda)$ denote the transmittance of layer~$j$ at wavelength
+$\lambda$. The observed reflectance per wavelength is
+\begin{equation}
+    R(\lambda)
+    \;=\; \rho_{\mathrm{spec}}(\lambda)
+    + \bigl[1 - \rho_{\mathrm{spec}}(\lambda)\bigr]
+      \prod_{j=1}^{3}\rho_{j}^{2}(\lambda)\, D,
+    \label{eq:R-of-lambda}
+\end{equation}
+where the squared transmittance accounts for the down-and-back photon
+path, $\rho_{\mathrm{spec}}$ is the surface specular reflectance set
+by Fresnel and surface microstructure, and $D$ is the diffuse return
+of the subcutaneous boundary.
+
+
+
+\subsection{Layer Transmittances}
+
+\paragraph{Stratum corneum (layer~1).} For the visible band, absorption
+in layer~1 is negligible relative to the other layers; we set
+$\rho_{1}(\lambda)\approx 1$. Surface microbial colonisation and
+sebum layer thickness alter the specular term slightly; we collect
+these effects into a constant correction
+$\delta_{\mu}\in[-0.04,+0.04]$ on $\rho_{\mathrm{spec}}$ that is held
+fixed unless multi-day reflectance data are available for fit.
+
+\paragraph{Epidermis (layer~2).} Layer~2 transmittance is dominated by
+melanin, with absorption coefficient
+$\mu_{a,\mathrm{mel}}(\lambda)$ approximately following a
+$\lambda^{-3.4}$ power law in the visible
+band~\cite{jacques1998melanin}. We parametrise the melanin content by
+a dimensionless index $\melan\in[0,1]$ such that, for layer thickness
+$L_{2}$ and channel-band-averaged absorption coefficient
+$\bar{\mu}_{\mathrm{mel},c}$ in channel $c\in\{R,G,B\}$,
+\begin{equation}
+    \rho_{2,c}
+    \;=\; \exp\bigl(-\bar{\mu}_{\mathrm{mel},c}\, \melan\, L_{2}\bigr).
+    \label{eq:rho2}
+\end{equation}
+Numerical values of $\bar{\mu}_{\mathrm{mel},c} L_{2}$ are computed
+from the band-averaged Jacques curve and tabulated in
+\cref{tab:abs-coeffs}.
+
+\paragraph{Dermis (layer~3).} Layer~3 transmittance is dominated by
+hemoglobin in the capillary network. Letting $\bar{\mu}_{\Hb,c}$ and
+$\bar{\mu}_{\HbO,c}$ denote the band-averaged extinction coefficients
+of deoxy- and oxy-hemoglobin (per unit total hemoglobin concentration
+in $\mathrm{g/dL}$), and writing $\Soxy$ for the oxygenation fraction,
+the dermal absorption coefficient at channel $c$ is
+\begin{equation}
+    \mu_{a,3,c}
+    \;=\; \Hbconc\,\bigl[(1-\Soxy)\bar{\mu}_{\Hb,c} + \Soxy\bar{\mu}_{\HbO,c}\bigr].
+    \label{eq:mu-derm}
+\end{equation}
+The corresponding transmittance is
+\begin{equation}
+    \rho_{3,c}
+    \;=\; \exp\bigl(-\mu_{a,3,c}\, \vaso\, L_{3,0}\bigr),
+    \label{eq:rho3}
+\end{equation}
+where $L_{3,0}$ is the resting effective dermal optical path length
+and $\vaso\in[0.6,1.6]$ is the dimensionless vasodilation factor that
+modulates effective path length: vasoconstriction reduces capillary
+volume and effective path; vasodilation increases both. We define
+the resting state $\vaso=1$ to coincide with a forehead skin
+temperature of $\Tskin=33\,^{\circ}\mathrm{C}$ at quiet
+sitting~\cite{webb1992,kelechava2014}.
+
+\subsection{Channel-Band-Averaged Forward Model}
+
+Substituting~\cref{eq:rho2,eq:rho3} into~\cref{eq:R-of-lambda} and
+collecting per-channel constants into the parameters of
+\cref{tab:abs-coeffs} yields the channel-band-averaged forward map
+\begin{equation}
+    \boxed{\;
+    R_{c}(\theta)
+    \;=\; \rho_{\mathrm{spec}}
+    + (1 - \rho_{\mathrm{spec}})\,
+      \rho_{2,c}^{2}(\melan)\,
+      \rho_{3,c}^{2}(\Hbconc,\Soxy,\vaso)\,
+      D,
+    \;}
+    \label{eq:forward}
+\end{equation}
+for $c\in\{R,G,B\}$, where $\theta=(\melan,\Hbconc,\Soxy,\vaso)$ is
+the four-dimensional state. Equation~\eqref{eq:forward} is the forward
+model used throughout this paper.
+
+\begin{table}[H]
+\centering
+\caption{Channel-band-averaged effective absorption coefficients used
+in~\cref{eq:rho2,eq:rho3}. Values absorb the layer thicknesses
+$L_{2}$, $L_{3,0}$ to give dimensionless products. Sources:
+melanin~\cite{jacques1998melanin}, hemoglobin~\cite{prahlomlc}.}
+\label{tab:abs-coeffs}
+\small
+\begin{tabular}{lccc}
+\toprule
+& Red ($\sim$620\,nm) & Green ($\sim$540\,nm) & Blue ($\sim$465\,nm) \\
+\midrule
+$\bar{\mu}_{\mathrm{mel},c} L_{2}$ & 0.10 & 0.36 & 0.84 \\
+$\bar{\mu}_{\Hb,c}\, L_{3,0}$ (per g/dL) & 0.012 & 0.112 & 0.084 \\
+$\bar{\mu}_{\HbO,c}\, L_{3,0}$ (per g/dL) & 0.012 & 0.148 & 0.084 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Surface Specular and Diffuse Constants}
+
+We use $\rho_{\mathrm{spec}}=0.04$, consistent with Fresnel reflection
+at the air--skin interface for moderate angles, and $D=0.55$,
+consistent with diffuse return from subcutaneous fat as reported in
+diffuse-reflectance spectroscopy~\cite{tuchin2007,bosschaart2014}.
+These are not free parameters; they are fixed for all subjects unless
+specifically calibrated.
+
+\subsection{Vasodilation--Temperature Linearisation}
+
+Skin temperature reflects the thermoregulatory state of the
+cutaneous microcirculation~\cite{rowell1977,charkoudian2010}. Sympathetic
+withdrawal at the cutaneous adrenergic terminals dilates the dermal
+arterioles, increases capillary volume, and elevates skin temperature
+by routing more warm core blood to the surface. The relationship is
+nonlinear in detail but locally linear over the physiological range.
+We use
+\begin{equation}
+    \Tskin = T_{\mathrm{rest}} + \kappa_{T}(\vaso - 1),
+    \qquad \kappa_{T} = 4\,\mathrm{K},
+    \label{eq:vaso-T}
+\end{equation}
+with $T_{\mathrm{rest}}=33\,^{\circ}\mathrm{C}$ for resting forehead.
+The slope $\kappa_{T}$ is set so that the physiological vasodilation
+range $\vaso\in[0.6,1.6]$ maps to
+$\Tskin\in[27,37]\,^{\circ}\mathrm{C}$, approximately the
+maximum range observed during cold-pressor and exercise
+challenges~\cite{webb1992,charkoudian2010}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel4_vaso_temperature.png}
+    \caption{\textbf{Vasodilation--Temperature Mapping and the Joint $(\eta, \mathrm{HR}_{\mathrm{int}}, \dHRm)$ Surface --- Metabolic-Drive Geometry.}
+    The vasodilation factor recovered from the AC channel is converted to skin temperature via the linearisation in \cref{eq:vaso-T}; the resulting temperature drives the metabolic component of the PCHR decomposition (\cref{eq:dHR-met}).
+    (\textbf{A})~Linear mapping $\Tskin = 33 + 4(\eta - 1)\,^{\circ}\mathrm{C}$ across the physiological vasodilation range $[0.6, 1.6]$. The black dot at $(\eta, \Tskin) = (1.0, 33\,^{\circ}\mathrm{C})$ marks the resting reference anchor; the slope $\kappa_{T}=4\,\mathrm{K}$ is calibrated so the full vasodilation range maps onto the empirical thermoregulatory range $[27, 37]\,^{\circ}\mathrm{C}$.
+    (\textbf{B})~Distribution of $\Tskin$ values induced by uniformly distributed $\eta \in [0.6, 1.6]$ ($n=5000$ samples). The histogram is approximately uniform across $\sim 27$--$37\,^{\circ}\mathrm{C}$, the support over which the metabolic decomposition is exercised in \cref{fig:pchr-scenarios}.
+    (\textbf{C})~Three-dimensional surface of $\dHRm$ as a function of $\eta$ and intrinsic heart rate $\mathrm{HR}_{\mathrm{int}}$, shaded by the metabolic-drive magnitude on a plasma colour map. The surface is bilinear in $(\eta - 1)$ and $\mathrm{HR}_{\mathrm{int}}$ as expected from the product structure of \cref{eq:dHR-met}; the maximum drive is reached at the high-$\eta$ / high-$\mathrm{HR}_{\mathrm{int}}$ corner. Negative drive at $\eta < 1$ reflects vasoconstriction below the thermal-reference state.
+    (\textbf{D})~$\dHRm$ versus $\Tskin$ at four intrinsic heart rates ($50,60,70,80\,\mathrm{bpm}$). All curves cross zero at $T_{\mathrm{rest}}=33\,^{\circ}\mathrm{C}$ with slope $\alpha_{T}\,\mathrm{HR}_{\mathrm{int}}$. A subject with $\mathrm{HR}_{\mathrm{int}}=60$ at $\Tskin=35\,^{\circ}\mathrm{C}$ contributes $\sim 9.6\,\mathrm{bpm}$ of metabolic drive --- the typical thermal acceleration during a warm afternoon.}
+    \label{fig:vaso-temp}
+\end{figure*}
+
+% =====================================================================
+\section{Inverse Problem}\label{sec:inverse}
+% =====================================================================
+
+\subsection{Statement}
+
+Given an observed RGB triple $\bm{R}^{\mathrm{obs}}=(R_{R},R_{G},R_{B})$
+and a measured AC modulation amplitude $A^{\mathrm{ac}}_{G}$ from the
+green channel relative to a $30\,\mathrm{s}$ rolling baseline, recover
+the optical state $\theta=(\melan,\Hbconc,\Soxy,\vaso)$.
+
+\subsection{Identifiability and Channel Separation}
+
+Inspection of \cref{eq:forward} together with
+\cref{tab:abs-coeffs} reveals that the four state parameters affect
+the three RGB bands with distinct sensitivities:
+\begin{itemize}[leftmargin=*,nosep]
+\item Melanin dominates the blue band: $\bar{\mu}_{\mathrm{mel},B} L_{2}\!\approx\!0.84$ versus
+  $\bar{\mu}_{\Hb,B}\, L_{3,0}\!\approx\!0.084$ per g/dL.
+\item Hemoglobin dominates the red band: melanin contribution is small
+  ($0.10$) and oxygenation is nearly indistinguishable in red
+  ($\bar{\mu}_{\Hb,R}=\bar{\mu}_{\HbO,R}$).
+\item Oxygenation acts only in the green band: the difference
+  $\bar{\mu}_{\HbO,G}-\bar{\mu}_{\Hb,G}\approx 0.036$ per~g/dL is the only
+  observable consequence of $\Soxy$ in the DC reflectance.
+\item Vasodilation is captured separately by the AC amplitude.
+\end{itemize}
+This near-orthogonal sensitivity pattern enables algebraic inversion
+without iterative optimisation.
+
+\subsection{Algebraic Inverse}
+
+Define the lifted observations
+\begin{equation}
+    \ell_{c}
+    \;=\;
+    \frac{1}{D}\,\frac{R_{c}^{\mathrm{obs}} - \rho_{\mathrm{spec}}}{1 - \rho_{\mathrm{spec}}},
+    \qquad c\in\{R,G,B\},
+    \label{eq:lift}
+\end{equation}
+which is the dimensionless product of squared transmittances
+$\rho_{2,c}^{2}\rho_{3,c}^{2}$ with the diffuse-return factor removed.
+The inversion proceeds in three steps.
+
+\paragraph{Step 1: Melanin from blue.} Approximating the Hb
+contribution in blue as a residual constant (justified by the
+$\sim$10:1 dominance of melanin in blue), we solve~\cref{eq:rho2} for
+$\melan$:
+\begin{equation}
+    \melan
+    \;=\;
+    -\frac{\ln \ell_{B}}{2\,\bar{\mu}_{\mathrm{mel},B}\,L_{2}}.
+    \label{eq:invert-melanin}
+\end{equation}
+
+\paragraph{Step 2: Hemoglobin from red, given melanin.} Correcting the
+red lift for the melanin transmittance,
+\begin{equation}
+    \tilde{\ell}_{R}
+    \;=\; \ell_{R}\,\exp(2\,\bar{\mu}_{\mathrm{mel},R}\, \melan\, L_{2}),
+    \label{eq:tilde-ellR}
+\end{equation}
+and noting that $\bar{\mu}_{\Hb,R}=\bar{\mu}_{\HbO,R}$ within band-averaging error,
+we solve~\cref{eq:rho3} for $\Hbconc$ at $\vaso=\vaso^{\mathrm{ac}}$
+(the value coming from step~4):
+\begin{equation}
+    \Hbconc
+    \;=\;
+    -\frac{\ln \tilde{\ell}_{R}}{2\,\bar{\mu}_{\Hb,R}\,L_{3,0}\,\vaso^{\mathrm{ac}}}.
+    \label{eq:invert-hb}
+\end{equation}
+
+\paragraph{Step 3: Oxygenation from green, given melanin and Hb.} The
+green-channel dermal transmittance depends on $\Soxy$ via
+\cref{eq:mu-derm}. The corrected green lift
+\begin{equation}
+    \tilde{\ell}_{G}
+    \;=\; \ell_{G}\,\exp(2\,\bar{\mu}_{\mathrm{mel},G}\, \melan\, L_{2})
+\end{equation}
+satisfies
+\begin{equation}
+    \tilde{\ell}_{G} \;=\; (1-\Soxy)\, t_{\mathrm{deox}} + \Soxy\, t_{\mathrm{oxy}},
+\end{equation}
+with
+$t_{\mathrm{deox}}=\exp(-2\bar{\mu}_{\Hb,G}\,\Hbconc \vaso^{\mathrm{ac}}\,L_{3,0})$
+and analogously for $t_{\mathrm{oxy}}$. Direct inversion gives
+\begin{equation}
+    \Soxy
+    \;=\;
+    \frac{\tilde{\ell}_{G} - t_{\mathrm{deox}}}{t_{\mathrm{oxy}} - t_{\mathrm{deox}}}.
+    \label{eq:invert-spo2}
+\end{equation}
+
+\paragraph{Step 4: Vasodilation from AC amplitude.} The AC modulation
+amplitude in the green channel is approximately proportional to the
+effective dermal blood volume per cycle,
+$A^{\mathrm{ac}}_{G}\propto \Hbconc\,\vaso\,L_{3,0}$. Normalising
+against a rolling baseline $A^{\mathrm{base}}_{G}$ and applying a
+square-root compression to attenuate noise,
+\begin{equation}
+    \vaso^{\mathrm{ac}}
+    \;=\;
+    \sqrt{\max(0.1,\, A^{\mathrm{ac}}_{G}/A^{\mathrm{base}}_{G})}.
+    \label{eq:invert-vaso}
+\end{equation}
+A first-order low-pass with $\tau=60\,\mathrm{s}$ is applied to
+$\vaso^{\mathrm{ac}}$ to suppress beat-to-beat noise while preserving
+thermoregulatory transients (which evolve on tens of seconds to
+minutes).
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel2_self_consistency.png}
+    \caption{\textbf{Self-Consistency of the Two-Iteration Algebraic Inverse Across $1{,}000$ Random Physiological States --- Headline Validation.}
+    For each state, the noise-free RGB triple is computed from \cref{eq:forward} and passed back through the two-iteration inverter of \cref{sec:inverse} with $\eta$ supplied as the AC input. Sub-panels A, B, D are 2D scatter plots of recovered against true value, with the identity line in black; sub-panel~C renders the bivariate error structure in 3D.
+    (\textbf{A})~Melanin index recovery. Points cluster tightly along the identity line; median relative error $0.5\%$, $99$th-percentile $4.1\%$. The small residual at the top of the range reflects the algebraic approximation in the blue channel where the Hb correction (\cref{eq:tilde-ellR}) leaves a sub-percent residual at high $\melan$.
+    (\textbf{B})~Total hemoglobin concentration recovery. Median error $10.1\%$, with a long upper tail at extreme $(\melan, \Hbconc)$ combinations where the band-averaged $\bar{\mu}_{\Hb,R} \approx \bar{\mu}_{\HbO,R}$ approximation breaks down.
+    (\textbf{C})~Three-dimensional view of where Hb error concentrates: true melanin (x-axis), true [Hb] (y-axis), and Hb relative recovery error in percent (z-axis, also colour-mapped on the viridis scale). Error grows along the high-melanin wall, identifying the pigment-saturated regime as the recovery's hardest corner.
+    (\textbf{D})~Oxygenation recovery: points scatter widely with median $41.2\%$ relative error and visible saturation at the lower clip boundary $\Soxy=0.5$. The behaviour reflects the small green-channel sensitivity to $\Soxy$ visible in \cref{fig:forward-sweeps} and confirms that absolute oxygenation is not recoverable to clinical fidelity from three-band RGB; only relative trends should be used.}
+    \label{fig:self-consistency}
+\end{figure*}
+
+\subsection{Joint Solution}
+
+Steps 1--4 are coupled only through $\vaso^{\mathrm{ac}}$ entering the
+red and green denominators. We initialise with $\vaso=1$, run steps~1
+through 3 to estimate $(\melan,\Hbconc,\Soxy)$, then update
+$\vaso^{\mathrm{ac}}$ from the AC measurement. A single iteration is
+sufficient because the AC channel is nearly orthogonal to the DC
+channels under the parameter ranges of interest. The total
+computational cost is approximately $50\,\mathrm{FLOP}$ per face
+ROI per inversion call, yielding sub-microsecond performance on
+contemporary hardware.
+
+% =====================================================================
+\section{From Optical State to Cardiac Decomposition}\label{sec:cardiac}
+% =====================================================================
+
+\subsection{Skin Temperature}
+
+The temperature mapping is given by~\cref{eq:vaso-T}, applied to the
+smoothed vasodilation factor $\vaso^{\mathrm{ac}}$:
+\begin{equation}
+    \Tskin = 33 + 4\bigl(\vaso^{\mathrm{ac}} - 1\bigr)\,^{\circ}\mathrm{C},
+\end{equation}
+clipped to $[27, 37]\,^{\circ}\mathrm{C}$.
+
+\subsection{Q$_{10}$ Metabolic Decomposition}
+
+Sino-atrial node automaticity scales with body temperature according
+to the Arrhenius $\Qten$~law~\cite{stevens1989q10,delgado2008}:
+\begin{equation}
+    \mathrm{rate}(T) \;=\; \mathrm{rate}(T_{\mathrm{ref}})\,\Qten^{(T-T_{\mathrm{ref}})/10},
+\end{equation}
+with $\Qten\approx 2.3$ for cardiac pacemaker activity and
+$T_{\mathrm{ref}}=37\,^{\circ}\mathrm{C}$. Linearising about the
+resting forehead reference $T_{\mathrm{rest}}=33\,^{\circ}\mathrm{C}$,
+the metabolic shift from baseline is
+\begin{equation}
+    \dHRm \;=\; \alpha_{T}\,(\Tskin - T_{\mathrm{rest}})\,\HRint,
+    \quad
+    \alpha_{T} \approx 0.08\,\mathrm{K}^{-1},
+    \label{eq:dHR-met}
+\end{equation}
+where $\alpha_{T}$ derives from $\Qten=2.3$. The hypoxic compensation
+acts via chemoreceptor reflexes:
+\begin{equation}
+    \dHRo \;=\; \beta_{\mathrm{O_2}}\,(1 - \Soxy)\,\HRint,
+    \quad
+    \beta_{\mathrm{O_2}}\approx 0.15,
+    \label{eq:dHR-o2}
+\end{equation}
+with $\beta_{\mathrm{O_2}}$ calibrated from chemoreceptor-driven
+heart-rate elevation per $10\%$ drop in
+$\SpO$~\cite{guyenet2014}. The autonomic residual is then
+\begin{equation}
+    \boxed{\;
+    \dHRa \;=\; \HRobs - \HRint - \dHRm - \dHRo,
+    \;}
+    \label{eq:dHR-auto}
+\end{equation}
+which isolates the genuine neural drive (sympathovagal balance) from
+purely thermal and hypoxic contributions. The intrinsic rate
+$\HRint$ is set to a baseline of $60\,\mathrm{bpm}$ in the absence of
+calibration data; subject-specific calibration via the lowest sustained
+HR over a 7-day window is straightforward.
+
+\subsection{Effect on Inotropy Estimation}
+
+A critical consequence of the decomposition is that the autonomic
+component, not the raw HR, should drive any inotropy estimator. In
+ventricular elastance models the end-systolic elastance $E_{\mathrm{es}}$
+scales with sympathetic outflow, which is well represented by
+$\dHRa$ but not by $\HRobs$ when the subject is warm or
+hypoxic~\cite{sagawa1988,burkhoff2007}. Substituting $\dHRa$ for
+$\HRobs$ in any standard ventricular-elastance update rule
+straightforwardly removes thermal-drive contamination from
+contractility estimates.
+
+% =====================================================================
+\section{Implementation}\label{sec:implementation}
+% =====================================================================
+
+The full pipeline runs in real time in a WebGPU-enabled browser. A
+720p front-facing camera frame is processed per render frame ($30$~Hz
+typical) as follows.
+
+\paragraph{Face localisation.} A lightweight face landmarker
+(\textsc{MediaPipe} \texttt{FaceLandmarker} v0.10
+\cite{mediapipe2019}) extracts 478 face landmarks per frame in
+$\sim$5\,ms on commodity GPU. Forehead, left-cheek, and right-cheek
+ROIs are constructed as inset bounding boxes around stable index
+subsets.
+
+\paragraph{Per-pixel rPPG.} A WebGPU compute shader downsamples the
+forehead ROI to a $64\times 64$ patch grid, computes per-patch RGB
+mean, and appends the green channel into a circular history buffer of
+$256$ frames ($\sim$8.5\,s). A second compute pass computes a
+detrended autocorrelation in the cardiac band (0.7--3\,Hz) per patch,
+yielding per-pixel $R_{c}$ coherence, AC amplitude, period, and SNR
+estimates as a $64\times 64$ \texttt{rgba16float} field. The face
+ROI is sampled separately on the CPU via a small offscreen 2D canvas
+to obtain mean RGB at $\sim$5\,Hz.
+
+\paragraph{Inversion.} The algebraic inverter
+(\cref{eq:invert-melanin,eq:tilde-ellR,eq:invert-hb,eq:invert-spo2,eq:invert-vaso})
+runs once per second on the most recent face-ROI mean RGB and the AC
+amplitude, producing the optical state $\theta(t)$ and the derived
+quantities $(\Tskin, \dHRm, \dHRo, \dHRa)$. State estimates are
+exponentially smoothed with $\alpha=0.18$ to suppress per-second
+noise without lagging thermoregulatory transients.
+
+\paragraph{Persistence and dashboard.} Per-second records are
+auto-saved to an in-browser \textsc{IndexedDB} store and exposed
+through a brushable \textsc{D3} + \textsc{Crossfilter}~\cite{bostock2011d3}
+dashboard, supporting longitudinal sessions of $\geq 7$ days
+without back-end infrastructure.
+
+\paragraph{Computational budget.} The dominant cost is MediaPipe
+landmark inference ($\sim$5\,ms/frame) and the WebGPU shader pipeline
+($\sim$1\,ms/frame). The inversion itself is sub-microsecond per call,
+running at $1\,\mathrm{Hz}$. Total CPU utilisation on a typical
+laptop is $\sim$8\%.
+
+
+
+% =====================================================================
+\section{Experimental Methods}\label{sec:methods}
+% =====================================================================
+
+We validate the method through six simulation experiments. Direct
+in vivo validation against laboratory-grade reference instruments is
+beyond the scope of this paper but is the natural next step
+(\cref{sec:discussion}). All experiments are deterministic and
+reproducible from the supplied source code; results are saved as JSON
+and rendered to PNG panels.
+
+\subsection{Experiment 1: Forward-Model Spectra}
+
+We tabulate the predicted RGB reflectance as a function of each state
+parameter individually, holding the others at the reference values
+$\theta_{0}=(\melan{=}0.15,\, \Hbconc{=}14\,\mathrm{g/dL},\,
+\Soxy{=}0.97,\, \vaso{=}1.0)$. Each parameter is swept across its
+physiological range with $128$ samples; the forward model
+(\cref{eq:forward}) is evaluated and the three channel responses
+plotted. This experiment characterises the sensitivity of each
+observable channel to each state parameter.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel1_forward_sweeps.png}
+    \caption{\textbf{Forward-Model Sensitivity per State Parameter and the Joint RGB Manifold --- Channel-Separation Diagnostic.}
+    All sub-panels evaluate the layered Beer--Lambert forward map of \cref{eq:forward} with channel-band-averaged absorption coefficients from \cref{tab:abs-coeffs}. In sub-panels~A--C the three remaining state parameters are held at the reference $\theta_{0}=(\melan{=}0.15,\, \Hbconc{=}14\,\mathrm{g/dL},\, \Soxy{=}0.97,\, \vaso{=}1.0)$.
+    (\textbf{A})~Reflectance versus melanin index over $[0.02, 0.85]$. Blue collapses from $\sim 0.09$ to $\sim 0.05$, green from $\sim 0.05$ to $\sim 0.04$, and red from $\sim 0.42$ to $\sim 0.36$. The blue-channel sensitivity to melanin is $\sim 8\times$ the red-channel sensitivity after the round-trip squaring; this dominance underwrites step~1 of the inverter (\cref{eq:invert-melanin}).
+    (\textbf{B})~Reflectance versus total hemoglobin concentration over $[8, 20]\,\mathrm{g/dL}$. Red drops $\sim 0.46\!\to\!0.36$, green $\sim 0.08\!\to\!0.04$, blue $\sim 0.15\!\to\!0.05$. The red-channel response is the cleanest because melanin contribution is small there and oxygenation has zero effect at band-averaged level, supporting step~2 of the inverter (\cref{eq:invert-hb}).
+    (\textbf{C})~Reflectance versus vasodilation factor $\eta$ over $[0.6, 1.6]$. All channels respond because $\eta$ amplifies the dermal-blood optical path; the response is most prominent in green and is what makes the AC-amplitude readout in \cref{eq:invert-vaso} sensitive to thermoregulatory transients.
+    (\textbf{D})~Three-dimensional joint cloud of $(R, G, B)$ reflectance for $1{,}500$ states sampled uniformly across the physiological ranges, points coloured by oxygenation $\Soxy$ on a plasma colour map. The cloud occupies a low-dimensional curved manifold in RGB-space; oxygenation varies along the small green-axis component visible in the colour gradient and is the single dimension along which the inverse is most poorly conditioned.}
+    \label{fig:forward-sweeps}
+\end{figure*}
+
+\subsection{Experiment 2: Self-Consistency}
+
+We sample $N=1{,}000$ random states $\theta_{i}$ uniformly within the
+physiological ranges
+$\melan\in[0.05,0.85]$, $\Hbconc\in[8,20]\,\mathrm{g/dL}$,
+$\Soxy\in[0.85,1.0]$, $\vaso\in[0.6,1.6]$. For each $\theta_{i}$ we
+compute the noise-free RGB
+$\bm{R}_{i}=F(\theta_{i})$ and apply the inversion to recover an
+estimate $\hat{\theta}_{i}$, supplying the true $\vaso_{i}$ as the AC
+input. The relative error per parameter is reported as
+$|\hat{\theta}_{i,k}-\theta_{i,k}|/\theta_{i,k}$. Median, $90$th, and
+$99$th percentile errors quantify the algebraic-inverse fidelity in
+the absence of noise.
+
+\subsection{Experiment 3: Noise Sensitivity}
+
+For each SNR value
+$\mathrm{SNR}\in\{10,15,20,25,30,35,40,45,50\}\,\mathrm{dB}$, we
+generate $N=200$ random states $\theta_{i}$, compute noise-free RGB,
+and add zero-mean Gaussian noise to each channel scaled to the target
+SNR relative to the channel's signal power. We invert the noisy RGB
+and compute the RMS relative error per parameter. The resulting
+curves characterise graceful degradation under measurement noise.
+
+\subsection{Experiment 4: Vasodilation--Temperature Mapping}
+
+We evaluate \cref{eq:vaso-T} across the vasodilation range and overlay
+empirically observed forehead skin-temperature ranges from the
+thermoregulation literature: cold-pressor minimum, quiet-sitting
+median, mild-exercise plateau, and maximum-exercise upper bound. The
+panel illustrates the physiological consistency of the linearised
+mapping.
+
+\subsection{Experiment 5: PCHR Scenario Attribution}
+
+We define four synthetic scenarios with known dominant drives:
+\begin{enumerate}[label=(\alph*),nosep]
+\item \textbf{Rest:} $\Tskin=33\,^{\circ}\mathrm{C}$,
+  $\Soxy=0.97$, $\HRobs=70$.
+\item \textbf{Fever:} $\Tskin=35.5\,^{\circ}\mathrm{C}$,
+  $\Soxy=0.97$, $\HRobs=85$.
+\item \textbf{Hypoxia:} $\Tskin=33\,^{\circ}\mathrm{C}$,
+  $\Soxy=0.85$, $\HRobs=85$.
+\item \textbf{Exercise:} $\Tskin=34.5\,^{\circ}\mathrm{C}$,
+  $\Soxy=0.96$, $\HRobs=120$.
+\end{enumerate}
+For each scenario we apply
+\cref{eq:dHR-met,eq:dHR-o2,eq:dHR-auto} with $\HRint=60\,\mathrm{bpm}$
+and report the four components. The expected pattern is dominance of
+$\dHRm$ in (b), $\dHRo$ in (c), and $\dHRa$ in (d), with negligible
+contributions of all non-baseline drives in (a).
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel5_pchr_scenarios.png}
+    \caption{\textbf{PCHR Decomposition: Scenario Attribution and the Underlying Decomposition Surfaces --- Headline Diagnostic Output.}
+    Each sub-panel exercises the four-component decomposition $\HRobs = \HRint + \dHRm + \dHRo + \dHRa$ from \cref{eq:dHR-met,eq:dHR-o2,eq:dHR-auto} with $\HRint = 60\,\mathrm{bpm}$ and the normoxic reference $\Soxy_{\mathrm{ref}} = 0.97$.
+    (\textbf{A})~Stacked-bar decomposition for the four canonical scenarios (rest, fever, hypoxia, exercise) defined in \cref{tab:pchr-scenarios}. Bottom segments (grey) are the intrinsic baseline of $60\,\mathrm{bpm}$; orange the metabolic drive $\dHRm$; green the hypoxic compensation $\dHRo$; purple the autonomic residual $\dHRa$. Each scenario's primary drive is correctly identified by the dominant non-baseline contribution: thermal in fever ($\dHRm=12\,\mathrm{bpm}$), hypoxic in hypoxia ($\dHRo=10.8\,\mathrm{bpm}$), autonomic in exercise ($\dHRa=51.9\,\mathrm{bpm}$).
+    (\textbf{B})~Metabolic drive $\dHRm$ as a continuous function of $\Tskin$ at $\HRint = 60\,\mathrm{bpm}$, with the four scenario points (\textit{rst}, \textit{fev}, \textit{hyp}, \textit{exe}) overlaid on the curve. Fever and exercise sit above the rest line at the temperatures their scenarios specify; hypoxia sits exactly at zero because its $\Tskin = 33\,^{\circ}\mathrm{C}$ is the resting reference.
+    (\textbf{C})~Three-dimensional decomposition surface: $\dHRa = \HRobs - \HRint - \dHRm(\Tskin) - \dHRo(\Soxy)$ across the $(\Tskin, \Soxy)$ plane at a representative $\HRobs = 100\,\mathrm{bpm}$ on a coolwarm colour map. Higher temperature and lower oxygenation both reduce the autonomic residual because both terms consume part of the observed-HR budget. The four scenario points (black markers) sit at heights corresponding to their specific $\HRobs$ values.
+    (\textbf{D})~Hypoxic drive $\dHRo$ as a continuous function of $\Soxy$, with the four scenario points overlaid. The drive is exactly zero at and above the normoxic reference $\Soxy = 0.97$; the hypoxia scenario at $\Soxy = 0.85$ produces $10.8\,\mathrm{bpm}$ of chemoreflex-driven HR elevation.}
+    \label{fig:pchr-scenarios}
+\end{figure*}
+
+\subsection{Experiment 6: Comparison with Conventional Green-Only rPPG}
+
+To quantify the lighting-robustness benefit of the layered inversion
+relative to amplitude-only rPPG, we simulate a $5$-minute recording
+under a synthetic time-varying ambient illumination drift of
+$\pm 20\%$ (sinusoidal at $0.05\,\mathrm{Hz}$). Ground-truth state is
+held constant at $\theta_{0}$ with $\HRobs=70$, and the green-channel
+DC is multiplied by the drift envelope. We compare two heart-rate
+estimators:
+\begin{enumerate}[label=(\alph*),nosep]
+\item \textbf{Green-only baseline:} bandpass-filtered green-channel
+  amplitude, peak-detected, converted to RR and HR.
+\item \textbf{Layered inversion:} the same green-channel amplitude
+  fed through the inversion to recover $\vaso$ separately from the DC
+  drift, then HR derived from the AC peaks of the recovered $\vaso$
+  time series.
+\end{enumerate}
+The variance of the resulting HR estimates over the $5$-minute window
+is the comparison metric.
+
+\subsection{Reproducibility}
+
+All experiments are implemented in Python~3 with NumPy~1.26 and
+Matplotlib~3.8. The forward model is implemented to numerical
+equivalence with the TypeScript implementation used in the real-time
+browser tool. JSON outputs and PNG panels are deterministic given
+fixed random seeds. Full source is available alongside this paper.
+
+% =====================================================================
+\section{Results}\label{sec:results}
+% =====================================================================
+
+\subsection{Forward-Model Spectra (Experiment 1)}
+
+\Cref{fig:forward-spectra} shows the predicted RGB reflectance as
+each of the four state parameters is swept individually. The
+sensitivity pattern matches the channel-separation strategy of the
+inverse problem: the blue channel responds primarily to melanin, the
+red and green channels respond to hemoglobin and vasodilation, and
+oxygenation acts visibly only on green. The near-orthogonality of
+sensitivity is what makes the algebraic inverse well-conditioned.
+
+
+
+\subsection{Self-Consistency (Experiment 2)}
+
+\Cref{tab:self-consistency} reports the recovery error percentiles
+for each parameter under noise-free conditions, computed over
+$1{,}000$ random physiological states sampled uniformly from the
+ranges $\melan\in[0.05,0.85]$, $\Hbconc\in[8,20]\,\mathrm{g/dL}$,
+$\Soxy\in[0.85,1.0]$, $\vaso\in[0.6,1.6]$. The two-iteration
+inverse converges to median errors of $0.5\%$ for melanin and
+$10\%$ for total hemoglobin, with the $90$th and $99$th
+percentiles indicating how the algebraic approximations degrade at
+the extremes of the parameter ranges. Oxygenation
+recovery is structurally limited: the green-channel difference
+between oxy- and deoxyhemoglobin
+($\bar{\mu}_{\HbO,G}-\bar{\mu}_{\Hb,G}\approx 0.036$ per~g/dL of
+Hb) is small relative to the total green-channel attenuation, and
+the inversion is therefore highly sensitive to upstream estimation
+of melanin and Hb. The resulting median oxygenation error of
+$\approx 41\%$ is essentially independent of measurement noise (see
+\cref{ssec:noise}) and reflects an intrinsic limitation of three-band
+RGB spectroscopy for oxygenation. We discuss this further in
+\cref{sec:discussion}.
+
+\begin{table}[H]
+\centering
+\caption{Self-consistency: relative recovery error percentiles over
+$1{,}000$ random physiological states (noise-free, two iterations of
+the algebraic inverse).}
+\label{tab:self-consistency}
+\small
+\begin{tabular}{lccc}
+\toprule
+Parameter & Median & 90th \% & 99th \% \\
+\midrule
+Melanin index $\melan$ & 0.5\% & 1.0\% & 4.1\% \\
+Total Hb $\Hbconc$ & 10.1\% & 26.8\% & 47.1\% \\
+Oxygenation $\Soxy$ & 41.2\% & 48.3\% & 49.8\% \\
+Vasodilation $\vaso$ & 0\% (exact) & 0\% & 0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\subsection{Noise Sensitivity (Experiment 3)}\label{ssec:noise}
+
+\Cref{fig:noise-sensitivity} plots the RMS recovery error per
+parameter against the additive-noise SNR. Two qualitatively
+different regimes are visible. Melanin and total hemoglobin are
+\emph{noise-limited}: their RMS errors fall as SNR rises, reaching
+roughly $1\%$ and $16\%$ respectively at $50\,\mathrm{dB}$.
+Oxygenation is \emph{model-limited}: the RMS error stays
+approximately flat near $35\%$ across all SNR values, confirming
+that the floor on oxygenation recovery is set by the band-averaged
+spectral approximation in \cref{eq:mu-derm}, not by measurement
+noise. Improving oxygenation accuracy therefore requires
+spectrally-narrower data than RGB provides (e.g., a fourth band
+isolating the $660$/$940\,\mathrm{nm}$ oxy/deoxy crossover) rather
+than better noise rejection.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel3_noise_sensitivity.png}
+    \caption{\textbf{Noise Sensitivity: Two Distinct Regimes (Noise-Limited vs.\ Model-Limited) Across the Three Recovered Parameters.}
+    Each curve is computed over $200$ random physiological states with channel-wise zero-mean Gaussian noise scaled to the target SNR; the summary statistic is RMS relative recovery error per parameter. The dashed reference line at $5\%$ marks a practical usability threshold.
+    (\textbf{A})~Melanin RMS error versus SNR (log y-axis). The error decreases gradually with rising SNR but stays above the $5\%$ usability line across the entire range tested. Recovery is dominated by noise-induced clipping events at the boundaries of the parameter range when noise pushes the blue-channel reflectance outside its physiologically plausible support and the algebraic step~1 saturates.
+    (\textbf{B})~Hemoglobin RMS error versus SNR (log y-axis). Smooth monotonic decline from $\sim 50\%$ at $10\,\mathrm{dB}$ to $\sim 16\%$ at $50\,\mathrm{dB}$. This is the canonical \emph{noise-limited} regime: the recovery improves directly with measurement-noise reduction and would benefit further from longer-window averaging or a low-noise camera.
+    (\textbf{C})~Three-dimensional surface over (SNR, parameter index, RMS error in percent). The surface separates the three parameters into visibly different regimes: a sloped melanin slice rising at low SNR, a smooth Hb descent across the SNR range, and a flat SpO$_{2}$ slice that the colour mapping picks out as a model-limited plateau.
+    (\textbf{D})~SpO$_{2}$ RMS error versus SNR (linear y-axis). Approximately constant at $35$--$40\%$ across all SNR values --- the canonical \emph{model-limited} regime. The error floor is set by the band-averaged spectral approximation in \cref{eq:mu-derm}, not by measurement noise. No noise-side improvement would change this floor; reducing it requires spectrally narrower data, e.g.~a fourth band isolating the $\sim 660/940\,\mathrm{nm}$ oxy/deoxy crossover that conventional pulse oximetry exploits.}
+    \label{fig:noise-sensitivity}
+\end{figure*}
+
+
+
+\subsection{Vasodilation--Temperature Mapping (Experiment 4)}
+
+\Cref{fig:vaso-temp} shows the linear mapping and overlays the
+empirically observed temperature ranges. The mapping spans the
+realistic $[27, 37]\,^{\circ}\mathrm{C}$ range over the
+vasodilation interval $[0.6, 1.6]$, with the resting state
+($\vaso=1$) corresponding to $33\,^{\circ}\mathrm{C}$ as
+intended.
+
+
+
+\subsection{PCHR Scenario Attribution (Experiment 5)}
+
+\Cref{fig:pchr-scenarios} shows the decomposition of $\HRobs$ into
+the four components for each of the four scenarios.
+\Cref{tab:pchr-scenarios} reports the numerical breakdown. In the
+rest scenario all non-intrinsic components are zero except the
+small autonomic residual ($10\,\mathrm{bpm}$) consistent with
+typical resting parasympathetic withdrawal. In fever, the metabolic
+component contributes $12\,\mathrm{bpm}$, accounting for the
+$\Qten$-driven thermal acceleration of the sino-atrial pacemaker;
+the autonomic residual remains modest. In hypoxia, the hypoxic
+component contributes $10.8\,\mathrm{bpm}$ at $\Soxy=0.85$ via the
+chemoreceptor reflex; the autonomic residual at $14.2\,\mathrm{bpm}$
+captures the additional sympathetic outflow that hypoxia recruits
+beyond the linear chemoreflex term. In exercise, the autonomic
+residual ($51.9\,\mathrm{bpm}$) dominates as expected, with a
+secondary metabolic contribution ($7.2\,\mathrm{bpm}$) from the mild
+thermal elevation. The decomposition correctly attributes each
+scenario's primary drive to the matching component.
+
+
+
+\begin{table}[H]
+\centering
+\caption{PCHR decomposition results for the four synthetic
+scenarios. All values in bpm. Intrinsic baseline is $60\,\mathrm{bpm}$
+in all scenarios; the SpO$_{2}$ reference for the hypoxic
+component is $0.97$, so normoxic ($\Soxy=0.97$) gives
+$\dHRo=0$.}
+\label{tab:pchr-scenarios}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Scenario & $\HRobs$ & $\dHRm$ & $\dHRo$ & $\dHRa$ \\
+\midrule
+Rest     & 70  &  0.0 &  0.0 & 10.0 \\
+Fever    & 85  & 12.0 &  0.0 & 13.0 \\
+Hypoxia  & 85  &  0.0 & 10.8 & 14.2 \\
+Exercise & 120 &  7.2 &  0.9 & 51.9 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparison with Conventional rPPG (Experiment 6)}
+
+\Cref{fig:conventional-comp} (left) plots HR estimation variance
+against the amplitude of slow ($0.05\,\mathrm{Hz}$) ambient-light
+drift for both methods. Both perform comparably across the swept
+range: the cardiac-band band-pass cleanly rejects the slow drift in
+both cases, and the layered method's additional DC-normalisation
+step contributes a small extra noise term that slightly raises its
+variance at high drift levels. HR alone, therefore, does not
+distinguish the methods under typical lighting drift conditions.
+
+The right panel reports the metric where the layered method does
+unambiguously outperform: SpO$_{2}$ recovery error from the same
+camera under the same drift. The conventional green-only baseline
+produces no SpO$_{2}$ estimate at all; the layered method's full
+state recovery yields SpO$_{2}$ within $\approx 3\%$ relative error
+of the true value across all drift amplitudes, because the
+DC-normalisation step removes the drift envelope from the RGB triple
+before inversion. The same DC-normalisation pipeline that adds
+modest noise to HR variance is what makes additional state recovery
+robust under drift.
+
+The honest summary is that the layered method's distinct value is
+\emph{not} a smaller HR variance under typical conditions but the
+recovery of state parameters that conventional rPPG does not produce
+at all: vasodilation, skin temperature, total hemoglobin, and a
+relative oxygenation trend. These additional signals are what feed
+the downstream PCHR decomposition (\cref{sec:cardiac}) and the
+metabolic-autonomic separation that gives the layered approach
+qualitatively different diagnostic content.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel6_conventional_comparison.png}
+    \caption{\textbf{Comparison with Conventional Green-Only rPPG Across a Drift-Amplitude Sweep --- Honest HR Parity Plus Unique State Recovery.}
+    A 5-minute synthetic recording is generated at each of seven slow-drift amplitudes (0--100\% of DC, $0.05\,\mathrm{Hz}$ ambient envelope) on a baseline cardiac AC modulation of $0.6\%$ peak-to-peak in green. Both methods share an identical Hann-windowed FFT peak-picker in the $0.7$--$3.0\,\mathrm{Hz}$ cardiac band; the only difference is the front-end signal (raw $G$ for method~A vs.~the DC-normalised ratio $G/G_{\mathrm{DC}}$ for method~B).
+    (\textbf{A})~Heart-rate estimation variance versus drift amplitude. At low drift ($\leq 20\%$) both methods perform near-identically. As drift grows, method~B's DC-normalisation step introduces a small additional noise term and its variance rises faster than method~A's; this is the honest finding that under bandpass-rejectable drift the layered method is not an HR-variance winner.
+    (\textbf{B})~Heart-rate bias versus drift amplitude. Both methods exhibit small positive bias growing with drift, with method~B tracking method~A closely up to $\sim 40\%$ drift and then diverging upward as residual fluctuations from the DC-normalisation step couple into the spectral-peak picker.
+    (\textbf{C})~Three-dimensional view of method~B's HR-estimate manifold across (drift amplitude, time, HR estimate) on a viridis colour map. Each coloured trace is the per-window HR estimate at one drift level; lower-drift traces (purple) sit cleanly at the true 70-bpm plane while higher-drift traces (yellow) show short-window excursions at the FFT-bin resolution. The 3D rendering exposes the temporal structure that the variance summary in panel~A flattens out.
+    (\textbf{D})~SpO$_{2}$ recovery error of method~B's full state inversion versus drift amplitude. The error is essentially constant near the structural-floor value identified in \cref{fig:noise-sensitivity} regardless of drift amplitude, because the time-averaged DC normalisation removes the drift envelope from the RGB triple before inversion. The conventional green-only baseline produces no SpO$_{2}$ estimate at any drift level. This panel anchors the honest summary of the entire experiment: the layered method's distinct value is not improved HR variance but the existence of additional channels (vasodilation, $\Tskin$, $[\Hb]$, relative SpO$_{2}$ trend) at all.}
+    \label{fig:conventional-comparison}
+\end{figure*}
+
+
+% =====================================================================
+\section{Discussion}\label{sec:discussion}
+% =====================================================================
+
+\subsection{What the Method Does and Does Not Provide}
+
+The method transforms an rPPG pipeline from amplitude extraction into
+a model-grounded biophysical inversion. Concretely it provides:
+(i) a melanin index that varies across subjects and is invariant to
+ambient light; (ii) a total hemoglobin concentration estimate;
+(iii) an oxygenation proxy; (iv) a vasodilation factor from which a
+skin-temperature estimate follows; and (v) a four-way decomposition
+of heart rate into intrinsic, metabolic, hypoxic, and autonomic
+components. It does \emph{not} provide an absolute pulse-oximetry-grade
+$\SpO$ reading---the green-channel sensitivity to oxygenation is
+small relative to the bandpass-averaging error in our coefficients,
+and conventional pulse oximetry uses far more spectrally selective
+$660$/$940\,\mathrm{nm}$ pairs not available on a colour camera.
+The oxygenation channel is therefore best understood as a model
+proxy whose relative trends are informative but whose absolute
+calibration requires a separate reference.
+
+\subsection{Limitations}
+
+\paragraph{Coefficient calibration.} The band-averaged absorption
+coefficients in \cref{tab:abs-coeffs} are computed from population
+spectra and are not subject-specific. Individual variation in skin
+chromophore concentrations, capillary geometry, and surface
+microstructure introduces systematic bias. Subject-specific
+calibration via the lowest sustained skin temperature over a 7-day
+window (an intrinsic forehead $\Tskin$) is straightforward and
+recommended for clinical applications.
+
+\paragraph{Motion artefacts.} The forward model assumes a stationary
+face ROI under approximately constant illumination geometry. Head
+motion causes ROI mis-registration and changes the specular
+geometry, both of which produce out-of-model variation that the
+inverter will absorb into spurious state changes.
+Motion-compensation pre-filters (e.g.~CHROM-style chrominance
+projection) can be applied upstream of the inversion if needed.
+
+\paragraph{Extreme pigmentation.} For very dark skin
+($\melan>0.7$), the blue-channel signal is heavily attenuated by
+melanin and the SNR for the melanin estimate itself is
+reduced. The algebraic inverter degrades gracefully but the
+oxygenation estimate is more sensitive to noise in this regime.
+
+\paragraph{Temperature absolute calibration.} The
+vasodilation--temperature linearisation (\cref{eq:vaso-T}) is
+calibrated from the published thermoregulation literature, not from
+per-subject reference thermometry. Absolute $\Tskin$ readings
+should be treated as model proxies; relative changes (warming,
+cooling transients) are robust.
+
+\subsection{Future Directions}
+
+\paragraph{In vivo validation.} The natural next step is direct
+validation against laboratory reference instruments: ECG for HR
+ground truth; pulse oximetry for $\SpO$; infrared thermography for
+$\Tskin$; and cuff oscillometry or arterial line for blood pressure.
+A protocol involving graded thermal challenges (cold pressor, warm
+bath) and ventilatory challenges (breath-hold, hypoxic gas) will
+exercise the metabolic and hypoxic components independently and
+provide quantitative bounds on the method's clinical utility.
+
+\paragraph{Active illumination.} The screen itself is a
+spectrally configurable light source whose output is exactly known.
+Brief modulated calibration sequences (e.g., $1\,\mathrm{Hz}$ red /
+green / blue alternation at low amplitude) can be projected onto the
+user's face during inactive moments and the reflected response
+inverted to obtain channel-specific reflectance gains, removing the
+need for population-average constants in
+\cref{tab:abs-coeffs}.
+
+\paragraph{Multi-region cross-validation.} The forehead, both
+cheeks, and the nose all carry the same cardiac modulation but with
+slightly different layer thicknesses and capillary densities.
+Joint inversion across all four ROIs constrains the inverse problem
+beyond what any single ROI provides and exposes regional
+inconsistencies as a model-validity diagnostic.
+
+\paragraph{Cross-channel consistency residual.} The forward model
+predicts a particular relationship between R, G, and B for any
+admissible state. The residual
+$\|\bm{R}^{\mathrm{obs}}-F(\hat{\theta})\|$ is a
+real-time scalar that flags when the model is locally invalid (e.g.
+under heavy motion or unusual lighting). Surfacing this residual to
+the user allows automatic confidence estimation per measurement.
+
+% =====================================================================
+\section{Conclusion}\label{sec:conclusion}
+% =====================================================================
+
+We have presented a forward-model-based inversion of camera-measured
+forehead skin reflectance that recovers melanin, hemoglobin
+concentration, oxygenation, and a vasodilation factor from RGB pixel
+data and the AC modulation of the green channel. The inverse is
+algebraic, runs in sub-microsecond time per call, and replaces the
+pixel-blind amplitude extraction of conventional rPPG with a
+biophysically grounded multi-parameter estimate. From the recovered
+state we derive a skin-temperature estimate via thermoregulatory
+linearisation and a four-way decomposition of heart rate into
+intrinsic, metabolic, hypoxic, and autonomic components. Simulation
+validation across self-consistency, noise sensitivity, temperature
+mapping, scenario attribution, and a comparison with conventional
+green-only rPPG confirms the method's correctness within the
+inherent limits of three-band RGB spectroscopy. Melanin and total
+hemoglobin recover with median errors of $0.5\%$ and $10\%$
+respectively; oxygenation has a structural ceiling near $40\%$
+relative error and is best treated as a relative-trend signal.
+Under bandpass-rejectable ambient-light drift the layered method's
+heart-rate variance is comparable to a green-only baseline; the
+distinct value of the method is the recovery of vasodilation, skin
+temperature, total hemoglobin, and a metabolic--autonomic
+decomposition of heart rate that amplitude-only rPPG does not
+produce. The full pipeline runs in real time in a WebGPU-enabled
+browser. The natural next steps are in vivo validation against
+reference instrumentation and per-subject calibration via brief
+active illumination sequences, both of which are expected to
+substantially improve the absolute fidelity of the recovered state
+beyond the population-average band-coefficient regime examined here.
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\end{document}

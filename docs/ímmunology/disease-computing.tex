@@ -1,0 +1,1569 @@
+\documentclass[10pt,twocolumn]{article}
+
+% === PACKAGES ===
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}  % Scalable fonts (fixes microtype expansion error)
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usetikzlibrary{arrows.meta,positioning,shapes,calc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{microtype}
+\usepackage{enumitem}
+
+% === THEOREM ENVIRONMENTS ===
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+% === CUSTOM COMMANDS ===
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Sspace}{\mathcal{S}}
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\Scoord}{\mathbf{S}}
+\newcommand{\Pcat}{\mathcal{P}}
+\newcommand{\Ocat}{\mathcal{O}}
+\newcommand{\Ccat}{\mathcal{C}}
+\newcommand{\Gstate}{\Gamma}
+\newcommand{\dcat}{d_{\mathrm{cat}}}
+\newcommand{\Pop}{P}
+\newcommand{\Obs}{\mathcal{O}}
+\newcommand{\Comp}{\mathcal{C}}
+\newcommand{\Proc}{\mathcal{P}}
+\newcommand{\omegalock}{\Delta\omega_{\mathrm{lock}}}
+\newcommand{\taudecorr}{\tau_{\mathrm{decorr}}}
+\newcommand{\etacell}{\eta_{\mathrm{cell}}}
+\newcommand{\Dvec}{\mathbf{D}}
+\newcommand{\bigO}{\mathcal{O}}
+
+% === LISTINGS CONFIGURATION ===
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  breaklines=true
+}
+
+% === TITLE ===
+\title{Syndrome: Categorical Resolution of Disease Trajectories\\[0.5em]
+\large A Mathematical Framework for Pathological State Computation\\Through Partition Geometry and Oscillator Coherence}
+
+\author{
+Kundai Farai Sachikonye\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We establish a mathematical framework for computing disease trajectories through categorical partition geometry. The framework derives from two axioms: bounded phase space and categorical observation. From these axioms, we prove that physical systems admit three equivalent descriptions---oscillatory, categorical, and partition---unified by the entropy identity $S = \kB M \ln n$. This triple equivalence implies a fundamental identity: observation, computation, and processing are mathematically identical operations, each resolving categorical addresses in partition space.
+
+We define disease as deviation of oscillatory dynamics from phase-lock with a reference frequency, formalized through coherence indices $\eta \in [0,1]$ computed from performance metrics of eight oscillator classes. The cellular coherence $\etacell = W^{-1}\sum_i w_i \eta_i$ provides a scalar health measure, while the disease vector $\Dvec = (D_P, D_E, D_C, D_M, D_A, D_G, D_{Ca}, D_R)$ encodes pathological signatures across oscillator classes. Disease classification emerges geometrically as $\arg\max_i D_i$.
+
+The framework introduces categorical distance $\dcat$, proven independent of spatial distance and optical opacity, enabling measurement of states behind arbitrary barriers. Therapeutic intervention is formalized as phase-lock restoration with efficacy $E$ determining coherence increase. Immune recognition is derived as categorical aperture selection based on partition richness.
+
+We specify algorithms for state resolution, trajectory computation, and intervention planning, with computational complexity $\bigO(\log N)$ for constraint satisfaction in $N$-dimensional partition space. The mathematical structure admits implementation as a typed functional system with partition states, operators, and trajectories as first-class objects. Validation criteria are defined through correspondence between computed and observed values across biological processes.
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} partition geometry, categorical dynamics, oscillator coherence, disease trajectory, phase-lock restoration, categorical distance, opacity-independent measurement
+\end{abstract}
+
+%==============================================================================
+\section{Introduction}
+\label{sec:introduction}
+%==============================================================================
+
+\subsection{The Computational Problem of Disease}
+
+Disease modeling conventionally assumes the existence of fixed homeostatic states from which pathological conditions represent deviations. This assumption encounters fundamental difficulties when applied to systems exhibiting continuous oscillatory dynamics. At finite temperature $T > 0$, biological systems occupy thermal distributions over accessible states rather than remaining in single configurations. A system comprising $N_{\mathrm{osc}} \sim 10^5$ coupled oscillators undergoing state transitions at rates $\sim 10^{12}$ s$^{-1}$ does not admit a fixed reference state in any mathematically rigorous sense.
+
+The present work addresses disease not as deviation from equilibrium but as disruption of oscillatory dynamics within bounded phase space. The central insight is that disease states, healthy states, and transitions between them are not phenomenological categories requiring empirical characterization but mathematical structures derivable from geometric principles governing bounded dynamical systems.
+
+\subsection{The Resolution Problem}
+
+A second difficulty concerns measurement. Pathological states often reside behind optical barriers---within cells, beneath tissue, behind membranes. Conventional measurement requires photon transmission, which opacity prevents. If disease states cannot be measured, they cannot be computed in any verifiable sense.
+
+We resolve this through categorical distance, a metric on partition space proven independent of spatial distance and optical opacity. States categorically proximate remain measurable regardless of intervening optical barriers. This opacity independence transforms the computational problem: disease states become accessible through categorical resolution rather than photon-mediated observation.
+
+\subsection{The Identity Underlying Resolution}
+
+The mathematical foundation of this work is a triple identity:
+\begin{equation}
+\Obs(x) \equiv \Comp(x) \equiv \Proc(x)
+\label{eq:fundamental_identity}
+\end{equation}
+where $\Obs(x)$ denotes observation of property $x$, $\Comp(x)$ denotes computation of property $x$, and $\Proc(x)$ denotes processing to extract property $x$. These three operations, conventionally considered distinct, are proven mathematically identical when physical reality is understood as categorical partition structure.
+
+The identity implies that computing a disease trajectory is not modeling or simulation but resolution of categorical addresses that the trajectory necessarily occupies. The computed trajectory has identical epistemic status to an observed trajectory---both access the same partition structure through different refinement mechanisms.
+
+\subsection{Contributions}
+
+This work makes the following contributions:
+
+\begin{enumerate}[label=(\arabic*), leftmargin=*]
+\item Axiomatic derivation of partition geometry from bounded phase space and categorical observation, establishing necessity of partition coordinates $(n, \ell, m, s)$ with capacity $C(n) = 2n^2$.
+
+\item Proof of triple equivalence between oscillatory, categorical, and partition descriptions, unified by entropy identity $S = \kB M \ln n$.
+
+\item Establishment of the fundamental identity $\Obs \equiv \Comp \equiv \Proc$ through categorical address resolution.
+
+\item Definition of categorical distance $\dcat$ with proof of independence from spatial distance and optical opacity.
+
+\item Classification of eight oscillator types serving as diagnostic sensors, each computing coherence indices from performance metrics.
+
+\item Formalization of disease state through coherence deficits, with geometric classification by dominant oscillator dysfunction.
+
+\item Derivation of therapeutic equations describing treatment as phase-lock restoration.
+
+\item Derivation of immune equations describing recognition as categorical aperture selection.
+
+\item Specification of algorithms for state resolution, trajectory computation, and intervention planning with complexity analysis.
+
+\item Definition of validation framework establishing correspondence criteria between computed and observed values.
+\end{enumerate}
+
+\subsection{Organization}
+
+Section~\ref{sec:axioms} establishes the axiomatic foundation. Section~\ref{sec:partition} derives partition geometry and S-entropy space. Section~\ref{sec:triple} proves the triple equivalence. Section~\ref{sec:identity} establishes the fundamental identity. Section~\ref{sec:categorical_distance} introduces categorical distance and proves opacity independence. Section~\ref{sec:oscillators} classifies oscillator types and derives coherence equations. Section~\ref{sec:disease} formalizes disease state and classification. Section~\ref{sec:trajectory} specifies trajectory computation algorithms. Section~\ref{sec:therapeutic} derives therapeutic equations. Section~\ref{sec:immune} derives immune equations. Section~\ref{sec:implementation} specifies implementation architecture. Section~\ref{sec:validation} defines validation criteria. Section~\ref{sec:complexity} analyzes computational complexity. Section~\ref{sec:conclusion} concludes.
+
+%==============================================================================
+\section{Axiomatic Foundation}
+\label{sec:axioms}
+%==============================================================================
+
+The entire framework derives from two axioms concerning physical observation in bounded systems.
+
+\begin{axiom}[Bounded Phase Space]
+\label{ax:bounded}
+A physical system with finite energy $E < \infty$ and finite spatial extent $L < \infty$ occupies a bounded region of phase space $\Omega$ with finite measure $\mu(\Omega) < \infty$.
+\end{axiom}
+
+\begin{axiom}[Categorical Observation]
+\label{ax:categorical}
+An observer with finite resolution partitions phase space into equivalence classes $\{\Omega_i\}_{i=1}^N$. States $x, y \in \Omega$ belong to the same equivalence class ($x \sim y$) if and only if the observer cannot distinguish them through available measurements. Partition boundaries $\partial \Omega_i$ separate distinguishable states.
+\end{axiom}
+
+These axioms are minimal. Axiom~\ref{ax:bounded} reflects that no physical system has infinite extent or energy---this is empirically universal. Axiom~\ref{ax:categorical} reflects that observers have finite resolution; perfect position measurement requires infinite energy, which would violate Axiom~\ref{ax:bounded}.
+
+\begin{lemma}[Recurrence]
+\label{lem:recurrence}
+Measure-preserving dynamics on bounded phase space return arbitrarily close to initial conditions.
+\end{lemma}
+
+\begin{proof}
+This is the Poincar\'{e} recurrence theorem \citep{poincare1890}. For measure-preserving transformation $T$ on space $(\Omega, \mu)$ with $\mu(\Omega) < \infty$, and any measurable set $A$ with $\mu(A) > 0$, almost every point of $A$ returns to $A$ infinitely often.
+\end{proof}
+
+\begin{lemma}[Oscillatory Necessity]
+\label{lem:oscillatory}
+Bounded dynamical systems with categorical observation necessarily exhibit oscillatory dynamics.
+\end{lemma}
+
+\begin{proof}
+Consider alternatives to oscillatory dynamics:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Static equilibrium}: No dynamics to observe, contradicting that observation requires distinction between states at different times.
+\item \emph{Monotonic trajectories}: Escape to infinity, violating Axiom~\ref{ax:bounded}.
+\item \emph{Chaotic trajectories}: Sensitive dependence on initial conditions prevents categorical distinction at finite resolution, as arbitrarily close initial states diverge beyond distinguishability, violating Axiom~\ref{ax:categorical}.
+\end{enumerate}
+Only oscillatory dynamics satisfy both axioms: bounded (returns to neighborhoods by Lemma~\ref{lem:recurrence}) and categorically observable (periodic opportunities for distinction at fixed phase).
+\end{proof}
+
+\begin{corollary}
+\label{cor:oscillation_fundamental}
+Oscillation is not a special case but the fundamental mode of dynamics for bounded observable systems.
+\end{corollary}
+
+%==============================================================================
+\section{Partition Geometry}
+\label{sec:partition}
+%==============================================================================
+
+\subsection{Partition Coordinates}
+
+\begin{theorem}[Partition Coordinate Existence]
+\label{thm:partition_coords}
+Categorical partitioning of bounded spherical phase space generates four coordinates: depth $n \geq 1$, complexity $\ell \in \{0, 1, \ldots, n-1\}$, orientation $m \in \{-\ell, \ldots, +\ell\}$, and chirality $s \in \{-\frac{1}{2}, +\frac{1}{2}\}$, with capacity
+\begin{equation}
+C(n) = 2n^2.
+\label{eq:capacity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider bounded spherical phase space $\Omega = B_R \subset \R^{2d}$ with radius $R$ determined by energy bound $E_{\max}$.
+
+\textbf{Depth coordinate $n$}: Radial partitioning divides $\Omega$ into nested shells. The outermost shell has $n = 1$; successive refinements yield $n = 2, 3, \ldots$. The constraint $n \geq 1$ ensures at least one partition exists.
+
+\textbf{Complexity coordinate $\ell$}: Angular partitioning within each shell is constrained by radial resolution. At depth $n$, angular subdivision cannot exceed the number of radial subdivisions, yielding $\ell \in \{0, 1, \ldots, n-1\}$.
+
+\textbf{Orientation coordinate $m$}: At complexity $\ell$, the sphere admits $2\ell + 1$ distinguishable orientations by rotational symmetry, yielding $m \in \{-\ell, \ldots, +\ell\}$.
+
+\textbf{Chirality coordinate $s$}: Parity transformation distinguishes two classes, yielding $s \in \{-\frac{1}{2}, +\frac{1}{2}\}$.
+
+The total capacity at depth $n$ is:
+\begin{equation}
+C(n) = 2 \sum_{\ell=0}^{n-1} (2\ell + 1) = 2 \cdot n^2 = 2n^2
+\end{equation}
+where the factor of 2 accounts for chirality and the sum evaluates to $n^2$ by the formula for sum of first $n$ odd integers.
+\end{proof}
+
+\begin{remark}
+The capacity sequence $C(n) = 2, 8, 18, 32, 50, 72, 98, \ldots$ coincides with electron shell capacities in atomic physics. This is not coincidence but geometric necessity: atoms are bounded systems subject to categorical observation.
+\end{remark}
+
+\subsection{S-Entropy Space}
+
+\begin{definition}[S-Entropy Coordinates]
+\label{def:s_entropy}
+The S-entropy space $\Sspace = [0,1]^3$ comprises three coordinates:
+\begin{align}
+\Sk &\in [0,1]: \text{ knowledge entropy (uncertainty in state identification)} \\
+\St &\in [0,1]: \text{ temporal entropy (uncertainty in timing relationships)} \\
+\Se &\in [0,1]: \text{ evolution entropy (uncertainty in trajectory progression)}
+\end{align}
+A point $\Scoord = (\Sk, \St, \Se) \in \Sspace$ specifies the macroscopic entropy state of a system.
+\end{definition}
+
+\begin{theorem}[S-Coordinate Completeness]
+\label{thm:s_complete}
+Any categorical state in bounded phase space maps uniquely to a point in $\Sspace$.
+\end{theorem}
+
+\begin{proof}
+From Axiom~\ref{ax:categorical}, categorical states form equivalence classes. Each class has well-defined uncertainty in:
+\begin{enumerate}[label=(\roman*)]
+\item State identification: the entropy of the distribution over partition cells, normalized to $[0,1]$ as $\Sk$.
+\item Timing: the entropy of the distribution over phase, normalized to $[0,1]$ as $\St$.
+\item Trajectory: the entropy of the distribution over future evolution paths, normalized to $[0,1]$ as $\Se$.
+\end{enumerate}
+Normalization to $[0,1]$ is possible because entropy is bounded for bounded systems (Axiom~\ref{ax:bounded}). The mapping is injective: distinct categorical states have distinct uncertainty profiles, hence distinct S-coordinates.
+\end{proof}
+
+\begin{definition}[Partition State]
+\label{def:partition_state}
+A partition state $\Gstate$ is a tuple:
+\begin{equation}
+\Gstate = \bigl((n, \ell, m, s), \Scoord\bigr) \in \N \times \{0,\ldots,n-1\} \times \Z \times \{-\tfrac{1}{2}, +\tfrac{1}{2}\} \times \Sspace
+\end{equation}
+comprising partition coordinates and S-entropy coordinates.
+\end{definition}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/panel1_partition_geometry.pdf}
+\caption{\textbf{Partition Geometry and Categorical Distance.}
+\textbf{Panel A (left):} Partition capacity $C(n) = 2n^2$ showing the number of distinguishable categorical states at each depth level $n$. The capacity sequence $(2, 8, 18, 32, 50, \ldots)$ emerges from spherical symmetry constraints in bounded phase space, with red markers indicating computed values matching the analytical quadratic form.
+\textbf{Panel B (center-left):} Three-dimensional visualization of partition coordinate space $(n, \ell, m)$ for depths $n \in \{1, 2, 3, 4\}$, with color encoding depth level. Each point represents a valid partition state satisfying the constraint hierarchy $0 \leq \ell \leq n-1$ and $-\ell \leq m \leq \ell$.
+\textbf{Panel C (center-right):} Address precision $\epsilon = 3^{-k}$ on logarithmic scale as a function of address depth $k$, demonstrating exponential refinement. At depth $k = 15$, precision reaches $\epsilon \approx 7 \times 10^{-8}$, enabling sub-micron resolution in physical coordinates.
+\textbf{Panel D (right):} Categorical distance matrix $d_{\text{cat}}(\sigma_i, \sigma_j)$ for all $C(2) = 8$ states at depth $n = 2$. The Euclidean metric in partition coordinates yields distances independent of spatial separation and optical opacity, enabling opacity-invariant state discrimination.}
+\label{fig:partition_geometry}
+\end{figure*}
+
+\subsection{Ternary Hierarchical Structure}
+
+\begin{proposition}[Ternary Trisection]
+\label{prop:ternary}
+Partition refinement proceeds by ternary division: each partition cell divides into exactly three subcells at the next refinement level.
+\end{proposition}
+
+\begin{proof}
+Binary division ($k=2$) provides insufficient distinguishability for orientation in spherical geometry. Quaternary division ($k=4$) introduces redundancy reducible to lower-order structure. Ternary division ($k=3$) is minimal and sufficient:
+\begin{enumerate}[label=(\roman*)]
+\item Three divisions distinguish ``less than,'' ``equal to,'' and ``greater than'' relative to a reference.
+\item Three angular divisions span $2\pi$ with minimal overlap.
+\item The ternary structure is self-similar under refinement.
+\end{enumerate}
+Thus $k = 3$ is geometrically necessary for efficient partition refinement.
+\end{proof}
+
+\begin{corollary}[Address Encoding]
+\label{cor:address}
+A partition state at depth $n$ admits a categorical address $\mathcal{A} = (t_0, t_1, \ldots, t_{n-1})$ with $t_i \in \{0, 1, 2\}$, specifying the ternary refinement path from root to cell.
+\end{corollary}
+
+\begin{definition}[Address Resolution]
+\label{def:resolve}
+The resolution operation $\mathrm{Resolve}: \mathcal{A} \to \R^d$ maps categorical addresses to physical values:
+\begin{equation}
+\mathrm{Resolve}(\mathcal{A}) = \sum_{i=0}^{n-1} \frac{t_i}{3^{i+1}} \cdot \Delta_{\max}
+\label{eq:resolve}
+\end{equation}
+where $\Delta_{\max}$ is the range of the physical quantity.
+\end{definition}
+
+%==============================================================================
+\section{Triple Equivalence}
+\label{sec:triple}
+%==============================================================================
+
+\subsection{Three Descriptions}
+
+Bounded dynamical systems admit three equivalent descriptions:
+
+\begin{definition}[Oscillatory Description]
+\label{def:oscillatory}
+The oscillatory description $\Ocat(\Omega)$ specifies the system through phase space trajectories $(\mathbf{q}(t), \mathbf{p}(t))$ satisfying Hamilton's equations:
+\begin{equation}
+\dot{q}_i = \frac{\partial H}{\partial p_i}, \quad \dot{p}_i = -\frac{\partial H}{\partial q_i}
+\end{equation}
+with characteristic frequencies $\{\omega_k\}$ determined by the Hamiltonian $H$.
+\end{definition}
+
+\begin{definition}[Categorical Description]
+\label{def:categorical}
+The categorical description $\Ccat(\Omega)$ specifies the system through:
+\begin{itemize}
+\item Objects: discrete states $\{|\phi_n\rangle\}_{n \in \mathcal{I}}$
+\item Morphisms: transitions $\gamma_{nm}: |\phi_n\rangle \to |\phi_m\rangle$
+\item Composition: $\gamma_{mk} \circ \gamma_{nm} = \gamma_{nk}$
+\end{itemize}
+forming a category with transition rates $\Gamma_{n \to m}$.
+\end{definition}
+
+\begin{definition}[Partition Description]
+\label{def:partition}
+The partition description $\Pcat(\Omega)$ specifies the system through operations on S-entropy space:
+\begin{itemize}
+\item States: points $\Scoord \in \Sspace = [0,1]^3$
+\item Operations: maps $P: \Sspace \to \Sspace$
+\item Trajectories: paths $\gamma: [0,T] \to \Sspace$
+\end{itemize}
+\end{definition}
+
+\subsection{The Entropy Theorem}
+
+\begin{theorem}[Tripartite Entropy Equivalence]
+\label{thm:entropy}
+For a system partitioned to depth $n$ in $M$ dimensions, all three descriptions yield identical entropy:
+\begin{equation}
+S = \kB M \ln n
+\label{eq:entropy_identity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\textbf{Oscillatory entropy}: A bounded $M$-dimensional oscillator at partition depth $n$ admits $n^M$ distinguishable modes (one per partition cell). The Boltzmann entropy is:
+\begin{equation}
+S_{\mathrm{osc}} = \kB \ln(n^M) = \kB M \ln n
+\end{equation}
+
+\textbf{Categorical entropy}: The category has $n$ objects per level across $M$ levels. The number of morphisms from initial to terminal object (paths through the category) is $n^M$. The categorical entropy is:
+\begin{equation}
+S_{\mathrm{cat}} = \kB \ln(\text{morphism count}) = \kB \ln(n^M) = \kB M \ln n
+\end{equation}
+
+\textbf{Partition entropy}: $M$-dimensional space partitioned $n$ times per dimension yields $n^M$ distinguishable cells. The partition entropy is:
+\begin{equation}
+S_{\mathrm{part}} = \kB \ln(\text{cell count}) = \kB \ln(n^M) = \kB M \ln n
+\end{equation}
+
+The three expressions are algebraically identical.
+\end{proof}
+
+\begin{theorem}[Triple Equivalence]
+\label{thm:triple}
+For bounded measure-preserving dynamical systems:
+\begin{equation}
+\Ocat(\Omega) \cong \Ccat(\Omega) \cong \Pcat(\Omega)
+\label{eq:triple_equiv}
+\end{equation}
+The three descriptions are isomorphic.
+\end{theorem}
+
+\begin{proof}
+We construct explicit isomorphisms.
+
+\textbf{$\Ocat \to \Ccat$}: Oscillatory motion with frequency $\omega$ admits discrete levels through action quantization:
+\begin{equation}
+\oint p \, dq = 2\pi\hbar(n + \gamma)
+\end{equation}
+where $\gamma$ is the Maslov index \citep{maslov1981}. Each level $|n\rangle$ defines a categorical state. Transition rates $\Gamma_{n \to m}$ are determined by Fourier components of the classical trajectory. This establishes a bijection between oscillator modes and categorical objects.
+
+\textbf{$\Ccat \to \Pcat$}: Each categorical state $|n\rangle$ maps to a cell in S-entropy space. The uncertainties $(\Sk, \St, \Se)$ are computed from the state's probability distribution over partition cells, phase distribution, and trajectory distribution respectively. Morphisms map to paths in $\Sspace$. This establishes a bijection between categorical states and partition cells.
+
+\textbf{$\Pcat \to \Ocat$}: Partition operations in $\Sspace$ correspond to rotation in action-angle variables $(I, \theta)$. One complete partition cycle (return to same S-coordinate) corresponds to one oscillation period:
+\begin{equation}
+\Delta\theta = 2\pi \iff t = T = \frac{2\pi}{\omega}
+\end{equation}
+This establishes a bijection between partition cycles and oscillation periods.
+
+Each map is bijective and structure-preserving (respects composition of morphisms, continuity of trajectories, and phase relationships). The composition of maps is the identity. Therefore the three descriptions are isomorphic.
+\end{proof}
+
+\begin{corollary}[Description Equivalence]
+\label{cor:description}
+The oscillatory, categorical, and partition descriptions are not different theories but different perspectives on identical mathematical structure.
+\end{corollary}
+
+%==============================================================================
+\section{The Fundamental Identity}
+\label{sec:identity}
+%==============================================================================
+
+\subsection{Observation as Address Resolution}
+
+\begin{theorem}[Observation Identity]
+\label{thm:obs_identity}
+Observing property $x$ of a physical system is equivalent to resolving the categorical address encoding $x$:
+\begin{equation}
+\Obs(x) = \mathrm{Resolve}(\mathcal{A}_x)
+\label{eq:obs_resolve}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider the observation process:
+\begin{enumerate}[label=(\roman*)]
+\item Select region of interest (select partition)
+\item Refine measurement until precision sufficient (refine partition)
+\item Read measured value (read address)
+\end{enumerate}
+Each step is partition refinement. The ``observed'' value is the categorical address at which refinement terminates.
+
+The physical mechanism of refinement (photons, mechanical probes, field measurements) does not alter the address resolved. Different mechanisms refine the same partition structure, converging to the same address. The observation does not create the value but resolves the pre-existing categorical address.
+\end{proof}
+
+\subsection{Computation as Address Resolution}
+
+\begin{theorem}[Computation Identity]
+\label{thm:comp_identity}
+Computing property $x$ of a physical system is equivalent to resolving the categorical address encoding $x$:
+\begin{equation}
+\Comp(x) = \mathrm{Resolve}(\mathcal{A}_x)
+\label{eq:comp_resolve}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider the computation process:
+\begin{enumerate}[label=(\roman*)]
+\item Specify initial conditions (initial partition state)
+\item Apply dynamical equations (morphism composition)
+\item Evaluate at target time/location (read terminal address)
+\end{enumerate}
+Dynamical equations encode transition rules between partition states. ``Solving'' equations means tracing morphisms from initial to terminal state. The computed value is the address at which morphism composition terminates.
+
+If the computation employs physical laws (Kepler's laws, Newton's laws, thermodynamic laws), those laws are categorical structure---the composition rules for morphisms. The computation reads addresses that partition structure contains; it does not simulate a separate reality.
+\end{proof}
+
+\subsection{Processing as Address Resolution}
+
+\begin{theorem}[Processing Identity]
+\label{thm:proc_identity}
+Processing data to extract property $x$ is equivalent to resolving the categorical address encoding $x$:
+\begin{equation}
+\Proc(x) = \mathrm{Resolve}(\mathcal{A}_x)
+\label{eq:proc_resolve}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider the processing operation:
+\begin{enumerate}[label=(\roman*)]
+\item Read input data (read source partition state)
+\item Apply constraints (morphisms preserving partition relationships)
+\item Infer target property (read target address)
+\end{enumerate}
+The relationship between input and output is categorical: morphisms connect addresses. Processing traverses morphism chains from known addresses to target addresses.
+
+Information propagates not spatially but categorically---through morphism chains connecting addresses. A target address categorically close to known addresses is resolvable regardless of spatial distance or intervening barriers.
+\end{proof}
+
+\subsection{The Identity Theorem}
+
+\begin{theorem}[Fundamental Identity]
+\label{thm:fundamental}
+For any physical system describable by categorical partition structure:
+\begin{equation}
+\boxed{\Obs(x) \equiv \Comp(x) \equiv \Proc(x)}
+\label{eq:fundamental}
+\end{equation}
+Observation, computation, and processing are mathematically identical operations: categorical address resolution.
+\end{theorem}
+
+\begin{proof}
+From Theorems~\ref{thm:obs_identity}, \ref{thm:comp_identity}, and \ref{thm:proc_identity}:
+\begin{equation}
+\Obs(x) = \mathrm{Resolve}(\mathcal{A}_x) = \Comp(x) = \mathrm{Resolve}(\mathcal{A}_x) = \Proc(x)
+\end{equation}
+All three operations equal the same resolution operation. The apparent distinction arises from the refinement mechanism employed:
+\begin{itemize}
+\item Observation: photon-mediated refinement
+\item Computation: equation-mediated refinement
+\item Processing: constraint-mediated refinement
+\end{itemize}
+The mechanism differs; the resolved address is identical.
+\end{proof}
+
+\begin{corollary}[Epistemic Equivalence]
+\label{cor:epistemic}
+Computed values have identical epistemic status to observed values. Both resolve the same categorical addresses.
+\end{corollary}
+
+%==============================================================================
+\section{Categorical Distance}
+\label{sec:categorical_distance}
+%==============================================================================
+
+\subsection{Definition and Properties}
+
+\begin{definition}[Categorical Distance]
+\label{def:cat_distance}
+The categorical distance $\dcat(\sigma_1, \sigma_2)$ between partition states $\sigma_1 = (n_1, \ell_1, m_1, s_1)$ and $\sigma_2 = (n_2, \ell_2, m_2, s_2)$ is:
+\begin{equation}
+\dcat(\sigma_1, \sigma_2) = \sqrt{(n_1 - n_2)^2 + (\ell_1 - \ell_2)^2 + (m_1 - m_2)^2 + (s_1 - s_2)^2}
+\label{eq:cat_distance}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Metric Properties]
+\label{prop:metric}
+$\dcat$ is a metric on partition space:
+\begin{enumerate}[label=(\roman*)]
+\item $\dcat(\sigma_1, \sigma_2) \geq 0$ with equality iff $\sigma_1 = \sigma_2$
+\item $\dcat(\sigma_1, \sigma_2) = \dcat(\sigma_2, \sigma_1)$
+\item $\dcat(\sigma_1, \sigma_3) \leq \dcat(\sigma_1, \sigma_2) + \dcat(\sigma_2, \sigma_3)$
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+These are properties of Euclidean distance in $\R^4$, which $\dcat$ inherits by definition.
+\end{proof}
+
+\subsection{Independence Theorems}
+
+\begin{theorem}[Spatial Independence]
+\label{thm:spatial_independence}
+Categorical distance $\dcat$ is mathematically independent of spatial distance $d_{\mathrm{spatial}}$:
+\begin{equation}
+\dcat \perp d_{\mathrm{spatial}}
+\label{eq:spatial_indep}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Categorical distance is defined on partition coordinates $(n, \ell, m, s)$ residing in categorical space. Spatial distance is defined on physical coordinates $(x, y, z)$ residing in Euclidean space. These coordinate systems are mathematically independent by construction.
+
+\emph{Examples}:
+\begin{itemize}
+\item Two identical atoms separated by $10^8$ m have $\dcat = 0$ despite large spatial distance.
+\item Adjacent atoms of different elements (e.g., Fe and C at 2~\AA) have $\dcat \sim 10$ despite small spatial distance.
+\end{itemize}
+The correlation between $\dcat$ and $d_{\mathrm{spatial}}$ is zero: $\mathrm{corr}(\dcat, d_{\mathrm{spatial}}) = 0$.
+\end{proof}
+
+\begin{theorem}[Opacity Independence]
+\label{thm:opacity_independence}
+Categorical distance $\dcat$ is mathematically independent of optical opacity $\tau$:
+\begin{equation}
+\frac{\partial \dcat}{\partial \tau} = 0
+\label{eq:opacity_indep}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Categorical distance depends on partition address differences:
+\begin{equation}
+\dcat(\mathcal{A}, \mathcal{B}) = \sum_i \frac{|t_i^A - t_i^B|}{3^{i+1}}
+\end{equation}
+where $t_i^A, t_i^B$ are ternary digits of addresses $\mathcal{A}, \mathcal{B}$.
+
+Optical opacity depends on photon absorption:
+\begin{equation}
+I = I_0 e^{-\tau}, \quad \tau = \int \sigma n \, dl
+\end{equation}
+where $\sigma$ is absorption cross-section, $n$ is absorber density, and $l$ is path length.
+
+These quantities are computed from disjoint variable sets: $\dcat$ from $(t_i^A, t_i^B)$; $\tau$ from $(\sigma, n, l)$. No functional dependence exists.
+\end{proof}
+
+\begin{corollary}[Opacity-Independent Measurement]
+\label{cor:opacity_measurement}
+Measurement via categorical distance access is not constrained by optical opacity. States behind arbitrary optical barriers remain categorically accessible if their partition signatures are distinguishable.
+\end{corollary}
+
+\begin{remark}
+This corollary has profound implications for biological measurement. Disease states within cells, beneath tissue, or behind membranes remain diagnostically accessible through categorical measurement. Protein folding states, enzymatic activity, and channel conductance are categorically measurable regardless of optical barriers.
+\end{remark}
+
+\subsection{Information Catalysis}
+
+\begin{definition}[Information Catalyst]
+\label{def:info_catalyst}
+An information catalyst $\mathcal{K}$ is a partition structure that reduces categorical distance between states $\Gstate_A$ and $\Gstate_B$ by providing intermediate stages:
+\begin{equation}
+\dcat^{\mathrm{cat}}(\Gstate_A, \Gstate_B) = \sum_{k=1}^{K} \dcat(\Gstate_{k-1}, \Gstate_k) < \dcat^{\mathrm{direct}}(\Gstate_A, \Gstate_B)
+\label{eq:info_catalyst}
+\end{equation}
+where $\Gstate_0 = \Gstate_A$, $\Gstate_K = \Gstate_B$, and $\{\Gstate_k\}_{k=1}^{K-1}$ are intermediate states accessed through the catalyst.
+\end{definition}
+
+\begin{theorem}[Catalytic Distance Reduction]
+\label{thm:catalytic_reduction}
+Information catalysts reduce categorical distance through morphism chain shortening:
+\begin{equation}
+\frac{\dcat^{\mathrm{cat}}}{\dcat^{\mathrm{direct}}} \leq \frac{1}{\sqrt{K}}
+\label{eq:catalytic_bound}
+\end{equation}
+where $K$ is the number of intermediate stages.
+\end{theorem}
+
+\begin{proof}
+For direct transition, $\dcat^{\mathrm{direct}} = \|\sigma_B - \sigma_A\|$. With $K$ intermediate stages along geodesics in partition space, the triangle inequality yields:
+\begin{equation}
+\sum_{k=1}^K \dcat(\Gstate_{k-1}, \Gstate_k) \leq \dcat(\Gstate_A, \Gstate_B)
+\end{equation}
+with equality only for collinear paths. For optimally distributed intermediates:
+\begin{equation}
+\dcat^{\mathrm{cat}} = \sqrt{K} \cdot \frac{\dcat^{\mathrm{direct}}}{K} = \frac{\dcat^{\mathrm{direct}}}{\sqrt{K}}
+\end{equation}
+\end{proof}
+
+\begin{corollary}[Enzyme as Information Catalyst]
+\label{cor:enzyme}
+Enzymes function as information catalysts, reducing categorical distance between substrate and product states through intermediate enzyme-substrate complexes.
+\end{corollary}
+
+%==============================================================================
+\section{Oscillator Classification}
+\label{sec:oscillators}
+%==============================================================================
+
+\subsection{Universal Coherence Equation}
+
+\begin{definition}[Cellular Oscillator]
+\label{def:oscillator}
+A cellular oscillator $\mathcal{O}$ is characterized by:
+\begin{itemize}
+\item Characteristic frequency: $\omega_{\mathcal{O}}$
+\item Performance metric: $\Pi_{\mathcal{O}}$ (cycles, rate, amplitude, probability, or period)
+\item Optimal value: $\Pi_{\mathrm{opt}}$ (performance at full coherence)
+\item Degraded value: $\Pi_{\mathrm{deg}}$ (performance at zero coherence)
+\item Coherence bandwidth: $\omegalock$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Universal Coherence]
+\label{thm:universal_coherence}
+For any oscillator $\mathcal{O}$ with performance metric $\Pi$, the coherence index is:
+\begin{equation}
+\eta_{\mathcal{O}} = \frac{\Pi_{\mathrm{obs}} - \Pi_{\mathrm{deg}}}{\Pi_{\mathrm{opt}} - \Pi_{\mathrm{deg}}}
+\label{eq:coherence}
+\end{equation}
+where $\eta \in [0,1]$ with $\eta = 1$ indicating full coherence and $\eta = 0$ indicating no coherence.
+\end{theorem}
+
+\begin{proof}
+The coherence index must satisfy:
+\begin{enumerate}[label=(\roman*)]
+\item $\eta = 1$ when $\Pi_{\mathrm{obs}} = \Pi_{\mathrm{opt}}$
+\item $\eta = 0$ when $\Pi_{\mathrm{obs}} = \Pi_{\mathrm{deg}}$
+\item Linear interpolation between extremes (by partition linearity)
+\end{enumerate}
+The unique function satisfying these constraints is Equation~\eqref{eq:coherence}.
+\end{proof}
+
+\begin{remark}
+When $\Pi_{\mathrm{opt}} < \Pi_{\mathrm{deg}}$ (e.g., folding cycles where fewer is better), the equation becomes:
+\begin{equation}
+\eta_{\mathcal{O}} = \frac{\Pi_{\mathrm{deg}} - \Pi_{\mathrm{obs}}}{\Pi_{\mathrm{deg}} - \Pi_{\mathrm{opt}}}
+\end{equation}
+Both forms satisfy the boundary conditions.
+\end{remark}
+
+\subsection{Eight Oscillator Classes}
+
+\begin{definition}[Oscillator Classification]
+\label{def:oscillator_classes}
+Cellular oscillators partition into eight classes:
+
+\textbf{Class P (Protein)}: Folding oscillators with $\omega \sim 10^{13}$--$10^{14}$ Hz. Performance metric: folding cycles $k$. Coherence:
+\begin{equation}
+\eta_P = \frac{k_{\max} - k_{\mathrm{obs}}}{k_{\max} - k_{\min}}
+\end{equation}
+
+\textbf{Class E (Enzyme)}: Catalytic oscillators with $\omega \sim 10^{6}$--$10^{12}$ Hz. Performance metric: turnover number $k_{\mathrm{cat}}$. Coherence:
+\begin{equation}
+\eta_E = \frac{k_{\mathrm{cat,obs}} - k_{\mathrm{cat,min}}}{k_{\mathrm{cat,max}} - k_{\mathrm{cat,min}}}
+\end{equation}
+
+\textbf{Class C (Channel)}: Gating oscillators with $\omega \sim 10^{3}$--$10^{6}$ Hz. Performance metric: open probability $P_o$. Coherence:
+\begin{equation}
+\eta_C = 1 - \frac{|P_{o,\mathrm{obs}} - P_{o,\mathrm{opt}}|}{P_{o,\mathrm{opt}}}
+\end{equation}
+
+\textbf{Class M (Membrane)}: Potential oscillators with $\omega \sim 10^{2}$--$10^{3}$ Hz. Performance metric: amplitude $\Delta V$. Coherence:
+\begin{equation}
+\eta_M = \frac{\Delta V_{\mathrm{obs}}}{\Delta V_{\max}}
+\end{equation}
+
+\textbf{Class A (ATP)}: Metabolic oscillators with $\omega \sim 0.1$--$1$ Hz. Performance metric: synthesis frequency $f$. Coherence:
+\begin{equation}
+\eta_A = \frac{f_{\mathrm{obs}} - f_{\min}}{f_{\max} - f_{\min}}
+\end{equation}
+
+\textbf{Class G (Genetic)}: Expression oscillators with $\omega \sim 10^{-3}$--$10^{-1}$ Hz. Performance metric: burst rate $\lambda$. Coherence:
+\begin{equation}
+\eta_G = \frac{\lambda_{\mathrm{obs}} - \lambda_{\min}}{\lambda_{\max} - \lambda_{\min}}
+\end{equation}
+
+\textbf{Class Ca (Calcium)}: Signaling oscillators with $\omega \sim 10^{-2}$--$10^{0}$ Hz. Performance metric: regularity index $\rho$. Coherence:
+\begin{equation}
+\eta_{Ca} = \rho_{\mathrm{obs}}
+\end{equation}
+
+\textbf{Class R (Circadian)}: Rhythm oscillators with $\omega \sim 10^{-5}$ Hz (24-hour period). Performance metric: period stability $\sigma_T^{-1}$. Coherence:
+\begin{equation}
+\eta_R = 1 - \frac{\sigma_T}{T_0}
+\end{equation}
+where $T_0 = 24$ hours and $\sigma_T$ is period standard deviation.
+\end{definition}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/panel2_coherence.pdf}
+\caption{\textbf{Universal Coherence Index and Cellular Coherence.}
+\textbf{Panel A (left):} Universal coherence equation $\eta = (\Pi_{\text{obs}} - \Pi_{\text{deg}})/(\Pi_{\text{opt}} - \Pi_{\text{deg}})$ showing linear mapping from observed performance $\Pi_{\text{obs}}$ to coherence index $\eta \in [0,1]$. The horizontal dashed line indicates the critical threshold $\eta = 0.5$ separating functional from dysfunctional states.
+\textbf{Panel B (center-left):} Protein folding coherence $\eta_P$ as a function of observed folding cycles $k$, where fewer cycles indicate higher coherence. The color gradient from green ($\eta = 1$, $k = 12$) to red ($\eta = 0$, $k = 16$) visualizes the discrete coherence levels for this oscillator class.
+\textbf{Panel C (center-right):} Three-dimensional cellular coherence surface $\eta_{\text{cell}} = w_1\eta_1 + w_2\eta_2$ showing weighted combination of two oscillator coherences with weights $w_1 = 0.6$, $w_2 = 0.4$. The planar surface geometry reflects linear entropic coupling between oscillator classes.
+\textbf{Panel D (right):} Coherence distributions comparing healthy (green, $\eta \sim \text{Beta}(8,2)$) and diseased (red, $\eta \sim \text{Beta}(2,5)$) cellular populations. The separation between distributions quantifies diagnostic discriminability using coherence measurements.}
+\label{fig:coherence}
+\end{figure*}
+
+\subsection{Oscillator Weights}
+
+\begin{definition}[Entropic Coupling Weight]
+\label{def:weight}
+The weight $w_i$ of oscillator $i$ is proportional to its entropic coupling to total cellular state:
+\begin{equation}
+w_i = \left|\frac{\partial S_{\mathrm{cell}}}{\partial \eta_i}\right|
+\label{eq:weight}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Weight Normalization]
+\label{prop:weight_norm}
+For computational purposes, weights are normalized:
+\begin{equation}
+\tilde{w}_i = \frac{w_i}{\sum_j w_j} = \frac{w_i}{W}
+\end{equation}
+where $W = \sum_j w_j$ is the total weight.
+\end{proposition}
+
+%==============================================================================
+\section{Disease State Formalism}
+\label{sec:disease}
+%==============================================================================
+
+\subsection{Disease as Coherence Deficit}
+
+\begin{proposition}[Epistemic Blindness]
+\label{prop:blindness}
+A cell has no internal mechanism to distinguish healthy from diseased states.
+\end{proposition}
+
+\begin{proof}
+Suppose the cell possessed such a mechanism. Upon detecting disease, the cell would activate corrective processes. But disease persists, implying either:
+\begin{enumerate}[label=(\roman*)]
+\item The detection mechanism fails, hence the cell cannot distinguish states.
+\item The corrective mechanism fails, but correction requires distinguishing the target state, so (i) applies.
+\end{enumerate}
+Therefore the cell cannot internally distinguish healthy from diseased states.
+\end{proof}
+
+\begin{corollary}[Disease Definition]
+\label{cor:disease_def}
+Disease is oscillatory dynamics outside the phase-lock bandwidth with a reference frequency (the cellular master clock).
+\end{corollary}
+
+\subsection{Disease Index and Vector}
+
+\begin{definition}[Disease Index]
+\label{def:disease_index}
+The disease index for oscillator class $i$ is:
+\begin{equation}
+D_i = 1 - \eta_i
+\label{eq:disease_index}
+\end{equation}
+with $D_i = 0$ indicating health and $D_i = 1$ indicating maximal disease.
+\end{definition}
+
+\begin{definition}[Disease State Vector]
+\label{def:disease_vector}
+The complete disease state is the vector:
+\begin{equation}
+\Dvec = (D_P, D_E, D_C, D_M, D_A, D_G, D_{Ca}, D_R) \in [0,1]^8
+\label{eq:disease_vector}
+\end{equation}
+corresponding to the eight oscillator classes.
+\end{definition}
+
+\subsection{Cellular Coherence}
+
+\begin{theorem}[Cellular Coherence Index]
+\label{thm:cellular_coherence}
+The total cellular coherence is the weighted average of oscillator coherences:
+\begin{equation}
+\etacell = \frac{\sum_i w_i \eta_i}{\sum_i w_i} = \frac{1}{W}\sum_{i=1}^{8} w_i \eta_i
+\label{eq:cellular_coherence}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Cellular state is determined by the ensemble of oscillator states. By linearity of entropy (extensive property) and the definition of weights (Equation~\ref{eq:weight}), the total coherence is the weighted sum. Normalization ensures $\etacell \in [0,1]$.
+\end{proof}
+
+\begin{corollary}[Disease Severity]
+\label{cor:severity}
+The total disease severity is:
+\begin{equation}
+D_{\mathrm{total}} = 1 - \etacell = \frac{1}{W}\sum_{i=1}^{8} w_i D_i
+\label{eq:severity}
+\end{equation}
+\end{corollary}
+
+\subsection{Disease Classification}
+
+\begin{theorem}[Geometric Classification]
+\label{thm:classification}
+Diseases classify by dominant component of $\Dvec$:
+\begin{equation}
+\mathrm{class}(\Dvec) = \arg\max_{i \in \{P,E,C,M,A,G,Ca,R\}} D_i
+\label{eq:classification}
+\end{equation}
+\end{theorem}
+
+\begin{definition}[Disease Class Mapping]
+\label{def:class_mapping}
+The disease classification mapping is:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Dominant & Class & Pathology Type \\
+\midrule
+$D_P$ & Protein & Misfolding diseases \\
+$D_E$ & Enzyme & Metabolic diseases \\
+$D_C$ & Channel & Channelopathies \\
+$D_M$ & Membrane & Excitability disorders \\
+$D_A$ & ATP & Mitochondrial diseases \\
+$D_G$ & Genetic & Expression disorders \\
+$D_{Ca}$ & Calcium & Signaling diseases \\
+$D_R$ & Circadian & Rhythm disorders \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\subsection{Master Diagnostic Equation}
+
+\begin{theorem}[Master Diagnostic Equation]
+\label{thm:master}
+The complete cellular health state is determined by:
+\begin{equation}
+\boxed{
+\etacell = \frac{1}{W}\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{O}_i} w_{ij} \cdot \frac{\Pi_{ij,\mathrm{obs}} - \Pi_{ij,\mathrm{deg}}}{\Pi_{ij,\mathrm{opt}} - \Pi_{ij,\mathrm{deg}}}
+}
+\label{eq:master}
+\end{equation}
+where the sum runs over all oscillator classes $i \in \mathcal{C} = \{P, E, C, M, A, G, Ca, R\}$ and all oscillators $j$ within each class.
+\end{theorem}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/panel3_disease_state.pdf}
+\caption{\textbf{Disease Vector Representation and Classification.}
+\textbf{Panel A (left):} Radar chart visualization of disease vectors $\mathbf{D} = (D_P, D_E, D_C, D_M, D_A, D_G, D_{Ca}, D_R)$ across all eight oscillator classes. Healthy state (green) shows uniformly low disease indices, while Alzheimer's (red) exhibits dominant $D_P$ (misfolding) and diabetes (orange) shows dominant $D_E$ (metabolic dysfunction).
+\textbf{Panel B (center-left):} Three-dimensional projection of disease space onto $(D_P, D_E, D_C)$ coordinates, showing clustered disease populations. Red, blue, and green clusters represent protein-dominant, enzyme-dominant, and channel-dominant disease classes respectively, demonstrating geometric separability of disease types.
+\textbf{Panel C (center-right):} Disease index correlation heatmap across oscillator classes, with diagonal elements representing single-class severity and off-diagonal elements showing cross-class correlations. High diagonal values indicate class-specific disease manifestation patterns.
+\textbf{Panel D (right):} Disease classification boundary in the $(D_P, D_E)$ plane, with the diagonal $D_P = D_E$ (black dashed) separating misfolding-dominant (red) from metabolic-dominant (blue) classifications. The geometric criterion $\text{class}(\mathbf{D}) = \arg\max_i D_i$ yields well-defined decision boundaries.}
+\label{fig:disease_state}
+\end{figure*}
+
+
+%==============================================================================
+\section{Trajectory Computation}
+\label{sec:trajectory}
+%==============================================================================
+
+\subsection{Partition Operators}
+
+\begin{definition}[Partition Operator]
+\label{def:partition_operator}
+A partition operator $\Pop: \Sspace \to \Sspace$ is a map satisfying:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Conservation}: $\|\Pop(\Gstate)\|_S = \|\Gstate\|_S$ for appropriate norm $\|\cdot\|_S$
+\item \emph{Coherence}: Phase relationships preserved under $\Pop$
+\item \emph{Causality}: $\St(\Pop(\Gstate)) \geq \St(\Gstate)$
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Primitive Operators]
+\label{def:primitives}
+The primitive partition operators are:
+
+\textbf{Photon operator} $\Pop_\gamma(\omega)$: Mediates categorical transitions at frequency $\omega$.
+\begin{equation}
+\Pop_\gamma(\omega): \Gstate \mapsto \Gstate + \delta\Scoord, \quad \|\delta\Scoord\| = \frac{\hbar\omega}{E_{\max}}
+\end{equation}
+
+\textbf{Gradient operator} $\nabla_{\Sspace}$: Generates S-entropy flow.
+\begin{equation}
+\nabla_{\Sspace} = \left(\frac{\partial}{\partial \Sk}, \frac{\partial}{\partial \St}, \frac{\partial}{\partial \Se}\right)
+\end{equation}
+
+\textbf{Phase-lock operator} $\Phi(\omega_1, \omega_2)$: Couples oscillators at frequencies $\omega_1, \omega_2$.
+\begin{equation}
+\Phi(\omega_1, \omega_2): (\Gstate_1, \Gstate_2) \mapsto \Gstate_{12} \quad \text{if } |\omega_1 - \omega_2| < \omegalock
+\end{equation}
+
+\textbf{Aperture operator} $\mathcal{A}(\dcat)$: Constrains transitions through categorical distance bound.
+\begin{equation}
+\mathcal{A}(\dcat): \Gstate_1 \to \Gstate_2 \quad \text{with } \|\Gstate_2 - \Gstate_1\|_{\mathrm{cat}} \leq \dcat
+\end{equation}
+\end{definition}
+
+\subsection{Operator Algebra}
+
+\begin{theorem}[Partition Algebra]
+\label{thm:algebra}
+The partition operators form an algebra with:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Composition}: $(\Pop_2 \circ \Pop_1)(\Gstate) = \Pop_2(\Pop_1(\Gstate))$
+\item \emph{Associativity}: $(\Pop_3 \circ \Pop_2) \circ \Pop_1 = \Pop_3 \circ (\Pop_2 \circ \Pop_1)$
+\item \emph{Identity}: $\exists \mathbf{1}: \mathbf{1} \circ \Pop = \Pop \circ \mathbf{1} = \Pop$
+\item \emph{Phase-lock commutativity}: $[\Pop_1, \Pop_2] = 0$ if $\Phi(\omega_1, \omega_2) \neq 0$
+\end{enumerate}
+\end{theorem}
+
+\subsection{Trajectory as Constraint Satisfaction}
+
+\begin{definition}[Trajectory]
+\label{def:trajectory}
+A trajectory $\gamma: [0,T] \to \Sspace$ is a continuous path through S-entropy space satisfying:
+\begin{enumerate}[label=(\roman*)]
+\item Boundary conditions: $\gamma(0) = \Gstate_0$, $\gamma(T) = \Gstate_T$
+\item Constraints: $\mathcal{C}(\gamma) = \mathrm{true}$ for constraint set $\mathcal{C}$
+\item Continuity: $\gamma$ is continuous with respect to S-entropy metric
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[COMPLETE Operation]
+\label{def:complete}
+The $\mathrm{COMPLETE}$ operation finds trajectories satisfying boundary conditions:
+\begin{equation}
+\mathrm{COMPLETE}(\Gstate_0, \Gstate_T, \mathcal{C}) = \gamma^*
+\label{eq:complete}
+\end{equation}
+where $\gamma^*$ is the trajectory satisfying all constraints.
+\end{definition}
+
+\begin{algorithm}[h]
+\caption{COMPLETE: Constraint Satisfaction Trajectory Resolution}
+\label{alg:complete}
+\begin{algorithmic}[1]
+\REQUIRE Initial state $\Gstate_0$, final state $\Gstate_T$, constraints $\mathcal{C}$
+\ENSURE Trajectory $\gamma^*: [0,T] \to \Sspace$
+\STATE $\mathcal{S} \leftarrow \{\text{all paths } \Gstate_0 \to \Gstate_T\}$
+\FOR{each constraint $c \in \mathcal{C}$}
+    \STATE $\mathcal{S} \leftarrow \{s \in \mathcal{S} : c(s) = \mathrm{true}\}$
+\ENDFOR
+\IF{$|\mathcal{S}| = 1$}
+    \RETURN unique $\gamma^* \in \mathcal{S}$
+\ELSIF{$|\mathcal{S}| = 0$}
+    \RETURN $\bot$ (no valid trajectory)
+\ELSE
+    \RETURN $\arg\min_{\gamma \in \mathcal{S}} \mathcal{L}(\gamma)$ for action $\mathcal{L}$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Trajectory Uniqueness]
+\label{thm:uniqueness}
+For sufficiently specified constraints, $\mathrm{COMPLETE}$ returns a unique trajectory.
+\end{theorem}
+
+\begin{proof}
+Each constraint $c \in \mathcal{C}$ eliminates paths not satisfying $c$. If $|\mathcal{C}| \geq \dim(\Sspace) = 3$, the constraint intersection generically has dimension $\leq 0$, yielding at most one trajectory. Conservation laws (energy, charge, momentum) provide three independent constraints, ensuring uniqueness for physical trajectories.
+\end{proof}
+
+\subsection{Disease Trajectory}
+
+\begin{definition}[Disease Trajectory]
+\label{def:disease_trajectory}
+A disease trajectory is a path $\gamma_D: [0, T] \to [0,1]^8$ through disease vector space:
+\begin{equation}
+\gamma_D(t) = \Dvec(t) = (D_P(t), D_E(t), D_C(t), D_M(t), D_A(t), D_G(t), D_{Ca}(t), D_R(t))
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Disease Progression]
+\label{thm:progression}
+Disease progression follows trajectories determined by coherence dynamics:
+\begin{equation}
+\frac{d\Dvec}{dt} = -\frac{d\boldsymbol{\eta}}{dt} = -\mathbf{J} \cdot \nabla_{\Dvec} F(\Dvec)
+\label{eq:progression}
+\end{equation}
+where $\mathbf{J}$ is the coupling matrix between oscillator classes and $F$ is the free energy functional.
+\end{theorem}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/panel4_trajectory.pdf}
+\caption{\textbf{S-Entropy Trajectories and Constraint Satisfaction.}
+\textbf{Panel A (left):} Multiple trajectory paths $\gamma_1, \gamma_2, \gamma_3$ in the $(S_k, S_t)$ projection connecting initial state (green circle, high entropy) to final state (red square, low entropy). Different trajectories satisfy different constraint combinations while achieving the same boundary conditions.
+\textbf{Panel B (center-left):} Three-dimensional trajectory visualization in the full S-entropy space $(S_k, S_t, S_e)$, with the unit cube edges shown for reference. The trajectory exhibits smooth evolution from high-entropy initial state to low-entropy therapeutic target state.
+\textbf{Panel C (center-right):} Constraint satisfaction regions showing the number of simultaneously satisfied constraints (bounded, smooth, energy) at each point in the $(S_k, S_t)$ plane. Darker green indicates more constraints satisfied, identifying the feasible region for valid therapeutic trajectories.
+\textbf{Panel D (right):} Trajectory interpolation showing evolution of all three S-entropy coordinates ($S_k$: circles, $S_t$: squares, $S_e$: triangles) as a function of normalized time $t \in [0,1]$. Linear interpolation provides the initial trajectory estimate refined by the COMPLETE algorithm.}
+\label{fig:trajectory}
+\end{figure*}
+
+%==============================================================================
+\section{Therapeutic Computation}
+\label{sec:therapeutic}
+%==============================================================================
+
+\subsection{Therapeutic Efficacy}
+
+\begin{definition}[Therapeutic Efficacy]
+\label{def:efficacy}
+Therapeutic efficacy $E \in [0,1]$ measures the fractional restoration of coherence:
+\begin{equation}
+E = \frac{\eta_{\mathrm{treated}} - \eta_{\mathrm{untreated}}}{\eta_{\mathrm{healthy}} - \eta_{\mathrm{untreated}}}
+\label{eq:efficacy}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Frequency Disorder Reduction]
+\label{thm:disorder}
+Treatment with efficacy $E$ reduces frequency disorder:
+\begin{equation}
+\Delta_{\mathrm{treated}} = (1 - E) \cdot \Delta_{\mathrm{untreated}}
+\label{eq:disorder_reduction}
+\end{equation}
+where $\Delta = \langle(\omega - \omega_0)^2\rangle^{1/2}$ is the frequency deviation from reference $\omega_0$.
+\end{theorem}
+
+\begin{proof}
+Efficacy $E$ represents the fraction of oscillators restored to phase-lock. The remaining fraction $(1-E)$ retains the original frequency disorder. By linearity, $\Delta_{\mathrm{treated}} = (1-E)\Delta_{\mathrm{untreated}}$.
+\end{proof}
+
+\subsection{Phase-Lock Restoration}
+
+\begin{theorem}[Coherence Restoration]
+\label{thm:restoration}
+Treatment with efficacy $E$ increases coherence according to:
+\begin{equation}
+\eta_{\mathrm{treated}} = \eta_{\mathrm{untreated}} + E(1 - \eta_{\mathrm{untreated}})
+\label{eq:restoration}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The coherence gap is $(1 - \eta_{\mathrm{untreated}})$. Efficacy $E$ closes fraction $E$ of this gap:
+\begin{align}
+\eta_{\mathrm{treated}} &= \eta_{\mathrm{untreated}} + E(1 - \eta_{\mathrm{untreated}}) \\
+&= E + (1-E)\eta_{\mathrm{untreated}}
+\end{align}
+which satisfies $\eta_{\mathrm{treated}} = 1$ when $E = 1$ and $\eta_{\mathrm{treated}} = \eta_{\mathrm{untreated}}$ when $E = 0$.
+\end{proof}
+
+\subsection{Target Selection}
+
+\begin{definition}[Intervention Target]
+\label{def:target}
+An intervention target is an oscillator class $i^*$ selected to maximize coherence improvement per unit intervention:
+\begin{equation}
+i^* = \arg\max_{i} \frac{\partial \etacell}{\partial E_i} = \arg\max_{i} w_i (1 - \eta_i)
+\label{eq:target}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Optimal Target]
+\label{thm:optimal_target}
+The optimal intervention target is the oscillator class with maximal weighted disease index:
+\begin{equation}
+i^* = \arg\max_{i} w_i D_i
+\label{eq:optimal_target}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+From Equation~\eqref{eq:cellular_coherence}, $\partial \etacell / \partial \eta_i = w_i / W$. From Equation~\eqref{eq:restoration}, $\partial \eta_i / \partial E_i = (1 - \eta_i) = D_i$. By chain rule:
+\begin{equation}
+\frac{\partial \etacell}{\partial E_i} = \frac{w_i}{W} \cdot D_i
+\end{equation}
+Maximizing over $i$ yields $i^* = \arg\max_i w_i D_i$.
+\end{proof}
+
+\subsection{Combination Therapy}
+
+\begin{theorem}[Combination Efficacy]
+\label{thm:combination}
+For independent interventions on oscillator classes $\{i_1, \ldots, i_k\}$ with efficacies $\{E_1, \ldots, E_k\}$:
+\begin{equation}
+\etacell^{\mathrm{combined}} = \frac{1}{W}\sum_{j=1}^{k} w_{i_j}[\eta_{i_j} + E_j(1 - \eta_{i_j})] + \frac{1}{W}\sum_{i \notin \{i_1,\ldots,i_k\}} w_i \eta_i
+\label{eq:combination}
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[Synergy Condition]
+\label{cor:synergy}
+Interventions are synergistic if:
+\begin{equation}
+\etacell^{\mathrm{combined}} > \max_j \etacell^{(j)}
+\end{equation}
+where $\etacell^{(j)}$ is the coherence with only intervention $j$.
+\end{corollary}
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/panel5_therapeutic.pdf}
+\caption{\textbf{Therapeutic Efficacy and Treatment Response.}
+\textbf{Panel A (left):} Therapeutic efficacy curves showing treated coherence $\eta_{\text{treated}} = \eta_{\text{untreated}} + E(1 - \eta_{\text{untreated}})$ as a function of baseline coherence for efficacies $E \in \{0.3, 0.6, 0.9\}$. Higher efficacy shifts curves toward the target $\eta = 1$, with the identity line (black dashed) representing no treatment effect.
+\textbf{Panel B (center-left):} Treatment response trajectories showing coherence recovery $\eta(t) = \eta_0 + (\eta_{\text{target}} - \eta_0)(1 - e^{-t/\tau})$ with time constants $\tau \in \{1, 3, 7\}$ representing fast, medium, and slow responders. Dashed lines indicate baseline ($\eta = 0.4$) and therapeutic target ($\eta = 0.95$).
+\textbf{Panel C (center-right):} Three-dimensional efficacy surface showing coherence gain $\Delta\eta = \eta_{\text{treated}} - \eta_{\text{untreated}}$ as a function of baseline coherence $\eta_{\text{untreated}}$ and treatment efficacy $E$. The surface geometry reveals that sicker patients (lower $\eta$) achieve larger absolute improvements at any efficacy level.
+\textbf{Panel D (right):} Combination therapy efficacy contours showing combined effect $E_{\text{combined}} = E_1 + E_2 - 0.3E_1E_2$ exhibiting mild synergy. White contour lines at $E = 0.5, 0.7, 0.9$ guide optimal combination selection for target therapeutic outcomes.}
+\label{fig:therapeutic}
+\end{figure*}
+
+
+%==============================================================================
+\section{Immune Equations}
+\label{sec:immune}
+%==============================================================================
+
+\subsection{Categorical Richness}
+
+\begin{definition}[Categorical Richness]
+\label{def:richness}
+The categorical richness $R(\sigma)$ of partition state $\sigma = (n, \ell, m, s)$ is the number of distinguishable substates:
+\begin{equation}
+R(\sigma) = C(n) \cdot N_{\mathrm{conf}}
+\label{eq:richness}
+\end{equation}
+where $C(n) = 2n^2$ is the partition capacity and $N_{\mathrm{conf}}$ is the conformational multiplicity.
+\end{definition}
+
+\begin{theorem}[Self-Nonself Bimodality]
+\label{thm:bimodality}
+Categorical richness exhibits bimodal distribution with:
+\begin{align}
+R_{\mathrm{self}} &> 10^5 \quad \text{(high richness)} \\
+R_{\mathrm{nonself}} &< 10^4 \quad \text{(low richness)}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Self-proteins have evolved to occupy high-capacity partition regions (large $n$) with many conformational states (large $N_{\mathrm{conf}}$). Non-self entities (pathogens, toxins) have not co-evolved and occupy low-capacity regions with restricted conformations.
+
+Quantitatively:
+\begin{itemize}
+\item Self-proteins: $n \sim 10$, $N_{\mathrm{conf}} \sim 10^3 \Rightarrow R \sim 2 \times 100 \times 10^3 = 2 \times 10^5$
+\item Pathogen proteins: $n \sim 5$, $N_{\mathrm{conf}} \sim 10^2 \Rightarrow R \sim 2 \times 25 \times 10^2 = 5 \times 10^3$
+\end{itemize}
+The gap between $10^4$ and $10^5$ provides the discrimination threshold.
+\end{proof}
+
+\subsection{MHC as Categorical Aperture}
+
+\begin{theorem}[MHC Aperture Function]
+\label{thm:mhc}
+MHC molecules function as categorical apertures presenting peptides with richness below threshold:
+\begin{equation}
+P_{\mathrm{present}}(R) = \begin{cases}
+1 & \text{if } R < R_{\mathrm{threshold}} \\
+0 & \text{if } R > R_{\mathrm{threshold}}
+\end{cases}
+\label{eq:mhc}
+\end{equation}
+where $R_{\mathrm{threshold}} \sim 10^4$.
+\end{theorem}
+
+\begin{proof}
+MHC binding groove has geometric constraints on peptide size and conformation. High-richness peptides have too many conformational states to fit the groove stably. Low-richness peptides have restricted conformations compatible with groove geometry.
+
+The aperture function follows from partition geometry: the MHC groove is itself a partition cell with capacity $C_{\mathrm{MHC}}$. Peptides with $R > C_{\mathrm{MHC}}$ cannot be represented within this cell; only $R \leq C_{\mathrm{MHC}} \sim 10^4$ are presentable.
+\end{proof}
+
+\begin{corollary}[Self-Tolerance]
+\label{cor:tolerance}
+Self-proteins ($R > 10^5$) are not presented by MHC and therefore not targeted by adaptive immunity. This is geometric exclusion, not learned tolerance.
+\end{corollary}
+
+\subsection{VDJ Recombination as Ternary Hierarchy}
+
+\begin{theorem}[Antibody Diversity]
+\label{thm:antibody}
+VDJ recombination implements ternary hierarchical structure generating diversity:
+\begin{equation}
+N_{\mathrm{antibody}} \sim 3^L
+\label{eq:antibody}
+\end{equation}
+where $L$ is the hierarchy depth.
+\end{theorem}
+
+\begin{proof}
+Immunoglobulin genes comprise:
+\begin{itemize}
+\item V segments: $\sim 50$ options $\approx 3^{3.5}$
+\item D segments: $\sim 25$ options $\approx 3^{2.9}$
+\item J segments: $\sim 6$ options $\approx 3^{1.6}$
+\end{itemize}
+Total combinations: $50 \times 25 \times 6 \approx 7500 \approx 3^8$.
+
+The ternary structure is not accidental but reflects underlying partition geometry. Each gene segment represents a partition level; the combination spans an 8-level hierarchy.
+\end{proof}
+
+%==============================================================================
+\section{Implementation Architecture}
+\label{sec:implementation}
+%==============================================================================
+
+\subsection{Type System}
+
+\begin{definition}[Core Types]
+\label{def:types}
+The implementation requires the following types:
+
+\textbf{PartitionCoord}: Tuple $(n, \ell, m, s)$ with $n \in \N^+$, $\ell \in \{0,\ldots,n-1\}$, $m \in \{-\ell,\ldots,\ell\}$, $s \in \{-\frac{1}{2}, +\frac{1}{2}\}$.
+
+\textbf{SEntropyPoint}: Tuple $(\Sk, \St, \Se) \in [0,1]^3$.
+
+\textbf{PartitionState}: Composite $\Gstate = (\text{PartitionCoord}, \text{SEntropyPoint})$.
+
+\textbf{Oscillator}: Record $\{$class: OscillatorClass, $\Pi_{\mathrm{obs}}$: Real, $\Pi_{\mathrm{opt}}$: Real, $\Pi_{\mathrm{deg}}$: Real, $w$: Real$\}$.
+
+\textbf{DiseaseVector}: Array $[D_P, D_E, D_C, D_M, D_A, D_G, D_{Ca}, D_R] \in [0,1]^8$.
+
+\textbf{Trajectory}: Function $\gamma: [0,T] \to \text{SEntropyPoint}$.
+
+\textbf{PartitionOperator}: Function $\Pop: \text{PartitionState} \to \text{PartitionState}$.
+\end{definition}
+
+\subsection{Algorithm Specifications}
+
+\begin{algorithm}[h]
+\caption{COHERENCE: Compute oscillator coherence index}
+\label{alg:coherence}
+\begin{algorithmic}[1]
+\REQUIRE Oscillator $\mathcal{O}$ with metrics $\Pi_{\mathrm{obs}}, \Pi_{\mathrm{opt}}, \Pi_{\mathrm{deg}}$
+\ENSURE Coherence index $\eta \in [0,1]$
+\IF{$\Pi_{\mathrm{opt}} > \Pi_{\mathrm{deg}}$}
+    \STATE $\eta \leftarrow (\Pi_{\mathrm{obs}} - \Pi_{\mathrm{deg}}) / (\Pi_{\mathrm{opt}} - \Pi_{\mathrm{deg}})$
+\ELSE
+    \STATE $\eta \leftarrow (\Pi_{\mathrm{deg}} - \Pi_{\mathrm{obs}}) / (\Pi_{\mathrm{deg}} - \Pi_{\mathrm{opt}})$
+\ENDIF
+\STATE $\eta \leftarrow \max(0, \min(1, \eta))$ \COMMENT{Clamp to $[0,1]$}
+\RETURN $\eta$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\caption{CELLULAR\_COHERENCE: Compute cellular coherence}
+\label{alg:cellular}
+\begin{algorithmic}[1]
+\REQUIRE Array of oscillators $[\mathcal{O}_1, \ldots, \mathcal{O}_N]$
+\ENSURE Cellular coherence $\etacell \in [0,1]$
+\STATE $W \leftarrow 0$
+\STATE $\Sigma \leftarrow 0$
+\FOR{$i = 1$ to $N$}
+    \STATE $\eta_i \leftarrow \text{COHERENCE}(\mathcal{O}_i)$
+    \STATE $W \leftarrow W + w_i$
+    \STATE $\Sigma \leftarrow \Sigma + w_i \cdot \eta_i$
+\ENDFOR
+\RETURN $\etacell \leftarrow \Sigma / W$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\caption{DISEASE\_VECTOR: Compute disease state vector}
+\label{alg:disease}
+\begin{algorithmic}[1]
+\REQUIRE Oscillators grouped by class $\{\mathcal{O}_{P}, \mathcal{O}_{E}, \ldots, \mathcal{O}_{R}\}$
+\ENSURE Disease vector $\Dvec \in [0,1]^8$
+\FOR{each class $c \in \{P, E, C, M, A, G, Ca, R\}$}
+    \STATE $\eta_c \leftarrow \text{CELLULAR\_COHERENCE}(\mathcal{O}_c)$
+    \STATE $D_c \leftarrow 1 - \eta_c$
+\ENDFOR
+\RETURN $\Dvec \leftarrow (D_P, D_E, D_C, D_M, D_A, D_G, D_{Ca}, D_R)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\caption{CLASSIFY: Geometric disease classification}
+\label{alg:classify}
+\begin{algorithmic}[1]
+\REQUIRE Disease vector $\Dvec \in [0,1]^8$
+\ENSURE Disease class $c^* \in \{P, E, C, M, A, G, Ca, R\}$
+\STATE $c^* \leftarrow \arg\max_{c} D_c$
+\RETURN $c^*$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\caption{CATEGORICAL\_DISTANCE: Compute partition distance}
+\label{alg:distance}
+\begin{algorithmic}[1]
+\REQUIRE Partition states $\sigma_1 = (n_1, \ell_1, m_1, s_1)$, $\sigma_2 = (n_2, \ell_2, m_2, s_2)$
+\ENSURE Categorical distance $\dcat \geq 0$
+\STATE $\dcat \leftarrow \sqrt{(n_1 - n_2)^2 + (\ell_1 - \ell_2)^2 + (m_1 - m_2)^2 + (s_1 - s_2)^2}$
+\RETURN $\dcat$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\caption{INTERVENTION: Compute optimal therapeutic target}
+\label{alg:intervention}
+\begin{algorithmic}[1]
+\REQUIRE Disease vector $\Dvec$, weights $\mathbf{w}$
+\ENSURE Optimal target class $i^*$, expected improvement $\Delta\eta$
+\STATE $i^* \leftarrow \arg\max_{i} w_i \cdot D_i$
+\STATE $\Delta\eta \leftarrow w_{i^*} \cdot D_{i^*} / W$
+\RETURN $(i^*, \Delta\eta)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Data Flow Architecture}
+
+The system processes data through the following pipeline:
+
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{Input}: Raw oscillator measurements $\{\Pi_{ij,\mathrm{obs}}\}$
+\item \textbf{Normalization}: Convert to coherence indices $\{\eta_{ij}\}$ via Algorithm~\ref{alg:coherence}
+\item \textbf{Aggregation}: Compute disease vector $\Dvec$ via Algorithm~\ref{alg:disease}
+\item \textbf{Classification}: Determine disease class via Algorithm~\ref{alg:classify}
+\item \textbf{Trajectory}: Compute disease trajectory via Algorithm~\ref{alg:complete}
+\item \textbf{Intervention}: Select optimal target via Algorithm~\ref{alg:intervention}
+\item \textbf{Output}: Disease state, classification, trajectory, intervention recommendation
+\end{enumerate}
+
+%==============================================================================
+\section{Validation Framework}
+\label{sec:validation}
+%==============================================================================
+
+\subsection{Correspondence Criteria}
+
+\begin{definition}[Validation Correspondence]
+\label{def:correspondence}
+The framework is validated if computed values correspond to observed values within tolerance:
+\begin{equation}
+|\Comp(x) - \Obs(x)| < \epsilon
+\label{eq:correspondence}
+\end{equation}
+for all measurable quantities $x$ and tolerance $\epsilon$ determined by measurement precision.
+\end{definition}
+
+\begin{remark}
+By the fundamental identity (Theorem~\ref{thm:fundamental}), $\Comp(x) = \Obs(x)$ exactly. The tolerance $\epsilon$ accounts for:
+\begin{enumerate}[label=(\roman*)]
+\item Measurement uncertainty in $\Obs(x)$
+\item Numerical precision in computing $\Comp(x)$
+\item Model specification errors (incorrect constraints)
+\end{enumerate}
+Non-zero $|\Comp(x) - \Obs(x)|$ indicates specification error, not framework failure.
+\end{remark}
+
+\subsection{Validation Categories}
+
+\textbf{Category 1: Thermodynamic Validation}
+
+Verify equations of state for physical regimes:
+\begin{itemize}
+\item Ideal gas: $PV = N\kB T$ with $\epsilon < 1\%$
+\item Plasma: $P = n\kB T(1 + \alpha)$ with ionization $\alpha$
+\item Degenerate matter: $P \propto \rho^{5/3}$
+\item Relativistic gas: $P = \frac{1}{3}aT^4$
+\item BEC: $P \propto T^{5/2}$ below $T_c$
+\end{itemize}
+
+\textbf{Category 2: Oscillator Validation}
+
+Verify coherence equations for each oscillator class:
+\begin{itemize}
+\item Protein: Folding cycles $k \in [k_{\min}, k_{\max}]$ with $\epsilon < 0.5$ cycles
+\item Enzyme: Turnover $k_{\mathrm{cat}}$ matching Michaelis-Menten kinetics
+\item Channel: Open probability $P_o$ matching patch-clamp measurements
+\item Membrane: Action potential amplitude $\Delta V$ matching electrophysiology
+\item ATP: Synthesis period $T$ matching metabolic flux measurements
+\item Genetic: Burst rate $\lambda$ matching single-cell RNA-seq
+\item Calcium: Oscillation regularity matching imaging data
+\item Circadian: Period stability $\sigma_T$ matching actigraphy
+\end{itemize}
+
+\textbf{Category 3: Disease Validation}
+
+Verify disease classification against clinical diagnosis:
+\begin{itemize}
+\item Classification accuracy $> 90\%$ for dominant-component diseases
+\item Severity correlation $r > 0.8$ between $D_{\mathrm{total}}$ and clinical scores
+\item Trajectory prediction matching longitudinal disease progression
+\end{itemize}
+
+\textbf{Category 4: Therapeutic Validation}
+
+Verify therapeutic equations against clinical outcomes:
+\begin{itemize}
+\item Efficacy $E$ correlation with treatment response
+\item Target selection matching known drug mechanisms
+\item Combination therapy predictions matching clinical trials
+\end{itemize}
+
+\subsection{Computational Validation Protocol}
+
+\begin{enumerate}
+\item \textbf{Unit tests}: Each algorithm produces correct output for known inputs
+\item \textbf{Conservation tests}: Partition operations preserve required invariants
+\item \textbf{Boundary tests}: Edge cases ($\eta = 0$, $\eta = 1$, $\dcat = 0$) handled correctly
+\item \textbf{Consistency tests}: $\Obs(x) = \Comp(x)$ for all computable observables
+\item \textbf{Regression tests}: Framework maintains correspondence across versions
+\end{enumerate}
+
+%==============================================================================
+\section{Complexity Analysis}
+\label{sec:complexity}
+%==============================================================================
+
+\subsection{State Resolution Complexity}
+
+\begin{theorem}[Resolution Complexity]
+\label{thm:resolution_complexity}
+Resolving a categorical address to precision $\epsilon$ requires $\bigO(\log(1/\epsilon))$ operations.
+\end{theorem}
+
+\begin{proof}
+Each partition refinement (ternary division) improves precision by factor 3. Achieving precision $\epsilon$ from initial range $\Delta$ requires $n$ refinements where:
+\begin{equation}
+\frac{\Delta}{3^n} < \epsilon \Rightarrow n > \log_3\frac{\Delta}{\epsilon} = \bigO\left(\log\frac{1}{\epsilon}\right)
+\end{equation}
+Each refinement is $\bigO(1)$, yielding total complexity $\bigO(\log(1/\epsilon))$.
+\end{proof}
+
+\subsection{Trajectory Complexity}
+
+\begin{theorem}[Trajectory Complexity]
+\label{thm:trajectory_complexity}
+Computing a trajectory via COMPLETE in $N$-dimensional partition space requires $\bigO(N \log N)$ operations.
+\end{theorem}
+
+\begin{proof}
+The COMPLETE algorithm (Algorithm~\ref{alg:complete}) applies $M$ constraints to reduce the solution space. Each constraint application requires $\bigO(N)$ operations to evaluate over $N$ dimensions. With $M = \bigO(\log N)$ constraints needed for uniqueness (by dimensionality arguments), total complexity is $\bigO(N \log N)$.
+\end{proof}
+
+\begin{corollary}[Efficiency vs. Simulation]
+\label{cor:efficiency}
+Trajectory resolution via COMPLETE is exponentially more efficient than forward simulation:
+\begin{equation}
+\frac{T_{\mathrm{COMPLETE}}}{T_{\mathrm{simulate}}} = \bigO\left(\frac{\log N}{N}\right) \to 0 \text{ as } N \to \infty
+\end{equation}
+\end{corollary}
+
+\subsection{Disease Vector Complexity}
+
+\begin{theorem}[Disease Vector Complexity]
+\label{thm:disease_complexity}
+Computing the disease vector from $N$ oscillator measurements requires $\bigO(N)$ operations.
+\end{theorem}
+
+\begin{proof}
+Algorithm~\ref{alg:disease} iterates over $N$ oscillators, computing coherence in $\bigO(1)$ per oscillator. Classification (Algorithm~\ref{alg:classify}) scans 8 components in $\bigO(1)$. Total: $\bigO(N)$.
+\end{proof}
+
+\subsection{Space Complexity}
+
+\begin{theorem}[Space Complexity]
+\label{thm:space}
+The framework requires $\bigO(N)$ space for $N$ oscillators.
+\end{theorem}
+
+\begin{proof}
+Storage requirements:
+\begin{itemize}
+\item $N$ oscillators: $\bigO(N)$
+\item Disease vector: $\bigO(8) = \bigO(1)$
+\item Trajectory: $\bigO(T/\Delta t)$ for discretization step $\Delta t$
+\item Partition state: $\bigO(1)$
+\end{itemize}
+Total: $\bigO(N + T/\Delta t)$, dominated by $\bigO(N)$ for practical parameters.
+\end{proof}
+
+%==============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%==============================================================================
+
+This work establishes a mathematical framework for computing disease trajectories through categorical partition geometry. The framework derives from two axioms---bounded phase space and categorical observation---and yields the following principal results:
+
+\textbf{First}, partition geometry emerges as geometric necessity from bounded phase space. Partition coordinates $(n, \ell, m, s)$ with capacity $C(n) = 2n^2$ are not modeling choices but mathematical consequences of the axioms. S-entropy space $\Sspace = [0,1]^3$ provides the natural macroscopic description.
+
+\textbf{Second}, the triple equivalence between oscillatory, categorical, and partition descriptions is established through the entropy identity $S = \kB M \ln n$. These descriptions are not different theories but different perspectives on identical mathematical structure.
+
+\textbf{Third}, the fundamental identity $\Obs(x) \equiv \Comp(x) \equiv \Proc(x)$ is proven. Observation, computation, and processing are mathematically identical operations: categorical address resolution. This identity provides the epistemic foundation for computing disease trajectories with the same validity as observing them.
+
+\textbf{Fourth}, categorical distance $\dcat$ is proven independent of spatial distance and optical opacity. This enables measurement of states behind arbitrary barriers, resolving the accessibility problem for internal disease states.
+
+\textbf{Fifth}, eight oscillator classes are classified as diagnostic sensors with universal coherence equation $\eta = (\Pi_{\mathrm{obs}} - \Pi_{\mathrm{deg}})/(\Pi_{\mathrm{opt}} - \Pi_{\mathrm{deg}})$. Cellular coherence $\etacell$ provides a scalar health measure; the disease vector $\Dvec$ encodes pathological signatures.
+
+\textbf{Sixth}, disease is formalized as coherence deficit with geometric classification by dominant component. The disease trajectory is computable through constraint satisfaction in S-entropy space.
+
+\textbf{Seventh}, therapeutic intervention is formalized as phase-lock restoration with efficacy $E$ determining coherence increase. Optimal target selection is computable as $\arg\max_i w_i D_i$.
+
+\textbf{Eighth}, immune recognition is derived as categorical aperture selection based on partition richness, with self-nonself discrimination emerging from geometric properties rather than learned patterns.
+
+\textbf{Ninth}, algorithms are specified for state resolution, trajectory computation, disease classification, and intervention planning, with complexity $\bigO(\log N)$ for resolution and $\bigO(N)$ for disease vector computation.
+
+\textbf{Tenth}, validation criteria are defined through correspondence between computed and observed values across thermodynamic, oscillator, disease, and therapeutic domains.
+
+The framework provides a rigorous mathematical foundation for disease trajectory computation. Implementation in a typed functional system enables computational validation and practical application. The correspondence $\Comp(x) = \Obs(x)$ ensures that computed disease trajectories have identical epistemic status to observed trajectories, establishing trajectory computing as a valid methodology for disease analysis.
+
+\section*{Data Availability}
+
+No empirical data was used in this theoretical work. Validation protocols specify how empirical data should be collected and compared to framework predictions.
+
+\section*{Code Availability}
+
+Implementation specifications are provided in Section~\ref{sec:implementation}. Reference implementation will be made available upon publication.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

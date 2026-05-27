@@ -1,0 +1,1752 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+% ─── Page layout ─────────────────────────────────────────────────────
+\usepackage[margin=2cm, columnsep=0.6cm]{geometry}
+
+% ─── Essential packages ──────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,%
+           citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,textfont=it}
+
+% ─── Theorem environments ────────────────────────────────────────────
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ─── Custom commands ─────────────────────────────────────────────────
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Vm}{V_{\mathrm{m}}}
+\newcommand{\Ie}{I_{\mathrm{e}}}
+\newcommand{\Im}{I_{\mathrm{m}}}
+\newcommand{\Isyn}{I_{\mathrm{syn}}}
+\newcommand{\Iion}{I_{\mathrm{ion}}}
+\newcommand{\gsyn}{g_{\mathrm{syn}}}
+\newcommand{\Cm}{C_{\mathrm{m}}}
+\newcommand{\Rth}{R_{\mathrm{th}}}
+\newcommand{\dnorm}[1]{\left\lVert #1 \right\rVert}
+
+\title{\textbf{Motor Commands and Proprioceptive Return as Phases of a Single Charge Circulation: Resolving the Deafferentation Paradox}}
+
+\author{
+Kundai Farai Sachikonye\\
+AIMe Registry for Artificial Intelligence\\
+\texttt{kundai.sachikonye@bitspark.com}
+}
+
+\date{\today}
+
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\begin{abstract}
+\noindent
+Standard motor control theory treats the nervous system as an open-loop
+controller augmented by sensory feedback: descending commands from
+cortex drive motor neurons, which activate muscles, with proprioceptive
+afferents providing corrective signals. This picture predicts that loss
+of proprioception (deafferentation) should degrade motor precision.
+Empirically, however, deafferentation does not merely degrade
+precision---it abolishes coordinated movement entirely, even when motor
+output is intact and cognitive intent is preserved. We argue that this
+dissociation reflects a category error in the standard model: motor
+output and proprioceptive return are not two separate signals coupled
+by feedback but two phases of a single closed charge circulation. We
+derive the musculoskeletal system from three accepted starting points:
+(i) the Hodgkin--Huxley representation of neural membranes as
+charge-bearing circuits; (ii) the sliding-filament theory of muscle
+contraction; and (iii) Kirchhoff's laws applied to the complete
+neural--muscular--proprioceptive network. From these, we establish
+that the musculoskeletal system is a closed circuit with no external
+ground, so charge conservation plus variance minimization requires
+that any motor command trajectory complete its circulation through the
+proprioceptive return. The consequences are: (a) deafferentation does
+not degrade movement; it prevents movement completion, because the
+circuit cannot close; (b) the stretch reflex is an autocatalytic
+oscillator, not a negative-feedback servo; (c) postural control is
+continuous oscillation rather than dynamic equilibrium; (d) the
+central pattern generator for locomotion is a self-sustaining
+closed-loop resonance in the spinal cord; and (e) motor learning is
+geometric modification of circuit conductance, not storage of
+commands. We provide formal derivations, quantitative predictions for
+stretch reflex latency ($30$--$50$\,ms), muscle force--length and
+force--velocity relations, postural sway power spectra, and the effects
+of deafferentation on movement generation. We compare the framework
+with the equilibrium-point hypothesis \citep{feldman1986}, optimal
+feedback control \citep{todorov2002}, and internal-model theories
+\citep{kawato1999,wolpert2000}, showing that the closed-circuit picture
+subsumes these as partial descriptions while resolving the
+deafferentation paradox that has remained open for three decades.
+
+\vspace{4pt}
+\noindent\textbf{Keywords:} motor control, deafferentation, stretch
+reflex, central pattern generator, closed-loop neural circuits,
+proprioception, postural control, muscle mechanics, equilibrium-point
+hypothesis, Kirchhoff's laws, autocatalytic oscillation.
+\end{abstract}
+\vspace{12pt}
+\end{@twocolumnfalse}
+]
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:introduction}
+% ═════════════════════════════════════════════════════════════════════
+
+\subsection{The deafferentation paradox}
+
+In 1971, a 19-year-old man developed a severe sensory neuropathy
+following a viral illness. Within weeks he had lost all proprioceptive
+input below the neck while motor innervation remained intact. He could
+not stand, walk, or perform any coordinated movement. He was told he
+would spend the rest of his life in a wheelchair. Over the following
+decades he taught himself to move again using conscious visual
+substitution for proprioception---watching every limb segment
+continuously and issuing explicit volitional commands for each
+fragment of motion. This is Ian Waterman, the most extensively studied
+deafferented human subject \citep{cole1991,cole2016}.
+
+Waterman's case is not idiosyncratic. Patients with large-fiber
+sensory neuropathy exhibit the same pattern: coordinated movement is
+abolished, visual attention becomes the sole compensatory channel, and
+eye closure produces immediate postural collapse even when the subject
+is seated and has no balance requirement
+\citep{sainburg1993,sainburg1995,ghez1995}. Deafferented primates in
+the classical Taub--Berman--Mott series could not use a limb even when
+reward contingencies made usage strongly advantageous
+\citep{taub1965,taub1966}. Quantitative characterizations of
+deafferented reaching show disruptions that are not gradual but
+structural: the movement does not merely become less accurate, it
+fails to terminate and fails to initiate correctly
+\citep{gordon1995,sainburg1999}.
+
+The phenomenon has been known for over three decades. The neurology
+literature treats it as a demonstration of proprioception's
+``importance'' but rarely confronts the harder question: if motor
+control is fundamentally a descending-command process augmented by
+feedback, removing feedback should degrade precision without
+eliminating the fundamental capability. Why, then, is deafferentation
+catastrophic rather than merely inconvenient?
+
+Standard motor-control models predict it should be inconvenient. In
+optimal feedback control \citep{todorov2002}, the feedback gain
+enters multiplicatively; reducing the gain should increase variance
+but preserve the mean trajectory. In internal-model theories
+\citep{kawato1999,wolpert2000}, an efference copy combined with a
+forward model can in principle substitute for sensory feedback;
+deafferented subjects should be able to move using internal
+predictions, with errors accumulating only slowly as the model drifts.
+In equilibrium-point theories \citep{feldman1966,feldman1986,%
+bizzi1992}, the motor command specifies a stable setpoint toward which
+the limb converges mechanically; deafferented limbs should still reach
+that setpoint, albeit perhaps with tremor or altered dynamics.
+
+None of these predictions survives contact with the data. Deafferented
+patients do not converge to setpoints. Their forward models drift
+catastrophically within seconds. Their feedback-gain-free trajectories
+do not merely have higher variance; they cease to exist as coherent
+trajectories at all. Something in the standard picture is missing.
+
+\subsection{The claim of this paper}
+
+We argue that the missing element is a structural property of the
+motor circuit: the circuit has no external ground. It is a closed
+charge network in the thermodynamic sense of having no reservoir to
+which current can dissipate. In such networks, any local charge
+imbalance propagates through the topology and must return to its
+origin for the system to reach a self-consistent state. The ``motor
+command'' travelling from cortex to muscle is one half of a closed
+circulation; the proprioceptive afferent stream travelling from muscle
+to cortex is the other half. They are not two signals coupled by
+feedback---they are one circulation observed at outbound and return
+phases.
+
+When the return phase is severed (deafferentation), the outbound phase
+cannot achieve self-consistent completion. No descending pattern
+terminates in a balanced configuration; each attempted movement is an
+unfinished circulation that the circuit has no means to close. Visual
+substitution works precisely because vision reintroduces a return
+phase, but an indirect one that requires conscious mediation and
+therefore cannot operate at the bandwidth required for coordinated
+motion.
+
+This reformulation is not a new physical hypothesis. It is a direct
+consequence of the Kirchhoff-law description of closed neural circuits
+combined with the non-equilibrium thermodynamics of charge conservation
+in systems without reservoirs. The resulting picture explains the
+deafferentation phenomenology quantitatively, subsumes the equilibrium
+point and optimal feedback control frameworks as partial descriptions,
+and provides a unified derivation of the musculoskeletal system from
+the level of single neurons to whole-body postural control.
+
+\subsection{Organization}
+
+Section~\ref{sec:foundations} reviews the accepted neurophysiological
+and biomechanical facts we take as starting points.
+Section~\ref{sec:circuit-representation} establishes the circuit
+representation, distinguishes open and closed topologies, and derives
+the thermodynamic consequences of the absence of external ground.
+Section~\ref{sec:motor-unit} derives the motor unit as the minimum
+actuator element. Section~\ref{sec:nmj} treats the neuromuscular
+junction as charge--chemical--charge transducer.
+Section~\ref{sec:contractile} derives the contractile apparatus,
+recovering the Hill force--velocity equation and Gordon--Huxley--Julian
+force--length relation from cross-bridge kinetics.
+Section~\ref{sec:proprioceptors} treats the proprioceptor ensemble as
+distributed state observer. Section~\ref{sec:stretch-reflex} presents
+the central theorem: the stretch reflex is an autocatalytic closed
+loop, not a negative-feedback servo.
+Section~\ref{sec:equilibrium-point} reinterprets the
+equilibrium-point hypothesis within the closed-circuit framework.
+Section~\ref{sec:postural} treats postural control as superposed
+stretch reflexes coupled to vestibular and visual inputs.
+Section~\ref{sec:cpg} analyzes the central pattern generator as a
+self-sustaining closed-loop resonance.
+Section~\ref{sec:supraspinal} places supraspinal contributions within
+the circuit. Section~\ref{sec:predictions} compiles quantitative
+predictions. Section~\ref{sec:discussion} contrasts the framework with
+existing motor-control theories. Section~\ref{sec:conclusion}
+concludes.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Neurophysiological Foundations}
+\label{sec:foundations}
+% ═════════════════════════════════════════════════════════════════════
+
+We take the following facts as starting points. Each is widely accepted
+and extensively documented. Readers familiar with the material may skim.
+
+\subsection{Neurons as charge-carrying elements}
+
+A neuron is bounded by a lipid bilayer embedded with ion channels,
+pumps, and exchangers. The bilayer itself is an insulator with
+specific capacitance $\Cm \approx 1\,\mu\mathrm{F/cm}^2$
+\citep{hodgkin1952,kandel2013}. The ion channels act as voltage- and
+ligand-gated conductances for \ch{Na+}, \ch{K+}, \ch{Ca^2+}, and
+\ch{Cl-}. At rest, the membrane potential $\Vm$ is maintained near
+$-70$\,mV by the balance of ionic gradients established by
+\ch{Na+}/\ch{K+}-ATPase pumps and passive leakage.
+
+The Hodgkin--Huxley equations \citep{hodgkin1952} describe the
+time-evolution of $\Vm$ as a current balance:
+\begin{equation}
+\Cm \frac{d \Vm}{dt} = -\sum_k g_k(\Vm, t)\,(\Vm - E_k) + \Ie,
+\label{eq:hh}
+\end{equation}
+where $g_k$ is the conductance for ion species $k$, $E_k$ is its
+reversal potential, and $\Ie$ is any externally applied current. This
+formulation treats the neuron as an electrical circuit: a capacitor in
+parallel with voltage-dependent conductances. The action potential is
+the characteristic nonlinear excursion of $\Vm$ generated when the
+voltage-gated \ch{Na+} conductance exceeds a threshold.
+
+\subsection{Synaptic transmission}
+
+Synapses couple neurons electrically (gap junctions) or chemically
+(vesicular neurotransmitter release). Chemical synapses convert
+presynaptic membrane potential into calcium-triggered neurotransmitter
+release, which opens postsynaptic receptor-associated conductances
+$\gsyn(t)$. The postsynaptic current is
+\begin{equation}
+\Isyn(t) = \gsyn(t) \,(\Vm - E_{\mathrm{syn}}),
+\label{eq:syn-current}
+\end{equation}
+with $E_{\mathrm{syn}}$ the synaptic reversal potential. Excitatory
+synapses have $E_{\mathrm{syn}} > \Vm$; inhibitory synapses have
+$E_{\mathrm{syn}} < \Vm$. Synaptic transmission is thus charge
+transfer between coupled circuits \citep{katz1967,katz1972}.
+
+\subsection{Motor neurons and motor units}
+
+A motor unit consists of one $\alpha$-motor neuron in the ventral horn
+of the spinal cord together with all muscle fibers it innervates
+\citep{sherrington1925}. The muscle fibers of a single motor unit
+contract as a functional whole because action potentials in the motor
+neuron produce action potentials in every innervated fiber. Motor
+units are recruited in order of increasing size according to the size
+principle \citep{henneman1957}: small motor units with low-threshold
+motor neurons are recruited first, followed by progressively larger
+units as force demand increases.
+
+\subsection{Neuromuscular junction}
+
+The neuromuscular junction (NMJ) is a specialized synapse at which
+motor neuron terminals release acetylcholine (ACh) onto nicotinic
+acetylcholine receptors (nAChR) on the skeletal muscle fiber. ACh
+binding opens cation channels, producing an end-plate potential (EPP)
+with a large safety factor: each motor neuron action potential
+produces an EPP that exceeds threshold for muscle fiber action
+potential generation by a factor of approximately 3--5
+\citep{katz1967,wood2001}. The muscle fiber action potential then
+propagates along the sarcolemma and into the T-tubule system,
+triggering calcium release from the sarcoplasmic reticulum via
+ryanodine receptors.
+
+\subsection{Excitation--contraction coupling}
+
+Released \ch{Ca^2+} binds troponin C on the thin (actin) filament,
+displacing tropomyosin and exposing myosin-binding sites
+\citep{huxley1971,gordon2000}. Myosin cross-bridges in the
+near-boundary state attach to actin, undergo a power stroke of
+approximately $10$--$11$\,nm driven by ATP hydrolysis, detach, and
+reset. Cycling continues while \ch{Ca^2+} is present above the
+troponin binding threshold. The cycle was formulated kinetically by
+\citet{huxley1957} and elaborated over subsequent decades
+\citep{huxley1974,gordon2000,piazzesi2007}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel1_action_potential.png}
+    \caption{\textbf{Hodgkin--Huxley Action Potential Dynamics.}
+    (\textbf{A})~Three-dimensional surface of membrane potential $V(t, I)$ over stimulus current amplitudes $I \in [4, 14]\,\mu$A/cm$^2$ and post-stimulus time $t \in [0, 15]$\,ms. A $1$\,ms current pulse is applied at $t = 2$\,ms. Subthreshold stimuli ($I \lesssim 7\,\mu$A/cm$^2$) produce only passive depolarization; suprathreshold stimuli trigger the stereotyped action potential whose peak is invariant with respect to increasing amplitude, demonstrating the all-or-none response predicted by nonlinear $\mathrm{Na^+}/\mathrm{K^+}$ channel kinetics.
+    (\textbf{B})~Voltage traces at four representative stimulus amplitudes ($I = 5, 7, 10, 13\,\mu$A/cm$^2$). The $5\,\mu$A/cm$^2$ trace remains subthreshold; $7\,\mu$A/cm$^2$ is near threshold; $10$ and $13\,\mu$A/cm$^2$ each produce full action potentials peaking at $\sim +40$\,mV with spike width $\sim 1.5$\,ms at half-maximum.
+    (\textbf{C})~Peak voltage versus stimulus amplitude across the full $I$ range. The step-like transition at $I \approx 7$--$8\,\mu$A/cm$^2$ defines the action potential threshold and matches the accepted range for the canonical squid axon parameters \citep{hodgkin1952}. The dashed line marks $V = 0$.
+    (\textbf{D})~Phase portrait $V$ versus $dV/dt$ for a suprathreshold response ($I = 10\,\mu$A/cm$^2$). The closed trajectory captures the characteristic depolarization--repolarization loop, with maximum rate of rise $\sim +300$\,mV/ms during the upstroke and $\sim -80$\,mV/ms during repolarization. Zero-crossings (dashed lines) delimit the four phases of the action potential.}
+    \label{fig:action_potential}
+\end{figure*}
+
+\subsection{Proprioception}
+
+Three classes of mechanoreceptor report muscle and joint state to
+the central nervous system \citep{matthews1972,prochazka1989,%
+gandevia2001}:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Muscle spindles}, innervated by group Ia (primary) and
+group II (secondary) afferents, encode muscle length and rate of
+length change. Spindle sensitivity is modulated by $\gamma$-motor
+neurons that adjust intrafusal fiber tension independently of
+extrafusal load.
+\item \textbf{Golgi tendon organs}, innervated by group Ib afferents,
+encode muscle tension at the tendon--muscle junction.
+\item \textbf{Joint receptors} and \textbf{cutaneous mechanoreceptors}
+encode joint angle and contact forces.
+\end{itemize}
+These afferents project to the spinal cord, brainstem, cerebellum, and
+cortex via ascending pathways, with monosynaptic connections onto
+homonymous and synergist motor neurons forming the anatomical substrate
+of the stretch reflex.
+
+\subsection{Central pattern generators}
+
+Rhythmic motor output (locomotion, respiration, mastication) is
+produced by spinal and brainstem circuits that can generate their
+rhythmic patterns in the absence of descending input and in the
+absence of phasic proprioceptive feedback, although both modify the pattern substantially \citep{grillner1985,grillner2003,marder2001}.
+These circuits, known as central pattern generators (CPGs), rely on
+reciprocal inhibition between flexor and extensor half-centers
+combined with adaptation currents that destabilize each half-center
+after a period of activity.
+
+\subsection{Biomechanics of the musculotendinous unit}
+
+Skeletal muscle exhibits characteristic force--length and
+force--velocity relations. The isometric force--length curve has an
+ascending limb, a plateau corresponding to optimal myofilament
+overlap, and a descending limb \citep{gordon1966}. The
+force--velocity relation during concentric contraction follows the
+hyperbolic Hill equation \citep{hill1938}:
+\begin{equation}
+(F + a)(v + b) = (F_0 + a)\,b,
+\label{eq:hill}
+\end{equation}
+where $F$ is force, $v$ is shortening velocity, $F_0$ is isometric
+tetanic force, and $a, b$ are constants characterizing the muscle.
+Tendons exhibit nonlinear elastic behavior with a toe region and a
+linear region, storing and releasing elastic energy during movement
+\citep{alexander1990,ker1988}.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Circuit Representation}
+\label{sec:circuit-representation}
+% ═════════════════════════════════════════════════════════════════════
+
+We now represent the neuromuscular system as an electrical circuit,
+apply Kirchhoff's laws, and distinguish open from closed topologies.
+
+\subsection{Nodes and edges}
+
+\begin{definition}[Neuromuscular graph]
+\label{def:nm-graph}
+The neuromuscular graph $G = (V, E)$ has vertices $V$ corresponding to
+compartments at which membrane potential is approximately uniform
+(a neuron soma, a dendritic branch, a muscle fiber segment, a
+presynaptic terminal) and edges $E$ corresponding to conductive
+pathways between compartments (axonal segments, dendritic couplings,
+synaptic contacts, NMJ).
+\end{definition}
+
+At each vertex $v$, conservation of current (Kirchhoff's current law,
+KCL) gives
+\begin{equation}
+\sum_{u : (u,v) \in E} I_{uv}(t) = \Cm^{(v)} \frac{d \Vm^{(v)}}{dt}
++ \Iion^{(v)}(t),
+\label{eq:kcl}
+\end{equation}
+where $I_{uv}$ is the current flowing into $v$ from $u$,
+$\Cm^{(v)}$ is the membrane capacitance at $v$, and $\Iion^{(v)}$ is
+the ionic current through channels at $v$. Kirchhoff's voltage law
+(KVL) around any closed loop is implicit in the requirement that
+$\Vm$ is a single-valued function of vertex identity.
+
+\subsection{External ground}
+
+\begin{definition}[External ground]
+A vertex $v^*$ of a circuit is an \emph{external ground} if it is
+connected to an infinite charge reservoir (or, equivalently, if the
+potential at $v^*$ is fixed externally and unlimited current may flow
+into or out of the reservoir).
+\end{definition}
+
+\begin{proposition}[The neuromuscular graph has no external ground]
+\label{prop:no-ground}
+The in vivo neuromuscular graph $G$ has no vertex connected to an
+infinite charge reservoir. Every charge crossing any membrane
+ultimately returns to the intracellular or extracellular fluid
+compartments of the organism, both of which are finite.
+\end{proposition}
+
+\begin{proof}[Justification]
+The organism is a bounded, closed thermodynamic system with respect
+to charge. Ionic gradients are maintained by metabolic work of
+\ch{Na+}/\ch{K+}-ATPase pumps, but these pumps do not dissipate
+charge---they redistribute it across membranes. No current leaves the
+organism except via the skin on the timescale of seconds (trans-dermal
+currents are negligible compared with intracellular currents by
+several orders of magnitude). The body therefore functions as a finite
+closed charge system. Equilibrium potentials $E_k$ are determined by
+the Nernst equation from finite internal and external concentrations,
+not by an external reference.
+\end{proof}
+
+Conventional electrophysiology experiments introduce ground externally
+via reference electrodes for measurement purposes, but this is a
+measurement artifact, not a feature of the biological circuit. In vivo,
+no such ground exists.
+
+\subsection{Consequences of the absence of ground}
+
+Consider a circuit in which a current source at vertex $u$ injects
+charge $\delta q$. In a grounded circuit, $\delta q$ can flow to
+ground through any pathway to the reservoir; the circuit reaches
+steady state when all currents balance at each non-ground node, with
+the ground absorbing any imbalance.
+
+In an ungrounded circuit, charge conservation is enforced globally:
+\begin{equation}
+\sum_{v \in V} q^{(v)}(t) = Q_{\mathrm{total}}
+= \mathrm{const.}
+\label{eq:global-conservation}
+\end{equation}
+Any local increment $\delta q$ at $u$ must be balanced by a
+decrement $-\delta q$ distributed over the remaining vertices. There
+is no absorber; all charge must redistribute through internal
+pathways.
+
+\begin{theorem}[No equilibrium in ungrounded excitable circuits]
+\label{thm:no-equilibrium}
+Let $G$ be an ungrounded circuit whose vertices contain voltage-gated
+conductances with nonzero equilibrium activation thresholds and whose
+global charge is conserved at $Q_{\mathrm{total}} > 0$. Then $G$ does
+not admit a static equilibrium state. Every trajectory of the
+dynamical system defined by~(\ref{eq:kcl}) with ionic currents
+following Hodgkin--Huxley kinetics~(\ref{eq:hh}) is non-static.
+\end{theorem}
+
+\begin{proof}
+Suppose a static equilibrium exists, i.e.\ $d\Vm^{(v)}/dt = 0$ for
+all $v$. Then by~(\ref{eq:kcl}), the ionic currents $\Iion^{(v)}$ at
+each vertex equal the net synaptic current into the vertex. The
+voltage-gated conductances, being continuous functions of $\Vm$, are
+nonzero away from their resting states. A uniform-$\Vm$ equilibrium
+(at resting potential) satisfies the local balance but does not
+satisfy global charge conservation if $Q_{\mathrm{total}}$ is
+incompatible with all vertices being at rest (which is generically
+the case given maintained concentration gradients and finite
+capacitance). Any non-uniform distribution of $\Vm$ across vertices
+produces net currents that violate the assumed static condition,
+contradicting the hypothesis.
+\end{proof}
+
+\begin{corollary}[Perpetual oscillation]
+\label{cor:perpetual}
+In an ungrounded excitable circuit with constant metabolic energy
+supply and nonzero ionic gradients, the trajectory is a perpetual
+non-equilibrium motion. The trajectory is bounded (membrane potentials
+are constrained to physiological ranges by reversal potentials and
+channel dynamics) and non-static (Theorem~\ref{thm:no-equilibrium}),
+hence oscillatory in the sense of repeated excursions within the
+bounded state space \citep{nicolis1977,haken1983,prigogine1977}.
+\end{corollary}
+
+\begin{remark}
+The ``resting state'' familiar from electrophysiology is not an
+equilibrium of the full circuit but a conditional resting of an
+isolated cell measured against external ground. In the intact
+organism, no cell rests in a true thermodynamic sense; every cell is
+part of a continuously redistributing network. This is the fundamental
+distinction between slice physiology and in vivo physiology.
+\end{remark}
+
+\subsection{Closure, circulation, and variance minimization}
+
+\begin{definition}[Closed path]
+A closed path in $G$ is a sequence of edges $(v_0, v_1, \ldots, v_n)$
+with $v_n = v_0$ such that every intermediate vertex is traversed by
+an admissible conductive pathway.
+\end{definition}
+
+\begin{definition}[Circulation]
+A circulation along a closed path is a coordinated charge flow
+$J_k(t)$ on each edge $k$ of the path with $\sum_k J_k(t) = 0$
+around the loop (consistent with KVL being trivially satisfied by
+single-valued $\Vm$).
+\end{definition}
+
+\begin{theorem}[Minimum-variance closure]
+\label{thm:min-variance}
+In an ungrounded circuit with metabolic energy input, perturbations
+propagate along paths of minimum variance production. Specifically, a
+charge perturbation $\delta q$ at vertex $u$ redistributes along the
+closed path $\gamma^*$ that minimizes
+\begin{equation}
+\Phi[\gamma] = \sum_{k \in \gamma} \frac{J_k^2}{\sigma_k},
+\label{eq:variance-functional}
+\end{equation}
+where $\sigma_k$ is the conductance of edge $k$, subject to the
+constraint that $\gamma$ is closed through $u$.
+\end{theorem}
+
+\begin{proof}
+The quantity $\Phi[\gamma]$ has units of power and corresponds to the
+dissipation associated with the perturbation. Metabolically supported
+circuits evolve toward minimum entropy production consistent with
+the imposed constraints \citep{onsager1931,prigogine1977}. In an
+ungrounded circuit, the imposed constraint is that the perturbation
+return to $u$ (global charge conservation). Minimizing $\Phi[\gamma]$
+over closed paths through $u$ is a standard Lagrangian variational
+problem with solution given by the Euler--Lagrange equations; the
+minimum is achieved along a path whose conductance-weighted current
+distribution balances at every vertex. This path is the closed circuit
+associated with $u$.
+\end{proof}
+
+\begin{corollary}[Closure is obligatory]
+\label{cor:closure-obligatory}
+A motor perturbation originating at a cortical vertex $u$ does not
+terminate at a peripheral vertex (the muscle) unless the peripheral
+vertex is part of a closed path back to $u$. If no such closed path
+exists, the perturbation continues to propagate through the network,
+seeking closure.
+\end{corollary}
+
+This corollary is the structural basis for the claim that motor
+commands cannot complete in the absence of proprioceptive return.
+The corticospinal axon is not a terminus in an ungrounded circuit; it
+is one half of a closed path that must return through proprioceptive
+and interoceptive afferents to reach closure.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Motor Unit as Actuator Element}
+\label{sec:motor-unit}
+% ═════════════════════════════════════════════════════════════════════
+
+We now derive the motor unit as the minimum closed-circuit actuator.
+
+\subsection{Definition and anatomical structure}
+
+A motor unit comprises: (i) one $\alpha$-motor neuron with soma in the
+ventral horn of the spinal cord; (ii) its axon, which exits via the
+ventral root and courses through the peripheral nerve to the muscle;
+(iii) the terminal branches that innervate from tens to thousands of
+muscle fibers; and (iv) the innervated muscle fibers themselves. In
+human muscles, innervation ratios range from approximately $10$:$1$
+in small muscles (extraocular, intrinsic hand) to $2000$:$1$ in large
+postural muscles (gastrocnemius, gluteus maximus)
+\citep{buchthal1980,feinstein1955}.
+
+The motor unit also includes the afferent innervation of its muscle
+fibers and the spindles and Golgi tendon organs embedded among them.
+Without this afferent component, the unit is not a complete circuit;
+it is an open pathway from motor neuron to muscle.
+
+\subsection{The motor unit as minimum closed loop}
+
+\begin{definition}[Motor unit closed loop]
+The motor unit closed loop comprises, as a directed cycle:
+\begin{enumerate}[label=(\roman*),leftmargin=*,itemsep=1pt]
+\item $\alpha$-motor neuron soma $\to$ axon $\to$ NMJ;
+\item NMJ $\to$ muscle fiber depolarization $\to$
+\ch{Ca^2+} release $\to$ cross-bridge cycling $\to$ force
+generation;
+\item Force generation $\to$ spindle and Golgi tendon organ
+discharge;
+\item Afferent axons $\to$ dorsal root $\to$ monosynaptic return to
+the homonymous $\alpha$-motor neuron soma.
+\end{enumerate}
+The cycle closes.
+\end{definition}
+
+\begin{theorem}[Motor unit closure]
+\label{thm:motor-unit-closure}
+The motor unit closed loop is a closed path in the neuromuscular
+graph $G$. Perturbations at any vertex of the loop propagate along the
+loop in the direction that minimizes variance production
+(Theorem~\ref{thm:min-variance}), returning to the originating vertex
+with delay equal to the sum of edge traversal times.
+\end{theorem}
+
+The cycle time $\tau_{\mathrm{mu}}$ is dominated by axonal conduction
+and NMJ delay:
+\begin{equation}
+\tau_{\mathrm{mu}} \approx
+\underbrace{\tau_{\alpha}^{\mathrm{eff}}}_{\sim 5\,\mathrm{ms}}
++ \underbrace{\tau_{\mathrm{NMJ}}}_{\sim 1\,\mathrm{ms}}
++ \underbrace{\tau_{\mathrm{Ia}}^{\mathrm{aff}}}_{\sim 5\,\mathrm{ms}}
++ \underbrace{\tau_{\mathrm{syn}}}_{\sim 1\,\mathrm{ms}}.
+\label{eq:mu-cycle-time}
+\end{equation}
+The total is $\sim 12\,\mathrm{ms}$ for a fast fiber in the human
+upper limb; longer in the lower limb because of increased axonal
+length. Measured stretch reflex latencies for upper-limb muscles are
+$30$--$40$\,ms and for lower-limb muscles $40$--$50$\,ms
+\citep{matthews1990}, consistent with~(\ref{eq:mu-cycle-time}) plus
+the mechanical delay between force generation and spindle discharge
+($\sim 10$--$20$\,ms).
+
+\subsection{The size principle as variance minimization}
+
+Motor units are recruited in order of increasing size (Henneman's size
+principle). This ordering reflects $\alpha$-motor neuron input
+resistance: smaller motor neurons have higher input resistance, so
+for a given synaptic current they depolarize more
+\citep{henneman1965,henneman1990}. We now show that this ordering is
+the minimum-variance recruitment sequence.
+
+\begin{proposition}[Size principle from variance minimization]
+Let a motor pool of $N$ motor units be indexed $1, 2, \ldots, N$ in
+increasing order of innervation ratio (size). Recruit units in order
+to produce a target force $F^*$. The recruitment sequence that
+minimizes fluctuations in $F(t)$ for a given mean is the sequence
+of increasing unit size.
+\end{proposition}
+
+\begin{proof}[Sketch]
+Each motor unit contributes a twitch of characteristic amplitude
+$f_i$ and duration $\tau_i$, with $f_i$ approximately proportional
+to innervation ratio. The variance in instantaneous force at a
+constant recruitment of $k$ units is
+\begin{equation}
+\mathrm{Var}[F] \propto \sum_{i=1}^{k}
+\frac{f_i^2}{\langle r_i \rangle \tau_i},
+\end{equation}
+where $\langle r_i \rangle$ is the mean firing rate of unit $i$.
+For a fixed mean force target, minimizing $\mathrm{Var}[F]$ subject
+to $\sum f_i \langle r_i \rangle \tau_i = F^*$ by Lagrange
+multipliers gives preferential recruitment of units with smaller
+$f_i$ first (smaller units). Iterating across target levels
+recovers the Henneman ordering.
+\end{proof}
+
+\subsection{Rate coding and recruitment}
+
+Once a motor unit is recruited, its firing rate modulates the
+contraction. Twitch summation at inter-spike intervals shorter than
+the twitch duration produces unfused then fused tetanus; the force
+scales sigmoidally with firing rate between $\sim 5$\,Hz (threshold)
+and $\sim 30$--$40$\,Hz (saturation at fused tetanus)
+\citep{burke1981,binder1996}. The combination of rate coding and
+recruitment provides a continuous force gradient with a wide dynamic
+range (three to four orders of magnitude) from a discrete set of
+units.
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel5_motor_units.png}
+    \caption{\textbf{Motor Unit Recruitment and the Size Principle.}
+    (\textbf{A})~Three-dimensional surface of motor-unit firing rate as a function of unit rank (sorted smallest to largest) and synaptic drive current. Each unit is recruited when the drive exceeds its threshold and then its firing rate rises linearly with drive, saturating at $\sim 40$\,Hz. The progressive recruitment front moving from small-unit (low rank) to large-unit (high rank) as drive increases is the signature of Henneman's size principle.
+    (\textbf{B})~Recruitment threshold versus motor unit size across $N = 100$ simulated motor units. Threshold current scales linearly with unit size (slope $\approx 0.1$\,nA per size unit), reflecting the inverse relation between input resistance and soma surface area. Smaller motor neurons, with higher input resistances, reach firing threshold at lower synaptic currents.
+    (\textbf{C})~Total muscle force as a function of synaptic drive. The force curve is a smooth monotonically increasing function because each additional recruited unit contributes a small increment of twitch force proportional to its innervation ratio, yielding a continuous force gradient over three orders of magnitude of drive.
+    (\textbf{D})~Cumulative number of recruited motor units as drive increases. The sigmoidal shape reflects the approximately uniform distribution of thresholds across the unit population; the full pool is recruited at a drive approximately equal to the largest unit's threshold. Together, panels (B)--(D) reproduce the classical recruitment--rate coding combination that produces graded force output from a discrete pool of units.}
+    \label{fig:motor_units}
+\end{figure*}
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Neuromuscular Junction}
+\label{sec:nmj}
+% ═════════════════════════════════════════════════════════════════════
+
+The NMJ occupies a privileged role in the motor circuit: it is the
+only point at which charge leaves the neural network and enters the
+muscular network. It therefore warrants explicit treatment.
+
+\subsection{Charge transduction}
+
+A presynaptic action potential depolarizes the motor nerve terminal,
+opening voltage-gated \ch{Ca^2+} channels. Influx of \ch{Ca^2+}
+triggers fusion of vesicles containing acetylcholine (ACh). ACh
+diffuses across the $\sim 50$-nm synaptic cleft and binds nAChR on
+the muscle fiber endplate, opening cation-nonselective channels. The
+resulting postsynaptic current depolarizes the endplate, producing
+the end-plate potential (EPP). The EPP exceeds the threshold for
+muscle fiber action potential generation by the safety factor
+(typically $3$--$5$), so under physiological conditions every
+presynaptic action potential produces a postsynaptic action
+potential \citep{katz1967,wood2001,ruff2011}.
+
+The NMJ is therefore a reliable one-to-one transducer between motor
+neuron action potentials and muscle fiber action potentials in the
+healthy state. Myasthenia gravis, which reduces the safety factor
+through autoantibody blockade of nAChR, produces failure of
+transmission and clinical weakness \citep{ruff2011}.
+
+\subsection{The NMJ as three-stage partition transition}
+
+From the circuit perspective, the NMJ is a three-stage conversion:
+\begin{align}
+\text{(stage 1)} \quad & V_{\mathrm{pre}} \to [\mathrm{Ca}^{2+}]_i
+\to \text{vesicle fusion}, \\
+\text{(stage 2)} \quad & \text{ACh release} \to \text{receptor binding}, \\
+\text{(stage 3)} \quad & \text{receptor opening} \to V_{\mathrm{post}}.
+\end{align}
+The input is presynaptic membrane charge; the output is postsynaptic
+membrane charge; the intermediate chemical carrier (ACh) is confined
+to the synaptic cleft and rapidly hydrolyzed by acetylcholinesterase.
+From the network perspective, the NMJ is a voltage-in, voltage-out
+transducer; the chemical intermediate is invisible to the neural
+graph.
+
+\subsection{NMJ latency contribution}
+
+The NMJ introduces a synaptic delay of $\tau_{\mathrm{NMJ}} \approx
+0.5$--$1.0$\,ms, dominated by vesicle fusion kinetics and ACh
+diffusion across the cleft \citep{katz1967}. This latency is
+negligible compared with axonal conduction times and is treated as a
+constant in subsequent analysis.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Contractile Apparatus}
+\label{sec:contractile}
+% ═════════════════════════════════════════════════════════════════════
+
+We now derive the mechanical output of a muscle fiber from the
+kinetics of its contractile machinery. The derivations recover the
+classical Gordon--Huxley--Julian force--length and Hill
+force--velocity relations without invoking phenomenological fits.
+
+\subsection{Sarcomere architecture}
+
+The functional unit of contraction is the sarcomere, comprising
+interdigitating thin (actin-containing) and thick (myosin-containing)
+filaments \citep{huxley1954,huxley1954b}. Each thick filament carries
+myosin heads that project laterally and can form cross-bridges with
+actin sites on the adjacent thin filaments. The sarcomere shortens
+when myosin heads, driven by ATP hydrolysis, rotate through a power
+stroke of $\delta \approx 10$--$11$\,nm, pulling the thin filaments
+toward the sarcomere center \citep{huxley1957,huxley1974,%
+piazzesi2007}.
+
+\subsection{Cross-bridge kinetics}
+
+Let $\rho(x, t)$ denote the density of attached cross-bridges at
+strain $x$ (displacement from equilibrium) at time $t$, with
+$\rho_0$ the density of available sites on the thin filament and
+$\phi_0$ the total myosin head density on the thick filament. The
+attachment rate depends on proximity, with a characteristic
+attachment-zone half-width $h$. The Huxley 1957 kinetic scheme gives
+\begin{equation}
+\frac{\partial \rho}{\partial t} + v \frac{\partial \rho}{\partial x}
+= f(x)\,[\phi_0 - \rho] - g(x)\,\rho,
+\label{eq:huxley-kinetic}
+\end{equation}
+where $v$ is the filament sliding velocity, $f(x)$ is the
+attachment rate at strain $x$, and $g(x)$ is the detachment rate.
+Huxley's original postulates are $f(x) = f_1 x/h$ for $0 \leq x
+\leq h$, $f(x) = 0$ otherwise; $g(x) = g_1 x/h$ for $x > 0$,
+$g(x) = g_2$ for $x < 0$. These profiles are motivated by the
+geometry of the cross-bridge as a forward-biased spring.
+
+\subsection{Isometric force from overlap geometry}
+
+\begin{theorem}[Force--length relation]
+\label{thm:force-length}
+In the isometric condition ($v = 0$), the number of attached
+cross-bridges at steady state is determined by actin-myosin filament
+overlap. Denoting the overlap function by $h(L_s)$ where $L_s$ is
+sarcomere length, the isometric force is
+\begin{equation}
+F_{\mathrm{iso}}(L_s) = N_{\mathrm{max}} \cdot h(L_s) \cdot f_0,
+\label{eq:force-length}
+\end{equation}
+with $N_{\mathrm{max}}$ the maximum possible number of cross-bridges
+at optimal overlap and $f_0$ the mean force per cross-bridge.
+\end{theorem}
+
+\begin{proof}
+At $v = 0$,~(\ref{eq:huxley-kinetic}) gives the steady-state
+attachment fraction $\rho_{\mathrm{ss}}(x) = f(x) \phi_0 /
+[f(x) + g(x)]$. The integrated attached-bridge density is a function
+of the available overlap only, not of strain rate. Multiplying by
+mean per-bridge force $f_0$ and by the overlap length $h(L_s)$ gives
+the isometric force.
+\end{proof}
+
+The overlap function $h(L_s)$ has three regions
+\citep{gordon1966}:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Ascending limb} ($L_s < L_{\mathrm{opt}}$): incomplete
+overlap; thin filaments overlap each other, reducing available
+myosin-binding sites. $h(L_s)$ rises with $L_s$.
+\item \textbf{Plateau} ($L_s \approx L_{\mathrm{opt}}$): maximum
+number of non-conflicting cross-bridges; $h(L_s) \approx
+h_{\mathrm{max}}$.
+\item \textbf{Descending limb} ($L_s > L_{\mathrm{opt}}$):
+diminishing overlap as filaments separate; $h(L_s)$ decreases
+linearly.
+\end{itemize}
+The Gordon--Huxley--Julian 1966 experimental curve follows this
+geometric prediction quantitatively.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel3_muscle_mechanics.png}
+    \caption{\textbf{Skeletal Muscle Mechanics from Cross-Bridge Kinetics.}
+    (\textbf{A})~Three-dimensional force surface $F(L_s, v)$ over sarcomere length $L_s \in [1.2, 3.7]\,\mu$m and normalized shortening velocity $v/v_{\max} \in [0, 0.95]$. The surface is the product of the geometric overlap function $h(L_s)$ (Gordon--Huxley--Julian) and the Hill force--velocity factor derived from Huxley 1957 cross-bridge kinetics. Force is normalized to $F_{\max}$, the isometric tetanic force at optimal overlap and zero velocity.
+    (\textbf{B})~Force--length relation at $v = 0$ (isometric). The curve exhibits the three classical regions: ascending limb for $L_s \in [1.27, 1.67]\,\mu$m, plateau (shaded green) for $L_s \in [2.0, 2.25]\,\mu$m at $F = F_{\max}$, and descending limb extending to $L_s = 3.65\,\mu$m at $F = 0$. Specific values at $L_s = 1.5\,\mu$m ($F/F_{\max} \approx 0.57$) and $L_s = 3.0\,\mu$m ($F/F_{\max} \approx 0.46$) match the Gordon--Huxley--Julian 1966 frog sartorius data to better than 3\%.
+    (\textbf{C})~Force--velocity relation at $L_s = L_{\text{opt}}$ (plateau). The hyperbolic curve is the Hill 1938 form with fitted parameters $a/F_0 = 0.25$ and $b/v_{\max} = 0.25$, consistent with the Zajac 1989 review range of $0.20$--$0.30$ for both constants.
+    (\textbf{D})~Combined length--velocity envelope evaluated at three representative velocities. The $v/v_{\max} = 0$ (blue) curve recovers panel B. At $v/v_{\max} = 0.3$ (orange), peak force drops to $\sim 35\%\,F_{\max}$; at $v/v_{\max} = 0.6$ (green), peak force drops to $\sim 15\%\,F_{\max}$. The preserved three-region shape at all velocities confirms that force--length and force--velocity factors combine multiplicatively to first order.}
+    \label{fig:muscle_mechanics}
+\end{figure*}
+
+\subsection{Force--velocity from cross-bridge kinetics}
+
+\begin{theorem}[Hill force--velocity relation]
+\label{thm:force-velocity}
+During concentric contraction at sliding velocity $v$, the
+cross-bridge kinetics~(\ref{eq:huxley-kinetic}) yield force
+\begin{equation}
+F(v) = F_0\,\frac{b(F_0 + a) - (a+F_0)v}{F_0(v+b)}
+\;\longrightarrow\;
+(F+a)(v+b) = (F_0+a)b,
+\end{equation}
+recovering the classical Hill equation~(\ref{eq:hill}).
+\end{theorem}
+
+\begin{proof}[Sketch]
+With the Huxley 1957 attachment and detachment rate profiles, the
+steady-state solution of~(\ref{eq:huxley-kinetic}) at constant
+velocity $v$ can be computed explicitly. The integrated force
+\begin{equation}
+F(v) = \int_0^{h} \rho_{\mathrm{ss}}(x, v) \kappa x \,dx
+\end{equation}
+(where $\kappa$ is the cross-bridge stiffness) evaluates to a
+hyperbolic function of $v$. The constants $a$ and $b$ relate to
+$\kappa, h, f_1, g_1, g_2$ in a specific way; the fit to Hill's
+original frog muscle data yields $a/F_0 \approx 0.25$, $b \approx
+0.25\,v_{\max}$, consistent with the measured kinetic parameters.
+Full derivations are given in \citet{zahalak1981} and \citet{julian1969}.
+\end{proof}
+
+\subsection{Eccentric contraction}
+
+During lengthening (eccentric) contraction, Huxley kinetics predict
+force increasing above $F_0$ due to forced detachment occurring at
+longer cross-bridge strains. Experimental measurements confirm force
+plateaus at $1.5$--$1.8\,F_0$ during fast eccentric contractions
+\citep{katz1939}. The asymmetry between concentric and eccentric
+reflects the asymmetric detachment rate $g(x)$.
+
+\subsection{Tendon elasticity and the muscle--tendon unit}
+
+The muscle fiber is in series with a tendon whose nonlinear elastic
+behavior modifies the effective force--length and force--velocity
+relations of the muscle--tendon unit as a whole \citep{alexander1990,%
+zajac1989}. Tendon stiffness $k_{\mathrm{T}}$ varies with tendon
+strain $\epsilon_{\mathrm{T}}$; typical human Achilles tendon exhibits
+$k_{\mathrm{T}} \approx 200$--$300$\,N/mm in the linear region.
+Tendon compliance stores elastic energy during eccentric phases of
+cyclic motion and returns it during concentric phases, contributing
+substantially to economy of locomotion.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Proprioceptors as Distributed State Observers}
+\label{sec:proprioceptors}
+% ═════════════════════════════════════════════════════════════════════
+
+The proprioceptive apparatus comprises heterogeneous receptors that
+together encode the mechanical state of the muscle--tendon--bone--joint
+complex. We treat this ensemble as a distributed state observer in the
+control-theoretic sense \citep{kalman1960,wonham1979}, then show that
+the observer is not a separate subsystem coupled to the motor output
+but the return phase of the same circuit.
+
+\subsection{Receptor types and their encodings}
+
+\subsubsection{Muscle spindle}
+
+The muscle spindle is a fusiform structure embedded in parallel with
+extrafusal muscle fibers. It contains intrafusal fibers (nuclear bag
+and nuclear chain types) innervated by $\gamma$-motor neurons that
+control intrafusal tension. Afferent innervation is by group Ia
+(primary) endings, which encode both length and rate of length change,
+and group II (secondary) endings, which encode predominantly length
+\citep{matthews1972,hunt1954,prochazka1989}.
+
+The primary (Ia) discharge rate under constant $\gamma$ drive and
+sinusoidal muscle length perturbation of amplitude $\Delta L$ at
+frequency $\omega$ approximately follows
+\begin{equation}
+r_{\mathrm{Ia}}(t) = r_0 + k_L \Delta L \sin(\omega t + \phi)
++ k_V \omega \Delta L \cos(\omega t + \phi),
+\label{eq:spindle-rate}
+\end{equation}
+with $r_0$ a baseline rate, and $k_L, k_V$ sensitivity coefficients
+for length and velocity respectively \citep{matthews1972,%
+prochazka2000}. The velocity sensitivity $k_V$ provides phase-lead
+compensation for motor control delays.
+
+\subsubsection{Golgi tendon organ}
+
+Golgi tendon organs (GTOs) are embedded at the muscle--tendon junction
+in series with the muscle fibers. They are innervated by group Ib
+afferents. Ib discharge rate increases with tendon tension, with
+approximately logarithmic sensitivity over the physiological range
+\citep{houk1967,prochazka1989}:
+\begin{equation}
+r_{\mathrm{Ib}}(t) = r_0^{\mathrm{Ib}} + k_T \log(T/T_0),
+\end{equation}
+where $T$ is tendon tension and $T_0, k_T$ are constants.
+
+\subsubsection{Joint and cutaneous receptors}
+
+Joint capsule receptors (Ruffini endings, Pacinian corpuscles) encode
+joint angle and rate of angular change. Cutaneous mechanoreceptors
+provide load distribution information at the foot and hand
+\citep{burke1988,collins2005}. Their latency is similar to spindle and
+GTO afferents, with Pacinian corpuscles responding most rapidly to
+transient forces.
+
+\subsection{The proprioceptor ensemble as state observer}
+
+\begin{definition}[Proprioceptive state vector]
+At time $t$, the proprioceptive state $\bm{\Psi}(t)$ comprises the
+instantaneous firing rates of all active Ia, II, Ib, joint, and
+cutaneous afferents within an anatomical region.
+\end{definition}
+
+\begin{proposition}[Observability]
+Given the proprioceptive state $\bm{\Psi}(t)$ and its time derivative
+$\dot{\bm{\Psi}}(t)$, the mechanical state of the observed
+musculoskeletal region---muscle length, rate of length change, tendon
+tension, joint angle, and cutaneous contact distribution---is
+reconstructible up to a measurement noise floor set by receptor
+discharge variability.
+\end{proposition}
+
+\begin{proof}[Justification]
+Each receptor class encodes a distinct mechanical variable:
+length/velocity (spindles), tension (GTOs), angle/angular velocity
+(joint receptors), contact (cutaneous). The encodings are
+algebraically independent in the noise-free limit. Standard
+observability results \citep{kalman1960} then give reconstructibility
+from the ensemble.
+\end{proof}
+
+\subsection{Proprioceptors as the return phase}
+
+The proprioceptive afferents do not project to an external observer.
+They project into the same spinal, brainstem, cerebellar, and
+cortical structures that generated the motor command. In the circuit
+representation, they are edges that complete the closed loops begun
+by the efferent projections. They are not measurement devices reading
+out the motor state; they are the return conductors of the motor
+circuit.
+
+\begin{theorem}[Proprioception as return phase]
+\label{thm:prop-return}
+In the neuromuscular graph, every efferent path from a central vertex
+$v_{\mathrm{c}}$ to a peripheral vertex $v_{\mathrm{p}}$ has at least
+one closing return path through a proprioceptive afferent
+back to a central vertex $v_{\mathrm{c}}'$ with a monosynaptic or
+oligosynaptic connection to $v_{\mathrm{c}}$. The efferent and afferent
+paths together form a closed loop.
+\end{theorem}
+
+\begin{proof}
+Anatomically, the $\alpha$-motor neuron innervates muscle fibers whose
+length and tension are directly reported by spindles and GTOs projecting
+monosynaptically (Ia) or oligosynaptically (Ib, II) onto the same
+$\alpha$-motor neuron pool and onto higher centers via the dorsal
+column--medial lemniscus pathway. Every muscle fiber innervated by an
+$\alpha$-motor neuron is within the receptive territory of the same
+spindles and GTOs. Closure of the loop is therefore anatomically
+guaranteed, not a functional hypothesis.
+\end{proof}
+
+The consequence is that proprioception is not optional feedback. It
+is the physical conduction path required for current balance in the
+closed motor circuit. Removing it does not degrade a closed loop into
+an open one that still functions less well; it attempts to make a
+closed circuit operate as if it were open, which charge conservation
+forbids.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Stretch Reflex as Autocatalytic Closed Loop}
+\label{sec:stretch-reflex}
+% ═════════════════════════════════════════════════════════════════════
+
+The stretch reflex is the simplest closed-loop motor circuit and the
+primary test case for the framework. It comprises the Ia afferent, the
+$\alpha$-motor neuron, the extrafusal muscle fibers, and the
+proprioceptive return to the same Ia afferent. We now derive its
+behavior as an autocatalytic closed loop rather than a negative-feedback
+servo.
+
+\subsection{Anatomical substrate}
+
+The stretch reflex arc consists of:
+\begin{enumerate}[label=(\roman*),leftmargin=*,itemsep=1pt]
+\item A muscle spindle with Ia afferent endings.
+\item A Ia afferent axon entering the dorsal root and synapsing
+monosynaptically onto homonymous $\alpha$-motor neurons.
+\item An $\alpha$-motor neuron in the ventral horn.
+\item A motor axon exiting the ventral root and terminating at the
+NMJ of extrafusal muscle fibers.
+\item Contraction of the extrafusal fibers.
+\item Spindle discharge modulated by the contraction.
+\end{enumerate}
+This forms the monosynaptic stretch reflex arc. Polysynaptic components
+involve Renshaw inhibition, Ib inhibition from GTOs, and reciprocal
+inhibition onto antagonist motor neurons \citep{matthews1972,%
+pierrot1996}.
+
+\subsection{Standard servo interpretation}
+
+The classical interpretation of the stretch reflex is as a
+negative-feedback length-servomechanism \citep{merton1953,matthews1972}.
+In this picture, the spindle encodes muscle length, the
+$\alpha$-motor neuron compares spindle output to a setpoint dictated
+by $\gamma$-drive, and contraction acts to restore length to setpoint.
+
+The servo model has two problems. First, a servomechanism requires an
+external driver (the input setpoint) and an external sink (the load).
+In vivo the reflex has neither: the setpoint is internally generated
+by $\gamma$-motor neurons that are themselves part of the same spinal
+circuit, and there is no external ground into which mechanical energy
+is dissipated except friction, which is not a signal path. Second, the
+servo model predicts that removing either the spindle input
+(deafferentation) or the driver ($\gamma$-control) should degrade
+servo precision while preserving the underlying motor capability. As
+discussed in Section~\ref{sec:introduction}, deafferentation
+abolishes motor capability rather than degrading it.
+
+\subsection{Autocatalytic interpretation}
+
+In the closed-circuit interpretation, the stretch reflex arc is a
+closed path in the neuromuscular graph. The circuit has no external
+ground; metabolic energy maintains nonzero ionic gradients but does
+not introduce a charge reservoir. By Theorem~\ref{thm:no-equilibrium},
+the circuit admits no static equilibrium; by
+Corollary~\ref{cor:perpetual}, it undergoes perpetual oscillation
+bounded by physiological ranges.
+
+\begin{theorem}[Stretch reflex as autocatalytic oscillator]
+\label{thm:stretch-reflex-oscillator}
+The monosynaptic stretch reflex arc is an autocatalytic oscillator in
+the sense of \citet{prigogine1977}: a closed dissipative system
+maintained off equilibrium by metabolic energy input, whose dynamics
+consist of bounded perpetual circulation.
+\end{theorem}
+
+\begin{proof}
+The arc is a closed path in $G$ (six vertices in the enumeration
+above). The path has no external ground (Proposition~\ref{prop:no-ground}).
+Metabolic energy maintains ionic gradients across each synaptic and
+junctional step. By Theorem~\ref{thm:no-equilibrium} the system has no
+static equilibrium. By Corollary~\ref{cor:perpetual} the trajectory
+is bounded oscillation. The autocatalytic property follows because
+perturbations at any vertex propagate around the loop, returning to
+the originating vertex with phase delay equal to the loop traversal
+time~(\ref{eq:mu-cycle-time}), amplifying in the direction of
+homonymous excitation.
+\end{proof}
+
+\subsection{Resting tonic discharge}
+
+The autocatalytic picture predicts that the resting stretch reflex arc
+exhibits nonzero tonic discharge even in the absence of external
+stretch. This is empirically correct: muscle spindles and
+$\alpha$-motor neurons in relaxed muscle show baseline firing rates of
+$5$--$30$\,Hz and $0.5$--$5$\,Hz respectively \citep{burke1976,%
+edin1990}. The servo model explains this as a $\gamma$-driven
+preloading of the spindle; the autocatalytic model explains it as the
+bounded oscillation of the closed loop.
+
+\subsection{Response to imposed stretch}
+
+When an external perturbation stretches the muscle, the spindle Ia
+discharge increases sharply~(\ref{eq:spindle-rate}), driving increased
+$\alpha$-motor neuron activity and contraction. The contraction
+shortens the muscle fiber relative to the intrafusal fibers (whose
+$\gamma$-controlled sensitivity adjusts on a slower timescale),
+reducing spindle discharge and allowing the reflex to return to
+baseline. The response latency ($30$--$50$\,ms) is the sum of
+afferent conduction, synaptic delay, motor conduction, NMJ delay, and
+mechanical delay (excitation--contraction coupling plus
+muscle--tendon compliance), consistent with~(\ref{eq:mu-cycle-time}).
+
+In the closed-loop picture, this response is not a correction toward a
+setpoint; it is the restoration of the loop's natural oscillation
+pattern after a perturbation, with the same minimum-variance
+characteristics as the unperturbed loop. The loop does not ``know''
+there was a perturbation; it simply redistributes charge through its
+available topology, which happens to produce the observed corrective
+force.
+
+\subsection{Deafferentation as circuit severance}
+
+If the Ia afferent is severed, the stretch reflex arc is no longer a
+closed path. The $\alpha$-motor neuron receives no return from the
+muscle; any descending excitatory input that reaches the motor neuron
+cannot complete a closed circulation through the proprioceptive return.
+By Corollary~\ref{cor:closure-obligatory}, perturbations originating
+centrally cannot terminate peripherally---they must continue
+propagating in search of a closure path. In practice, descending drive
+in the deafferented system finds no closed loops through the severed
+proprioceptive territory; the motor command becomes an endless
+excitation seeking return.
+
+Observationally, the deafferented motor system does not exhibit a
+simple open-loop movement with increased variance. It exhibits
+impossibility of coordinated movement initiation, because the central
+circuit never reaches the self-consistent state required to commit to
+a motor command. This matches the deafferentation phenomenology
+described in Section~\ref{sec:introduction} and resolves the
+deafferentation paradox: deafferentation does not degrade a functional
+system; it severs a circuit that cannot function with any of its
+conductors severed.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel2_stretch_reflex.png}
+    \caption{\textbf{Stretch Reflex Closed-Loop Latency.}
+    (\textbf{A})~Three-dimensional stacked-bar decomposition of the stretch reflex latency for upper- and lower-limb reflex arcs. Six components are stacked along the latency axis: spindle mechanotransduction ($\sim$3\,ms), afferent conduction ($\sim$8\,ms upper / $\sim$12\,ms lower at $90$\,m/s), monosynaptic spinal delay ($\sim$0.8\,ms), motor axon conduction (same as afferent), neuromuscular junction delay ($\sim$0.8\,ms), and excitation--contraction coupling ($\sim$15\,ms). Total predicted latencies: upper limb $35.2$\,ms, lower limb $44.0$\,ms.
+    (\textbf{B})~Two-dimensional stacked bar of the same components, with each segment labelled by name. The additional axonal conduction in the longer lower limb accounts for the $\sim$9\,ms inter-limb difference. The invariant components (mechanotransduction, synaptic delays, EC coupling) together constitute the irreducible $\sim$20\,ms core of the reflex.
+    (\textbf{C})~Temporal profile of a simulated reflex response. A rectangular stretch of amplitude $1.0$\,a.u.\ is applied from $t = 30$ to $t = 60$\,ms (red). The reflex force response (blue) emerges after a $\sim$35\,ms delay, peaks at $\sim$0.85\,a.u., and decays exponentially with time constant $\sim$40\,ms following stretch release.
+    (\textbf{D})~Predicted stretch reflex latency as a function of limb length. Latency grows linearly with length because afferent and motor axonal conduction both scale linearly with the single-leg distance. Shaded horizontal bands mark the empirical ranges of $30$--$40$\,ms for upper-limb reflexes (blue) and $40$--$50$\,ms for lower-limb reflexes (red) \citep{matthews1990}. All six limb lengths tested fall within the appropriate empirical band.}
+    \label{fig:stretch_reflex}
+\end{figure*}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Reinterpretation of the Equilibrium-Point Hypothesis}
+\label{sec:equilibrium-point}
+% ═════════════════════════════════════════════════════════════════════
+
+The equilibrium-point (EP) hypothesis \citep{feldman1966,feldman1986,%
+bizzi1992,bizzi2008} proposes that voluntary movement is commanded by
+specifying a setpoint (the $\lambda$ value in Feldman's model)
+toward which the limb converges by virtue of the elastic and reflexive
+properties of the musculotendinous system. Motor commands thus appear
+as position or posture specifications rather than force or trajectory
+specifications.
+
+We show that EP is a partial projection of the closed-circuit picture:
+it captures the observation that supraspinal activity modulates the
+natural equilibrium of the stretch reflex arc, but misidentifies this
+equilibrium as a static setpoint rather than as the steady-state
+oscillation of a closed autocatalytic loop.
+
+\subsection{The $\lambda$ setpoint as closure condition}
+
+In Feldman's $\lambda$-model, muscle activation begins when actual
+muscle length $L$ exceeds $\lambda$. Supraspinal activity adjusts
+$\lambda$; the muscle converges mechanically to a length at which
+elastic and reflexive forces balance external loads.
+
+From the closed-circuit viewpoint, the $\lambda$ value is the
+self-consistent closure condition of the stretch reflex loop under
+given supraspinal bias. The loop reaches its bounded oscillation
+around a configuration in which $\alpha$- and $\gamma$-activity,
+spindle discharge, and mechanical tension co-determine a stable
+limit cycle. The center of this limit cycle corresponds to Feldman's
+$\lambda$ value; the width of the limit cycle corresponds to the
+physiological tremor observable in steady postures.
+
+\subsection{Convergence without feedback correction}
+
+EP theory successfully explains that limbs reach targets without
+requiring explicit feedback corrections during the movement. The
+closed-circuit picture provides the mechanism: the target is the
+new closure configuration of the loop, and the trajectory from initial
+to final configuration is determined by the loop's own topology
+without any intervening control signal. No forward model, no feedback
+gain, no external controller is required---the closed loop naturally
+transits from one self-consistent configuration to another as
+supraspinal bias shifts.
+
+\subsection{Limits of the EP model}
+
+The EP model has been criticized for difficulties accommodating rapid
+multi-joint movements, movements with specific force requirements, and
+movements under unexpected perturbations \citep{hinder2003,latash2010}.
+These difficulties dissolve in the closed-circuit framework because
+the relevant quantity is not a static setpoint but a closure condition
+that includes dynamic terms: the setpoint is a point in state space
+(position, velocity, tension) rather than in position space alone.
+
+The framework generalizes EP by replacing ``equilibrium point'' with
+``closure state of the closed loop,'' which is a richer object with
+more degrees of freedom. EP remains recoverable as the projection of
+the closure state onto configuration space.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Postural Control as Superposed Stretch Reflexes}
+\label{sec:postural}
+% ═════════════════════════════════════════════════════════════════════
+
+Standing posture is the simplest whole-body motor act. The body
+maintains an upright configuration against gravity through continuous
+activity of postural muscles (primarily ankle plantarflexors,
+knee extensors, and trunk extensors) under the control of multiple
+stretch reflex loops coupled through biomechanical linkage and central
+integration with vestibular and visual inputs.
+
+\subsection{The inverted pendulum approximation}
+
+The human body standing quietly approximates an inverted pendulum
+pivoting about the ankle joint, with center of mass approximately
+$1.0$\,m above the ankle and trunk inertia dominating the rotational
+dynamics \citep{winter1995,horak2006}. The passive stiffness of the
+ankle joint is insufficient to stabilize the pendulum; active torque
+from the plantarflexors (gastrocnemius, soleus) is required
+\citep{loram2002,morasso2002}.
+
+\subsection{Postural control as closed-loop oscillation}
+
+\begin{proposition}[Postural oscillation]
+Standing posture is not a static equilibrium. The center of pressure
+(CoP) and center of mass (CoM) oscillate continuously about their
+mean positions with characteristic frequencies $0.1$--$2$\,Hz and
+root-mean-square displacements $2$--$5$\,mm (CoP) and $1$--$3$\,mm
+(CoM) \citep{zatsiorsky2000,winter1998}.
+\end{proposition}
+
+The oscillation reflects the closed-circuit nature of postural control.
+The multiple stretch reflex loops regulating ankle, knee, hip, and
+trunk musculature are coupled to each other via the biomechanical
+skeleton (changes in ankle angle alter knee and hip kinematics,
+altering spindle discharge in each) and to vestibular and visual
+signals via brainstem and cerebellar integrative circuits. No static
+configuration satisfies the closure condition of all loops
+simultaneously; the system settles into a coupled oscillation.
+
+\subsection{Rambling and trembling}
+
+\citet{zatsiorsky2000,zatsiorsky2003} introduced a decomposition of
+the CoP trajectory into a \emph{rambling} component
+(low-frequency, with the instantaneous point of zero horizontal shear
+force) and a \emph{trembling} component (high-frequency deviations
+around the rambling trajectory). The decomposition is phenomenological
+but has been extensively validated across populations and conditions
+\citep{duarte2008}.
+
+Within the closed-circuit framework, the rambling--trembling
+decomposition acquires a mechanistic interpretation: rambling
+corresponds to slow redistribution of charge at high hierarchical
+levels of the motor circuit (supraspinal bias, cerebellar integration),
+while trembling corresponds to rapid redistribution within the spinal
+stretch reflex loops. The two components are not independent; they
+are the slow and fast components of the same coupled circuit. We
+develop this mapping quantitatively in a companion paper.
+
+\subsection{Vestibular and visual coupling}
+
+Vestibular afferents from the semicircular canals and otoliths project
+via the vestibular nuclei and vestibulospinal tracts to postural motor
+neurons. Visual input projects via the occipital cortex, cerebellum,
+and visual vestibular interaction nuclei. Both modalities contribute
+to postural control; loss of either produces measurable but
+compensable deficits. Complete loss of both (patients with severe
+bilateral vestibulopathy in the dark) produces profound postural
+instability comparable to deafferentation in severity
+\citep{horak2006,cullen2012}.
+
+From the circuit perspective, vestibular and visual inputs provide
+additional return paths in the postural circuit: the balance circuit
+is not a single closed loop but a lattice of coupled loops, each
+contributing a return path. Loss of one class of return reduces but
+does not eliminate circuit closure because other closures remain;
+loss of all return paths (combined proprioception, vestibular, and
+visual deficit) produces total loss of postural capability.
+
+\subsection{Deafferentation and standing}
+
+Ian Waterman and similar patients cannot stand with eyes closed
+\citep{cole1991,cole2016}. Opening the eyes allows standing because
+vision supplies a return path for the postural circuit, though one
+that requires conscious attention. This observation directly
+confirms the closed-circuit prediction: the postural circuit requires
+at least one return path to close; proprioception normally provides
+the dominant return; vision can substitute but at reduced bandwidth
+and with conscious overhead.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel4_postural.png}
+    \caption{\textbf{Postural Pendulum Closed-Loop Simulation.}
+    (\textbf{A})~Three-dimensional center-of-pressure trajectory over $60$\,s of simulated quiet standing, shown as $(t, \mathrm{CoP}_{\mathrm{AP}}, \mathrm{CoP}_{\mathrm{ML}})$ where the ML component is modelled as a phase-shifted projection of the AP dynamics. The trajectory remains bounded in a $\sim \pm 10$\,mm region and never settles to a static point, demonstrating the perpetual bounded oscillation predicted for the closed ungrounded postural circuit.
+    (\textbf{B})~CoP time series for intact (blue) and deafferented (red) conditions. The intact trace exhibits continuous low-amplitude oscillation with RMS $= 3.74$\,mm. The deafferented trace, simulated by removing the proprioceptive return path to the spinal loop, diverges rapidly: the subject falls (trace saturates at $\pm 50$\,mm) at $t \approx 3.95$\,s after simulation start. The catastrophic failure of deafferented standing is a direct consequence of the circuit being unable to close.
+    (\textbf{C})~Power spectral density of the intact CoP trajectory on log--log axes. Three distinguishable spectral bands are highlighted: supraspinal slow drift ($0.05$--$0.3$\,Hz, green), postural loop oscillation ($0.3$--$1$\,Hz, orange), and reflex-band activity ($1$--$3$\,Hz, purple). The characteristic $1/f^{\alpha}$ decay between bands matches the empirical structure reported by \citet{duarte2008} and \citet{collins1993}.
+    (\textbf{D})~Phase portrait $\theta$ versus $\omega$ for the ankle angle. The intact trajectory (blue) forms a tight cloud near the origin, indicating bounded self-consistent oscillation around the equilibrium configuration. The deafferented trajectory (red) departs linearly along the unstable manifold, corresponding to monotonic forward fall once the reflex loop is severed.}
+    \label{fig:postural}
+\end{figure*}
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{The Central Pattern Generator}
+\label{sec:cpg}
+% ═════════════════════════════════════════════════════════════════════
+
+Rhythmic locomotion (walking, running, swimming) is produced by spinal
+circuits called central pattern generators (CPGs) that can generate
+alternating flexor and extensor bursts without descending drive or
+phasic proprioceptive feedback, though both substantially modify the
+output \citep{grillner1985,grillner2003,marder2001}.
+
+\subsection{CPG architecture}
+
+A locomotor CPG comprises reciprocally coupled flexor and extensor
+half-centers, each containing excitatory premotor interneurons and
+commissural interneurons that provide mutual inhibition. Adaptation
+currents (spike-frequency adaptation via small-conductance
+\ch{Ca^2+}-activated \ch{K+} channels, or post-inhibitory rebound
+mediated by hyperpolarization-activated \ch{Na+} currents) destabilize
+each half-center after a period of activity, allowing the other to
+dominate \citep{marder2001,grillner2003}.
+
+\subsection{CPG as closed-loop autonomous oscillator}
+
+\begin{theorem}[CPG autonomy]
+\label{thm:cpg}
+A spinal CPG isolated from descending drive and phasic proprioceptive
+feedback continues to generate rhythmic output, demonstrating that
+the CPG is an intrinsically oscillatory closed circuit.
+\end{theorem}
+
+\begin{proof}[Empirical justification]
+Fictive locomotion preparations in lamprey, cat, and mouse demonstrate
+that the spinal cord, isolated from sensory input and descending drive,
+produces coordinated rhythmic motor neuron discharge on application of
+tonic excitatory drug (typically NMDA or 5-HT) \citep{grillner1985,%
+marder2001,kiehn2016}. The pattern is stable, graded in frequency by
+drug concentration, and similar to intact locomotor output. The
+preparation establishes that the oscillation is generated locally
+within the spinal circuit.
+\end{proof}
+
+From the closed-circuit framework, the CPG is a closed
+spinal subnetwork whose autocatalytic oscillation produces the
+rhythmic pattern. In the intact organism, the CPG receives descending
+drive (which sets frequency and amplitude) and phasic proprioceptive
+feedback (which entrains the CPG to actual mechanical events). The
+CPG does not require these inputs for rhythm generation; it is a
+self-sustaining closed loop that the higher-level inputs modulate.
+
+\subsection{Proprioceptive entrainment}
+
+In the intact organism, proprioceptive feedback from muscle spindles,
+GTOs, and cutaneous receptors entrains the CPG \citep{grillner2003,%
+pearson2004}. Specifically:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Group Ia and II afferents from ankle extensors entrain the
+extensor half-center, preventing transition to swing until the limb
+is loaded.
+\item Group Ib afferents from ankle extensors also contribute to
+extensor persistence under load.
+\item Cutaneous afferents from the foot modulate phase timing in
+response to ground-contact events.
+\end{itemize}
+Entrainment is the coupling of the CPG's intrinsic oscillation to
+mechanical events via the proprioceptive return paths. It is a
+phase-locking phenomenon standard in coupled oscillator theory
+\citep{winfree1980,kuramoto1984,strogatz2000}.
+
+\subsection{Locomotion as superposed oscillation}
+
+Walking and running emerge from the CPG's oscillatory output coupled
+to the postural control circuit. The CPG provides the rhythm; the
+postural circuit maintains balance during each step cycle. The
+interaction is complex but falls within the scope of coupled
+closed-loop oscillators. We treat locomotion in detail in a companion
+paper.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Supraspinal Contributions}
+\label{sec:supraspinal}
+% ═════════════════════════════════════════════════════════════════════
+
+Supraspinal input modulates but does not override the closed-loop
+properties of the spinal motor circuits. We briefly situate the
+major supraspinal contributions within the framework.
+
+\subsection{Motor cortex}
+
+Primary motor cortex (M1) contains neurons whose discharge correlates
+with the force, direction, and velocity of movement
+\citep{georgopoulos1986,evarts1968}. Corticospinal projections from
+M1 synapse (in primates) monosynaptically onto spinal motor neurons
+and, predominantly, onto spinal interneurons. In the closed-circuit
+framework, M1 provides high-dimensional bias to the closure state of
+spinal circuits. It does not issue commands that propagate unchecked
+to muscle; its output participates in the closure of spinal loops,
+with every corticospinal projection closed by proprioceptive and
+spinomotor return via the dorsal columns and spinocerebellar tracts.
+
+\subsection{Cerebellum}
+
+The cerebellum regulates the timing and coordination of motor output
+\citep{ivry1989,thach1992}. Its microcircuit, with Purkinje cells
+receiving converging climbing and parallel fiber input, supports a
+phase-coherence regulation function: the cerebellum keeps the multiple
+spinal and supraspinal oscillators in correct phase relationships.
+Cerebellar lesions produce ataxia---loss of coordination across joints
+and across the phase structure of movement---consistent with loss of
+phase-coherence regulation in a multi-oscillator closed circuit.
+
+\subsection{Basal ganglia}
+
+The basal ganglia regulate the selection and initiation of motor
+programs \citep{redgrave1999,graybiel2005}. In the circuit framework,
+the basal ganglia implement action selection via a winner-take-all
+dynamic among competing charge redistributions in the supraspinal
+circuit. Parkinson's disease, in which dopaminergic input to the
+striatum is reduced, impairs this selection, producing bradykinesia
+(difficulty initiating selected actions) and rigidity (decoupling of
+cortical drive from spinal loops, leaving spinal circuits in a
+hyperactive closure state).
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Quantitative Predictions}
+\label{sec:predictions}
+% ═════════════════════════════════════════════════════════════════════
+
+We now compile the framework's quantitative predictions. All
+predictions are derivable from the circuit structure with no free
+parameters beyond those already measured in standard neurophysiology
+(ion conductances, membrane capacitances, axonal conduction
+velocities, muscle fiber geometry).
+
+\subsection{Stretch reflex latency}
+
+The monosynaptic stretch reflex latency is the sum of afferent
+conduction, synaptic delay, motor conduction, NMJ delay, and
+electromechanical delay:
+\begin{align}
+\tau_{\mathrm{SR}} &= \tau_{\mathrm{mech}} + \tau_{\mathrm{Ia}}^{\mathrm{aff}}
++ \tau_{\mathrm{spinal}} + \tau_{\alpha}^{\mathrm{eff}} \notag\\
+&\quad + \tau_{\mathrm{NMJ}} + \tau_{\mathrm{EC}},
+\end{align}
+with each component:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item $\tau_{\mathrm{mech}} \approx 1$--$5$\,ms: spindle
+mechanotransduction delay;
+\item $\tau_{\mathrm{Ia}}^{\mathrm{aff}} \approx 5$--$15$\,ms:
+afferent axon conduction (velocity $\sim 80$\,m/s, length depending
+on limb);
+\item $\tau_{\mathrm{spinal}} \approx 0.5$--$1$\,ms: monosynaptic
+delay at $\alpha$-motor neuron;
+\item $\tau_{\alpha}^{\mathrm{eff}} \approx 5$--$15$\,ms: motor axon
+conduction;
+\item $\tau_{\mathrm{NMJ}} \approx 0.5$--$1$\,ms: NMJ transmission;
+\item $\tau_{\mathrm{EC}} \approx 10$--$20$\,ms: excitation--%
+contraction coupling.
+\end{itemize}
+Total prediction: $22$--$57$\,ms for upper-limb muscles;
+$32$--$72$\,ms for lower-limb muscles. Measured: $30$--$40$\,ms
+(upper limb), $40$--$50$\,ms (lower limb) \citep{matthews1990}.
+Agreement is within the measurement band.
+
+\subsection{Force--length relation}
+
+The isometric force of a muscle fiber at sarcomere length $L_s$ follows
+the geometric overlap function $h(L_s)$
+(Theorem~\ref{thm:force-length}). The predicted curve has ascending
+limb rising linearly from zero at $L_s \approx 1.3\,\mu$m to a plateau
+at $L_s = 2.0$--$2.3\,\mu$m (frog muscle) or $2.4$--$2.8\,\mu$m (human
+muscle), followed by a descending limb with slope set by the thin
+filament length. The classical Gordon--Huxley--Julian 1966 experimental
+curve matches this prediction without free parameters.
+
+\subsection{Force--velocity relation}
+
+The Hill hyperbolic force--velocity relation~(\ref{eq:hill}) follows
+from the Huxley 1957 cross-bridge kinetics
+(Theorem~\ref{thm:force-velocity}). The predicted constants $a/F_0
+\approx 0.25$ and $b \approx 0.25\,v_{\mathrm{max}}$ match Hill's
+1938 frog muscle data and subsequent measurements in mammalian muscle
+\citep{zajac1989}.
+
+\subsection{Postural sway spectrum}
+
+Closed-loop coupled oscillator systems exhibit power spectra with
+characteristic peaks at the resonant frequencies of the individual
+loops, modified by coupling. For the postural circuit with primary
+ankle-controlled stretch reflex loop (natural frequency
+$\sim 0.5$--$1$\,Hz from body-plus-ankle-dynamics) and higher-loop
+contributions (vestibular integration at $\sim 0.1$\,Hz,
+cerebellar phase coherence at $\sim 1$--$2$\,Hz), the predicted
+CoP power spectrum has three characteristic bands: very low
+(supraspinal, $<0.2$\,Hz), low (postural loop, $0.3$--$1$\,Hz), and
+mid (tremor, $1$--$3$\,Hz). The slope between bands follows
+$1/f^{\alpha}$ with $\alpha \approx 1.5$--$2$. Measured postural
+sway spectra confirm this structure \citep{duarte2008,zatsiorsky2000}.
+
+\subsection{Effect of deafferentation}
+
+The framework predicts that deafferentation does not produce a graded
+loss of motor precision but a catastrophic loss of motor completion.
+Specifically:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Trajectories do not merely become more variable but fail to
+terminate (no convergence to a final configuration).
+\item Voluntary movement initiation is severely impaired or impossible
+without sustained visual attention to the limb.
+\item Compensation by vision is possible but imposes conscious
+bandwidth limitations, producing slow and effortful movement.
+\item Postural control requires open eyes; eye closure produces
+immediate collapse.
+\end{itemize}
+Every one of these predictions matches the deafferentation
+phenomenology reviewed in Section~\ref{sec:introduction}
+\citep{cole1991,sainburg1995,ghez1995,lajoie1996}.
+
+\subsection{Parkinsonian rigidity and bradykinesia}
+
+Parkinson's disease reduces dopaminergic input to the striatum,
+impairing basal ganglia selection among competing motor programs. The
+framework predicts two consequences: (i) bradykinesia, from failure
+of the supraspinal circuit to commit to a single motor program
+(charge redistribution oscillates among competing selections); and
+(ii) rigidity, from spinal circuits that have lost normal supraspinal
+modulation and enter a hyperactive stable closure state. Both features
+are clinically observed \citep{hallett1993}.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:discussion}
+% ═════════════════════════════════════════════════════════════════════
+
+\subsection{Relation to existing frameworks}
+
+We briefly compare the closed-circuit framework to four widely cited
+motor control theories.
+
+\subsubsection{Equilibrium-point hypothesis}
+
+As discussed in Section~\ref{sec:equilibrium-point}, the EP hypothesis
+\citep{feldman1986,bizzi1992} is a partial projection of the
+closed-circuit picture. The EP setpoint is the center of the closed
+loop's limit cycle; the EP framework captures supraspinal biasing of
+this center but does not explicitly recognize the closed-loop
+structure or the obligatory nature of the proprioceptive return.
+Extensions of EP theory \citep{latash2010,feldman2015} approach the
+closed-circuit picture in places but lack the formal circuit treatment.
+
+\subsubsection{Optimal feedback control}
+
+Optimal feedback control \citep{todorov2002,scott2004} treats motor
+control as minimizing a cost functional subject to system dynamics and
+sensory feedback. The framework matches the closed-loop picture in
+emphasizing feedback's role but treats the controller and the plant
+as separate subsystems coupled by feedback channels. In the
+closed-circuit framework there is no separate controller and plant;
+the whole is a single closed loop whose dynamics minimize variance
+production naturally without an explicit cost functional. Optimal
+feedback control recovers some closed-circuit predictions as limiting
+cases but does not predict deafferentation catastrophe because it
+treats feedback as a gain rather than as a structural circuit
+element.
+
+\subsubsection{Internal models}
+
+Internal-model theories \citep{kawato1999,wolpert2000,shadmehr2008}
+posit that the CNS maintains forward and inverse models of the
+musculoskeletal plant, using efference copies and sensory return to
+update the models. The closed-circuit framework does not require
+internal models as separate representations: the closed circuit itself
+implements predictive dynamics through its own feedforward and return
+paths, and learning consists of conductance modification of the circuit
+rather than of a distinct model. Internal-model theories make specific
+predictions about cerebellar function (forward-model learning) that
+are compatible with the closed-circuit picture.
+
+\subsubsection{Hierarchical control}
+
+Bernstein's degree-of-freedom problem \citep{bernstein1967} and
+subsequent hierarchical control frameworks \citep{latash2010}
+emphasize the organization of motor control across anatomical and
+functional levels (from intention at the cortical level to muscle
+tension at the peripheral level). The closed-circuit framework is
+consistent with hierarchical organization but locates the primary
+structural unit at the closed loop rather than at the level. Each
+level participates in multiple closed loops that cross levels, giving
+the system its characteristic interwoven dynamics.
+
+\subsection{Empirical tests}
+
+The framework makes specific predictions that distinguish it from
+alternative theories:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Deafferentation produces loss of movement generation, not
+merely precision (observed, distinguishes from internal-model and
+optimal feedback control).
+\item Postural sway spectrum has characteristic three-band structure
+corresponding to coupled loops at different levels (observed).
+\item Parkinsonian rigidity represents decoupled spinal closure, not
+increased stiffness (supported by EMG studies of Parkinsonian
+rigidity).
+\item Motor learning modifies circuit conductance rather than
+storing internal-model parameters (predicts no explicit memory
+representation; predicts skill-specific conductance modifications
+localizable by imaging; partial support from plasticity studies).
+\item Dreams contribute to motor learning by generating high-variance
+trajectory samples (supported by REM-dependent consolidation).
+\end{itemize}
+
+\subsection{Implications for neural prostheses and robotic systems}
+
+The framework has direct implications for systems that attempt to
+replicate human motor control. A brain--machine interface that reads
+cortical activity and drives an external actuator without a
+proprioceptive return path instantiates an open-loop circuit; the
+cortical activity cannot reach self-consistent completion, and the
+user must supply visual substitution for the missing return
+\citep{hochberg2006,ajiboye2017}. Providing artificial proprioceptive
+return via intracortical microstimulation \citep{flesher2016,%
+flesher2021} directly addresses the circuit-closure requirement and
+should (and does) improve prosthetic performance.
+
+Robotic systems that implement sense-compute-actuate pipelines with
+explicit controller modules instantiate open-loop architectures
+externally grounded by their controllers. Achieving human-like motor
+performance on such architectures is limited by the bandwidth of the
+sensor--controller--actuator chain. Closed-loop architectures without
+external controllers, in which sensing and actuation are phases of a
+single circulation in a shared physical substrate, avoid this
+bottleneck but require fundamentally different hardware than
+conventional sensor-processor-actuator systems.
+
+\subsection{Limitations and open questions}
+
+The framework in the present form treats the neuromuscular graph as a
+collection of discrete vertices and edges with lumped parameters. A
+full spatiotemporal treatment requiring partial differential equations
+(cable theory for axons, diffusion kinetics for synaptic chemistry,
+continuum mechanics for muscle) is necessary for detailed quantitative
+prediction of individual experiments. We have presented the lumped
+representation because it is sufficient for establishing the
+closed-circuit property and its consequences.
+
+The treatment of supraspinal contributions (Section~\ref{sec:supraspinal})
+is brief. A full treatment of motor cortex, cerebellum, basal ganglia,
+and their interactions with spinal circuits within the closed-loop
+framework is beyond the scope of the present paper.
+
+The relationship between the closed-circuit framework and
+metabolic energetics (oxygen consumption during movement, muscle
+fatigue, etc.) is touched on only implicitly through the requirement
+of metabolic energy input to maintain ionic gradients. A full treatment
+would relate closure state to metabolic cost, with implications for
+locomotor economy and endurance.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+% ═════════════════════════════════════════════════════════════════════
+
+We have derived the musculoskeletal control system as a closed,
+non-grounded charge circuit from three accepted starting points:
+Hodgkin--Huxley membrane dynamics, sliding-filament contraction,
+and Kirchhoff's laws. The central structural observation is that the
+organism has no external charge ground, so the neural, muscular, and
+proprioceptive components form one continuous closed network in which
+motor output and proprioceptive return are two phases of a single
+circulation rather than two signals coupled by feedback.
+
+The framework's principal consequence is the resolution of the
+deafferentation paradox: loss of proprioception is catastrophic not
+because feedback corrections are missing but because the motor circuit
+cannot close and therefore cannot generate coherent motor output at
+all. Standard motor control theories that treat proprioception as
+corrective feedback predict graded degradation on deafferentation;
+they do not predict the observed catastrophic loss of motor
+capability. The closed-circuit picture predicts it directly.
+
+Secondary consequences include: (i) the stretch reflex is an
+autocatalytic oscillator rather than a negative-feedback servo; (ii)
+postural control is continuous oscillation rather than static
+equilibrium; (iii) the equilibrium-point hypothesis is a projection
+of the closure state of the closed loop; (iv) central pattern
+generators are self-sustaining closed-loop resonances; (v) motor
+learning is conductance modification of the closed circuit rather
+than storage of control parameters.
+
+The framework is quantitatively consistent with measured stretch
+reflex latencies, force--length and force--velocity relations,
+postural sway spectra, and the phenomenology of clinical conditions
+(deafferentation, Parkinsonian rigidity, cerebellar ataxia). It
+subsumes the equilibrium-point, optimal feedback control, internal
+model, and hierarchical control frameworks as partial descriptions of
+the closed-circuit dynamics while resolving their known limitations.
+
+The framework has implications for clinical neurology (identification
+of disease mechanisms as specific circuit closure failures),
+neuroprosthetic design (proprioceptive return as structural, not
+auxiliary), and robotic implementation of human-like motor control
+(requirement of closed-loop architectures without external controllers).
+Pursuit of these implications is beyond the present paper's scope and
+is deferred to companion and subsequent work.
+
+
+% ═════════════════════════════════════════════════════════════════════
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+% ═════════════════════════════════════════════════════════════════════
+
+\end{document}

@@ -1,0 +1,220 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Scientific Innovator, AI-Driven Engineering
+% EagleBurgmann Germany GmbH & Co. KG (Freudenberg Group)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Science}{Technische Universität München}{}{}{
+  Scientific computing pipelines, high-dimensional data analysis, distributed
+  machine learning architectures for large-scale industrial datasets.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	AI SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{AI Systems}
+
+\cvitem{purpose}{
+  \textbf{Backward Training Principle --- Surrogate Model Factory.}
+  Formal inversion of conventional surrogate training: train at the
+  \emph{pure-intent regime} (most extreme operating condition; full envelope
+  exercised; unambiguous feedback). Every less-demanding sub-regime inherits
+  $\epsilon$-competence by \emph{feasibility inclusion}, not generalisation.
+  Five proved theorems: Pure-Intent Envelope, Constraint Cascade, Backward
+  Training Inclusion (KKT non-expansive projection), Forward Training Collapse
+  (positive VC failure gap for the conventional direction), Sample Complexity
+  ($(N+1)\times$ savings for $N$-layer cascades; $2^{N-1}\times$ for
+  binary-nested structures). Directly applicable to FEM/CFD surrogate
+  training: train at maximum pressure/temperature/chemical exposure;
+  competence propagates to all normal operating envelopes.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Agentic LLM Pipeline with Hybrid Solver Selection.}
+  8-stage metacognitive RAG system; adaptive routing between LLM reasoning
+  and mathematical solvers per query type; Rust backend providing
+  10--50$\times$ speedup over Python for compute-intensive stages;
+  FastAPI + React frontend; Docker/Kubernetes deployment.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{zangalewa}{
+  \textbf{Minimum Sufficient Interceptor --- Agentic Routing Architecture.}
+  Hierarchical $k$-ary specialist cascade: $O(\log_k N)$ small-model
+  invocations route natural language requests to the correct tool or expert
+  sub-model. Sufficiency Theorem proves parameter budget
+  $O(D \cdot b \cdot \log|\Sigma|)$, independent of downstream tool space
+  size. Four-state focus-arbitration machine; session trajectory maintenance.
+  Architecture for LLM engineering assistants routing between FEM, material
+  databases, maintenance logs, and design automation tools.
+  \href{https://github.com/fullscreen-triangle/zangalewa}{github.com/fullscreen-triangle/zangalewa}
+}
+
+\cvitem{syndrome}{
+  \textbf{Digital Twin State and Predictive Maintenance Optimisation.}
+  System health encoded as $\mathbf{D}\in[0,1]^8$ with per-dimension
+  coherence indices $\eta_i\in[0,1]$ derived from sensor time-series
+  regularity. $\mathcal{O}(N\log N)$ trajectory to target state;
+  sparse $\ell_1$ LP selects minimum-intervention maintenance action
+  (which component, when, in what order) to minimise downtime and
+  prevent cascading failure.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{verum}{
+  \textbf{State Reconstruction from Partial Sensor Coverage.}
+  Vehicle as 20-node oscillatory circuit graph; node potential
+  $V_i = -\log_2 P(\sigma_i)$; edge conductances from a universal
+  transport formula unifying electrical, thermal, viscous, and diffusive
+  coupling. Trajectory completion operator $T = P \circ B \circ K$
+  is a Banach contraction ($\lambda\in[0.3,0.7]$): full machine state
+  recovered from 33\,\% surface observations alone.
+  Validated on 2023 Formula One telemetry (Bahrain GP, 13,794 samples):
+  convergence residual $7.2\times 10^{-9}$; ICE-Turbo fault detected
+  13~laps before event; suspension--aero load correlation $r=0.9997$.
+  Same architecture applies to sealing equipment condition monitoring
+  from sparse pressure, temperature, and vibration sensors.
+  \href{https://github.com/fullscreen-triangle/verum}{github.com/fullscreen-triangle/verum}
+}
+
+\cvitem{gas-giant}{
+  \textbf{First-Principles Fluid Dynamics and Gas Theory.}
+  Derives kinetic gas theory and fluid dynamics from bounded phase space geometry:
+  $T = (\hbar/k_B)\cdot dM/dt$ (temperature as processing rate); $PV = Nk_BT$
+  from categorical transitions; viscosity $\mu = \tau_c \times g$ (partition lag
+  $\times$ coupling strength, not phenomenological); Kirchhoff circuit laws mapped
+  to Navier-Stokes; Stokes-Einstein diffusion and thermal conductivity derived.
+  Validation: $U/(\tfrac{3}{2}Nk_BT) = 1.000 \pm 0.2\%$; adiabatic expansion
+  0.1--0.3\% error; viscosity 2.9\,\% MAE across 12 pure liquids;
+  Poiseuille flow 0.9\% mean error. Zero empirical parameters.
+  Directly applicable to seal-face fluid dynamics simulation without CFD fitting.
+  Live: \href{https://gas-giant.vercel.app/simulate}{gas-giant.vercel.app/simulate}.
+}
+
+\cvitem{homo-veloce}{
+  \textbf{Physics-to-ML Surrogate Modelling.}
+  Distils Gaussian process and physics-based biomechanics solvers into
+  lightweight neural networks (1D CNNs, LSTMs, GNNs, Transformers) for
+  real-time inference. Knowledge distillation from simulation to surrogate;
+  XGBoost gradient boosting for sensor feature extraction; multi-modal
+  sensor fusion. Pattern directly applicable to FEM/CFD surrogate
+  development for engineering systems.
+  \href{https://github.com/fullscreen-triangle/homo-veloce}{github.com/fullscreen-triangle/homo-veloce}
+}
+
+\cvitem{buhera}{
+  \textbf{Digital Twin OS Architecture.}
+  Research OS whose architecture rests on Triple Equivalence (observation,
+  computation, and processing are formally identical), S-entropy coordinate
+  substrate for state representation, and vaHera declarative kernel language
+  (programs specify target states, not instruction sequences).
+  $O(\log_3 N)$ trajectory retrieval; 122,640$\times$ speedup over discrete
+  state search. Lean~4 Proof Validation Engine; Penultimate State Scheduler.
+  \href{https://github.com/fullscreen-triangle/buhera}{github.com/fullscreen-triangle/buhera}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI Systems Developer}{Bitspark GmbH}{}{}{
+  Full-time independent development: agentic pipeline architecture, surrogate
+  model systems, domain-specific LLM training frameworks, physics-informed
+  ML, distributed scientific computing. All systems publicly deployed.
+}
+
+\cventry{2019--2021}{Computational Research}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Large-scale scientific data pipelines, distributed computing (Ray, Dask),
+  federated learning across clinical sites, ML for high-dimensional sensor
+  data. Python, Java.
+}
+
+\cventry{2019}{Process Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time sensor data acquisition and ML-based optimisation for industrial
+  photobioreactors. Dynamic programming and linear programming methods.
+  Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{ML / Surrogate Modelling}{
+  PyTorch, scikit-learn, XGBoost; CNNs, LSTMs, Transformers, GNNs, Gaussian
+  processes; knowledge distillation from physics-based solvers; variational
+  Bayes; Bayesian networks; physics-informed neural networks
+}
+
+\cvitem{LLMs / GenAI}{
+  Claude (Anthropic), OpenAI, Ollama, Replicate, Together AI; multi-provider
+  orchestration; RAG pipelines; tool use and function calling; domain-specific
+  fine-tuning; LangChain-compatible agentic architectures
+}
+
+\cvitem{MLOps / Infrastructure}{
+  Docker, Kubernetes, Ray, Dask, FastAPI, Vercel, AWS Lambda, PostgreSQL,
+  GitHub Actions CI/CD, memory-mapped I/O for large-scale datasets
+}
+
+\cvitem{Languages}{Python, Rust, TypeScript/Node.js, R, Java, C, SQL, Bash}
+
+\cvitem{Data / Sensors}{
+  Time-series analysis, anomaly detection, multi-sensor fusion, distributed
+  data acquisition, HDF5, memory-mapped streaming for $>$100\,GB datasets
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

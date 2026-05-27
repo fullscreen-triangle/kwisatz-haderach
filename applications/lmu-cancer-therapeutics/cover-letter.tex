@@ -1,0 +1,184 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+16 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Lars Lindner \\
+Sarcoma / Hyperthermia / Drug Delivery Working Group \\
+Medizinische Klinik III (Onkologie) \\
+LMU University Hospital Munich
+
+\vspace{1.5em}
+
+\textbf{Re: PhD / Postdoctoral Position --- In Vivo Cancer Therapeutics}
+
+\vspace{1em}
+
+Dear Prof.\ Lindner,
+
+I am applying for the PhD / Postdoctoral position in in vivo cancer therapeutics.
+My doctoral research was in Computational Lipidomics at TUM, where I developed
+mass spectrometry pipelines specifically for lipid systems characterisation. That
+background connects directly to the core analytical problem of your group's
+work: thermosensitive liposomal drug delivery depends on phospholipid phase
+transitions that are precisely the events that lipidomics mass spectrometry
+measures, identifies, and can now predict from first principles.
+
+\textbf{Lipidomics and liposomal drug delivery.}
+At TUM / Bayerisches Forschungsinstitut I built the complete data pipeline for
+lipid species analysis: peak detection and deconvolution, ion annotation against
+lipid databases (LIPID MAPS, LipidBlast), multi-omics statistical modelling,
+and federated learning architectures for distributed clinical data. Separately,
+at Fraunhofer Institut IGB Stuttgart, I applied dynamic programming and linear
+programming methods to the production optimisation of \textit{therapeutic lipids}
+--- the same lipid classes that constitute thermosensitive liposomal formulations.
+The
+\href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} framework
+I built for mass spectrometry extends this: the virtual instrument at
+\href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment}
+runs forward simulation of mass spectrometry experiments in the browser, and the
+underlying framework processes mzML datasets exceeding 100\,GB, achieving 98.9\,\%
+feature extraction accuracy against the NIST reference library.
+The phase transition of DPPC/DSPC-based thermosensitive liposomes from gel to
+liquid crystalline phase at approximately 42\,$^\circ$C is observable by
+mass spectrometry as a characteristic shift in the phospholipid ion population
+--- a measurement class the pipeline was built to characterise.
+
+\textbf{Why sarcoma and pancreatic cancer are immunologically cold: a first-principles account.}
+My manuscript \textit{On the Thermodynamic Consequences of Categorical Completion
+on Biological Systems} models adaptive immune selectivity as a categorical filter
+cascade: MHC molecules present peptides preferentially from proteins with high
+categorical richness $R$ --- quantifying isoform diversity, conformational entropy,
+and post-translational modification landscape. The correlation is $r = 0.73$,
+$p < 10^{-12}$ across 2,847 IEDB peptides; adding the $R$ term to NetMHCpan
+raises AUC from 0.68 to 0.81.
+Sarcoma is paradigmatically collagen-driven: the dense ECM of soft-tissue
+sarcomas is dominated by collagen isoforms with $R \approx 10^{5.5}$,
+categorically the highest richness in the human proteome, which predicts
+them as strong immune targets --- yet sarcomas are immunologically cold.
+The model resolves this: high-$R$ target availability does not guarantee
+immune activation when the tumour microenvironment suppresses the
+MHC-I presentation pathway. Pancreatic cancer presents the same structure
+amplified by desmoplastic stroma. The combination of hyperthermia (which
+disrupts stromal architecture and temporarily restores MHC-I surface density)
+with liposomal drug delivery and immunotherapy is precisely the intervention
+the framework predicts will convert these tumours from cold to hot.
+I can derive specific predictions about which peptide populations will expand
+following hyperthermia treatment, and which drug targets will have the lowest
+off-target burden --- predictions testable in your group's in vivo models.
+
+\textbf{Tumour microenvironment as a trajectory completion problem.}
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+computes cellular disease state as a vector $\mathbf{D} \in [0,1]^8$ across
+eight oscillator classes. For the hyperthermia / liposomal drug delivery
+context, the directly relevant components are the membrane potential oscillator
+($D_M$, responding to thermal stress-induced bilayer perturbation), the calcium
+oscillator ($D_{Ca}$, which governs the heat-shock response and drives
+immunogenic cell death signalling), and the ATP oscillator ($D_{ATP}$, depleted
+under the metabolic demands of combined hyperthermia and cytotoxic drug exposure).
+The framework computes the trajectory from tumour cell state to the target
+state (immunogenic, drug-sensitive, cleared) in $\mathcal{O}(N \log N)$, and
+the sparse $\ell_1$ linear programme selects the minimum-intervention combination
+--- which of hyperthermia dose, liposomal drug concentration, and immunotherapy
+agent --- needed to complete the transition. This is exactly the optimisation
+problem your multimodal therapy programme needs to solve.
+
+\textbf{Computational infrastructure for the experimental programme.}
+The tools I have deployed address each analytical dimension the programme requires.
+\href{https://syndrome-seven.vercel.app}{syndrome-seven.vercel.app} provides
+four live immunopeptidology tools operating on the same spectral complementarity
+metric $\rho$ (3-channel DFT, 36-dimensional cosine similarity, $O(cL\log L)$):
+a neoantigen identifier (dual threshold: $\Delta\rho_\text{self} > 0.15$ for
+immune detection, $\rho_\text{MHC} > 0.72$ for MHC presentation) --- directly
+applicable to identifying which intracellular peptides become immunogenic after
+hyperthermia-mediated lysis; and an antibiotic resistance predictor
+(drug--enzyme spectral complementarity $\rho$, validated against known clinical
+resistance positions for TEM-1/Ampicillin, GyrA/Ciprofloxacin,
+AAC(3)-IV/Gentamicin) --- the same spectral distance applied to chemotherapy
+drug--target interactions to predict which mutations would confer resistance
+to doxorubicin or other cytotoxic agents.
+\href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}
+provides sequence homology search underpinning tumour neoantigen identification.
+\href{https://remote-photoplethysmography.vercel.app/}{BRUT Observatory} inverts
+a layered Beer--Lambert optical model of forehead skin to recover vasodilation
+and skin temperature from a standard webcam in real time --- directly applicable
+to non-contact thermal monitoring of patients during hyperthermia sessions,
+supplementing contact thermometry without additional hardware.
+\href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}
+provides protein folding, trajectory, and dynamics analysis applicable to the
+oncoprotein targets released by hyperthermia-mediated cell lysis.
+The \href{https://github.com/fullscreen-triangle/borgia}{Borgia} framework
+derives molecular spectroscopic properties from bounded phase space geometry ---
+the Triple Equivalence Theorem equates oscillatory dynamics, categorical state
+enumeration, and partition operations, making it possible to predict the DPPC
+and DSPC vibrational spectra and phase transition temperatures from structural
+geometry alone, without parameter fitting against empirical data.
+The cheminformatics instrument at
+\href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}
+implements this directly: zero-parameter molecular spectroscopy including docking,
+3D structure, and harmonic network analysis, all computed in the browser.
+
+\textbf{Drug-target geometry and therapeutic trajectories.}
+The \href{https://crown-prince-four-courners.vercel.app}{Crown Prince} platform
+extends the same bounded phase space framework to pharmacology.
+Drug-target binding affinity emerges as $K_d = \exp(-\Delta M \cdot \ln b)$
+from partition geometry alone --- validated against 39/39 NIST binding measurements
+with zero free parameters (50\,MB covering the same pharmacological space as the
+12\,GB DrugBank reference). For thermosensitive liposomal delivery, the Therapeutic
+Effect Trajectory paper in the platform derives the full PD/PK/ADME profile as
+geometric transitions in partition space: drug absorption, distribution, and
+clearance as first-principles state trajectories rather than phenomenological
+curve-fitting. The Cell Spectral Hologram tool at
+\href{https://crown-prince-four-courners.vercel.app/tools/spectrum}{crown-prince-four-courners.vercel.app/tools/spectrum}
+accepts a tumour cell type as input and outputs a sparse $\eta^*$ therapeutic
+perturbation vector identifying which molecular targets, when modulated, move the
+cell from the disease trajectory to the clearance state with minimum cytotoxic
+burden --- directly applicable to the multimodal optimisation problem of choosing
+hyperthermia dose, liposomal drug concentration, and immunotherapy agent.
+
+\textbf{Background.}
+My MSc in Pharmaceutical Biotechnology (HAW Hamburg) covered drug delivery,
+formulation science, and pharmacokinetics. My BSc in Biochemistry and Cell
+Biology (Jacobs University Bremen) included standard cell culture and molecular
+biology laboratory training. My MSc in Computational Biology (Universität
+Tübingen) and doctoral research in Computational Lipidomics at TUM gave
+me the analytical and statistical depth behind the work described above. I am
+not proposing to arrive as an animal model specialist --- that is the training
+this position provides. I am proposing that a candidate who can derive from
+first principles why sarcoma and pancreatic cancer are immunologically cold,
+predict which hyperthermia-driven state transitions will produce immunogenic
+cell death, and analyse the resulting lipidomic and proteomic data at scale
+will contribute substantively to this programme from the first day.
+
+I am legally resident in Germany with full work authorisation and am available
+from October 2026. English is native; German is conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

@@ -1,0 +1,196 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wissenschaftliche*r Mitarbeiter*in, Tumor Immunology / Gastric Cancer
+% Klinik VTG, Universitätsklinikum Carl Gustav Carus Dresden — Ref. 1776
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Multi-omics statistical modelling, mass spectrometry-based molecular profiling,
+  federated learning for distributed clinical analysis. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Computational immunology, sequence analysis, multi-omics integration,
+  statistical bioinformatics.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Cell biology and culture techniques, protein biochemistry, immunological
+  assay development, bioanalytical methods.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Molecular biology, cell biology, analytical biochemistry, cancer biology.
+}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  MHC binding affinity correlates with categorical richness ($r=0.73$, $p<10^{-12}$,
+  $n=2{,}847$ IEDB peptides). AUC 0.81 vs.\ NetMHCpan 0.68.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency diagnostic; AUC$=1.00$; 25/25 validation experiments;
+  sparse $\ell_1$ LP for personalised therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+%----------------------------------------------------------------------------------------
+%	COMPUTATIONAL TOOLS FOR TUMOR IMMUNOLOGY
+%----------------------------------------------------------------------------------------
+
+\section{Computational Tools for Tumor Immunology}
+
+\cvitem{syndrome}{
+  \textbf{Neoantigen Prediction, MHC Binding, and Immune Escape Analysis.}
+  Spectral DFT on three physicochemical channels (hydropathy, volume, charge);
+  36-dimensional cosine similarity $\rho$; $\mathcal{O}(cL\log L)$.
+  \textbf{Neoantigen:} dual threshold $\rho_\mathrm{MHC}>0.72$ (MHC presentation)
+  + $\Delta\rho_\mathrm{self}>0.15$ (self-distinction); ranks neoantigens by
+  immunogenic potential in patient tumor mutational landscape.
+  \textbf{Escape:} $E(v)=-\max\rho(v,\mathrm{Ab})+0.80\cdot\rho(v,\mathrm{rec})$;
+  systematic screen of all single-aa substitutions for variants that escape
+  T cell / antibody recognition while retaining receptor function.
+  \textbf{MHC binding:} $\rho\geq0.72$ threshold; patient-specific HLA allele scanning.
+  Applicable to gastric cancer neoantigen identification and tumor immune escape modeling.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{syndrome disease model}{
+  \textbf{T Cell State and Tumor Microenvironment Trajectory.}
+  Disease / cell-state vector $\mathbf{D}\in[0,1]^8$ across eight oscillator
+  dimensions (ATP synthesis coherence, genetic expression state, immune activation,
+  circadian regulation, etc.); $\mathcal{O}(N\log N)$ trajectory to target state;
+  sparse $\ell_1$ LP for minimum-intervention target selection.
+  Applicable to modelling T cell exhaustion trajectories and identifying
+  metabolic rescue or checkpoint blockade combination targets.
+  Loop-holonomy self-consistency: AUC$=1.00$, 25/25 experiments.
+}
+
+\cvitem{lavoisier}{
+  \textbf{Spectral Proteomics and Metabolomics Analysis.}
+  Dual-pipeline MS analysis: numerical + CNN (PyTorch); 98.9\,\% NIST accuracy;
+  Ray distributed; $>$100\,GB dataset support.
+  Applicable to metabolomic profiling of T cell metabolic phenotype (OxPhos vs.\
+  glycolytic flux) from tumor-infiltrating lymphocyte samples.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  \textbf{Genomic Variant Analysis and Multi-Omics Integration.}
+  $10^6$ variants/second VCF processing; RNA-seq integration; Bayesian networks,
+  GMMs. Validated: 1000~Genomes, gnomAD~v3.1.2, UK~Biobank.
+  Applicable to tumor mutational burden analysis and somatic mutation landscape
+  for neoantigen candidate identification in gastric cancer.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Computational immunology tools (neoantigen, MHC binding, immune escape),
+  disease state trajectory modelling, multi-omics analysis pipelines,
+  proteomics and metabolomics data analysis. All systems publicly deployed.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics: molecular profiling, peak detection, ion annotation
+  (LIPID MAPS, LipidBlast), multi-omics integration, federated clinical data.
+  Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline; protein sample preparation;
+  SOP development and reproducibility validation.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery;
+  sample preparation protocol development; statistical validation.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Tumor Immunology (Computational)}{
+  Neoantigen prediction; MHC/HLA binding; TCR--pMHC spectral complementarity;
+  immune escape variant screening; T cell exhaustion modelling;
+  tumor mutational burden analysis; somatic variant calling (VCF, PLINK);
+  flow cytometry data analysis (FlowJo-compatible, Python-based)
+}
+
+\cvitem{Cell Biology (Training)}{
+  Cell culture; protein extraction and Western blot; ELISA; immunostaining;
+  histological staining; basic flow cytometry acquisition
+}
+
+\cvitem{Analytical / MS}{
+  LC-MS/MS, MALDI-TOF, UPLC-MS/MS; proteomics and lipidomics pipelines;
+  LIPID MAPS, HMDB, NIST; spectral data analysis (numerical + CNN)
+}
+
+\cvitem{ML / Bioinformatics}{
+  Python (PyTorch, scikit-learn, Ray); R; Rust;
+  Bayesian networks; GMMs; sparse $\ell_1$ regularisation;
+  multi-omics integration; RNA-seq quantification
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

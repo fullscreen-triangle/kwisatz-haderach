@@ -1,0 +1,174 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Jonas Ries \\
+Max Perutz Labs \\
+University of Vienna / Medical University of Vienna \\
+\texttt{jonas.ries@univie.ac.at}
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position in Super-Resolution Microscopy (Ref.\ 5654) --- late application}
+
+\vspace{1em}
+
+Dear Prof.\ Ries,
+
+I am writing to express interest in the predoctoral position (Ref.\ 5654) in the
+Ries lab. I am aware the advertised deadline has passed and that the position
+formally requires passage through the Vienna BioCenter International PhD programme
+recruitment --- I am reaching out directly in case the position remains open or in
+case you have a related opening. If neither applies now, I would welcome the
+opportunity to discuss the VBC selection process or future openings.
+
+The reason I am writing despite the timing is that the lab's research programme ---
+developing computational methods for single-molecule localization microscopy
+and fitting super-resolution data to geometric structural models --- is precisely
+where my own independent research has been converging, from a different starting
+point.
+
+\textbf{Geometric model fitting from sparse localization data.}
+The central computational problem in SMLM is reconstructing the geometry of a
+protein complex from a sparse, noisy cloud of single-molecule positions.
+\href{https://github.com/fullscreen-triangle/verum}{Verum} addresses the analogous
+problem in a different domain: a vehicle as a 20-node oscillatory circuit graph,
+where the complete internal state must be reconstructed from observations at 33\,\%
+of nodes (5 out of 15 surface-accessible subsystems). The trajectory completion
+operator $T = P \circ B \circ K$ is a Banach contraction with Lipschitz constant
+$\lambda \in [0.3, 0.7]$, guaranteeing unique fixed-point convergence to the full
+system state; validated on real Formula One telemetry data (convergence residual
+$7.2 \times 10^{-9}$).
+This maps directly onto the LocMoFit problem: given a localization cloud, recover
+the underlying geometric model parameters. The circuit graph topology provides
+the structural prior; the contraction mapping provides the convergence guarantee.
+The same mathematical architecture --- Kirchhoff propagation from boundary
+conditions, backward Viterbi inference, thermodynamic feasibility projection ---
+applies when the ``nodes'' are protein subunits and the ``observations'' are
+fluorophore positions in a MINFLUX or STORM dataset.
+
+\textbf{Simulator-based inference and surrogate models.}
+The lab uses simulator-based (likelihood-free) inference for fluorophore
+localisation in 3D. This is exactly the application class that my
+\href{https://github.com/fullscreen-triangle/purpose}{Purpose} framework and
+\href{https://github.com/fullscreen-triangle/homo-veloce}{homo-veloce} surrogate
+model system address. The central result --- the \textbf{Backward Training Principle}
+--- establishes that a surrogate trained at the hardest single-objective instance
+(the \emph{pure-intent regime}) is competent across every less-constrained
+sub-regime by feasibility inclusion, not generalisation. For SMLM simulator-based
+inference, the pure-intent regime is the highest-SNR, lowest-density acquisition
+condition (one fluorophore per diffraction volume, maximum photon budget) ---
+the regime from which all realistic acquisition conditions are feasibility
+restrictions. Training the surrogate there eliminates the need to sample the
+full acquisition parameter space. A Forward Training Collapse Theorem establishes
+a provably positive VC failure-gap for the conventional easy-to-hard approach;
+a Sample Complexity Theorem gives $(N+1)\times$ savings for $N$-layer constraint
+cascades. The homo-veloce system demonstrates the pattern in practice: Gaussian
+process and graph neural network physics solvers distilled into lightweight neural
+networks (1D CNNs, LSTMs) for real-time inference --- the same pattern the lab's
+deep learning localisation pipeline implements.
+
+\textbf{Multi-modal microscopy data integration.}
+\href{https://github.com/fullscreen-triangle/helicopter}{Helicopter} is a
+multi-modal microscopy analysis framework that combines fluorescence, brightfield,
+phase-contrast, and spectral imaging modalities through sequential constraint
+satisfaction. Each physical measurement is treated as an independent exclusion
+operator rather than as a signal to be averaged: the framework reduces structural
+ambiguity from $\sim 10^{60}$ possible molecular configurations to unique solutions
+without depending on the resolution limit of any single modality.
+For structural cell biology applications combining SMLM with cryo-EM or confocal
+reference channels --- the kind of multi-scale structural integration the lab's
+work on clathrin-mediated endocytosis and motor protein stepping requires ---
+this is the relevant architecture: each modality contributes independent
+geometrical constraints, and the intersection of those constraints determines
+the structure.
+
+\textbf{First-principles fluorophore spectroscopy.}
+The \href{https://honjo-masamune.vercel.app/tools}{Borgia} framework derives
+spectroscopic properties of molecules --- electronic transitions, absorption,
+emission, and vibrational modes --- from bounded phase space geometry alone,
+with zero empirical parameters. The Triple Equivalence Theorem equates oscillatory
+dynamics, categorical state enumeration, and partition operations; a GPU fragment
+shader running the partition calculation is formally equivalent to a physical
+spectrometer. Validated against NIST for nine elements and six molecules with
+self-consistency errors below 1.63\,\%.
+For rational fluorophore selection in two-colour or three-colour SMLM, the ability
+to compute excitation and emission spectra, extinction coefficients, and Stokes
+shifts from molecular structure rather than from empirical measurements enables
+screening of candidate labels computationally before synthesis or purchase.
+The same framework --- Beer-Lambert absorption derived from Kirchhoff circuit laws
+(proved in the
+\href{https://github.com/fullscreen-triangle/lagrangian}{Lagrangian} platform,
+Resonant Stack theorem, $T = 1/e = 0.3679$ for both) --- provides a first-principles
+model of light propagation through biological tissue for thick-sample PSF
+characterisation and aberration correction in 3D SMLM.
+
+\textbf{Scientific data querying and localization database search.}
+A complementary framework --- the PDSVM (Purpose-Driven Shader Virtual Machine)
+--- addresses large-scale scientific database search via bounded oscillatory systems.
+Every stable physical object is described by three S-entropy coordinates
+$(S_k, S_t, S_e) \in [0,1]^3$ (knowledge, temporal, and evolution entropy);
+every query is classified into one of three GPU shader primitive classes
+(proved exhaustive by the Completeness Theorem);
+and retrieval via a ternary trie over Morton-ordered S-entropy coordinates
+runs in $O(k)$ time independent of database size $N$ (373$\times$ speedup at
+$N=10^5$, $< 0.01\,\mathrm{ms}$ per iteration on a consumer GPU, WebGPU browser-deployable).
+The stable slice $T^*$ is the fixed point of the probe operator $\Pi_P(T)$ ---
+the set of data states whose S-entropy coordinates are closest to a given purpose
+point $P$ on the Fisher-metric manifold.
+This maps exactly onto the LocMoFit problem structure:
+the localization cloud is the data set; the target geometric model is the purpose
+point $P$; and the stable slice is the protein complex geometry satisfying the
+forcing conditions (structural constraints derivable without statistical averaging).
+For a lab that builds and extends LocMoFit, the trie gives $O(k)$
+localization database search independent of cloud size, and the stable slice
+formalism provides a first-principles account of which geometric solutions are
+structurally necessary rather than merely statistically likely.
+10/10 validation experiments all pass (including generative capability:
+1000/1000 instances satisfy forcing conditions within $\varepsilon = 0.05$
+of the purpose point).
+
+\textbf{Background.}
+My MSc in Computational Biology (Universität Tübingen) and doctoral research
+in Computational Lipidomics at TUM give me the biological and computational
+science foundation. My primary development environment is Python (PyTorch,
+scikit-learn, Ray) and Rust for performance-critical components. I have not
+operated STORM or MINFLUX hardware --- I am aware that the PhD programme
+provides that training --- but the computational methods I have developed
+are directly applicable to the data analysis and method development problems
+the lab addresses.
+I am legally resident in Germany with full work authorisation and can commute
+to Vienna or relocate if needed. English is native; German is conversational.
+
+I recognise this is a late contact and appreciate your time in considering it.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

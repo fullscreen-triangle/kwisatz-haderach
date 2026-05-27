@@ -1,0 +1,156 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Detlef Schoder \\
+Cologne Institute for Information Systems (CIIS) \\
+Universität zu Köln \\
+\texttt{schoder@wim.uni-koeln.de} \\
+Ref.\ Wiss2604-xx
+
+\vspace{1.5em}
+
+\textbf{Re: Doctoral Researcher --- AI-Driven Protein Design (Ref.\ Wiss2604-xx)}
+
+\vspace{1em}
+
+Dear Prof.\ Schoder,
+
+I am applying for the doctoral position in AI-driven protein design at CIIS
+(Ref.\ Wiss2604-xx).
+The position's core requirement --- integrating physics-informed scoring
+functions into ML protein design pipelines and building hybrid scoring
+frameworks that combine AI-derived and physics-based features --- is the
+specific combination I have developed independently across several deployed
+frameworks. The physics-based scoring is not a planned addition to my
+toolkit; it is the foundation from which I approach molecular recognition problems.
+
+\textbf{Physics-informed scoring for protein--protein interactions.}
+The most important result I bring to the project is a zero-parameter method
+for computing binding affinity from molecular structure.
+The \href{https://github.com/fullscreen-triangle/crown-prince}{Crown Prince}
+framework derives dissociation constants as:
+\[
+K_d = \exp\!\left(-\Delta M \cdot \ln b\right)
+\]
+where $\Delta M$ is the partition geometry distance between receptor and ligand
+bounded oscillatory systems, and $b$ is the base of the ternary address encoding.
+The Hill equation emerges as the exact limiting case of this expression when
+receptor cooperativity collapses to a single binding mode.
+Validated against 39 NIST binding compounds at zero free parameters.
+This is a physics-informed scoring function in the precise sense the position
+describes: a score derived from molecular geometry rather than from training data,
+directly integrable into an ML protein design pipeline as a reward signal or
+as a physics-based feature layer.
+
+For protein--protein interaction prediction specifically, the
+\href{https://syndrome-seven.vercel.app/tools/mhc-binding}{Syndrome}
+framework applies spectral DFT to three physicochemical channels
+(hydropathy, volume, charge) to compute a 36-dimensional cosine similarity
+$\rho$ between any two molecular sequences.
+Binding is predicted when $\rho \geq \rho^* = 0.72$; the binding ball
+radius in spectral space is $r^* = \sqrt{2(1-\rho^*)} = 0.748$.
+Validated: MHC-I/II binding prediction AUC\,$=0.81$ vs.\ NetMHCpan\,$=0.68$
+on 2,847 IEDB peptides ($r=0.73$, $p<10^{-12}$).
+The spectral complementarity $\rho$ is a physically grounded similarity
+measure --- not a learned distance function --- that can be used directly
+as a physics-based feature in a hybrid scoring framework, alongside
+GNN-derived or AlphaFold-derived structural features.
+For PPI lead optimization, the escape predictor tool screens all single
+amino acid substitutions of a candidate binder for the variant that maximises
+$\rho$ against the target while minimising off-target complementarity ---
+a systematic computational lead optimization pass in $\mathcal{O}(cL\log L)$.
+
+\textbf{ML pipeline architecture for protein design.}
+The \href{https://honjo-masamune.vercel.app/tools}{Borgia} framework
+generates molecular features --- electronic transitions, absorption/emission
+spectra, vibrational modes, and partition coordinates --- from molecular
+structure with zero empirical parameters, via the Triple Equivalence Theorem
+(oscillatory dynamics $=$ categorical state enumeration $=$ partition operations).
+These features serve directly as physics-informed input representations to
+a protein design ML pipeline: instead of learning atomic embedding vectors
+from a training set, the model receives features derived from molecular physics,
+which generalise to out-of-distribution protein sequences by construction.
+The \href{https://github.com/fullscreen-triangle/homo-veloce}{homo-veloce}
+surrogate model system demonstrates the integration pattern in practice:
+physics-based solvers (Gaussian processes, GNNs, ODE integrators) distilled
+into lightweight 1D CNNs, LSTMs, and Transformers for real-time inference.
+This is the same pattern as training an ML protein design model on
+physics-informed features: the physics ensures structural validity;
+the ML provides the generative and optimisation capability.
+The \href{https://github.com/fullscreen-triangle/purpose}{Backward Training Principle}
+formalises the training strategy: a binder model trained at the
+\emph{pure-intent regime} --- the minimum binding energy configuration under
+maximum on-target specificity, with no solubility or stability constraints ---
+is $\epsilon$-competent at every constrained design sub-task (solubility, stability,
+off-target avoidance) by feasibility inclusion, not generalisation.
+A Forward Training Collapse Theorem establishes a positive VC failure gap
+for the conventional approach of training on filtered feasible designs;
+a Sample Complexity Theorem gives $(N{+}1)\times$ efficiency gains for a
+cascade of $N$ design constraints. This directly addresses the sample
+efficiency bottleneck in protein design benchmarks.
+
+\textbf{Structural biology and protein dynamics.}
+The \href{https://shakespear-nine.vercel.app/instrument}{Shakespear}
+platform provides protein conformation, trajectory, catalysis, and dynamics
+analysis via Kuramoto oscillator synchronization in S-entropy coordinate space.
+Protein conformational states are represented as bounded oscillatory systems
+with S-entropy coordinates $(S_k, S_t, S_e) \in [0,1]^3$; trajectory
+completion reconstructs the full folding pathway from sparse observations
+using a Banach contraction operator, without forward simulation.
+For protein design benchmarks, this provides a lightweight computational
+model for evaluating whether a designed binder adopts the predicted
+fold --- before running full-scale MD or AlphaFold prediction.
+
+\textbf{Agentic AI and ML pipeline engineering.}
+The position lists willingness to engage with agentic AI approaches.
+I have built production agentic systems: the
+\href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+8-stage metacognitive RAG pipeline with Rust backend (10--50$\times$ speedup),
+the \href{https://github.com/fullscreen-triangle/bloodhound}{Bloodhound}
+distributed categorical VM with Triangle language (navigate/slice/complete),
+and the \href{https://github.com/fullscreen-triangle/zangalewa}{Zangalewa}
+Minimum Sufficient Interceptor for $O(\log_k N)$ specialist cascade routing.
+For protein design, agentic architectures are relevant at the experimental design
+layer: an agent that iterates between sequence proposal (generative ML),
+physics scoring (Crown Prince $K_d$, spectral $\rho$), structural validation
+(Shakespear trajectory completion), and experimental feedback is the pipeline
+the position describes.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and conducted
+doctoral research in Computational Lipidomics at TUM. I am legally resident
+in Germany with full work authorisation. English is native; German is
+conversational.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

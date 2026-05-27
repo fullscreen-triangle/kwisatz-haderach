@@ -1,0 +1,231 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Doctoral Researcher, AI-Driven Protein Design
+% CIIS / Chair Prof. Detlef Schoder, Universität zu Köln — Ref. Wiss2604-xx
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Molecular profiling at HPC scale, multi-omics statistical modelling,
+  physics-based feature engineering. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Protein structure and dynamics, molecular modelling, computational biophysics,
+  ML for biological sequences.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT MANUSCRIPTS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  MHC-I/II binding affinity from spectral complementarity: AUC 0.81 vs.\ NetMHCpan 0.68
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). Zero-parameter PPI binding
+  prediction. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{Backward Training Principle.}
+  Formal proof: training at the pure-intent regime (minimum binding energy,
+  maximum on-target specificity) propagates $\epsilon$-competence to all
+  constrained design sub-tasks by feasibility inclusion.
+  Forward Training Collapse Theorem (positive VC failure gap for conventional
+  direction); Sample Complexity Theorem ($(N{+}1)\times$ savings).
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	PROTEIN DESIGN AND PPI TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Protein Design and PPI Tools}
+
+\cvitem{crown-prince}{
+  \textbf{Zero-Parameter Physics-Informed Binding Affinity Scoring.}
+  $K_d = \exp(-\Delta M \cdot \ln b)$ from bounded phase space partition geometry;
+  Hill equation as exact limiting case; PD/PK/ADME trajectories from partition structure.
+  Directly integrable as physics-informed scoring function in ML protein design pipelines.
+  Validated: 39/39 NIST binding compounds, zero free parameters; 50\,MB vs DrugBank 12\,GB.
+  Cell Spectral Hologram: tumour cell $\to$ spectral embedding $\to$ therapeutic
+  perturbation vector; AUC$=1.00$.
+  Live: \href{https://crown-prince-four-courners.vercel.app/tools/spectrum}{crown-prince-four-courners.vercel.app}.
+  \href{https://github.com/fullscreen-triangle/crown-prince}{github.com/fullscreen-triangle/crown-prince}
+}
+
+\cvitem{syndrome}{
+  \textbf{Spectral Physics-Based PPI Prediction and Lead Optimisation.}
+  3-channel DFT (hydropathy, volume, charge) $\to$ 36D cosine similarity $\rho$;
+  $\mathcal{O}(cL\log L)$; no training data required.
+  \textbf{PPI binding:} $\rho\geq0.72$; AUC 0.81 vs.\ NetMHCpan 0.68 on 2,847 IEDB peptides.
+  \textbf{Lead optimisation:} escape predictor screens all single-aa substitutions for
+  variants maximising target $\rho$ and minimising off-target $\rho$;
+  score $E(v) = -\max\rho(v,\mathrm{off}) + w\cdot\rho(v,\mathrm{target})$.
+  Physics-based feature layer for hybrid scoring frameworks.
+  Live: \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{borgia}{
+  \textbf{Zero-Parameter Molecular Feature Generation.}
+  Electronic transitions, absorption/emission spectra, vibrational modes, and
+  partition coordinates from bounded phase space geometry --- zero empirical parameters.
+  Triple Equivalence: oscillatory $=$ categorical $=$ partition; GPU shader $=$
+  physical spectrometer. Generates physics-informed input representations for
+  protein design ML models that generalise by construction to out-of-distribution sequences.
+  Validated: NIST 9 elements + 6 molecules, self-consistency $<$1.63\%.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{shakespear}{
+  \textbf{Protein Conformation, Trajectory, and Dynamics Analysis.}
+  S-entropy coordinates $(S_k, S_t, S_e)\in[0,1]^3$ for protein conformational states;
+  trajectory completion operator $T=P\circ B\circ K$ (Kirchhoff propagation,
+  backward Viterbi, thermodynamic projection); Banach contraction, unique fixed-point.
+  Lightweight fold evaluation and transition-state characterisation without
+  full MD or AlphaFold inference.
+  Live: \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}.
+  \href{https://github.com/fullscreen-triangle/shakespear}{github.com/fullscreen-triangle/shakespear}
+}
+
+\cvitem{purpose + homo-veloce}{
+  \textbf{Backward Training Principle for Protein Design Optimisation.}
+  Formal proof: training at the pure-intent binder regime (minimum $K_d$, maximum
+  on-target specificity, no extrinsic constraints) propagates $\epsilon$-competence
+  to all constrained design sub-tasks (solubility, stability, off-target avoidance)
+  by feasibility inclusion.
+  homo-veloce distils physics-based solvers into lightweight neural surrogates
+  (1D CNNs, LSTMs, Transformers) --- the same distillation pattern as training
+  ML design models on physics-informed features.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+
+%----------------------------------------------------------------------------------------
+%	AGENTIC AI SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{Agentic AI Systems}
+
+\cvitem{four-sided-triangle}{
+  \textbf{8-Stage Metacognitive Pipeline.}
+  Adaptive routing between LLM reasoning and physics/mathematical solvers;
+  Rust backend (10--50$\times$); FastAPI; Docker/Kubernetes; GQIC resource allocation.
+  Production template for protein design agent: sequence proposal $\to$ physics
+  scoring $\to$ structural validation $\to$ feedback loop.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{bloodhound + zangalewa}{
+  \textbf{Distributed Agentic VM and Routing Architecture.}
+  Bloodhound: Triangle language (navigate/slice/complete); St-Hurbert engine;
+  Common-Cell Convergence Theorem; Intelligence Index $O(1)$.
+  Zangalewa: Minimum Sufficient Interceptor; $O(\log_k N)$ specialist cascade;
+  Sufficiency Theorem (parameter count independent of substrate size).
+  \href{https://github.com/fullscreen-triangle/bloodhound}{github.com/fullscreen-triangle/bloodhound}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Physics-informed scoring for protein-ligand and protein-protein binding;
+  protein design ML pipelines; agentic system architecture; all frameworks
+  publicly deployed and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based molecular profiling, multi-omics integration, distributed clinical pipelines.
+  Python, Java.
+}
+
+\cventry{2019}{Process Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  ML-based optimisation for biological systems. Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Protein Design / Structural Biology}{
+  Physics-informed scoring (zero-parameter $K_d$, spectral $\rho$ PPI binding);
+  protein conformation analysis; S-entropy trajectory completion;
+  molecular feature generation (electronic transitions, vibrational modes);
+  AlphaFold-compatible structural feature integration; RDKit cheminformatics
+}
+
+\cvitem{ML / DNN}{
+  PyTorch; 1D CNNs, LSTMs, Transformers, GNNs; knowledge distillation
+  from physics solvers; Bayesian networks; variational Bayes;
+  Gaussian processes; surrogate model training; RAG pipelines
+}
+
+\cvitem{Agentic AI}{
+  Multi-stage metacognitive pipelines; specialist cascade routing $O(\log_k N)$;
+  COMPILE/EXECUTE two-phase agents; Intelligence Index agent auditing;
+  LLM orchestration (Claude, OpenAI, Ollama); tool use and function calling
+}
+
+\cvitem{Languages}{
+  Python (primary), Rust, Java, TypeScript, C, Bash, SQL, R
+}
+
+\cvitem{Infrastructure}{
+  Ray, Dask; Docker, Kubernetes, FastAPI; WebGPU compute shaders;
+  memory-mapped I/O; HDF5; Git, CI/CD
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

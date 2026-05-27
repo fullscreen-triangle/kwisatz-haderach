@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\[6pt]
+15 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Dr.\ Hashem Mohammadian \\
+Department of Medicine 3 \\
+Universitätsklinikum Erlangen \\
+Ulmenweg 18, 91054 Erlangen
+
+\vspace{1.5em}
+
+\textbf{Re: Bioinformatics PhD Position --- Computational Immunology (Job No.\ 12900)}
+
+\vspace{1em}
+
+Dear Dr.\ Mohammadian,
+
+I am applying for the Bioinformatics PhD position in Computational Immunology.
+My interest in this position is not general: the specific pathological focus of
+your group --- autoimmune diseases, mesenchymal activation, inflammatory
+arthritis, and fibrotic disease --- is the subject of theoretical and
+computational work I have been developing independently over the past year,
+and the methods your group employs are precisely those needed to test and
+refine the predictions that work generates.
+
+My paper \textit{On the Thermodynamic Consequences of Categorical Completion on
+Biological Systems: Specificity through VDJ Recombination Categorical Filter
+Cascades} proposes that adaptive immunity operates through categorical exclusion
+rather than molecular complementarity. MHC molecules function as designed
+ambiguous filters that selectively present peptides from proteins with high
+categorical richness $R$ --- quantifying isoform diversity, conformational
+entropy, and downstream connectivity --- while suppressing peptides from
+low-$R$ self-proteins. The central empirical result is that MHC binding affinity
+correlates with parent protein categorical richness independently of classical
+sequence features: $r = 0.73$, $p < 10^{-12}$, $n = 2{,}847$ IEDB peptides for
+MHC-I; $r = 0.68$, $p < 10^{-10}$ for MHC-II. Adding the categorical richness
+term to NetMHCpan improves AUC from 0.68 to 0.81 ($p < 0.001$, DeLong test).
+The framework predicts autoimmunity as the condition where self-proteins acquire
+$R > 10^5$ and enter pathogen categorical space. I apply this explicitly to
+collagen ($R \approx 10^{5.5}$), whose extensive isoform repertoire and dense
+post-translational modification landscape push it across the threshold --- making
+it a frequent autoimmune target by geometric necessity, not molecular accident.
+This is the substrate of the pathology your group investigates.
+
+A second paper, \textit{Syndrome: Categorical Resolution of Disease Trajectories},
+formalises a computational framework for disease state representation using eight
+cellular oscillator classes: protein folding, enzymatic catalysis, channel gating,
+membrane potential, ATP synthesis, genetic expression, calcium signalling, and
+circadian rhythm. Each class contributes a coherence index $\eta_i \in [0,1]$,
+forming a disease vector $\mathbf{D} \in [0,1]^8$ that encodes the pathological
+signature across biological scales. For inflammatory arthritis and mesenchymal
+activation, the relevant components are immediate: elevated $D_E$ captures
+metalloprotease and cytokine cascade dysregulation; elevated $D_{Ca}$ captures
+the calcium-dependent fibroblast activation central to synovial pathology;
+elevated $D_G$ captures the inflammatory gene expression signatures directly
+measurable by single-cell RNA-sequencing. The framework computes disease
+trajectories in $\mathcal{O}(N \log N)$ and selects optimal therapeutic
+intervention targets as $\arg\max_i w_i D_i$ --- a sparse linear programme
+with a computable a priori side-effect bound.
+
+A third paper, \textit{On Disease Epistemology in Blind Receiver: Cellular
+Ignorance, Group Blindness, and Self-Consistency as the Unique Basis of Disease
+Detection}, proves that template-based diagnostics are epistemologically
+impossible at every biological scale and derives the unique viable criterion:
+loop-holonomy self-consistency of the biochemical circuit. A cell is healthy if
+and only if the composed constraint map around every reaction cycle returns the
+identity ($H_\ell = \mathrm{Id}\ \forall\ell$); disease is the condition
+$H_\ell \neq \mathrm{Id}$ for some $\ell$. Numerically, the holonomy test
+achieves AUC $= 1.00$ against AUC $= 0.896$ for template comparison across
+25 validation experiments, all of which pass. This offers a fundamentally
+different diagnostic strategy from current biomarker panels --- one that detects
+circuit-level inconsistency that is locally invisible to individual-node
+measurement, which is precisely the kind of inconsistency characteristic of
+chronic autoimmune processes.
+
+The computational infrastructure behind this theoretical work is directly
+applicable to the experimental modalities your group uses.
+\href{https://github.com/fullscreen-triangle/gospel}{gospel} processes
+whole-genome VCF files alongside RNA-seq expression matrices at $10^6$
+variants/second, validated against gnomAD v3.1.2 and UK Biobank;
+the genetic expression oscillator in the Syndrome framework takes its input
+from exactly this kind of data.
+\href{https://github.com/fullscreen-triangle/lavoisier}{lavoisier} is a
+mass-spectrometry metabolomics pipeline achieving 98.9\% feature extraction
+accuracy against NIST reference libraries, with distributed computing via Ray
+and PyTorch-based neural networks.
+\href{https://github.com/fullscreen-triangle/helicopter}{helicopter} addresses
+multi-modal microscopy image analysis across fluorescence, brightfield, and
+spectral modalities --- directly applicable to imaging mass cytometry data.
+I have also built deployable web tools for sequence homology search
+(\href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}),
+multi-modal biological data observation
+(\href{https://hieronymus-omega.vercel.app/observe}{hieronymus-omega.vercel.app/observe}),
+and protein analysis --- folding, trajectory, catalysis, and dynamics via Kuramoto
+oscillator synchronization in S-entropy space
+(\href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument})
+--- all available in the browser without installation, demonstrating that I build
+accessible, reproducible research tools rather than scripts.
+
+My academic background is in computational lipidomics at the Technische
+Universität München, where I trained in the statistical and multi-omics
+methods that underpin all of this work. R and Python are both standard tools
+from that training. I am not proposing to import my framework wholesale into
+your group's programme --- that is not what a doctoral position is for. I
+am proposing that a candidate who has independently derived and empirically
+validated a mechanistic theory of why collagen and mesenchymal proteins become
+autoimmune targets, and built the computational infrastructure to analyse the
+data your group generates, will contribute productively to that programme from
+the first week.
+
+I am available from July 2026, fully authorised to work in Germany
+(Aufenthaltserlaubnis), and would welcome the opportunity to discuss
+this work with you directly.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

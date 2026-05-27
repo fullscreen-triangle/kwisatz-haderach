@@ -1,0 +1,139 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Institute of Neuroscience and Medicine --- Computational Biomedicine (INM-9) \\
+Forschungszentrum Jülich GmbH \\
+52428 Jülich, Germany \\
+Reference: 2025D-126
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position --- Simulations and Machine Learning Applied to Proteins (2025D-126)}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the doctoral position in simulations and machine learning applied
+to proteins at INM-9 (Ref.\ 2025D-126). My background sits at the intersection
+that makes this position attractive: I have developed formal ML frameworks for
+physics-based simulation surrogates and first-principles computational tools
+for molecular structure and dynamics, without having run production MD campaigns
+in GROMACS or AMBER. I am therefore a candidate whose ML and molecular physics
+depth is established, and for whom the classical MD and enhanced sampling methodology
+is what the PhD provides --- the same way experimental microscopy skills are what
+a super-resolution physics PhD provides.
+
+\textbf{Machine learning for molecular simulation: surrogate models and training theory.}
+The most technically demanding part of ML-augmented MD is not training a neural
+network on a trajectory --- it is deciding \emph{what} to train, on \emph{which}
+data, and guaranteeing that the surrogate is competent outside the training distribution.
+My \href{https://github.com/fullscreen-triangle/purpose}{Purpose} framework addresses
+this directly. The \textbf{Backward Training Principle} proves that a surrogate trained
+exclusively at the \emph{pure-intent regime} --- the fully-resolved, single-objective
+instance of the learning problem --- is $\epsilon$-competent on every constrained
+sub-regime by feasibility inclusion, not generalisation. A Forward Training Collapse
+Theorem establishes a provably positive Vapnik--Chervonenkis failure gap for the
+conventional easy-to-hard approach; a Sample Complexity Theorem gives $(N{+}1)\times$
+sample savings for a cascade of depth $N$.
+For protein simulation, the pure-intent regime is the fully-folded, minimum free-energy
+conformation in the absence of solvent and finite-size artefacts: the regime from which
+all realistic simulation conditions are feasibility restrictions. Training an ML
+surrogate there, and projecting competence downward to partial folding states and
+aqueous conditions, eliminates the need to sample the full configurational space.
+The \href{https://github.com/fullscreen-triangle/homo-veloce}{homo-veloce} system
+demonstrates the pattern in practice: Gaussian process and graph neural network
+physics solvers distilled into lightweight 1D CNNs, LSTMs, and Transformers for
+real-time inference --- the same pattern the field uses to replace force evaluations
+with learned potentials.
+
+\textbf{First-principles molecular physics: zero-parameter spectroscopy and force fields.}
+The \href{https://honjo-masamune.vercel.app/tools}{Borgia} framework derives
+electronic transitions, absorption, emission, and vibrational modes of molecules
+from bounded phase space geometry alone, with zero empirical parameters.
+The Triple Equivalence Theorem establishes that oscillatory dynamics, categorical
+state enumeration, and partition operations are formally identical representations
+of the same molecular object --- meaning a GPU shader computing the partition
+function is formally equivalent to a physical spectrometer.
+Validated against NIST for nine elements and six molecules with self-consistency
+errors below 1.63\,\%.
+For protein ML, this matters because it provides a parameter-free baseline for
+molecular force contributions: instead of fitting empirical parameters to reproduce
+experimental observables, the observable is derived from geometry.
+The same framework --- Beer-Lambert absorption as a Kirchhoff circuit law
+(Resonant Stack theorem, transmittance $T = 1/e = 0.3679$ in both representations) ---
+applies to light-triggered protein dynamics and photoresponsive residue behaviour,
+directly relevant to optogenetics applications in the neuroscience context of INM-9.
+
+\textbf{Protein state and trajectory analysis.}
+The \href{https://shakespear-nine.vercel.app/instrument}{Shakespear} platform
+provides protein folding, trajectory, catalysis, and dynamics analysis via
+Kuramoto oscillator synchronization in S-entropy coordinate space.
+The S-entropy coordinates $(S_k, S_t, S_e) \in [0,1]^3$ --- knowledge entropy
+(spectral power distribution), temporal entropy (frequency span), and evolution
+entropy (coherence dimensionality) --- provide a continuous, reparameterisation-invariant
+embedding of protein conformational states.
+Trajectory completion via the fixed-point operator $T = P \circ B \circ K$
+(Kirchhoff propagation, backward Viterbi inference, thermodynamic projection)
+reconstructs full conformational trajectories from sparse observations, with Banach
+contraction guaranteeing unique convergence.
+The Triple Equivalence gives the biological interpretation: every stable protein
+conformation is a bounded oscillatory system, and the S-entropy coordinates are
+its complete characterisation at the level of classical statistical mechanics.
+This is a complementary tool to conventional MD: where MD integrates Newton's
+equations forward, the fixed-point operator completes trajectories backward from
+known endpoint states --- applicable to folding pathway reconstruction and
+transition-state characterisation without forward simulation.
+
+\textbf{HPC computing and large-scale data.}
+I have practical experience working with large-scale scientific datasets on
+distributed computing infrastructure. The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier}
+pipeline processes mass spectrometry datasets exceeding 100\,GB using Ray
+distributed computing, memory-mapped I/O, and HPC-scale parallelism; I have
+written the associated compute allocation documentation for both local cluster
+and federated multi-site configurations. The experience of structuring a
+computational proposal --- specifying system sizes, simulation timescales, memory
+requirements, and expected output volume --- transfers directly to the GPU/CPU
+allocation proposals for JUWELS and the FZ Jülich HPC infrastructure.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and I completed doctoral research
+in Computational Lipidomics at TUM. I have not run production MD campaigns ---
+I am aware the PhD provides that training --- but the molecular physics understanding
+and the ML methodology I bring are at the level the position requires.
+I am legally resident in Germany with full work authorisation.
+English is native; German is conversational.
+I am prepared to relocate to Jülich.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

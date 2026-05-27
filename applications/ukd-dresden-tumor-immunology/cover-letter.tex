@@ -1,0 +1,148 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Dr.\ Seifert \\
+Klinik und Poliklinik für Viszeral-, Thorax- und Gefäßchirurgie \\
+Universitätsklinikum Carl Gustav Carus Dresden \\
+Ref.\ 1776
+
+\vspace{1.5em}
+
+\textbf{Re: Wissenschaftliche*r Mitarbeiter*in --- Tumor Immunology / Gastric Cancer (Ref.\ 1776)}
+
+\vspace{1em}
+
+Dear Dr.\ Seifert,
+
+I am applying for the research associate position in your group (Ref.\ 1776),
+studying immune metabolism of tumor-infiltrating T cells in gastric cancer.
+My interest in this position is specific: the computational tools I have built
+for immunopeptidology --- neoantigen prediction, MHC binding, and immune escape
+analysis --- are directly applicable to the T cell biology questions the group
+addresses, and they are tools that experimental tumor immunology groups rarely
+have in-house. My biochemistry and pharmaceutical biotechnology training provides
+the lab skills foundation; the computational capability for T cell epitope analysis
+and immune escape modelling is what I bring that is unusual for this role.
+
+\textbf{Computational tools for T cell immunology in gastric cancer.}
+The central problem in understanding T cell responses to gastric tumors is
+identifying which neoantigens drive productive anti-tumor T cell recognition,
+which tumor-derived variants allow the tumor to escape T cell killing, and
+which TCR-pMHC interactions are strong enough to sustain effector function
+in the metabolically hostile tumor microenvironment.
+I have built and deployed all three of these analyses as live tools:
+
+The \href{https://syndrome-seven.vercel.app/tools/neoantigen}{neoantigen predictor}
+identifies which somatic mutations produce peptides that are simultaneously
+presented on MHC (spectral DFT cosine similarity $\rho_{\mathrm{MHC}} \geq 0.72$)
+and immunogenically distinct from self-peptides
+($\Delta\rho_{\mathrm{self}} = \rho(\mathrm{WT,self}) - \rho(\mathrm{mut,self}) > 0.15$).
+For gastric cancer, this provides a rapid computational screen of the tumor
+mutational burden to rank neoantigens by their likelihood of driving productive
+CD8$^+$ T cell responses --- before running in vitro binding assays or
+organoid co-culture experiments.
+
+The \href{https://syndrome-seven.vercel.app/tools/escape-predictor}{immune escape predictor}
+systematically screens all single amino acid substitutions in a target epitope
+for variants that retain receptor binding while reducing antibody or T cell
+recognition. The escape score $E(v) = -\max\rho(v, \mathrm{Ab}) + w\cdot\rho(v, \mathrm{rec})$
+($w=0.80$) identifies substitutions that simultaneously escape immune pressure
+and maintain functional interaction. In the gastric cancer context, this is the
+computational equivalent of what the organoid system provides experimentally:
+a model for why immune-edited tumor clones survive T cell surveillance.
+
+The \href{https://syndrome-seven.vercel.app/tools/mhc-binding}{MHC binding predictor}
+operates at $\mathcal{O}(cL\log L)$ complexity, allowing rapid scanning of
+patient-specific HLA alleles against the full neoantigen landscape of a tumor.
+No database lookup is required --- binding is determined from spectral
+complementarity between peptide and HLA physicochemical channels.
+Combined with flow cytometry data from tumor-infiltrating T cell subpopulation
+analysis, this provides a closed loop: compute predicted binders → validate
+presentation by pMHC tetramer staining → correlate with T cell exhaustion
+markers (PD-1, TIM-3, LAG-3) in the patient organoid system.
+
+\textbf{Immune metabolism and T cell exhaustion context.}
+The T cell metabolic reprogramming in the tumor microenvironment --- the switch
+from oxidative phosphorylation to glycolysis, and the downstream effects on
+T cell effector function and exhaustion --- has a natural representation in the
+disease state framework I have developed.
+The \href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework
+models cellular state as $\mathbf{D}\in[0,1]^8$ across eight oscillator
+dimensions including ATP synthesis coherence, genetic expression state, and
+circadian regulatory coherence --- three dimensions directly relevant to
+T cell metabolic phenotype.
+A trajectory on this manifold represents the progression from effector to
+exhausted T cell state under metabolic pressure; the sparse $\ell_1$ LP
+identifies the minimum intervention (metabolic rescue, checkpoint blockade,
+or combination) required to redirect the trajectory.
+This framework provides a quantitative language for connecting the metabolic
+measurements the group makes (oxygen consumption rate, glycolytic flux,
+mitochondrial membrane potential) to T cell functional outcomes.
+
+\textbf{Cancer biology and biochemistry background.}
+My BSc in Biochemistry and Cell Biology (Jacobs University Bremen) and
+MSc in Pharmaceutical Biotechnology (HAW Hamburg) together cover the practical
+biochemistry and cell biology toolkit: cell culture, protein analysis, assay
+development, and immunological techniques from training.
+At the University Medical Center Groningen (2013) I performed UPLC-MS/MS
+shotgun proteomics for cancer biomarker discovery --- work that required
+developing and validating sample preparation protocols for tumour-derived
+material. In my doctoral research at TUM I worked on mass spectrometry-based
+molecular profiling at scale, including federated processing of clinical
+multi-omics datasets.
+The \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier} pipeline
+I subsequently built handles spectral proteomics and metabolomics data at
+$>$100\,GB scale (98.9\,\% NIST accuracy), applicable to the metabolomic
+profiling of T cell metabolic state that the position's research programme
+involves.
+
+\textbf{Contribution to the group.}
+Experimental tumor immunology groups generate large and structurally complex
+datasets --- flow cytometry, scRNA-seq, TCR repertoire sequencing, proteomics,
+and organoid imaging. The computational layer for integrating these modalities,
+identifying immunogenic neoantigens, predicting escape variants, and modelling
+T cell state trajectories is typically not available in-house in a surgical
+oncology research group.
+The tools I bring address exactly these bottlenecks, and they are available
+immediately, deployed, and validated. I would contribute both at the bench
+(cell culture, flow cytometry data acquisition and analysis, histological
+staining and quantification) and at the analysis layer where the computational
+tools create leverage across all experimental outputs.
+
+I hold a BSc in Biochemistry and Cell Biology, an MSc in Pharmaceutical
+Biotechnology, and an MSc in Computational Biology (Universität Tübingen).
+I am legally resident in Germany with full work authorisation.
+English is native; German is conversational. I am available immediately and
+willing to relocate to Dresden.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

@@ -1,0 +1,225 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD/Postdoc, Cancer Biology & Bioinformatics
+% Institute of Molecular Oncology and Functional Genomics, TUM Klinikum
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Doctoral research in mass spectrometry-based multi-omics, federated learning for
+  distributed clinical analysis, and scientific computing pipelines.
+  Departed to pursue independent computational research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological
+  Systems: Specificity through VDJ Recombination Categorical Filter Cascades.}
+  MHC binding affinity correlates with parent protein categorical richness
+  ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides). AUC 0.81 vs NetMHCpan 0.68.
+  Predicts collagen isoforms and tumour-associated antigens as primary immune targets
+  from structural first principles. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency as unique viable diagnostic criterion;
+  AUC$=1.00$, 25/25 validation experiments pass. Sparse $\ell_1$ LP for
+  minimum-side-effect therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM School of Life Sciences Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  Eight cellular oscillator classes; disease vector $\mathbf{D}\in[0,1]^8$;
+  $\mathcal{O}(N\log N)$ trajectory computation. Cancer cell state transitions as
+  trajectory completion in $[0,1]^8$ partition space.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{Viral Infection as Host-State-Dependent Categorical Resonance.}
+  Infection probability as categorical overlap integral derived from first principles.
+  Oscillatory Incompleteness Theorem. \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{gospel}{
+  \textbf{Large-Scale Genomic Variant Analysis and RNA-seq Integration.}
+  Processes million-scale VCF files at $10^6$ variants/second; Bayesian network
+  inference, Gaussian mixture models, variational Bayes for multi-omics integration.
+  Validated against 1000 Genomes Phase~3, gnomAD v3.1.2, UK Biobank.
+  Full pipeline: variant calling, RNA-seq quantification, pathway analysis (KEGG,
+  Reactome), functional annotation, protein structure (RDKit). Deployable sequence
+  homology search: \href{https://vivid-symbolism.vercel.app/search}{vivid-symbolism.vercel.app/search}.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{Cancer Cell State and Disease Trajectory Computation.}
+  Eight oscillator classes (protein, enzyme, channel, membrane, ATP, genetic
+  expression, calcium, circadian) with coherence indices $\eta_i\in[0,1]$;
+  disease vector $\mathbf{D}\in[0,1]^8$; $\mathcal{O}(N\log N)$ trajectory
+  resolution; sparse $\ell_1$ LP for minimum-intervention therapeutic target
+  selection. Models cell fate transitions and metastatic progression as trajectory
+  completion problems.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Multi-Omics Mass Spectrometry Pipeline.}
+  Dual-pipeline: numerical MS1/MS2 analysis + visual CNN pipeline (PyTorch);
+  98.9\,\% accuracy against NIST library; Ray distributed computing;
+  $>$100\,GB mzML support. Virtual instrument with live forward simulation at
+  \href{https://lavoisier.vercel.app/experiment}{lavoisier.vercel.app/experiment};
+  Rust executable for local large-scale runs.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{helicopter}{
+  \textbf{Multi-Modal Microscopy Image Analysis.}
+  Sequential constraint exclusion across fluorescence, brightfield, phase-contrast,
+  and spectral modalities; twelve independent measurement channels; effective
+  sub-nanometre structural resolution. Applicable to imaging-based CRISPR screen
+  readout and tumour section analysis.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{shakespear}{
+  \textbf{Protein Analysis Instrument.}
+  Folding, trajectory, catalysis, and dynamics via Kuramoto oscillator synchronization
+  in S-entropy space. Applicable to oncoprotein structural analysis and cancer-associated
+  protein-state transitions. Browser-based, all computation client-side. Live:
+  \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}.
+  \href{https://github.com/fullscreen-triangle/shakespear}{github.com/fullscreen-triangle/shakespear}
+}
+
+\cvitem{honjo-masamune}{
+  \textbf{Categorical Cheminformatics.}
+  Zero-parameter GPU-accelerated molecular spectroscopy: vibrational modes, docking,
+  3D structure, fingerprints, molecular network analysis. S-entropy coordinate framework;
+  browser-side computation. Applicable to drug target characterisation and small-molecule
+  analysis. Live:
+  \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry data pipelines (peak detection, ion annotation, feature
+  engineering), multi-omics statistical modelling, federated learning for distributed
+  clinical analysis. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated proteomics and glycomics characterisation pipeline for LC-MS/MS and
+  MALDI-TOF data; protein identification and quantification.
+}
+
+\cventry{2019}{Bioprocess Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time process monitoring and ML-based optimisation for industrial
+  photobioreactors; dynamic programming, Python, C.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery; protocol
+  optimisation and statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Genomics / Bioinformatics}{
+  Variant calling (VCF, GATK), RNA-seq quantification (STAR, kallisto),
+  sequence alignment (BWA, Bowtie2), single-cell analysis (Seurat/Scanpy),
+  pathway analysis (KEGG, Reactome, GSEA), protein structure (RDKit, GROMACS),
+  CRISPR screen analysis (MAGeCK)
+}
+
+\cvitem{ML / Statistics}{
+  PyTorch, scikit-learn, XGBoost; CNNs, LSTMs, Transformers, Graph Neural Networks;
+  Bayesian networks, Gaussian mixture models, variational Bayes; survival analysis;
+  multi-omics dimensionality reduction (MOFA, UMAP, PCA)
+}
+
+\cvitem{Mass Spectrometry}{
+  LC-MS/MS, MALDI-TOF / MALDI MSI, UPLC-MS/MS, TIMS-PASEF, QTOF;
+  spectral library matching, metabolite and protein quantification
+}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript, Java, C, SQL, Bash}
+
+\cvitem{Infrastructure}{
+  Distributed computing (Ray, Dask), Docker, HPC (AWS, Azure), Git,
+  PostgreSQL, memory-mapped I/O for large-scale datasets, Snakemake / Nextflow
+}
+
+\cvitem{Data Formats}{
+  VCF, BAM, FASTQ, FASTA, mzML, mzXML, HDF5, AnnData
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living and working in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

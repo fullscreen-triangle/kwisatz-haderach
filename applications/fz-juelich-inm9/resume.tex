@@ -1,0 +1,183 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD Position, Simulations and Machine Learning Applied to Proteins
+% INM-9 Computational Biomedicine, Forschungszentrum Jülich
+% Ref. 2025D-126
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Mass spectrometry pipelines, high-dimensional spectral data analysis, multi-omics
+  statistical modelling, distributed ML. Departed to pursue independent computational
+  research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Molecular modelling, protein structure, computational biophysics, bioinformatics
+  pipeline development.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE — MOLECULAR PHYSICS AND ML
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{borgia}{
+  \textbf{First-Principles Molecular Spectroscopy and Force Fields.}
+  Derives electronic transitions, vibrational modes, absorption, and emission spectra
+  from bounded phase space geometry --- zero empirical parameters.
+  Triple Equivalence Theorem: oscillatory dynamics $=$ categorical state enumeration
+  $=$ partition operations; GPU shader formally equivalent to physical spectrometer.
+  Validated against NIST: nine elements, six molecules, self-consistency errors
+  $<$1.63\,\%. Provides parameter-free baseline for molecular force contributions
+  directly applicable to force field parameterisation.
+  Live: \href{https://honjo-masamune.vercel.app/tools}{honjo-masamune.vercel.app/tools}.
+  \href{https://github.com/fullscreen-triangle/borgia}{github.com/fullscreen-triangle/borgia}
+}
+
+\cvitem{shakespear}{
+  \textbf{Protein Conformation and Trajectory Analysis.}
+  Protein folding, trajectory, catalysis, and dynamics via Kuramoto oscillator
+  synchronization in S-entropy coordinate space $(S_k, S_t, S_e)\in[0,1]^3$.
+  Trajectory completion operator $T = P \circ B \circ K$ (Kirchhoff propagation,
+  backward Viterbi MAP, thermodynamic projection) is a Banach contraction:
+  unique fixed-point convergence to full conformational state.
+  Complements MD by reconstructing trajectories backward from endpoint states ---
+  applicable to folding pathway and transition-state characterisation.
+  Browser-based, GPU-accelerated. Live:
+  \href{https://shakespear-nine.vercel.app/instrument}{shakespear-nine.vercel.app/instrument}.
+  \href{https://github.com/fullscreen-triangle/shakespear}{github.com/fullscreen-triangle/shakespear}
+}
+
+\cvitem{purpose + homo-veloce}{
+  \textbf{Surrogate Models for Physics Solvers --- Backward Training Principle.}
+  Formal proof that training at the pure-intent regime (hardest, fully-resolved
+  instance) yields $\epsilon$-competence on all constrained sub-regimes by
+  feasibility inclusion, not generalisation.
+  Forward Training Collapse Theorem: provably positive VC failure gap for
+  easy-to-hard curriculum; Sample Complexity Theorem gives $(N{+}1)\times$ savings.
+  homo-veloce distils Gaussian process and GNN physics solvers into lightweight
+  1D CNNs, LSTMs, Transformers for real-time inference --- the same pattern
+  as learned interatomic potentials (NequIP, MACE, SchNet) for MD acceleration.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+
+\cvitem{crown-prince}{
+  \textbf{Geometric Pharmacology and Binding Affinity.}
+  Dissociation constants $K_d$ derived from bounded phase space geometry;
+  Hill equation as limiting case; PD/PK/ADME trajectories from partition structure.
+  Validated: 39/39 NIST compounds. Applicable to protein--ligand binding
+  free energy estimation without empirical docking parameters.
+  \href{https://github.com/fullscreen-triangle/crown-prince}{github.com/fullscreen-triangle/crown-prince}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Large-Scale Spectral Data Pipeline.}
+  Dual-pipeline MS analysis: numerical pipeline + CNN visual pipeline (PyTorch);
+  98.9\,\% NIST accuracy; Ray distributed computing; $>$100\,GB dataset support;
+  memory-mapped I/O, HDF5 structured output.
+  HPC compute allocation documentation for local cluster and federated configurations.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  First-principles molecular physics, surrogate model training, ML-accelerated
+  simulation frameworks, and large-scale spectral data pipelines. All systems
+  publicly documented and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry-based lipidomics: peak detection, ion annotation (LIPID MAPS,
+  LipidBlast), multi-omics statistical modelling, federated learning across
+  distributed clinical sites. Python, Java.
+}
+
+\cventry{2019}{Process Optimisation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time sensor data acquisition and ML-based optimisation for photobioreactors.
+  Dynamic programming, LP methods. Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{ML / Simulation}{
+  PyTorch; 1D CNNs, LSTMs, Transformers, GNNs; Gaussian processes;
+  knowledge distillation from physics solvers; surrogate model training;
+  variational Bayes; Bayesian networks; neural network interatomic potential
+  patterns (NequIP / MACE / SchNet architectures)
+}
+
+\cvitem{Computational Physics}{
+  Bounded phase space geometry; S-entropy coordinate system;
+  spectral analysis (DFT, Fourier methods); Kirchhoff circuit analogues;
+  Banach contraction mappings; first-principles molecular force fields;
+  protein conformation and free energy landscape analysis
+}
+
+\cvitem{HPC / Infrastructure}{
+  Ray, Dask; Python (primary), R, Rust, Bash, C;
+  memory-mapped I/O; HDF5, mzML; Docker, Kubernetes, FastAPI;
+  SLURM-compatible pipeline design; compute allocation proposals
+}
+
+\cvitem{Bioinformatics}{
+  Sequence analysis, variant calling, RNA-seq; LIPID MAPS, HMDB, NIST;
+  RDKit (cheminformatics); multi-omics integration
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

@@ -1,0 +1,175 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — AI & Medical Imaging Engineer, Bertrandt Erlangen
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	SUMMARY
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+
+\cvitem{}{
+  AI engineer with deep expertise in LLM integration, agentic AI system design, and
+  ML pipelines for biological and medical imaging data. One year of independent
+  production-quality software development; primary languages Python and TypeScript;
+  strong in PyTorch, distributed computing, and multi-modal data processing.
+  German work authorisation (Aufenthaltserlaubnis); immediately available.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	KEY PROJECTS
+%----------------------------------------------------------------------------------------
+
+\section{Selected Projects}
+
+\cvitem{zangalewa}{
+  \textbf{Autonomous AI Code-Workflow Platform.}
+  Runtime exception capture → LLM diagnosis → patch generation → git-isolated apply
+  → commit or rollback. Multi-LLM provider abstraction (Claude, OpenAI), token-usage
+  tracking, caching layer, diff viewer. Metacognitive layer detects recurring workflows
+  and proposes automation; adapts to user expertise level. Architecture directly
+  applicable to GenAI-powered clinical decision agents.
+  \href{https://github.com/fullscreen-triangle/zangalewa}{github.com/fullscreen-triangle/zangalewa}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Medical Imaging / Metabolomics ML Pipeline.}
+  Dual-pipeline architecture: numerical MS1/MS2 analysis enhanced with S-entropy
+  coordinate transformation; visual pipeline converting mass spectra into temporal
+  image sequences analysed by CNN (PyTorch). 98.9\% feature extraction accuracy
+  against NIST reference libraries. Distributed computing via Ray; memory-mapped I/O
+  for $>$100\,GB datasets; Docker containerisation.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{helicopter}{
+  \textbf{Multi-Modal Microscopy Image Analysis.}
+  Combines fluorescence, brightfield, phase-contrast, and spectral modalities through
+  sequential constraint exclusion. Twelve independent measurement modalities; effective
+  sub-nanometre structural resolution beyond optical limits. Directly applicable to
+  medical imaging disambiguation problems (CT, MRI, histology multi-modal fusion).
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+\cvitem{kwisatz-haderach}{
+  \textbf{VSCode Extension --- LLM Text Analysis Pipeline.}
+  Citation-intelligence extension with plugin architecture and LLM-backed analysis.
+  30-test TDD suite; caught silent Unicode corruption in regex via failing tests.
+  \href{https://github.com/fullscreen-triangle/kwisatz-haderach}{github.com/fullscreen-triangle/kwisatz-haderach}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Multi-Model RAG / Domain Expert Extraction System.}
+  8-stage metacognitive pipeline with adaptive model selection; hybrid LLM and
+  mathematical solver orchestration; Rust backend (10--50$\times$ speedup); FastAPI
+  + React frontend; Docker/Kubernetes deployment.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{AI / ML}{
+  PyTorch, scikit-learn; CNNs, Transformers, LSTMs, GNNs; LLM integration
+  (Claude API, OpenAI API); agentic AI system design; RAG pipelines;
+  prompt engineering; multi-model orchestration
+}
+
+\cvitem{Medical Imaging}{
+  Computer vision (OpenCV), multi-modal image fusion, spectral analysis,
+  mass spectrometry imaging; familiar with DICOM format; pipeline architecture
+  for clinical data workflows
+}
+
+\cvitem{Languages}{Python, TypeScript, Node.js, Rust, JavaScript, Python, Bash, SQL}
+
+\cvitem{Infrastructure}{
+  Docker, distributed computing (Ray, Dask), REST APIs, FastAPI, Vercel,
+  AWS Lambda, Git, PostgreSQL, Neo4j
+}
+
+\cvitem{Testing}{
+  TDD (Jest, PyUnit); 30+ test suites in production; CI/CD (GitHub Actions)
+}
+
+\cvitem{Note}{C\#/.NET: not currently in production use; TypeScript and Rust experience
+  provides strong typed-systems foundation for adoption}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{AI Software Developer}{Bitspark GmbH}{Self-directed}{}{
+  Independent development of production-quality AI tools: autonomous code-repair
+  pipelines, VSCode extensions, LLM orchestration layers, multi-modal data processing
+  frameworks. All systems designed with TDD discipline, multi-LLM provider support,
+  and deployment-ready containerisation.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry data pipeline development; federated learning architecture for
+  distributed clinical analysis. Python, Java.
+}
+
+\cventry{2019}{Bioprocess Automation}{Fraunhofer Institut IGB}{Stuttgart}{}{
+  Real-time data acquisition and ML-based optimisation for industrial photobioreactors.
+  Python, C.
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{In Germany since 2011; technical communication in German possible}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

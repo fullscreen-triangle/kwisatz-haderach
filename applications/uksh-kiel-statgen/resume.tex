@@ -1,0 +1,189 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wissenschaftlicher Mitarbeiter, Genetische Epidemiologie / Statistische Genetik
+% Institut für Medizinische Statistik, UKSH Kiel — Kennziffer 28393
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  Multi-omics statistical modelling, mass spectrometry pipelines, federated
+  learning across distributed clinical sites. Departed to pursue independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Statistical genetics, bioinformatics, sequence analysis, variant calling,
+  RNA-seq quantification, population genetics.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RELEVANT PUBLICATIONS
+%----------------------------------------------------------------------------------------
+
+\section{Relevant Manuscripts}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on Biological Systems.}
+  MHC binding affinity correlates with categorical richness ($r=0.73$, $p<10^{-12}$,
+  $n=2{,}847$ IEDB peptides). AUC 0.81 vs NetMHCpan 0.68.
+  \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver.}
+  Loop-holonomy self-consistency diagnostic; AUC$=1.00$; 25/25 validation experiments;
+  sparse $\ell_1$ LP for personalised therapeutic target selection.
+  \textit{Manuscript. AIMe Registry / TUM Weihenstephan.}
+}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  Eight-dimensional disease vector $\mathbf{D}\in[0,1]^8$; $\mathcal{O}(N\log N)$
+  trajectory computation; minimum-intervention LP for personalised risk management.
+  \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{gospel}{
+  \textbf{Genome-Wide Variant Analysis and Multi-Omics Integration.}
+  $10^6$ variants/second VCF processing; RNA-seq quantification integration;
+  Bayesian network inference and Gaussian mixture models for multi-omics
+  statistical modelling. Validated: 1000~Genomes Phase~3, gnomAD~v3.1.2,
+  UK~Biobank. Pathway analysis (KEGG, Reactome); protein structure (RDKit).
+  Applicable to polygenic score construction and familial genomic risk stratification.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{Individual-Level Disease Risk Prediction and Trajectory.}
+  Disease state vector $\mathbf{D}\in[0,1]^8$ across eight pathophysiological
+  dimensions (immune activation, barrier integrity, genetic load, epigenetic
+  state, etc.); per-dimension coherence indices $\eta_i\in[0,1]$ from
+  biomarker time-series. $\mathcal{O}(N\log N)$ trajectory to healthy attractor;
+  sparse $\ell_1$ LP for minimum-intervention therapeutic target selection.
+  Loop-holonomy self-consistency: AUC$=1.00$, 25/25 experiments.
+  Extends polygenic risk scores by integrating genetic risk load with
+  non-genetic pathophysiological components into a structured risk coordinate.
+  \href{https://github.com/fullscreen-triangle/syndrome}{github.com/fullscreen-triangle/syndrome}
+}
+
+\cvitem{lavoisier}{
+  \textbf{Large-Scale Multi-Omics Data Pipeline.}
+  Dual-pipeline spectral analysis: numerical + CNN (PyTorch); 98.9\,\% NIST
+  accuracy; Ray distributed; $>$100\,GB dataset support; memory-mapped I/O.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI \& Computational Biology Developer}{Bitspark GmbH}{}{}{
+  Genomic analysis frameworks, multi-omics integration, disease risk prediction
+  models, statistical methods for high-dimensional biological data. All systems
+  publicly documented and validated.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass spectrometry-based lipidomics: peak detection, ion annotation (LIPID MAPS,
+  LipidBlast), multi-omics statistical modelling, federated learning for
+  distributed clinical analysis. Python, Java.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{}{}{
+  Automated LC-MS/MS and MALDI-TOF pipeline development; sample preparation;
+  reproducibility validation; SOP development.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{}{}{
+  UPLC-MS/MS shotgun proteomics for cancer biomarker discovery; statistical
+  validation against reference standards.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Statistical Genetics}{
+  Genome-wide variant analysis (VCF, PLINK format); population structure
+  (PCA, admixture); polygenic score methodology (C+T, Bayesian shrinkage,
+  continuous shrinkage priors); Bayesian networks for genomic co-occurrence;
+  linkage disequilibrium modelling; familial/pedigree data structures;
+  mixed-effects models for correlated observations
+}
+
+\cvitem{Statistical Methods}{
+  Bayesian networks; variational Bayes; Gaussian mixture models;
+  sparse $\ell_1$ regularisation (LP); graph Laplacian methods;
+  Banach contraction / fixed-point theory; survival analysis; GLMs
+}
+
+\cvitem{Languages}{
+  R (primary for statistical modelling), Python (data processing, ML pipelines),
+  Rust, Bash, SQL
+}
+
+\cvitem{Genomic Data}{
+  VCF, FASTQ, BAM; PLINK bed/bim/fam; gnomAD, 1000~Genomes, UK~Biobank;
+  KEGG, Reactome, GSEA pathway analysis; LIPID MAPS, HMDB
+}
+
+\cvitem{Infrastructure}{
+  Ray, Dask, Docker, FastAPI; memory-mapped I/O for large datasets;
+  HDF5, mzML; Git
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{Living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

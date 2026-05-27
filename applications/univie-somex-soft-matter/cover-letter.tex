@@ -1,0 +1,155 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Roberto Cerbino \\
+Soft Matter Experiments (SoMeX) Lab \\
+Faculty of Physics \\
+University of Vienna \\
+\texttt{roberto.cerbino@univie.ac.at} \\
+Job-ID: 5570
+
+\vspace{1.5em}
+
+\textbf{Re: University Assistant (predoctoral) --- Soft Matter / Biophysics (Job-ID 5570)}
+
+\vspace{1em}
+
+Dear Prof.\ Cerbino,
+
+I am writing to apply for the predoctoral position in the SoMeX Lab (Job-ID 5570).
+My background is computational biology and first-principles physical modelling
+rather than experimental soft matter physics, and I want to be direct about what
+that means for this application: I have developed validated frameworks for fluid
+dynamics, optical physics, and biological collective motion that sit inside the
+lab's core research areas --- rheology and microscopy-based dynamics --- but I
+have not operated a rheometer or built a DDM acquisition pipeline.
+The case I want to make is that the theoretical and computational work I bring
+is a genuine complement to the experimental programme, not a substitute for it.
+
+\textbf{First-principles fluid dynamics and rheology.}
+The SoMeX Lab's primary experimental method for characterising soft matter
+is rheology: measuring how yield stress fluids, colloidal suspensions, and
+biological gels flow and deform under applied stress.
+The \href{https://gas-giant.vercel.app/simulate}{Gas Giant} framework I
+developed derives fluid dynamics --- kinetic theory, Navier-Stokes, viscosity,
+and diffusion --- from a single axiom (bounded phase space geometry) via
+Kirchhoff circuit laws, with zero empirical parameters.
+The key result for rheology:
+viscosity is $\mu = \tau_c \times g$ (partition lag $\tau_c$ times coupling
+strength $g$), where both quantities are derived from the spectral structure
+of the system's phase space rather than fitted to experimental data.
+Validated: viscosity 2.9\,\% MAE across 12 pure liquids; Poiseuille flow
+0.9\,\% mean error; adiabatic expansion 0.1--0.3\,\% error; all at zero
+empirical parameters.
+The framework also provides a first-principles account of the yielding
+transition: in a yield stress fluid, the yield stress $\sigma_y$ corresponds
+to the partition floor at which the ordered phase of the bounded oscillatory
+system breaks down irreversibly --- a phase transition in the spectral structure,
+not an empirical threshold.
+For the lab's programme on yield stress fluids and colloidal glasses, this
+gives a predictive framework for rheological properties from molecular structure
+that complements rheometric measurements: the model predicts what the rheometer
+should measure before the experiment is run, and the measurement validates or
+corrects the theoretical partition structure.
+
+\textbf{Optical physics and DDM analysis.}
+Differential Dynamic Microscopy extracts dynamic information from microscopy
+movies by computing the image structure function $D(\mathbf{q}, \Delta t)$
+across a range of wave vectors and lag times. The physical content of $D$
+depends on the optical transfer function of the microscope and the light-matter
+interaction in the sample.
+The \href{https://github.com/fullscreen-triangle/lagrangian}{Lagrangian}
+framework proves Beer-Lambert absorption, Kirchhoff circuit laws, and thermal
+emission as formally identical operations (Resonant Stack theorem;
+transmittance $T = 1/e = 0.3679$ in all representations). This provides a
+first-principles model of the optical signal in a DDM experiment: the image
+contrast that encodes particle dynamics is governed by the same partition
+geometry that governs bulk absorption.
+At a practical level, the \href{https://github.com/fullscreen-triangle/helicopter}{Helicopter}
+platform implements multi-modal microscopy analysis combining fluorescence,
+brightfield, phase-contrast, and spectral channels through sequential
+constraint exclusion --- a framework directly applicable to building analysis
+pipelines for the lab's spinning-disk and wide-field DDM acquisition systems.
+I write instrument control and image analysis code in Python; the lab's
+open-source fastDDM code base is the kind of project I would contribute to
+and extend.
+
+\textbf{Active matter and biological collective dynamics.}
+The SoMeX Lab's work on cellular dynamics and bacterial collectives addresses
+the same physical problem as the
+\href{https://github.com/fullscreen-triangle/olduvai}{Olduvai} framework:
+how do collective biological motion patterns arise from the local coupling
+rules of individual constituents?
+Olduvai's axiom is $\oint \mathbf{J}\cdot d\mathbf{A} = 0$ --- zero net
+current through any closed surface in the biological motion field.
+From this single conservation law, the framework derives: the decomposition
+of biological motion into supraspinal and peripheral components (validated
+against 86 nights of wearable sensor data, AUC\,=\,1.00 for Parkinson's /
+ataxia / healthy classification); charge conservation rates $Q_\mathrm{motor}
+= 290.9\,\mathrm{mC/s}$ and $Q_\mathrm{thought} = 133.5\,\mathrm{mC/s}$
+from first principles.
+The same conservation law structure applies to bacterial collective motion:
+the current field $\mathbf{J}$ is the velocity field of the bacterial colony,
+and the constraint $\oint \mathbf{J}\cdot d\mathbf{A} = 0$ is the topological
+condition for closed-circuit collective motion patterns.
+This provides a theoretical framework for connecting DDM-measured intermediate
+scattering functions $f(\mathbf{q}, \Delta t)$ in bacterial suspensions to
+the underlying conservation laws of the collective dynamics.
+
+\textbf{Programming and data analysis.}
+I work primarily in Python, with Rust for performance-critical components.
+My framework implementations include instrument-level interfacing, large-scale
+data pipeline construction (Ray distributed, $>$100\,GB datasets),
+GPU-accelerated computation (WebGPU, compute shaders), and image analysis
+(multi-modal microscopy fusion, CNN-based feature extraction).
+MATLAB I have used less extensively but can learn quickly in the context
+of DDM analysis.
+
+\textbf{Background and research proposal.}
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc
+in Pharmaceutical Biotechnology (HAW Hamburg), and I completed doctoral
+research in Computational Lipidomics at TUM. My degree titles are not
+Physics, but the physical content of the first-principles frameworks I have
+built --- bounded phase space geometry, Kirchhoff circuit laws, Banach
+contraction mappings on thermodynamic manifolds --- is the core theoretical
+language of soft matter physics applied in a different domain context.
+I have attached a two-page research proposal outlining a programme of
+work connecting the Gas Giant viscosity framework and the Lagrangian optical
+physics model to DDM-measured rheological dynamics in model soft matter
+systems (Carbopol yield stress gels, colloidal hard-sphere suspensions).
+I hold two academic referees available on request.
+I am legally resident in Germany with full work authorisation and can
+relocate to Vienna for the June 2026 start date.
+English is native.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

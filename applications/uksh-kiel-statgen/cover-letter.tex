@@ -1,0 +1,138 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Astrid Dempfle \\
+Institut für Medizinische Statistik \\
+Universitätsklinikum Schleswig-Holstein (UKSH) \\
+Christian-Albrechts-Universität zu Kiel \\
+Kennziffer 28393
+
+\vspace{1.5em}
+
+\textbf{Re: Wissenschaftlicher Mitarbeiter (m/w/d) --- Genetische Epidemiologie /
+Statistische Genetik (Kennziffer 28393)}
+
+\vspace{1em}
+
+Dear Prof.\ Dempfle,
+
+I am applying for the position in genetic epidemiology and statistical genetics
+at IMS (Kennziffer 28393), in the DFG project on polygenic risk prediction for
+individuals with elevated familial IBD risk.
+My background spans genome-wide genomic data analysis validated on large
+population cohorts, statistical methodology for individual-level disease risk
+prediction, and multi-omics integration --- covering the quantitative and
+computational requirements the position describes.
+I note that the position lists fluent German; mine is conversational rather
+than fluent, and I flag this transparently.
+
+\textbf{Genomic data analysis at population scale.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+processes genome-wide variant data at $10^6$ variants per second, integrates
+RNA-seq quantification alongside genomic data, and applies Bayesian network
+inference and Gaussian mixture models for multi-omics statistical modelling.
+Validated against 1000~Genomes Phase~3, gnomAD~v3.1.2, and UK~Biobank;
+covers the full pipeline from VCF variant processing through pathway analysis
+(KEGG, Reactome) to functional annotation.
+The statistical models --- Bayesian networks for genomic variant co-occurrence,
+variational Bayes for latent component decomposition, GMMs for population
+structure --- are directly applicable to polygenic score construction and
+familial risk stratification: they provide a probabilistic framework for
+combining many weak genetic signals into a coherent individual-level risk
+estimate, which is precisely what the DFG project requires.
+
+\textbf{Individual-level disease risk prediction and structured risk scores.}
+Beyond standard polygenic score methodology, I have developed a complementary
+approach to individual disease risk prediction in the
+\href{https://github.com/fullscreen-triangle/syndrome}{Syndrome} framework.
+Disease state is represented as a vector $\mathbf{D}\in[0,1]^8$ across eight
+pathophysiological dimensions, each with a per-dimension coherence index
+$\eta_i\in[0,1]$ derived from biomarker time-series regularity.
+The framework locates the patient's current state in a partition geometry on
+the $[0,1]^8$ hypercube and computes an $\mathcal{O}(N\log N)$ trajectory
+to the healthy attractor; therapeutic target selection uses sparse $\ell_1$
+linear programming to identify the minimum intervention set.
+For IBD specifically, the eight dimensions map naturally to the distinct
+pathophysiological components of disease risk --- mucosal barrier integrity,
+immune cell activation, microbial community structure, stress-response axis,
+genetic susceptibility load, epigenetic modification state, cytokine balance,
+and circadian regulatory coherence.
+A polygenic risk score for IBD captures the genetic susceptibility dimension;
+the $\mathbf{D}\in[0,1]^8$ representation integrates it with the remaining
+seven dimensions into a single structured risk coordinate.
+This is a methodological contribution to the project's aim of risk prediction
+in familial settings, where both genetic load and shared environmental factors
+are elevated: the framework naturally accommodates non-additive interactions
+between genetic and non-genetic risk components that standard linear PRS cannot
+represent.
+A companion paper proves that loop-holonomy self-consistency is the unique
+viable disease diagnostic criterion for this framework, achieving AUC$\,=1.00$
+in 25/25 validation experiments.
+
+\textbf{Family data and pedigree-based methods.}
+The statistical challenge specific to familial IBD risk prediction is that the
+units of analysis are correlated --- family members share genetic background and
+often shared environment --- which violates the independence assumptions of
+standard GWAS-derived PRS.
+My statistical training covers the relevant methodological territory:
+mixed-effects models for correlated data, Bayesian hierarchical models for
+shared latent structure, and graph-based methods (Kirchhoff circuit laws on
+correlation graphs, analogous to kinship matrix eigendecomposition in
+linear mixed models) for capturing the dependency structure.
+The Gospel framework's Bayesian network layer handles graphical dependency
+structures of arbitrary topology, which extends naturally to pedigree graphs.
+
+\textbf{Programming and statistical software.}
+I work primarily in Python and R. For statistical genetics specifically,
+I have used the standard genomic data formats (VCF, PLINK bed/bim/fam)
+and reference databases (gnomAD, 1000~Genomes, UK Biobank) in the Gospel
+framework. I am familiar with the PRS methodology landscape (clumping and
+thresholding, Bayesian shrinkage approaches such as LDpred, continuous
+shrinkage priors) from the literature, though my own implementations use
+Bayesian network and variational Bayes approaches rather than PLINK-based
+pipelines.
+R is my primary language for statistical modelling; Python for data processing
+and ML pipeline construction.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) covering
+statistical genetics and bioinformatics, an MSc in Pharmaceutical Biotechnology
+(HAW Hamburg), and a BSc in Biochemistry and Cell Biology (Jacobs University
+Bremen). I conducted doctoral research in Computational Lipidomics at TUM,
+covering multi-omics statistical modelling, federated learning for distributed
+clinical analysis, and large-scale spectral data pipelines.
+I am legally resident in Germany with full work authorisation.
+I am available immediately and willing to relocate to Kiel.
+German is conversational; I am working to improve it actively.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

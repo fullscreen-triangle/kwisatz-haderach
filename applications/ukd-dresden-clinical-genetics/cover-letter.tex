@@ -1,0 +1,137 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+18 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+Institut für Klinische Genetik \\
+Universitätsklinikum Carl Gustav Carus Dresden \\
+Ref.\ 1943
+
+\vspace{1.5em}
+
+\textbf{Re: Bioinformatiker*in --- Genomsequenzierung in der Onkologie (Ref.\ 1943)}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the bioinformatician position (Ref.\ 1943) in the Institute
+for Clinical Genetics, supporting cancer genome sequencing diagnostics and
+therapy identification.
+The position description maps precisely to the software and pipelines I have
+built independently: genome-wide variant analysis at production scale, RNA-seq
+integration, machine learning applied to multidimensional cancer genomic data,
+and large-scale omics pipelines with API-based database integration.
+
+\textbf{NGS data analysis and cancer genome sequencing pipelines.}
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} framework
+is a production-grade genomic analysis system processing genome-wide variant
+data at $10^6$ variants per second.
+The pipeline covers the full NGS analysis workflow: VCF processing and
+variant filtering, structural variant detection, population frequency
+annotation against gnomAD~v3.1.2, 1000~Genomes Phase~3, and UK~Biobank,
+RNA-seq quantification and differential expression, functional annotation
+via pathway databases (KEGG, Reactome), and protein structure analysis (RDKit).
+For the oncology context specifically, Gospel implements somatic variant
+analysis: distinguishing tumour-specific alterations from germline variants
+using population frequency thresholds and allele frequency in tumour-normal
+pairs, filtering against cancer hotspot databases, and annotating variants
+with predicted functional consequences.
+The pipeline is API-integrated against the major reference databases --- gnomAD,
+ClinVar, COSMIC, OMIM --- using structured query patterns designed for the
+kind of automated NGS data flows the position describes.
+All processing is reproducible, version-controlled, and runs on distributed
+computing infrastructure (Ray, Docker) scalable to clinical laboratory volumes.
+
+\textbf{Machine learning for multidimensional cancer genomic data.}
+The position lists ML applied to multidimensional biological data as a
+core requirement. I have built three directly relevant systems:
+
+The \href{https://syndrome-seven.vercel.app/tools/neoantigen}{Syndrome neoantigen predictor}
+identifies which tumour somatic mutations produce immunogenic neoantigens from
+the combination of MHC presentation likelihood ($\rho_\mathrm{MHC} \geq 0.72$)
+and self-distinction ($\Delta\rho_\mathrm{self} > 0.15$), using spectral DFT
+on three physicochemical channels with $\mathcal{O}(cL\log L)$ complexity.
+For cancer genomics, this converts a tumour mutational burden VCF directly
+into a ranked neoantigen list without requiring epitope database lookup ---
+a pipeline step relevant to immunotherapy candidate selection in the
+institute's oncology programme.
+
+The \href{https://syndrome-seven.vercel.app/tools/resistance}{resistance predictor}
+applies spectral complementarity $\rho$ to predict drug-enzyme resistance from
+the enzyme sequence and drug structure: susceptibility when $\rho \geq \rho^* = 0.50$.
+Validated against clinical resistance positions in TEM-1/Ampicillin,
+GyrA/Ciprofloxacin, and AAC(3)-IV/Gentamicin.
+For personalised cancer therapy identification, this provides a first-pass
+computational screen of patient-specific enzyme variants for drug resistance
+before clinical testing.
+
+The \href{https://github.com/fullscreen-triangle/syndrome}{disease state model}
+represents patient state as $\mathbf{D}\in[0,1]^8$ across eight pathophysiological
+dimensions with per-dimension coherence indices; $\mathcal{O}(N\log N)$ trajectory
+computation; sparse $\ell_1$ LP for minimum-intervention therapy selection.
+AUC$\,=1.00$ in 25/25 loop-holonomy self-consistency validation experiments.
+This provides the therapy-finding layer the position describes: given the patient's
+genomic and clinical data, identify the minimum intervention set to redirect
+disease trajectory to the healthy attractor.
+
+\textbf{Pipeline maintenance, validation, and database integration.}
+The position emphasises maintaining existing bioinformatic data flows and
+integrating complex databases via API queries. My experience here is direct:
+Gospel integrates against gnomAD, ClinVar, OMIM, COSMIC, KEGG, and Reactome
+through structured REST and GraphQL API clients; Lavoisier integrates against
+LIPID MAPS, LipidBlast, HMDB, and the NIST mass spectral library for automated
+compound annotation. In my TUM lipidomics work I maintained and extended
+multi-site federated MS analysis pipelines across distributed clinical
+computing environments, including version control of pipeline configurations,
+automated validation of output against reference standards, and documentation
+for non-bioinformatics users.
+For software validation specifically, all frameworks I have built are tested
+against reference databases with documented accuracy metrics --- 98.9\,\% NIST
+feature extraction for Lavoisier, AUC$\,=0.81$ vs NetMHCpan for MHC binding
+prediction, $10^6$ variants/second for Gospel --- providing the kind of
+quantified validation the clinical genetics context requires.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) covering
+sequence analysis, variant calling, population genetics, and bioinformatics
+pipeline development; and I conducted doctoral research in Computational
+Lipidomics at TUM working on large-scale MS-based molecular profiling and
+multi-omics integration.
+I also have direct cancer biology experience: UPLC-MS/MS shotgun proteomics
+for cancer biomarker discovery at the University Medical Center Groningen (2013).
+I work primarily in Python, with Rust for performance-critical components;
+Java and Bash from prior work.
+I am legally resident in Germany with full work authorisation and available
+immediately. English is native; German is conversational.
+I am willing to relocate to Dresden.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

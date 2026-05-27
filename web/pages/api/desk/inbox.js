@@ -32,10 +32,6 @@ export default async function handler(req, res) {
       if (cached) return res.json(cached);
     }
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      return res.json({ error: 'not_configured', emails: [] });
-    }
-
     try {
       const raw = await fetchInboxEmails(14);
       const emails = raw.map(email => ({

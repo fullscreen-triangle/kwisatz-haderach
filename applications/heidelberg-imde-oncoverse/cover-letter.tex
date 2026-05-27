@@ -1,0 +1,155 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+20 May 2026
+\end{flushright}
+
+\vspace{1em}
+
+PD Dr.\ Markus Herrmann \\
+Institut für Medizin- und Datenethik (IMDE) \\
+Medizinische Fakultät, Universität Heidelberg \\
+Tiergartenstraße 15, 69121 Heidelberg \\
+Job-ID: V000015525
+
+\vspace{1.5em}
+
+\textbf{Re: Wissenschaftliche*r Mitarbeiter*in, KI- und Datenethik in der Medizin ---
+ONCOverse (V000015525)}
+
+\vspace{1em}
+
+Dear PD Dr.\ Herrmann,
+
+I am applying for the research position in AI and data ethics in medicine (V000015525)
+in the ONCOverse project.
+My background is unusual for an ethics position: I am a computational biologist who
+has spent four years building, deploying, and validating AI diagnostic systems for
+oncology and immunopeptidology.
+I am applying because I believe the gap this project most needs filled is not
+between philosophy and medicine, but between the engineers building ONCOverse's
+AI models and the ethics team advising them.
+That gap requires someone who has sat on both sides.
+
+\textbf{I build the systems being evaluated.}
+The ONCOverse AI layer will include diagnostic models for pancreatic cancer
+characterisation, prognostic tools that combine multi-omics and clinical data,
+and a VR-mediated patient--physician interface generating interaction data.
+Ethicists who arrive from philosophy encounter these systems from the outside:
+they can critique stated design goals, but the actual ethical risks are buried in
+implementation choices that require technical fluency to identify.
+I have built directly analogous systems.
+The \href{https://syndrome-seven.vercel.app/tools}{Syndrome} framework performs
+neoantigen identification, MHC binding prediction (AUC\,$0.81$, validated on 2,847
+IEDB peptides), immune escape scoring, and cancer disease state characterisation
+via a vector $\mathbf{D}\in[0,1]^8$ with explicit immune activation ($D_\mathrm{Imm}$)
+and barrier integrity ($D_\mathrm{Bar}$) dimensions.
+The \href{https://github.com/fullscreen-triangle/crown-prince}{Crown Prince} framework
+derives pharmacokinetic and pharmacodynamic trajectories from molecular structure alone,
+validated at 39/39 against NIST, with therapeutic target identification from
+first-principles geometry.
+From building these tools I know precisely where the ethical problems arise in
+clinical AI: not in the headline claims, but in training data composition,
+threshold selection, population generalisability, and the gap between validation
+cohort and deployment context.
+
+\textbf{What ``explainability'' actually requires.}
+The dominant ethics critique of clinical AI is the black-box problem.
+Most ethics guidelines respond with procedural requirements (document the training
+data, provide SHAP values) that are technically satisfiable without producing
+genuinely auditable systems.
+I have built AI tools that are auditable in a stronger sense: the Syndrome
+framework uses 3-channel discrete Fourier transforms on amino acid physicochemical
+properties, with zero free parameters trained on patient data.
+Every prediction is a geometric operation on a known mathematical space,
+reproducible from the algorithm alone, independent of the training cohort.
+The disease state vector $\mathbf{D}$ is a first-principles normative construct
+(not a learned embedding), so its axes carry interpretable meaning that can be
+communicated to patients and clinicians.
+Translating this experience into ONCOverse ethics guidelines: I can specify what
+``explainability'' means technically and write requirements that engineers can
+implement rather than satisfy procedurally.
+
+\textbf{Equitable access to ONCOverse innovations.}
+The Syndrome toolkit runs in a browser (WebGPU, no server infrastructure required)
+and occupies 50\,MB compared to DrugBank's 12\,GB.
+This design choice was deliberate: computational diagnostic tools that require
+GPU cluster infrastructure are equitable only within institutions that can afford
+the infrastructure.
+Access justice in the ONCOverse context will require similar analysis ---
+not just whether the AI model performs equitably across demographic groups
+(algorithmic fairness in the standard sense), but whether the delivery
+infrastructure systematically excludes the institutions and patients who
+most need it.
+I have direct experience quantifying that gap from the design side.
+
+\textbf{Multi-site data governance and patient data ethics.}
+The ONCOverse project pools data from numerous university hospitals.
+The \href{https://github.com/fullscreen-triangle/gospel}{Gospel} pipeline
+I built handles federated multi-omics inference across independent sites:
+host genotype, metagenomics, and transcriptomics as a joint Bayesian graph,
+validated against 1000~Genomes, gnomAD, and UK~Biobank.
+From this I understand concretely what data actually flows in multi-site
+clinical AI studies: which fields are re-identifiable, where pseudonymisation
+fails, and what the practical constraints on consent architecture are
+given the analysis methods being used.
+The VR patient networking component of ONCOverse raises additional ethics
+questions --- identity disclosure, interaction data retention, therapeutic
+context of patient--patient connection --- that are distinct from
+standard clinical trial data ethics.
+I have analysed analogous security and privacy questions in the context
+of distributed AI systems and can bring that analysis to the ONCOverse context.
+
+\textbf{Normative frameworks for clinical AI.}
+My research applies formal mathematical structures to biomedical problems,
+which requires explicit normative commitments at every modelling decision:
+what counts as disease (the $\mathbf{D}$ vector definition),
+what counts as a valid therapeutic target (the sparse $\ell_1$ selection criterion),
+what precision is sufficient for a diagnostic claim.
+These are ethics decisions embedded in computational form.
+Writing ethics guidelines for ONCOverse's AI technologies is in part
+the inverse problem: extracting the normative commitments that are already
+implicit in the technical design, making them explicit, and evaluating
+whether they are justifiable.
+I am equipped to do that work precisely because I have made those decisions
+from the inside.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen), an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and a BSc in Biochemistry and
+Cell Biology (Jacobs University Bremen).
+I conducted doctoral research in Computational Lipidomics at TUM / Bayerisches
+Forschungsinstitut (2019--2021) before transitioning to independent research.
+I have lived and worked in Germany continuously since 2011.
+English is native; German is conversational.
+
+I am available from 1 July 2026 and welcome the opportunity to discuss
+how this background can contribute to the ONCOverse ethics work.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}
