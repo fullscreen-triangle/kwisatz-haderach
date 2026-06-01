@@ -40,8 +40,12 @@ export default function Desk() {
     fetch('/api/desk/academic').then(r => r.json()).then(setAcademic).catch(() => {});
   }, []);
 
-  const alerts   = deriveAlerts(docs);
-  const today    = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const [today, setToday] = useState('');
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
+
+  const alerts = deriveAlerts(docs);
 
   const expiredDocs     = Object.values(docs || {}).filter(d => d.urgency === 'expired' || d.urgency === 'overdue').length;
   const activeJobs      = (jobs  || []).filter(j => !['rejected','withdrawn'].includes(j.status)).length;
@@ -89,6 +93,22 @@ export default function Desk() {
       stat:    '63 repos',
       urgent:  false,
       color:   '#fb923c',
+    },
+    {
+      href:    '/desk/travel',
+      title:   'Travel',
+      sub:     'DB HAFAS · trip planner · live trains',
+      stat:    '— upcoming',
+      urgent:  false,
+      color:   '#60a5fa',
+    },
+    {
+      href:    '/desk/groceries',
+      title:   'Groceries',
+      sub:     'Rewe · Kaufland · Penny · Amazon',
+      stat:    '— optimize list',
+      urgent:  false,
+      color:   '#34d399',
     },
   ];
 

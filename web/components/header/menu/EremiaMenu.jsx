@@ -11,6 +11,9 @@ const menuContent = [
     {name: "Jobs",      href: "/desk/jobs"},
     {name: "Academic",  href: "/desk/academic"},
     {name: "Repos",     href: "/desk/repos"},
+    {name: "Travel",    href: "/desk/travel"},
+    {name: "Groceries", href: "/desk/groceries"},
+    {name: "Landing",   href: "/landing"},
 ];
 
 const EremiaMenu = ({hamburger}) => {
@@ -30,7 +33,7 @@ const EremiaMenu = ({hamburger}) => {
 
     return (
         <Navbar hamburger={hamburger}>
-            <Navbar.Brand href={"/"} transitionPage={{title: "Eremia"}}>
+            <Navbar.Brand href={"/"} transitionPage={{title: "FT"}}>
                 <Logo width="75px" height="auto"/>
             </Navbar.Brand>
 

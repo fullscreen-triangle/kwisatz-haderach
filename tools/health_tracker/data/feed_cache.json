@@ -1,0 +1,133 @@
+{
+  "_ts": 1779949641.4419973,
+  "items": [
+    {
+      "title": "A scutum-focused deep learning pipeline for species-level identification of Aedes aegypti and Aedes albopictus from citizen-science images",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.24.727056v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Background. Mosquito-borne diseases transmitted by Aedes aegypti and Aedes albopictus, including dengue, Zika, chikungunya, and yellow fever, depend critically on rapid and accurate vector identification. Although deep l",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "Fast Set Operations for Compact k-mer Sets",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.24.727514v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "The k-mer spectrum of a set of sequences is the set of k-length substrings the sequences contain. This lossy representation of sequence content pervades modern genomics. Recently, the spectral Burrows-Wheeler transform (",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "STID: A Standardized Spatial Transcriptomic Analysis Framework for Infectious Diseases",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.24.727492v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Spatial transcriptomic studies of infectious diseases still rely on fragmented data analysis processes. Here, we developed STID, a standardized framework for spatial transcriptomic analysis of infectious diseases that le",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "Annotation-free sequence-level multimodal graph learning reveals gut microbiome signatures of atherosclerotic cardiovascular disease",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.24.727482v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Background: Atherosclerotic cardiovascular disease (ACVD) remains one of the leading causes of mortality, and the gut microbiome has been implicated in ACVD-related metabolic and inflammatory processes. However, current",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "Ordered Gromov-Hausdorff Metric: A New Tool for Comparative Analysis of Protein Structures",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.23.727377v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Motivation: Classical protein structure comparison metrics such as RMSD and TM-score effectively assess geometric similarity but ignore the linear order of amino acid residues (Zhang and Skolnick, 2004). The Gromov Hausd",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "growthcurves: User-friendly tools for quality-controlled cellular growth analysis",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.23.727125v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Biological growth curves are widely used but inconsistently analyzed due to fragmented workflows and limited quality control. We present growthcurves, a Python package for extracting growth parameters, and two open-sourc",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "ATLAS: a scverse-compatible package for multi-omic single-cell trajectory inference integration",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.23.727175v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Single-cell trajectory inference is widely used to study cellular differentiation and fate decisions, yet most existing approaches rely on transcriptomic information alone, limiting their ability to capture the regulator",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "Slivka and Slivka-bio: a lightweight framework for presenting executables as web services and its application in bioinformatics.",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.23.727389v1?rss=1",
+      "published": "2026-05-27",
+      "summary": "Motivation. Execution of code is critical for computational biology, but technical requirements can prevent others from running it. Public web-apps and services thus remain the most effective way to make code accessible,",
+      "source": "bioRxiv \u00b7 bioinformatics",
+      "color": "#fbbf24"
+    },
+    {
+      "title": "Author Correction: Modelling late gastrulation in stem cell-derived monkey embryo models",
+      "link": "https://www.nature.com/articles/s41586-026-10700-7",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10700-7\">doi:10.1038/s41586-026-10700-7</a></p>Author Correction: Modelling late gastrulation in stem cell-derived monkey embr",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Author Correction: Satellite megaconstellations will threaten space-based astronomy",
+      "link": "https://www.nature.com/articles/s41586-026-10553-0",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10553-0\">doi:10.1038/s41586-026-10553-0</a></p>Author Correction: Satellite megaconstellations will threaten space-based astro",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Could a pill prevent the world\u2019s deadliest cancer?",
+      "link": "https://www.nature.com/articles/d41586-026-01382-2",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/d41586-026-01382-2\">doi:10.1038/d41586-026-01382-2</a></p>\u2018Interception\u2019 drug trials hope to stop lung cancer before it starts.",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Bohmian mechanics remains unchallenged by tunnelling experiment",
+      "link": "https://www.nature.com/articles/s41586-026-10450-6",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10450-6\">doi:10.1038/s41586-026-10450-6</a></p>Bohmian mechanics remains unchallenged by tunnelling experiment",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "\u03b2-Arrestin condensates regulate G-protein-coupled receptor function",
+      "link": "https://www.nature.com/articles/s41586-026-10539-y",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10539-y\">doi:10.1038/s41586-026-10539-y</a></p>\u03b2-Arrestins, multifunctional adaptor proteins that regulate G-protein-coupled r",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Human haematopoietic stem cells remember inflammatory stress",
+      "link": "https://www.nature.com/articles/s41586-026-10522-7",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10522-7\">doi:10.1038/s41586-026-10522-7</a></p>Using xenograft inflammation\u2013recovery models and single-cell multiomics, a haem",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Darkness and body size shaped end-Cretaceous marine extinction patterns",
+      "link": "https://www.nature.com/articles/s41586-026-10541-4",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10541-4\">doi:10.1038/s41586-026-10541-4</a></p>Trait-based ecosystem modelling shows that impact-driven darkness and body-size",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    },
+    {
+      "title": "Sparse-to-dense coding transformation between hippocampal areas CA3 and CA1",
+      "link": "https://www.nature.com/articles/s41586-026-10537-0",
+      "published": "2026-05-27",
+      "summary": "<p>Nature, Published online: 27 May 2026; <a href=\"https://www.nature.com/articles/s41586-026-10537-0\">doi:10.1038/s41586-026-10537-0</a></p>The hippocampus exhibits a CA3-to-CA1 coding transformation that combines fast",
+      "source": "Nature \u00b7 news",
+      "color": "#a78bfa"
+    }
+  ]
+}
