@@ -1,0 +1,117 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — PROCESS / WORKFLOW AUTOMATION track (quick applications)
+% Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Automation engineer: reproducible data and computational pipelines,
+workflow orchestration, and agentic multi-step automation --- from script to
+deployed system.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  I automate complex computational and scientific workflows end to end:
+  reproducible data pipelines, distributed orchestration, code-generation tools,
+  and agentic multi-agent systems that carry out multi-step tasks. From script to
+  deployed, monitored system.
+}
+
+\section{Technical Skills}
+\cvitem{Pipeline automation}{
+  Reproducible, automated data-processing pipelines (ingestion $\rightarrow$
+  processing $\rightarrow$ output); built-in validation and benchmarking
+}
+\cvitem{Workflow orchestration}{
+  Ray, Dask, SLURM; Docker, Kubernetes; FastAPI; distributed scheduling and
+  execution
+}
+\cvitem{Agentic / task automation}{
+  Multi-agent orchestration; tool / LLM delegation; automated retrieval and
+  reasoning pipelines
+}
+\cvitem{Code generation}{
+  Domain-specific languages and compilers that emit and run code in other
+  languages (GLSL, JavaScript, Python)
+}
+\cvitem{Scripting / programming}{
+  Python (primary), Rust, Bash, TypeScript, SQL
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Automation \& Software Engineer}{Bitspark GmbH}{}{}{
+  Built automated pipelines, distributed orchestration systems, code-generation
+  tools, and agentic task-automation systems; all deployed and documented.
+}
+\cventry{2019--2021}{Computational Science --- Pipelines \& HPC}{Technische Universität München}{Munich}{}{
+  Automated high-throughput data pipelines at HPC scale; SLURM-based distributed
+  execution; reproducible workflows over $>$100\,GB datasets.
+}
+\cventry{2017--2018}{Data Pipeline Automation}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data-processing pipelines for high-throughput
+  clinical instrument data.
+}
+
+\section{Selected Projects}
+\cvitem{four-sided-triangle}{
+  Multi-agent system automating an 8-stage reasoning / RAG process with
+  resource-aware orchestration; Rust core, FastAPI + Ray + Docker.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+\cvitem{purpose}{
+  Rust CLI automating cross-project context retrieval for AI agents --- cutting
+  redundant work and cost.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+\cvitem{kwasa-kwasa}{
+  A language whose compiler automates generation of code in other languages
+  (GLSL, JS, Python).
+  \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}
+}
+\cvitem{lavoisier}{
+  Automated, distributed mass-spectrometry pipeline; 98.9\% NIST accuracy.
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

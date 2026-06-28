@@ -1,0 +1,106 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — WEB DEVELOPER (full-stack) track (quick applications)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Full-stack web developer: React (Next.js, Vite) and Angular front-ends,
+GPU-accelerated browser apps, and Python / Node / Rust / PHP back-ends --- shipped
+and deployed.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Full-stack web developer. I build React (Next.js, Vite) and Angular front-ends,
+  including GPU-accelerated in-browser applications (WebGL / WebGPU), backed by
+  Python, Node, Rust, or PHP services, and ship them to Vercel, AWS, and Firebase.
+  A long list of live, deployed apps.
+}
+
+\section{Technical Skills}
+\cvitem{Frontend}{
+  React (Next.js, Vite), Angular; TypeScript / JavaScript; responsive UI;
+  interactive data-visualisation dashboards
+}
+\cvitem{GPU in the browser}{
+  WebGL2 / GLSL, WebGPU; real-time interactive tools and compute
+}
+\cvitem{Backend}{
+  Node / Next.js API routes, FastAPI (Python), Rust, PHP; REST and async services
+}
+\cvitem{Cloud \& deploy}{
+  Vercel, AWS, Firebase; Docker
+}
+\cvitem{Languages}{
+  TypeScript / JavaScript, Python, Rust, PHP, Java
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Full-Stack Web Developer}{Bitspark GmbH}{}{}{
+  Designed, built, and shipped full-stack web applications --- React / Next.js /
+  Angular front-ends, GPU-accelerated browser tools, and Python / Rust / Node
+  back-ends; many deployed and publicly accessible.
+}
+\cventry{2019--2021}{Scientific Tooling \& Pipelines}{Technische Universität München}{Munich}{}{
+  Built data tools and pipelines; large-scale processing. Taught at Master's level.
+}
+
+\section{Selected Deployed Apps}
+\cvitem{lavoisier}{
+  Next.js + WebGPU scientific-computing sandbox (in-browser compiler + GPU pipeline).
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+\cvitem{systems-biology-shaders}{
+  Next.js + WebGL shader application with an in-browser DSL compiler.
+  \href{https://systems-biology-shaders.vercel.app/}{systems-biology-shaders.vercel.app}
+}
+\cvitem{hieronymus}{
+  Next.js + WebGL microscopy image-analysis tool.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+\cvitem{syndrome \& BRUT}{
+  Browser diagnostics and camera-based vision tools (WebGPU).
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app} \;\textbar\;
+  \href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

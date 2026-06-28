@@ -1,0 +1,1771 @@
+% code-contact-map-generator.tex
+% Code Contact Map Generator: A Measure-Theoretic Framework for Minimum
+% Sufficient Mutual Individuation in Software Systems
+%
+% Compile with: pdflatex -> bibtex -> pdflatex -> pdflatex
+
+\documentclass[12pt,a4paper,twocolumn]{article}
+
+% --------------------------------------------------------------------------
+% Packages
+% --------------------------------------------------------------------------
+\usepackage[a4paper, margin=2cm, columnsep=0.8cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{bbm}
+\usepackage{stmaryrd}        % \llbracket, \rrbracket
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% --------------------------------------------------------------------------
+% Hyperref setup
+% --------------------------------------------------------------------------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=green!50!black,
+  urlcolor=blue!70!black,
+  pdftitle={Code Contact Map Generator},
+  pdfauthor={},
+}
+
+% --------------------------------------------------------------------------
+% Listings / DSL syntax
+% --------------------------------------------------------------------------
+\definecolor{dsl-keyword}{RGB}{0,100,200}
+\definecolor{dsl-string}{RGB}{160,40,40}
+\definecolor{dsl-comment}{RGB}{80,120,80}
+\definecolor{dsl-number}{RGB}{140,60,0}
+\definecolor{dsl-bg}{RGB}{248,248,252}
+\definecolor{dsl-frame}{RGB}{200,200,220}
+
+\lstdefinelanguage{WindTunnel}{
+  morekeywords={scope,analyse,compose,assert,recurse,report,
+                target,exclude,method,model,query,merge,resolve,
+                extract,claim,on_fail,output,format,until,while,
+                static,dynamic,semantic,hf,individuation,regime,
+                distance,narrow_scope,marginal_return,floor,by},
+  sensitive=true,
+  morestring=[b]",
+  morestring=[b]',
+  morecomment=[l]{\#},
+}
+
+\lstset{
+  language=WindTunnel,
+  backgroundcolor=\color{dsl-bg},
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{dsl-frame},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries\color{dsl-keyword},
+  stringstyle=\color{dsl-string},
+  commentstyle=\itshape\color{dsl-comment},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=5pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  captionpos=b,
+  tabsize=2,
+  showspaces=false,
+  showstringspaces=false,
+}
+
+% --------------------------------------------------------------------------
+% Theorem environments
+% --------------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% --------------------------------------------------------------------------
+% Notation macros
+% --------------------------------------------------------------------------
+\newcommand{\Borel}{\mathcal{B}}
+\newcommand{\Part}{\mathcal{P}}
+\newcommand{\Sep}{\mathrm{Sep}}
+\newcommand{\CM}{\mathrm{CM}}
+\newcommand{\bmin}{\beta_{\min}}
+\newcommand{\bP}{\beta_{\mathcal{P}}}
+\newcommand{\Scoord}{S}
+\newcommand{\dS}{d_S}
+\newcommand{\Neg}{\mathrm{Neg}}
+\newcommand{\Rest}{\mathrm{R}_{\mathrm{est}}}
+\newcommand{\Lmin}{L_{\min}}
+\newcommand{\Smin}{S_{\min}}
+\newcommand{\CMbmin}{\CM_{\bmin}}
+\newcommand{\GC}{G_C}
+\newcommand{\GS}{G_S}
+\newcommand{\hol}{\mathrm{hol}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\val}{\mathrm{val}}
+\newcommand{\Sbmin}{S_{\bmin}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\BRS}{(\Omega,d,\mu)}
+
+% --------------------------------------------------------------------------
+% Title
+% --------------------------------------------------------------------------
+\title{\textbf{Code Contact Map Generator}\\[4pt]
+  {\large A Measure-Theoretic Framework for Minimum Sufficient\\
+  Mutual Individuation in Software Systems}}
+
+\author{Wind Tunnel Research\\[4pt]
+  \small \texttt{wind-tunnel.dev}}
+
+\date{June 2026}
+
+% ==========================================================================
+\begin{document}
+% ==========================================================================
+
+\maketitle
+
+% --------------------------------------------------------------------------
+\begin{abstract}
+% --------------------------------------------------------------------------
+We introduce the \emph{Code Contact Map Generator}, a framework for
+characterising software systems not by the binary outcomes of individual test
+assertions, but by the \emph{minimum sufficient contact map} --- the minimal
+measure-theoretic structure that certifies mutual individuation across every
+pair of system components.  The foundational object is the \emph{bounded
+resolvable space} $\BRS$, a compact metric space equipped with a finite
+non-atomic Borel measure and a resolution floor.  Within this space every
+valid partition of the system into components must deposit a non-zero
+``separator'' between each pair of adjacent components: the \emph{partition
+floor} $\bmin > 0$ is strictly positive and cannot be driven to zero by any
+finite investigation strategy.  We prove three independent derivations of this
+floor (geometric, representational, economic) and derive from it the
+\emph{Minimum Sufficiency Theorem}: the partition floor $\bmin$, the minimum
+sufficient contact map $\CMbmin$, the minimum sufficient Lagrangian $\Lmin$,
+and the minimum sufficient action $\Smin$ are in canonical bijective
+correspondence.  Every additional structural annotation (type declarations,
+test suites, runtime checks) is a \emph{partition depth inflation} of
+$\CMbmin$; none reduces the floor to zero.  We then model software systems
+as bounded resolvable spaces, define S-entropy coordinates for code units, and
+use them to derive five coordination regimes quantified by the static order
+parameter $\Rest$.  The framework is realised by the \emph{Wind Tunnel DSL},
+a partition-specification language in which both users and the contact-map
+generator co-author investigation scripts.  The DSL is specified by a formal
+context-free grammar with compositional, monotone, floor-aware operational
+semantics.  We conclude that the classical test paradigm --- asking
+``pass/fail?'' at a point --- is strictly weaker than contact map generation,
+which asks for the minimum sufficient structure of mutual individuation across
+the whole system.
+\end{abstract}
+
+\tableofcontents
+
+\onecolumn   % switch to single column for the body (easier for long math)
+
+% ==========================================================================
+\section{Introduction}
+% ==========================================================================
+
+Software verification has, since its inception, been organised around a
+single epistemic act: the evaluation of a predicate at a point.  A test is
+executed, a return value is inspected, a property is declared true or false.
+This paradigm is so deeply embedded in engineering practice that it shapes not
+only tooling but conceptual vocabulary: ``passing the tests,'' ``green build,''
+``coverage report.''  The implicit model is that correctness is a point in a
+binary space, and that enough point evaluations constitute a proof.
+
+This paper challenges that model at its foundation.  We argue that the
+natural unit of software-system characterisation is not the truth value of an
+isolated assertion but the \emph{contact map}: the assignment, to each pair of
+system components, of the minimum information required to distinguish them from
+each other.  A test failure is evidence that contributes to the contact map;
+it is not the map itself.  The contact map is a global structure; point
+evaluations are local observations.  The relationship is analogous to the
+distinction between a measure and the value of its density at a single point.
+
+\subsection{The Problem with Truth-at-a-Point}
+
+Let $f : X \to Y$ be a software function and $\phi : X \times Y \to
+\{0,1\}$ a specification predicate.  Classical testing evaluates $\phi(x_i,
+f(x_i))$ for a finite sample $\{x_i\}_{i=1}^N \subset X$.  Several
+fundamental obstacles limit the conclusions available from this procedure.
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Rice's theorem} \citep{rice1953classes}: no non-trivial semantic
+  property of a program is decidable.  Any complete automated oracle is
+  impossible.
+
+\item \textbf{Undecidability of halting} \citep{turing1936computable}: the
+  test harness itself cannot determine, in general, whether the system under
+  test terminates.
+
+\item \textbf{Local/global gap}: $\phi(x_i, f(x_i)) = 1$ for all sampled
+  $x_i$ does not imply $\forall x \in X\!: \phi(x,f(x)) = 1$.  This is not
+  merely a practical limitation; it is a categorical one.
+
+\item \textbf{Compositionality failure}: local correctness of each component
+  does not imply global correctness of the composed system (formalised in
+  Theorem~\ref{thm:local-invisibility} below).
+\end{enumerate}
+
+These obstacles are well known individually.  What is less well recognised is
+that they share a common source: the point-evaluation paradigm attempts to
+characterise a measure-theoretic object (the behaviour of $f$ over a
+continuous or large discrete domain) by a finite sequence of point samples.
+The information deposited by each sample is bounded; the object is not.
+
+\subsection{Contact Map Generation as an Alternative}
+
+We propose replacing the question ``did this unit pass or fail?'' with the
+question ``what is the minimum sufficient structure of mutual individuation
+across this system?''  These are categorically different questions.  The
+first is local and binary; the second is global and metric.  The framework
+developed in this paper provides:
+
+\begin{enumerate}[label=(\roman*)]
+\item A \textbf{mathematical foundation} (Sections~\ref{sec:foundations}
+  and~\ref{sec:mscm}) based on measure theory and compact metric spaces,
+  yielding the \emph{partition floor} $\bmin > 0$ as the irreducible
+  informational residue of any finite investigation.
+
+\item A \textbf{model of software systems} (Section~\ref{sec:software}) as
+  bounded resolvable spaces, with S-entropy coordinates for code units and
+  five quantified coordination regimes.
+
+\item A \textbf{contact map generator} (Section~\ref{sec:generator}) that
+  uses static analysis, dynamic tracing, and semantic inference as partition
+  operations contributing estimates of $\CMbmin$.
+
+\item The \textbf{Wind Tunnel DSL} (Section~\ref{sec:dsl}), a partition-
+  specification language with formal grammar and compositional operational
+  semantics, in which both users and the system co-author investigation
+  scripts.
+\end{enumerate}
+
+\subsection{Overview and Contributions}
+
+The central result is the \emph{Minimum Sufficiency Theorem}
+(Theorem~\ref{thm:minimum-sufficiency}), which establishes a canonical
+bijective correspondence between the partition floor, the minimum sufficient
+contact map, the minimum sufficient Lagrangian, and the minimum sufficient
+action.  All additional structural annotations are \emph{partition depth
+inflations} of this ground state.
+
+The Wind Tunnel DSL (Section~\ref{sec:dsl}) is the language in which both
+questions --- classical test assertions and contact map claims --- can be
+expressed.  Only the second is the native question of the framework.  A DSL
+execution file is a complete, reproducible record of a contact map
+investigation, suitable for auditing, extension, and collaborative authorship
+between human and automated agents.
+
+% ==========================================================================
+\section{Mathematical Foundations}
+\label{sec:foundations}
+% ==========================================================================
+
+\subsection{Bounded Resolvable Spaces}
+
+\begin{definition}[Bounded Resolvable Space]
+\label{def:brs}
+A \emph{bounded resolvable space} is a triple $\BRS$ where:
+\begin{enumerate}[label=(\roman*)]
+  \item $(\Omega, d)$ is a compact metric space;
+  \item $\mu$ is a finite non-atomic Borel measure on $\Omega$ with
+    $\mu(\Omega) < \infty$;
+  \item There exist constants $\delta, c_0 > 0$ and $n \geq 1$ such that
+    for every $x \in \Omega$ and every $0 < r < \delta$,
+    \begin{equation}
+      \mu\!\left(B(x,r)\right) \;\geq\; c_0\, r^n,
+      \label{eq:resolution-floor}
+    \end{equation}
+    where $B(x,r) = \{y \in \Omega : d(x,y) < r\}$ is the open $d$-ball.
+\end{enumerate}
+The triple $(\delta, c_0, n)$ is called the \emph{resolution data}, and
+condition~\eqref{eq:resolution-floor} is the \emph{resolution floor}.
+\end{definition}
+
+\begin{remark}
+The resolution floor is a quantitative lower Ahlfors regularity condition
+\citep{mattila1995geometry, falconer2003fractal}: every ball of radius $r$
+carries at least $c_0 r^n$ measure.  It excludes purely singular or purely
+atomic measures and ensures that every open set of positive diameter carries
+positive measure.  Euclidean space with Lebesgue measure satisfies this with
+$n = \dim$; self-similar fractals satisfying the open set condition satisfy
+it with $n$ equal to the Hausdorff dimension.
+\end{remark}
+
+\subsection{Partitions and Partition Depth}
+
+\begin{definition}[Valid Partition]
+\label{def:partition}
+A \emph{valid partition} of $\BRS$ is a finite collection
+$\Part = \{A_1, \ldots, A_k\}$ of measurable subsets of $\Omega$ satisfying:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Covering}: $\mu\!\left(\Omega \setminus \bigcup_{i=1}^k A_i\right) = 0$;
+  \item \textbf{Essential disjointness}: $\mu(A_i \cap A_j) = 0$ for $i \neq j$;
+  \item \textbf{Connectedness}: each $A_i$ is connected in the subspace
+    topology induced by $d$;
+  \item \textbf{Positive measure}: $\mu(A_i) > 0$ for all $i$.
+\end{enumerate}
+Denote the set of all valid partitions by $\mathfrak{P}(\Omega,d,\mu)$.
+\end{definition}
+
+\begin{definition}[Separator]
+\label{def:separator}
+For $A \in \Part$ with $\Part \in \mathfrak{P}$, the \emph{separator set}
+of $A$ in $\Part$ is
+\begin{equation}
+  \Sep(A, \Part) \;=\; \bigl\{ B \in \Part \setminus \{A\}
+    : \overline{A} \cap \overline{B} \neq \emptyset \bigr\},
+\end{equation}
+the collection of components whose topological closures share a boundary
+point with $\overline{A}$.
+\end{definition}
+
+\begin{definition}[Partition Depth]
+\label{def:partition-depth}
+The \emph{partition depth} of $A \in \Part$ is
+\begin{equation}
+  \bP(A) \;=\; \inf_{B \in \Sep(A,\Part)} \mu(B).
+\end{equation}
+The \emph{partition floor} of the space is
+\begin{equation}
+  \bmin \;=\; \inf_{\Part \in \mathfrak{P}}\; \inf_{A \in \Part}\; \bP(A).
+\end{equation}
+\end{definition}
+
+\begin{remark}
+Intuitively, $\bP(A)$ is the smallest measure carried by any component
+adjacent to $A$.  The partition floor $\bmin$ is the infimum over all possible
+partitions of this quantity: the smallest separator any partition strategy can
+produce.
+\end{remark}
+
+\subsection{Positivity of the Partition Floor}
+
+\begin{theorem}[Partition Floor is Strictly Positive]
+\label{thm:floor-positive}
+Let $\BRS$ be a bounded resolvable space.  Then $\bmin > 0$.
+\end{theorem}
+
+We give three independent proofs.
+
+\paragraph{Proof I: Geometric.}
+
+Let $\Part \in \mathfrak{P}$ be any valid partition and $B \in \Part$ any
+component.  Since $B$ is connected and has positive measure, $B$ contains an
+open set $U \subseteq B$ with $\mu(U) > 0$ \citep{rudin1987real}.  By
+compactness of $\overline{B}$ and the resolution floor~\eqref{eq:resolution-floor},
+for any $x \in U$ there exists $r_x > 0$ such that $B(x, r_x) \subseteq U$
+and
+\begin{equation}
+  \mu(B) \;\geq\; \mu(U) \;\geq\; \mu\!\left(B(x,r_x)\right)
+    \;\geq\; c_0\, r_x^n \;>\; 0.
+\end{equation}
+Since $k = |\Part| < \infty$ and each component has positive measure,
+\begin{equation}
+  \inf_{B \in \Part} \mu(B) \;\geq\;
+    \frac{\mu(\Omega)}{k} \cdot \frac{1}{k} \;>\; 0,
+\end{equation}
+and since this holds for every $\Part \in \mathfrak{P}$, and any sequence of
+partitions with $\bP(A_i) \to 0$ would require $|\Part_i| \to \infty$ in a
+manner that contradicts the compactness of $\Omega$ and the atomless
+condition, we conclude $\bmin > 0$.  $\square$
+
+\paragraph{Proof II: Representational.}
+
+Suppose $\Omega$ is uncountably infinite (which holds in all cases of
+interest: $\Omega \cong [0,1]^m$ or a fractal subset thereof).  A valid
+partition $\Part$ with $|\Part| = k$ cells can name at most $2^k$ distinct
+regions via Boolean combinations of cells.  There are uncountably many Borel
+subsets of $\Omega$ \citep{bogachev2007measure}; hence any finite partition
+leaves uncountably many distinctions unrepresented.  If $\bP(A) \to 0$, then
+arbitrarily fine partitions would be required, but each partition is finite
+by Definition~\ref{def:partition}.  The representational capacity of a
+$k$-cell partition is bounded by $k \log k$ bits of structural information
+\citep{cover2006elements}, while the information content of $\Omega$ is
+infinite.  Hence for any fixed finite $k$, the partition floor is bounded
+below by the per-cell measure floor $c_0 (\mu(\Omega)/k)^{n/m}$, which is
+positive.  $\square$
+
+\paragraph{Proof III: Economic.}
+
+Let $g : (0,\infty) \to (0,\infty)$ be a cost function satisfying $g(t) \to
++\infty$ as $t \to 0^+$.  Each partition operation of depth $t$ incurs cost
+$g(t)$.  The return of any partition operation is bounded by $\mu(\Omega) <
+\infty$ (the total available measure to be partitioned).  For an agent with
+finite total budget $C < \infty$, the sequence of partition operations
+$(t_1, t_2, \ldots)$ satisfies $\sum_j g(t_j) \leq C$.  Since $g(t) \to
++\infty$ as $t \to 0^+$, only finitely many $t_j$ can approach $0$.  The
+agent therefore halts at some $t^* > 0$, which serves as a lower bound on
+the achievable partition depth.  This bound is uniform over all finite
+strategies, yielding $\bmin > 0$.  $\square$
+
+\subsection{Individuation by Negation}
+
+\begin{definition}[Negation of a Component]
+\label{def:negation}
+For $A \in \Part$, the \emph{negation} of $A$ in $\Part$ is
+\begin{equation}
+  \Neg(A, \Part) \;=\; \Omega \setminus A \;=\; \bigcup_{B \in \Part, B \neq A} B.
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Selector-Free Individuation]
+\label{prop:selector-free}
+The negation $\Neg(A,\Part)$ is the unique individuating complement of $A$
+that requires no distinguished element or selector function.  Specifically,
+$A$ is the $\mu$-a.e.\ unique set satisfying $A \cup \Neg(A,\Part) = \Omega$
+and $\mu(A \cap \Neg(A,\Part)) = 0$.
+\end{proposition}
+
+\begin{proof}
+By essential disjointness (Definition~\ref{def:partition}(ii)) and the
+covering condition (Definition~\ref{def:partition}(i)), the complement
+$\Omega \setminus A$ is well-defined up to a $\mu$-null set.  No choice
+function is needed: the complement is simply the union of all other cells.
+Uniqueness follows from the atomless property of $\mu$: if $A'$ also satisfies
+$A' \cup (\Omega \setminus A) = \Omega$ and $\mu(A' \cap (\Omega \setminus
+A)) = 0$, then $\mu(A \triangle A') = 0$, so $A = A'$ $\mu$-a.e.
+\end{proof}
+
+\begin{remark}
+This proposition formalises the philosophical principle that individuation
+proceeds by negation: a component $A$ is fixed as ``the whole minus everything
+it is not.''  The complement carries no distinguished element; it is the
+structural residue of $A$'s existence within $\Part$.
+\end{remark}
+
+\subsection{Detectability}
+
+\begin{definition}[Signal Measure]
+\label{def:signal}
+For a component $A \in \Part$, its \emph{signal measure} is
+\begin{equation}
+  \sigma(A) \;=\; \mu(A) - \mu(\partial A),
+\end{equation}
+where $\partial A = \overline{A} \setminus \mathrm{int}(A)$ is the topological
+boundary of $A$ in $(\Omega, d)$.
+\end{definition}
+
+\begin{definition}[Detectability]
+\label{def:detectability}
+A component $A \in \Part$ is \emph{detectable} if
+\begin{equation}
+  \sigma(A) \;>\; \bP(A).
+\end{equation}
+It is \emph{subdetectable} (engulfed by its own boundary) if
+$\sigma(A) \leq \bP(A)$.
+\end{definition}
+
+\begin{proposition}
+In a bounded resolvable space, a component $A$ is detectable if and only if
+it can be distinguished, with positive $\mu$-probability, from any element
+of $\Sep(A,\Part)$ by a measure-preserving observation process.
+\end{proposition}
+
+\begin{proof}
+If $\sigma(A) > \bP(A)$, then $A$ carries strictly more interior measure
+than the measure of any adjacent separator.  A measure-preserving process
+visiting $A$ will encounter its interior --- not merely its boundary --- with
+positive probability, enabling distinction.  Conversely, if $\sigma(A) \leq
+\bP(A)$, then the boundary accounts for at least as much measure as any
+adjacent component; observations of $A$ are indistinguishable from
+observations of $\partial A$, which is shared with adjacent components.
+\end{proof}
+
+\subsection{Locating vs.\ Visiting Asymmetry}
+
+\begin{definition}[Measure-Preserving Traversal]
+\label{def:traversal}
+A \emph{measure-preserving traversal} of $\BRS$ is a measure-preserving
+ergodic transformation $T : \Omega \to \Omega$.  For a component $A$,
+the \emph{visiting frequency} of $A$ under $T$ is
+\begin{equation}
+  \nu_T(A) \;=\; \lim_{N\to\infty} \frac{1}{N} \sum_{j=0}^{N-1}
+    \mathbf{1}_A\!\left(T^j(x)\right) \;=\; \mu(A),
+\end{equation}
+where the last equality holds $\mu$-a.e.\ by the Birkhoff ergodic theorem
+\citep{halmos1950measure}.
+\end{definition}
+
+\begin{definition}[Locating Cost]
+\label{def:locating-cost}
+The \emph{locating cost} of a component $A$ with visiting probability
+$p_A = \mu(A)/\mu(\Omega)$ is
+\begin{equation}
+  \lambda(A) \;=\; \bmin \cdot \left\lceil \log_2 \frac{1}{p_A} \right\rceil.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Locating/Visiting Asymmetry]
+\label{thm:locating-visiting}
+Let $T$ be a measure-preserving traversal of $\BRS$ and $A \in \Part$ a
+component with $p_A = \mu(A)/\mu(\Omega)$.  Then:
+\begin{enumerate}[label=(\roman*)]
+  \item $T$ visits $A$ with frequency $p_A$ regardless of how small $p_A$
+    is, and the visiting frequency entails no additional cost beyond the
+    floor $\bmin$ already deposited by the partition.
+  \item Locating $A$ (certifying that a given observation is in $A$ rather
+    than in some $B \in \Sep(A,\Part)$) costs at least $\lambda(A) > 0$.
+  \item As $p_A \to 0$, visiting frequency $\to 0$ but locating cost
+    $\to +\infty$.  These are categorically distinct relations.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Follows directly from the Birkhoff ergodic theorem applied to
+$\mathbf{1}_A$ \citep{halmos1950measure}.  The ergodic average converges to
+$\mu(A) = p_A \cdot \mu(\Omega)$.  No additional information beyond
+$\Part$ is required to perform the traversal; the partition was already
+deposited at cost $\geq \bmin$.
+
+(ii) To locate $A$, one must distinguish it from all $B \in \Sep(A,\Part)$,
+of which there are at most $|\Part| - 1$.  Each binary decision requires at
+least $\bmin$ information (by the partition floor theorem).  A binary search
+tree over the $\lceil\log_2(1/p_A)\rceil$ bits needed to identify $A$ within
+the partition structure therefore costs at least $\lambda(A) = \bmin \cdot
+\lceil\log_2(1/p_A)\rceil$.
+
+(iii) As $p_A \to 0$, the Birkhoff average converges to $0$ (the set is
+visited rarely), while $\lceil\log_2(1/p_A)\rceil \to +\infty$ (exponentially
+many partition decisions are needed to isolate it).  The visiting relation is
+linear in $p_A$; the locating cost is logarithmic in $1/p_A$ times the floor
+$\bmin$.  These are formally distinct: no re-parameterisation of one yields the
+other.
+\end{proof}
+
+\subsection{Non-Self-Verifiability}
+
+\begin{theorem}[Non-Self-Verifiability]
+\label{thm:non-self-verify}
+There is no total computable function $V : \mathfrak{P} \to \{0,1\}$ such
+that $V(\Part) = 1$ if and only if $\Part$ is a valid partition and $\bP(A)
+\geq \bmin$ for all $A \in \Part$.
+\end{theorem}
+
+\begin{proof}
+We use a diagonal argument in the spirit of Lawvere's fixed-point theorem
+\citep{lawvere1969diagonal}.  Suppose for contradiction that such a $V$
+exists.  Consider the family of partitions $\{\Part_i\}$ indexed by programs
+$p_i$ in a universal Turing machine.  Define a partition $\Part^*$ via a
+diagonalisation:
+\begin{equation}
+  \Part^* = \mathrm{diag}\!\left(\{\Part_i\}\right)
+    \;=\; \left\{\, A_i^* \;:\; \bP(A_i^*) \neq \bP(A_i)\right\}.
+\end{equation}
+If $V$ were total, then $V(\Part^*)$ would be computable.  But $V(\Part^*)
+= 1$ implies $\Part^* \in \{\Part_i\}$ for some $i$, and the definition of
+$\Part^*$ then implies $\bP(A_i^*) \neq \bP(A_i)$, a contradiction.  Hence
+$V(\Part^*) = 0$, which means $V$ fails to verify a valid partition.  The
+diagonal argument shows no total $V$ can be both complete and consistent.
+
+More concretely: to verify $\bP(A) \geq \bmin$ for $A$, one must decide $A$
+against $\Neg(A,\Part)$ --- a self-referential computation.  By
+G\"odel's incompleteness theorem \citep{godel1931formal}, any sufficiently
+expressive formal system contains true statements that cannot be proved within
+the system.  The irreducible residue $\bmin$ corresponds to such a statement:
+it is the floor that cannot be exhibited as a locatable set within the
+verifier's own language.
+\end{proof}
+
+\subsection{Non-Return Theorem}
+
+\begin{definition}[Committed Record]
+\label{def:committed-record}
+Let $(\Part^{(t)})_{t \geq 0}$ be a sequence of partitions produced by a
+contact map investigation.  The \emph{committed record} at time $t$ is
+\begin{equation}
+  M(t) \;=\; \sum_{s=0}^{t} \sum_{A \in \Part^{(s)}} \mathbf{1}[\bP^{(s)}(A)
+    \text{ is committed}],
+\end{equation}
+the total count of partition depths that have been committed (written to a
+permanent record).
+\end{definition}
+
+\begin{theorem}[Non-Return]
+\label{thm:non-return}
+The committed record $M(t)$ is monotone non-decreasing: $M(t+1) \geq M(t)$
+for all $t \geq 0$.  No investigation process can return to a prior
+individuation state once a partition depth has been committed.
+\end{theorem}
+
+\begin{proof}
+Commitment is defined as the operation of writing a partition depth to a
+permanent record.  A permanent record, by definition, is a function
+$R : \Nat \to \Real_{\geq 0}$ with $R(t+1) \geq R(t)$ for all $t$ (the
+record accumulates, never deletes).  Hence $M(t) = |R^{-1}((0,\infty)) \cap
+[0,t]|$ is non-decreasing.  The non-return property follows: no finite
+process can reduce $M$, because doing so would require deleting a committed
+record entry, which by definition is impossible.  The investigation therefore
+has a strict arrow of time given by the accumulation of irreducible residues.
+\end{proof}
+
+\begin{remark}
+The non-return theorem is the measure-theoretic analogue of the
+second law of thermodynamics: the committed information is a non-decreasing
+functional.  Each committed individuation increases the count; no process
+reverses it.  This gives the contact map investigation a directional
+structure independent of any external clock.
+\end{remark}
+
+% ==========================================================================
+\section{The Minimum Sufficient Contact Map}
+\label{sec:mscm}
+% ==========================================================================
+
+\subsection{S-Entropy Coordinates}
+
+\begin{definition}[S-Entropy of a Component]
+\label{def:s-entropy}
+Let $\Part \in \mathfrak{P}(\Omega,d,\mu)$ and $A \in \Part$.  Fix a
+$p$-dimensional feature map $\phi : \Omega \to [0,1]^p$.  The
+\emph{S-entropy coordinate vector} of $A$ is
+\begin{equation}
+  \Scoord(A) \;=\; \left( H_\phi^{(1)}(A), \ldots, H_\phi^{(p)}(A) \right)
+    \;\in\; [0,1]^p,
+\end{equation}
+where
+\begin{equation}
+  H_\phi^{(j)}(A) \;=\; -\int_A \phi_j(x) \log_2 \phi_j(x)\, d\mu(x)
+    \;\bigg/\; \mu(A)
+\end{equation}
+is the normalised Shannon entropy of the $j$-th feature within $A$
+\citep{shannon1948mathematical, cover2006elements}.  The \emph{S-entropy
+distance} between two components $A_i, A_j \in \Part$ is
+\begin{equation}
+  \dS(A_i, A_j) \;=\; \left\|\Scoord(A_i) - \Scoord(A_j)\right\|_2.
+\end{equation}
+\end{definition}
+
+\begin{remark}
+The S-entropy coordinates capture the distributional geometry of each
+component in feature space.  Components with identical S-entropy coordinates
+are, from the perspective of the feature map $\phi$, indistinguishable.
+The S-entropy distance is a pseudo-metric on $\Part$; it becomes a metric
+when $\phi$ is sufficiently discriminative.
+\end{remark}
+
+\subsection{The Contact Graph and Contact Map}
+
+\begin{definition}[Contact Graph]
+\label{def:contact-graph}
+The \emph{contact graph} of $\Part$ is the undirected graph
+$\GC = (\Part, E_C)$ where
+\begin{equation}
+  E_C = \left\{\{A_i, A_j\} : A_j \in \Sep(A_i, \Part)\right\}.
+\end{equation}
+Two components are adjacent in $\GC$ if and only if their closures share a
+boundary point.
+\end{definition}
+
+\begin{definition}[Contact Map]
+\label{def:contact-map}
+The \emph{contact map} of $(\Part, \phi)$ is the edge-weighting
+\begin{equation}
+  \CM : E_C \;\longrightarrow\; \Real_{\geq 0}, \qquad
+  \CM(A_i, A_j) \;=\; \dS(S(A_i), S(A_j)).
+\end{equation}
+\end{definition}
+
+\subsection{The Minimum Sufficient Contact Map}
+
+\begin{definition}[Contact Locus]
+\label{def:contact-locus}
+The \emph{contact locus} of $\Part$ is the sub-collection
+\begin{equation}
+  \Part_{\bmin} \;=\; \left\{ A \in \Part : \bP(A) = \bmin \right\}
+\end{equation}
+of components that sit precisely at the partition floor.  The
+\emph{minimum sufficient contact map} is the restriction
+\begin{equation}
+  \CMbmin(A_i, A_j) \;=\; \dS\!\left(\Sbmin(A_i),\, \Sbmin(A_j)\right)
+\end{equation}
+for $(A_i, A_j) \in E_C$ with $A_i, A_j \in \Part_{\bmin}$, where
+$\Sbmin(A) = \Scoord(A)|_{\Part_{\bmin}}$ are the S-entropy coordinates
+evaluated at the contact locus.
+\end{definition}
+
+\begin{definition}[Partition Depth Inflation]
+\label{def:inflation}
+A contact map $\CM'$ is a \emph{partition depth inflation} of $\CMbmin$ if
+there exists $\delta L \geq 0$ (a non-negative functional) such that
+\begin{equation}
+  \CM'(A_i, A_j) \;=\; \CMbmin(A_i, A_j) + \delta L(A_i, A_j)
+\end{equation}
+for all $(A_i, A_j) \in E_C$.
+\end{definition}
+
+\subsection{The Minimum Sufficient Lagrangian and Action}
+
+\begin{definition}[Partition Lagrangian]
+\label{def:lagrangian}
+Given a path $\gamma : [0,T] \to \Omega$ in the bounded resolvable space,
+the \emph{partition Lagrangian} associated to a contact map $\CM$ is
+\begin{equation}
+  L(\gamma, \dot\gamma, t) \;=\; \tfrac{1}{2}\,\mu\!\left(B(\gamma(t), \|\dot\gamma(t)\|)\right)
+    \;-\; M_\CM(\gamma(t)),
+\end{equation}
+where $M_\CM : \Omega \to \Real$ is the \emph{contact potential} induced by
+$\CM$:
+\begin{equation}
+  M_\CM(x) \;=\; \sum_{(A_i,A_j) \in E_C} \CM(A_i,A_j)\,
+    \mathbf{1}_{A_i}(x)\,\mathbf{1}_{A_j}(x).
+\end{equation}
+The \emph{minimum sufficient Lagrangian} is $\Lmin = L|_{\CM = \CMbmin}$.
+\end{definition}
+
+\begin{definition}[Minimum Sufficient Action]
+\label{def:action}
+The \emph{minimum sufficient action} is
+\begin{equation}
+  \Smin \;=\; \int_0^T \Lmin(\gamma, \dot\gamma, t)\, dt
+    \;=\; \int_0^T \left[\tfrac{1}{2}\mu\!\left(B(\gamma,\|\dot\gamma\|)\right)
+    - M_{\bmin}(\gamma)\right] dt,
+\end{equation}
+where $M_{\bmin}$ is the contact potential of $\CMbmin$.  The
+\emph{principle of minimum sufficient action} states that the equilibrium
+path of a contact map investigation minimises $\Smin$ subject to boundary
+conditions $\gamma(0), \gamma(T)$.
+\end{definition}
+
+\subsection{The Minimum Sufficiency Theorem}
+
+\begin{theorem}[Minimum Sufficiency]
+\label{thm:minimum-sufficiency}
+The following four objects are in canonical bijective correspondence:
+\begin{enumerate}[label=(\Roman*)]
+  \item The partition floor $\bmin$;
+  \item The minimum sufficient contact map $\CMbmin$;
+  \item The minimum sufficient Lagrangian $\Lmin$;
+  \item The minimum sufficient action $\Smin$.
+\end{enumerate}
+Every other configuration of $\BRS$ is a partition depth inflation of
+$\CMbmin$: the general contact map satisfies $\CM = \CMbmin + \delta L$
+with $\delta L \geq 0$ pointwise, and the general action satisfies $S =
+\Smin + \delta S$ with $\delta S \geq 0$.
+\end{theorem}
+
+\begin{proof}
+We establish the bijections by constructing explicit maps in each direction
+and verifying they are inverses.
+
+\textbf{(I) $\Rightarrow$ (II).}  Given $\bmin$, the contact locus
+$\Part_{\bmin}$ is determined by Definition~\ref{def:contact-locus}.  The
+S-entropy coordinates $\Sbmin(A)$ for $A \in \Part_{\bmin}$ are determined
+by the measure $\mu$ and the feature map $\phi$ (fixed by the space).  Hence
+$\CMbmin$ is uniquely determined by $\bmin$.
+
+\textbf{(II) $\Rightarrow$ (I).}  Given $\CMbmin$, the contact locus
+$\Part_{\bmin}$ is its domain.  By Definition~\ref{def:partition-depth},
+$\bmin = \inf_{A \in \Part_{\bmin}} \bP(A)$.  Since $\CMbmin$ is defined
+precisely on the contact locus, $\bmin$ is determined.
+
+\textbf{(II) $\Rightarrow$ (III).}  Given $\CMbmin$, the contact potential
+$M_{\bmin}$ is determined by Definition~\ref{def:lagrangian}, and hence
+$\Lmin$ is uniquely determined.
+
+\textbf{(III) $\Rightarrow$ (II).}  Given $\Lmin$, the contact potential
+$M_{\bmin}$ is the negation of the non-kinetic term of $\Lmin$.  The
+contact map values $\CMbmin(A_i,A_j)$ are the coefficients in $M_{\bmin}$,
+hence determined.
+
+\textbf{(III) $\Rightarrow$ (IV) and (IV) $\Rightarrow$ (III).}  The action
+is a functional of the Lagrangian via time integration; given $\Lmin$, $\Smin$
+is determined, and conversely $\Lmin$ is recoverable from $\Smin$ via the
+Euler-Lagrange equations \citep{goldstein2002classical, arnold1989mathematical}.
+
+For the inflation claim: let $\CM = \CMbmin + \delta L$ with $\delta L \geq
+0$.  Then $M_\CM = M_{\bmin} + M_{\delta L}$ with $M_{\delta L} \geq 0$,
+so $L = \Lmin - M_{\delta L} \leq \Lmin$ --- but the action integral is
+minimised at $\Smin$, so every inflation increases the action.  No partition
+depth inflation can reduce $\CMbmin$, since by definition $\CMbmin$ is already
+the minimum.
+\end{proof}
+
+\begin{corollary}[Contact Ground State]
+\label{cor:ground-state}
+The minimum sufficient contact map $\CMbmin$ is the \emph{contact ground
+state}: the minimum structure required to establish that every component is
+surely not any other component, against the whole system.  Every additional
+structural annotation (type declarations, test suites, runtime traces,
+lint rules) is a partition depth inflation $\delta L \geq 0$ of this ground
+state.  None can reduce the floor to zero; all are upward perturbations.
+\end{corollary}
+
+\subsection{The Water and Beads Formalisation}
+
+We formalise the intuition that ``rearranging observable states does not
+change the irreducible floor.''
+
+\begin{definition}[Observable States and Irreducible Residue]
+\label{def:beads-water}
+Let $\Sigma = \{\sigma_1, \ldots, \sigma_N\}$ be a finite set of
+\emph{observable states} (test outcomes, type annotations, runtime events).
+An \emph{arrangement} is a function $\alpha : \Part \to 2^\Sigma$ assigning
+states to components.  The \emph{bead functional} is
+\begin{equation}
+  \mathcal{B}(\alpha) \;=\; \sum_{A \in \Part} |\alpha(A)|,
+\end{equation}
+the total count of observable states.  The \emph{water level} is $\bmin$.
+\end{definition}
+
+\begin{theorem}[Water Level Invariance]
+\label{thm:water-beads}
+For any arrangement $\alpha$ and any rearrangement $\alpha' = \pi \circ \alpha$
+(where $\pi : 2^\Sigma \to 2^\Sigma$ is any permutation of state assignments),
+\begin{equation}
+  \bmin(\alpha) \;=\; \bmin(\alpha') \;=\; \bmin,
+\end{equation}
+i.e., the partition floor is invariant under all rearrangements of observable
+states.
+\end{theorem}
+
+\begin{proof}
+The partition floor $\bmin$ is a property of the measure space $\BRS$ and
+the partition $\Part$; it does not depend on the assignment $\alpha$.
+Formally: $\bmin = \inf_\Part \inf_{A \in \Part} \inf_{B \in \Sep(A,\Part)}
+\mu(B)$.  The measure $\mu$ is a fixed Borel measure on $\Omega$; neither
+$\alpha$ nor $\pi$ acts on $\mu$ or on the topological structure of $\Omega$.
+Hence $\bmin(\alpha) = \bmin(\alpha') = \bmin$ regardless of the arrangement.
+\end{proof}
+
+\begin{remark}
+This theorem formalises the water/beads intuition precisely.  The observable
+states $\Sigma$ (test results, type errors, coverage reports) are the
+``beads'': their arrangement and rearrangement does not change the
+``water level'' $\bmin$.  A system with $N$ passing tests and a system with
+$N$ failing tests have the same partition floor if they have the same
+underlying bounded resolvable space.  The contact map generator's task is
+to measure $\bmin$ accurately --- not to remove it.
+\end{remark}
+
+% ==========================================================================
+\section{Software Systems as Bounded Resolvable Spaces}
+\label{sec:software}
+% ==========================================================================
+
+\subsection{The System Graph}
+
+\begin{definition}[Software System]
+\label{def:software-system}
+A \emph{software system} is a quadruple $\mathfrak{S} = (U, E, A, \Pi)$
+where:
+\begin{enumerate}[label=(\roman*)]
+  \item $U = \{u_1, \ldots, u_N\}$ is a finite set of \emph{units} (functions,
+    classes, modules, services, or any other named computation boundary);
+  \item $E \subseteq U \times U$ is a set of directed \emph{edges}
+    representing invocation, data-flow, or dependency relations;
+  \item $A : U \to 2^\mathcal{T}$ assigns to each unit an \emph{aperture set}
+    --- the collection of types it consumes;
+  \item $\Pi : U \to 2^\mathcal{T}$ assigns to each unit a
+    \emph{production set} --- the collection of types it produces;
+\end{enumerate}
+where $\mathcal{T}$ is a fixed type universe.  The \emph{system graph}
+$\GS = (U, E)$ is the underlying directed graph.
+\end{definition}
+
+\begin{definition}[Software Metric Space]
+\label{def:software-metric}
+Given $\mathfrak{S}$, define a metric on $U$ by
+\begin{equation}
+  d_\mathfrak{S}(u_i, u_j) \;=\;
+    1 - \frac{|A(u_i) \cap A(u_j)| + |\Pi(u_i) \cap \Pi(u_j)|}
+             {|A(u_i) \cup A(u_j)| + |\Pi(u_i) \cup \Pi(u_j)|},
+\end{equation}
+the complement of the Jaccard similarity of the combined aperture/production
+type sets.  Define a measure on $U$ by $\mu(u_i) = w_i$ where $w_i$ is the
+normalised coupling weight (e.g., proportional to in-degree in $\GS$).
+\end{definition}
+
+\begin{proposition}
+$(U, d_\mathfrak{S}, \mu)$ is a bounded resolvable space (in the finite,
+discrete sense) with resolution data $(1, w_{\min}, 1)$, where $w_{\min} =
+\min_i w_i > 0$.
+\end{proposition}
+
+\begin{proof}
+$U$ is finite, hence compact.  $\mu$ is a finite measure with $\mu(u_i) =
+w_i > 0$ for all $i$ (by assumption of positive coupling weight).  The
+resolution floor holds trivially: $\mu(B(u_i, r)) \geq w_i \geq w_{\min}$
+for $r \geq 0$.
+\end{proof}
+
+\subsection{Holonomy of System Cycles}
+
+\begin{definition}[Cycle Holonomy]
+\label{def:holonomy}
+Let $c = (u_{i_1}, u_{i_2}, \ldots, u_{i_k}, u_{i_1})$ be a directed cycle
+in $\GS$.  The \emph{specification type flow} along $c$ is the sequence of
+type transitions
+\begin{equation}
+  \tau(c) \;=\; \Pi(u_{i_1}) \to A(u_{i_2}) \to \Pi(u_{i_2}) \to \cdots
+    \to A(u_{i_1}).
+\end{equation}
+The \emph{holonomy} of $c$ is
+\begin{equation}
+  \hol(c) \;=\; \left\| \tau(c) - \tau^{\mathrm{spec}}(c) \right\|,
+\end{equation}
+where $\tau^{\mathrm{spec}}(c)$ is the specified type flow and $\|\cdot\|$
+is a norm on the space of type-transition sequences.
+\end{definition}
+
+\begin{remark}
+Holonomy measures how much the actual type flow around a cycle deviates from
+its specification.  A system with $\hol(c) = 0$ for all cycles is
+\emph{specificationally consistent} around all loops.  Non-zero holonomy
+indicates a coordination failure: the types produced by traversing the cycle
+do not match the types expected.
+\end{remark}
+
+\subsection{S-Entropy of Software Units}
+
+\begin{definition}[S-Entropy of a Software Unit]
+\label{def:s-entropy-software}
+For a software unit $u \in U$, fix a $p$-dimensional feature map
+$\phi_\mathfrak{S} : U \to [0,1]^p$ encoding structural properties
+(e.g.\ cyclomatic complexity, coupling degree, type-set cardinality,
+dependency depth).  The \emph{S-entropy coordinate vector} of $u$ is
+\begin{equation}
+  \Scoord(u) \;=\; \left(-\phi_j(u)\log_2\phi_j(u)\right)_{j=1}^p
+    \;\in\; [0,1]^p.
+\end{equation}
+The \emph{S-entropy} of $u$ is $S(u) = \|\Scoord(u)\|_1 \in [0, p\log_2 e]$.
+The floor $S_{\flat} = \min_{u \in U} S(u)$ is strictly positive for any
+non-trivially structured system.
+\end{definition}
+
+\subsection{Five Coordination Regimes}
+
+\begin{definition}[Static Order Parameter]
+\label{def:order-parameter}
+The \emph{static order parameter} of $\mathfrak{S}$ is
+\begin{equation}
+  \Rest \;=\; \exp\!\left(-\,\overline{\tau}\right),
+\end{equation}
+where $\overline{\tau}$ is the mean tension:
+\begin{equation}
+  \overline{\tau} \;=\; \frac{1}{|E_C|} \sum_{(u_i, u_j) \in E_C}
+    \dS(S(u_i), S(u_j)) \cdot \frac{\hol(c_{ij})}{\hol_{\max} + \varepsilon},
+\end{equation}
+with $c_{ij}$ the shortest cycle containing the edge $(u_i,u_j)$,
+$\hol_{\max} = \max_c \hol(c)$, and $\varepsilon > 0$ a regulariser.
+\end{definition}
+
+\begin{definition}[Coordination Regimes]
+\label{def:coordination-regimes}
+The coordination regimes of a software system are determined by $\Rest$:
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Regime & $\Rest$ range & Characterisation \\
+  \midrule
+  Turbulent & $[0, 0.3)$
+    & Maximum partition inflation; near-zero contact coherence \\
+  Aperture-dominated & $[0.3, 0.5)$
+    & Type boundaries dominate; structural coupling weak \\
+  Hierarchical cascade & $[0.5, 0.8)$
+    & Layered dependency structure; partial contact coherence \\
+  Coherent & $[0.8, 0.95)$
+    & High contact coherence; near minimum sufficient structure \\
+  Phase-locked & $[0.95, 1]$
+    & Near contact ground state; $\CM \approx \CMbmin$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{remark}
+$\Rest$ is an order parameter in the statistical mechanics sense: it measures
+proximity of the system's actual contact map to the minimum sufficient contact
+map.  $\Rest \to 1$ corresponds to $\CM \to \CMbmin$; $\Rest \to 0$
+corresponds to maximally inflated partition depth ($\CM \gg \CMbmin$).
+\end{remark}
+
+\subsection{Local Invisibility Theorem}
+
+\begin{theorem}[Local Invisibility]
+\label{thm:local-invisibility}
+Let $\mathfrak{S} = (U, E, A, \Pi)$ and let $\val_u : \mathcal{P}_u \to
+\{0,1\}$ be a local verification predicate for unit $u$, where $\mathcal{P}_u$
+is the set of properties of $u$ in isolation.  Then:
+\begin{equation}
+  \forall u \in U : \val_u(s) = 1 \;\not\Rightarrow\;
+    \CM_\mathfrak{S} = \CMbmin^\mathfrak{S}.
+\end{equation}
+That is, universal local validity does not imply that the system's contact
+map is at the minimum sufficient ground state.
+\end{theorem}
+
+\begin{proof}
+Construct a counterexample.  Let $U = \{u_1, u_2, u_3\}$ with edges
+$E = \{(u_1,u_2),(u_2,u_3),(u_3,u_1)\}$ (a 3-cycle).  Define aperture and
+production sets so that each $u_i$ satisfies its local type contract in
+isolation: $\Pi(u_i) \subseteq A(u_{i+1 \mod 3})$.  Now perturb the types
+along the cycle by inserting a coercion $\kappa : T_1 \to T_1'$ that is
+invisible to each local verifier (e.g., a silent widening conversion).  Each
+$\val_{u_i}(s) = 1$ because the local type contract is satisfied.  However,
+the holonomy of the cycle is $\hol(c) = \|\kappa\| > 0$, so the contact map
+$\CM_\mathfrak{S}(u_i, u_j) > \CMbmin^\mathfrak{S}(u_i, u_j)$ for some
+$(u_i,u_j)$.  Hence global contact map coherence fails despite universal
+local validity.
+
+The general argument follows from Rice's theorem \citep{rice1953classes}:
+the global semantic property $\CM_\mathfrak{S} = \CMbmin$ is non-trivial and
+hence undecidable from local information alone; local predicates $\val_u$
+capture only decidable local properties and are therefore insufficient.
+\end{proof}
+
+% ==========================================================================
+\section{The Contact Map Generator}
+\label{sec:generator}
+% ==========================================================================
+
+\subsection{What the Contact Map Generator Is}
+
+The \emph{Contact Map Generator} (CMG) is a system that, given a software
+system $\mathfrak{S}$, produces a sequence of progressively refined estimates
+\begin{equation}
+  \hat{\CM}^{(0)} \;\leq\; \hat{\CM}^{(1)} \;\leq\; \cdots \;\leq\; \hat{\CM}^{(T)}
+    \;\xrightarrow{T\to\infty}\; \CMbmin^\mathfrak{S}
+\end{equation}
+of the minimum sufficient contact map, where $\leq$ denotes refinement in the
+sense of decreasing partition depth inflation ($\delta L$ monotone
+non-increasing).
+
+The CMG is not a test runner.  It is not a linter.  It is not a type checker.
+It is a \emph{partition machine}: it accepts any process --- static analysis,
+dynamic tracing, LLM-based semantic inference, user-provided structural
+intuition --- as a \emph{partition operation} that deposits information about
+$\CMbmin^\mathfrak{S}$.  Each operation contributes evidence; the CMG
+synthesises all evidence into a running estimate.
+
+\subsection{Partition Operations}
+
+\begin{definition}[Partition Operation]
+\label{def:partition-operation}
+A \emph{partition operation} on $\mathfrak{S}$ is a computable function
+\begin{equation}
+  \mathcal{O} : \mathfrak{S} \;\longrightarrow\; \hat{\CM}
+\end{equation}
+producing a partial contact map estimate $\hat{\CM}$ (a partial function on
+$E_C$).  Partition operations include:
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{Static}: call graph extraction, type aperture analysis,
+    dependency edge analysis \citep{nielson1999principles, aho2006compilers};
+  \item \textbf{Dynamic}: runtime trace analysis, coverage profiling,
+    execution-path sampling;
+  \item \textbf{Semantic}: LLM-based inference of coordination boundaries
+    from code text;
+  \item \textbf{Structural}: user-provided assertions about architectural
+    boundaries.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Composition of Partition Operations]
+\label{def:composition}
+Given two partition operations $\mathcal{O}_1, \mathcal{O}_2$ producing
+estimates $\hat{\CM}_1, \hat{\CM}_2$, their \emph{composition} is
+\begin{equation}
+  (\mathcal{O}_1 \oplus \mathcal{O}_2)(\mathfrak{S}) \;=\;
+    \hat{\CM}_1 \wedge \hat{\CM}_2,
+\end{equation}
+where $\wedge$ takes the pointwise minimum (the more conservative estimate
+on each edge), respecting the monotone non-inflation property.
+\end{definition}
+
+\subsection{The Cessation Theorem}
+
+\begin{theorem}[Cessation]
+\label{thm:cessation}
+Let $(\mathcal{O}^{(t)})_{t \geq 0}$ be a sequence of partition operations
+applied by the CMG, with marginal returns $\Delta_t = \|\hat{\CM}^{(t)} -
+\hat{\CM}^{(t-1)}\|$.  Then $\Delta_t \to \bmin > 0$ as $t \to \infty$;
+the CMG halts (ceases further operations) when $\Delta_t < \bmin$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:floor-positive}, $\bmin > 0$.  Each partition operation
+$\mathcal{O}^{(t)}$ deposits at least $\bmin$ information (by
+Definition~\ref{def:partition-depth} and the floor positivity), so $\Delta_t
+\geq \bmin$ for all $t$ until the estimate converges to $\CMbmin$.  Once
+$\hat{\CM}^{(t)} = \CMbmin$ (up to the resolution of the feature map $\phi$),
+further operations produce $\Delta_t = 0 < \bmin$ (no new information above
+the floor), and the cessation condition is met.  Hence the CMG halts in finite
+time --- at or near the contact ground state.
+\end{proof}
+
+% ==========================================================================
+\section{The Wind Tunnel DSL}
+\label{sec:dsl}
+% ==========================================================================
+
+\subsection{Overview and Design Principles}
+
+The \emph{Wind Tunnel DSL} is the language in which contact map
+investigations are specified and recorded.  It is not a test language and not
+a configuration language.  Its design principles are:
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Partition-first}: every construct corresponds to a partition
+    operation or a claim about partition depths.
+  \item \textbf{Co-authored}: both users and the CMG system write valid DSL.
+    The same syntax is used by both.
+  \item \textbf{Self-describing}: a completed DSL execution file is a
+    complete, reproducible record of a contact map investigation.
+  \item \textbf{Monotone}: committed partition claims cannot be undone within
+    a script (Non-Return Theorem, Theorem~\ref{thm:non-return}).
+  \item \textbf{Floor-aware}: every \texttt{assert} is a minimum individuation
+    claim (a lower bound on $\CMbmin$), never a truth-at-a-point claim.
+\end{enumerate}
+
+\subsection{Formal Grammar}
+
+The Wind Tunnel DSL is defined by the following context-free grammar in BNF
+form.
+
+\begin{definition}[Wind Tunnel Grammar]
+\label{def:grammar}
+\begin{align*}
+\langle\textit{program}\rangle &\;::=\; \langle\textit{block}\rangle^+ \\[4pt]
+\langle\textit{block}\rangle &\;::=\;
+  \langle\textit{scope-block}\rangle \;\mid\; \langle\textit{analyse-block}\rangle \\
+  &\quad\;\mid\; \langle\textit{compose-block}\rangle \;\mid\;
+    \langle\textit{assert-block}\rangle \\
+  &\quad\;\mid\; \langle\textit{recurse-block}\rangle \;\mid\;
+    \langle\textit{report-block}\rangle \\[4pt]
+\langle\textit{scope-block}\rangle &\;::=\;
+  \texttt{scope}\;\langle\textit{id}\rangle\;\texttt{\{}\;
+  \langle\textit{scope-body}\rangle\;\texttt{\}} \\
+\langle\textit{scope-body}\rangle &\;::=\;
+  \langle\textit{target-decl}\rangle^+\;\langle\textit{filter-decl}\rangle^* \\
+\langle\textit{target-decl}\rangle &\;::=\;
+  \texttt{target:}\;\langle\textit{glob-pattern}\rangle \\
+\langle\textit{filter-decl}\rangle &\;::=\;
+  \texttt{exclude:}\;\langle\textit{glob-pattern}\rangle
+  \;\mid\; \texttt{depth:}\;\langle\textit{nat}\rangle \\[4pt]
+\langle\textit{analyse-block}\rangle &\;::=\;
+  \texttt{analyse}\;\langle\textit{method}\rangle\;\texttt{\{}\;
+  \langle\textit{analyse-body}\rangle\;\texttt{\}} \\
+\langle\textit{method}\rangle &\;::=\;
+  \texttt{static} \;\mid\; \texttt{dynamic} \;\mid\;
+  \texttt{semantic} \;\mid\; \texttt{hf} \;\mid\; \langle\textit{id}\rangle \\
+\langle\textit{analyse-body}\rangle &\;::=\;
+  \langle\textit{step}\rangle^+ \\
+\langle\textit{step}\rangle &\;::=\;
+  \texttt{extract:}\;\langle\textit{id}\rangle
+  \;\mid\; \texttt{model:}\;\langle\textit{string}\rangle
+  \;\mid\; \texttt{query:}\;\langle\textit{string}\rangle
+  \;\mid\; \texttt{method:}\;\langle\textit{id}\rangle \\[4pt]
+\langle\textit{compose-block}\rangle &\;::=\;
+  \texttt{compose}\;\texttt{\{}\;
+  \langle\textit{compose-body}\rangle\;\texttt{\}} \\
+\langle\textit{compose-body}\rangle &\;::=\;
+  \langle\textit{merge-decl}\rangle^+ \\
+\langle\textit{merge-decl}\rangle &\;::=\;
+  \texttt{merge:}\;\texttt{[}\;\langle\textit{id-list}\rangle\;\texttt{]}
+  \;\mid\; \texttt{resolve:}\;\langle\textit{resolve-strategy}\rangle \\
+\langle\textit{resolve-strategy}\rangle &\;::=\;
+  \texttt{overlaps by minimum\_depth}
+  \;\mid\; \texttt{overlaps by maximum\_depth}
+  \;\mid\; \langle\textit{id}\rangle \\[4pt]
+\langle\textit{assert-block}\rangle &\;::=\;
+  \texttt{assert}\;\langle\textit{assertion-expr}\rangle\;\texttt{\{}\;
+  \langle\textit{assert-body}\rangle\;\texttt{\}} \\
+\langle\textit{assertion-expr}\rangle &\;::=\;
+  \langle\textit{individuation-claim}\rangle
+  \;\mid\; \langle\textit{distance-claim}\rangle
+  \;\mid\; \langle\textit{regime-claim}\rangle \\
+\langle\textit{individuation-claim}\rangle &\;::=\;
+  \texttt{individuation} \\
+\langle\textit{distance-claim}\rangle &\;::=\;
+  \texttt{distance} \\
+\langle\textit{regime-claim}\rangle &\;::=\;
+  \texttt{regime} \\
+\langle\textit{assert-body}\rangle &\;::=\;
+  \texttt{claim:}\;\langle\textit{claim-expr}\rangle
+  \;\langle\textit{on-fail-decl}\rangle^? \\
+\langle\textit{claim-expr}\rangle &\;::=\;
+  \texttt{distance(}\langle\textit{id}\rangle\texttt{,}\langle\textit{id}\rangle\texttt{)}\;
+  \texttt{>=}\;\langle\textit{float}\rangle \\
+  &\quad\;\mid\; \texttt{R\_est}\;\texttt{>=}\;\langle\textit{float}\rangle
+  \;\mid\; \langle\textit{id}\rangle\;\langle\textit{op}\rangle\;\langle\textit{float}\rangle \\
+\langle\textit{on-fail-decl}\rangle &\;::=\;
+  \texttt{on\_fail:}\;\langle\textit{fail-action}\rangle \\
+\langle\textit{fail-action}\rangle &\;::=\;
+  \texttt{narrow\_scope(}\langle\textit{id}\rangle\texttt{,}\langle\textit{id}\rangle\texttt{)}
+  \;\mid\; \langle\textit{recurse-block}\rangle
+  \;\mid\; \langle\textit{id}\rangle \\[4pt]
+\langle\textit{recurse-block}\rangle &\;::=\;
+  \texttt{recurse}\;\langle\textit{condition}\rangle\;\texttt{\{}\;
+  \langle\textit{recurse-body}\rangle\;\texttt{\}} \\
+\langle\textit{condition}\rangle &\;::=\;
+  \texttt{until}\;\langle\textit{threshold-expr}\rangle
+  \;\mid\; \texttt{while}\;\langle\textit{cond-expr}\rangle \\
+\langle\textit{threshold-expr}\rangle &\;::=\;
+  \texttt{marginal\_return <}\;\langle\textit{id}\rangle
+  \;\mid\; \langle\textit{id}\rangle\;\langle\textit{op}\rangle\;\langle\textit{float}\rangle \\
+\langle\textit{recurse-body}\rangle &\;::=\;
+  \langle\textit{block}\rangle^+ \\[4pt]
+\langle\textit{report-block}\rangle &\;::=\;
+  \texttt{report}\;\texttt{\{}\;\langle\textit{report-body}\rangle\;\texttt{\}} \\
+\langle\textit{report-body}\rangle &\;::=\;
+  \langle\textit{output-decl}\rangle^+ \\
+\langle\textit{output-decl}\rangle &\;::=\;
+  \texttt{output:}\;\langle\textit{id}\rangle
+  \;\mid\; \texttt{format:}\;\langle\textit{id}\rangle
+\end{align*}
+\end{definition}
+
+\subsection{Operational Semantics}
+
+We define a small-step operational semantics for the DSL.
+
+\begin{definition}[DSL State]
+\label{def:dsl-state}
+A \emph{DSL state} is a triple $\Gamma = (\hat{\CM}, \mathcal{C}, \mathcal{R})$
+where:
+\begin{enumerate}[label=(\roman*)]
+  \item $\hat{\CM}$ is the current contact map estimate;
+  \item $\mathcal{C} \subseteq E_C$ is the set of committed edges (pairs
+    whose partition depth has been certified);
+  \item $\mathcal{R} \in \{\textit{pass}, \textit{fail}, \textit{narrow},
+    \textit{recurse}\}$ is the current resolution flag.
+\end{enumerate}
+The initial state is $\Gamma_0 = (\hat{\CM}^{(0)}, \emptyset, \textit{pass})$
+where $\hat{\CM}^{(0)}$ is the trivial (all-unknown) estimate.
+\end{definition}
+
+\begin{definition}[Block Reduction Rules]
+\label{def:reduction-rules}
+The reduction relation $\Gamma \xrightarrow{b} \Gamma'$ for each block
+type $b$ is defined as follows.
+
+\paragraph{Scope.}
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{scope}(id, \textit{targets})}
+  (\hat{\CM}, \mathcal{C}, \mathcal{R})[\textit{active-scope} := \textit{targets}]$.
+The scope block declares the active partition region.  It does not modify the
+contact map or commit any partition.
+
+\paragraph{Analyse.}
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{analyse}(\mathit{method}, \textit{steps})}
+  (\hat{\CM} \wedge \hat{\CM}_{\mathit{method}}, \mathcal{C}, \mathcal{R})$,
+where $\hat{\CM}_{\mathit{method}}$ is the partial contact map produced by
+partition operation $\mathcal{O}_{\mathit{method}}$ applied to the active
+scope.  The composition $\wedge$ is pointwise minimum.
+
+\paragraph{Compose.}
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{compose}(\textit{merge-list})}
+  (\bigwedge_j \hat{\CM}_j, \mathcal{C}, \mathcal{R})$,
+where $\hat{\CM}_j$ are the estimates named in the merge list and $\bigwedge$
+is pointwise minimum over all named estimates.
+
+\paragraph{Assert (success).}
+If $\textit{claim}$ evaluates to $\top$ in state $\Gamma$:
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{assert}(\textit{claim})}
+  (\hat{\CM}, \mathcal{C} \cup \{\textit{certified-edges}\}, \textit{pass})$.
+The certified edges (those satisfying the claim) are committed.
+
+\paragraph{Assert (failure).}
+If $\textit{claim}$ evaluates to $\bot$:
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{assert}(\textit{claim},\textit{on-fail}=f)}
+  (\hat{\CM}, \mathcal{C}, \textit{narrow})[f]$,
+where $[f]$ indicates that the fail-action $f$ is queued for execution.
+The block does not halt; it narrows the scope and continues.
+
+\paragraph{Recurse.}
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{recurse}(\textit{cond}, \textit{body})}
+  (\hat{\CM}^*, \mathcal{C}^*, \mathcal{R}^*)$,
+where $(\hat{\CM}^*, \mathcal{C}^*, \mathcal{R}^*)$ is the fixed point of
+repeatedly applying $\textit{body}$ until $\textit{cond}$ is satisfied.  The
+termination condition is guaranteed by the Cessation Theorem
+(Theorem~\ref{thm:cessation}).
+
+\paragraph{Report.}
+$(\hat{\CM}, \mathcal{C}, \mathcal{R})
+  \xrightarrow{\texttt{report}(\textit{outputs})}
+  (\hat{\CM}, \mathcal{C}, \mathcal{R})$
+with side effect: emit the named outputs (contact map, regime classification,
+inflation above floor) to the specified format.  The state is unchanged.
+\end{definition}
+
+\subsection{Semantic Properties}
+
+\begin{theorem}[Compositional Soundness]
+\label{thm:compositional}
+Let $b_1, b_2$ be successive blocks in a DSL program with reduction
+$\Gamma \xrightarrow{b_1} \Gamma' \xrightarrow{b_2} \Gamma''$.  Then:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Monotone commitment}: $\mathcal{C} \subseteq \mathcal{C}'
+    \subseteq \mathcal{C}''$ (committed edges are never revoked).
+  \item \textbf{Non-inflation}: $\hat{\CM}'' \leq \hat{\CM}' \leq \hat{\CM}$
+    pointwise (estimates are monotone non-increasing in partition depth).
+  \item \textbf{Floor preservation}: $\hat{\CM}'' \geq \CMbmin$ pointwise
+    (no estimate can go below the floor).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Follows from the Assert rule: commitment extends $\mathcal{C}$ but never
+removes from it.  The Non-Return Theorem (Theorem~\ref{thm:non-return})
+applies.
+
+(ii) Each Analyse and Compose step applies $\wedge$ (pointwise minimum),
+so the estimate can only decrease or remain constant.
+
+(iii) Every partition operation $\mathcal{O}$ produces estimates bounded
+below by $\bmin$ (Theorem~\ref{thm:floor-positive}), so $\hat{\CM}_\mathcal{O}
+\geq \CMbmin$.  The $\wedge$ of estimates bounded below by $\CMbmin$ is itself
+bounded below by $\CMbmin$.
+\end{proof}
+
+\subsection{Execution Modes}
+
+\begin{enumerate}[label=\textbf{Mode \arabic*.}, leftmargin=*]
+\item \textbf{User-only.}  The user writes a complete DSL program including
+  all \texttt{scope}, \texttt{analyse}, \texttt{compose}, \texttt{assert},
+  and \texttt{report} blocks.  The CMG executes the program faithfully,
+  performing the specified partition operations and returning the contact map
+  as specified.  The system does not add any blocks.
+
+\item \textbf{System-only.}  The user provides only a \texttt{scope} block
+  (or a target path).  The CMG writes and executes the remainder of the
+  program --- selecting methods, writing \texttt{analyse} and \texttt{compose}
+  blocks, generating \texttt{assert} claims based on its current best estimate
+  of $\CMbmin^\mathfrak{S}$, and recursing until the Cessation Theorem applies.
+
+\item \textbf{Collaborative.}  The user writes \texttt{scope} and
+  \texttt{assert} blocks (encoding architectural intuition and minimum
+  individuation claims).  The CMG fills in the \texttt{analyse}, \texttt{compose},
+  and \texttt{recurse} blocks.  Discrepancies between the user's assert claims
+  and the CMG's computed contact map are surfaced as new \texttt{report} blocks
+  indicating where the user's structural model diverges from the measured
+  contact map.
+\end{enumerate}
+
+\subsection{Worked Examples}
+
+\subsubsection{Example 1: Authentication Module Analysis}
+
+The following script investigates the contact structure of an authentication
+module.  It is a collaborative script: the user wrote \texttt{scope} and
+\texttt{assert}; the CMG wrote \texttt{analyse}, \texttt{compose}, and the
+\texttt{recurse} body.
+
+\begin{lstlisting}[caption={Authentication module contact map investigation},
+                   label={lst:auth}]
+# Contact map investigation: auth module
+# User-authored: scope, assert blocks
+# System-authored: analyse, compose, recurse
+
+scope authentication_module {
+  target: "src/auth/**/*.ts"
+  exclude: "**/*.test.ts"
+  exclude: "**/*.d.ts"
+  depth: 3
+}
+
+# System: extract structural partition operations
+analyse static {
+  extract: call_graph
+  extract: type_apertures
+  extract: dependency_edges
+  extract: export_surface
+}
+
+# System: semantic inference of coordination boundaries
+analyse semantic {
+  method: hf
+  model: "bigcode/starcoder2-7b"
+  query: "identify coordination boundaries and
+          interface contracts between components"
+}
+
+# System: compose static and semantic estimates
+compose {
+  merge: [static.call_graph,
+          static.type_apertures,
+          semantic.boundaries]
+  resolve: overlaps by minimum_depth
+}
+
+# User: architectural individuation claim
+# (TokenValidator and UserStore should be
+#  at least 0.6 apart in S-entropy space)
+assert individuation {
+  claim: distance(auth.TokenValidator,
+                  auth.UserStore) >= 0.6
+  on_fail: narrow_scope(auth.TokenValidator,
+                        auth.UserStore)
+}
+
+# User: regime claim (coherent or better)
+assert regime {
+  claim: R_est >= 0.8
+  on_fail: recurse until marginal_return < floor {
+    analyse dynamic {
+      extract: runtime_call_trace
+      extract: type_coercions
+    }
+    compose {
+      merge: [current, dynamic.call_trace]
+      resolve: overlaps by minimum_depth
+    }
+  }
+}
+
+# System: assert holonomy of all 3-cycles
+assert individuation {
+  claim: distance(auth.SessionManager,
+                  auth.TokenValidator) >= 0.45
+  on_fail: narrow_scope(auth.SessionManager,
+                        auth.TokenValidator)
+}
+
+assert individuation {
+  claim: distance(auth.UserStore,
+                  auth.PasswordHasher) >= 0.55
+  on_fail: narrow_scope(auth.UserStore,
+                        auth.PasswordHasher)
+}
+
+report {
+  output: contact_map
+  output: regime_classification
+  output: inflation_above_floor
+  output: holonomy_per_cycle
+  format: json
+}
+\end{lstlisting}
+
+\subsubsection{Example 2: System-Only Investigation}
+
+Here the user provides only a scope; the CMG generates the complete
+investigation script.
+
+\begin{lstlisting}[caption={System-generated contact map investigation},
+                   label={lst:system-only}]
+# Contact map investigation: payment service
+# User-authored: scope only
+# System-authored: all remaining blocks
+
+scope payment_service {
+  target: "services/payment/**"
+  exclude: "**/vendor/**"
+}
+
+# System: layered partition analysis
+analyse static {
+  extract: call_graph
+  extract: type_apertures
+  extract: dependency_edges
+  extract: api_surface
+  extract: shared_state
+}
+
+analyse semantic {
+  method: hf
+  model: "bigcode/starcoder2-7b"
+  query: "identify domain boundaries,
+          transaction boundaries,
+          and external service interfaces"
+}
+
+analyse static {
+  method: holonomy
+  extract: cycle_detection
+  extract: holonomy_per_cycle
+}
+
+compose {
+  merge: [static.call_graph,
+          static.type_apertures,
+          static.shared_state,
+          semantic.domain_boundaries,
+          static.holonomy_per_cycle]
+  resolve: overlaps by minimum_depth
+}
+
+# System: floor-aware regime check
+assert regime {
+  claim: R_est >= 0.5
+  on_fail: recurse until marginal_return < floor {
+    analyse semantic {
+      method: hf
+      model: "bigcode/starcoder2-7b"
+      query: "identify type coercions
+              and implicit contracts"
+    }
+    compose {
+      merge: [current,
+              semantic.type_coercions]
+      resolve: overlaps by minimum_depth
+    }
+  }
+}
+
+# System: assert minimum individuation for
+# highest-tension edge pairs
+assert individuation {
+  claim: distance(payment.Processor,
+                  payment.Ledger) >= floor
+  on_fail: narrow_scope(payment.Processor,
+                        payment.Ledger)
+}
+
+assert individuation {
+  claim: distance(payment.Gateway,
+                  payment.Validator) >= floor
+  on_fail: narrow_scope(payment.Gateway,
+                        payment.Validator)
+}
+
+report {
+  output: contact_map
+  output: regime_classification
+  output: inflation_above_floor
+  output: tension_per_edge
+  output: holonomy_summary
+  format: json
+}
+\end{lstlisting}
+
+\subsubsection{Example 3: Discrepancy Surfacing}
+
+This example illustrates a collaborative investigation where the user's
+structural intuition (assert) is inconsistent with the measured contact map.
+The CMG surfaces the discrepancy as a new report block.
+
+\begin{lstlisting}[caption={Discrepancy between user model and measured contact map},
+                   label={lst:discrepancy}]
+# User believes the API layer and domain layer
+# are well-separated (distance >= 0.8).
+# CMG finds actual distance is 0.41.
+
+scope api_domain_boundary {
+  target: "src/**"
+  exclude: "src/infrastructure/**"
+}
+
+analyse static {
+  extract: call_graph
+  extract: type_apertures
+}
+
+analyse semantic {
+  method: hf
+  model: "bigcode/starcoder2-7b"
+  query: "characterise coupling between
+          API handlers and domain objects"
+}
+
+compose {
+  merge: [static.call_graph,
+          semantic.coupling]
+  resolve: overlaps by minimum_depth
+}
+
+# User assertion: architectural intent
+assert individuation {
+  claim: distance(api.handlers,
+                  domain.aggregates) >= 0.8
+  on_fail: narrow_scope(api.handlers,
+                        domain.aggregates)
+}
+
+# CMG report: assertion failed.
+# Measured distance: 0.41
+# Regime: aperture-dominated (R_est = 0.38)
+# The api.handlers layer directly references
+# 14 domain.aggregates types, producing
+# high S-entropy overlap.
+# Inflation above floor: 1.93x
+
+report {
+  output: contact_map
+  output: regime_classification
+  output: inflation_above_floor
+  output: discrepancy_report
+  format: json
+}
+\end{lstlisting}
+
+% ==========================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ==========================================================================
+
+\subsection{Relation to Classical Testing}
+
+Classical testing \citep{clarke1999model, baier2008principles} evaluates
+predicates at points in a system's execution space.  Model checking
+exhaustively verifies all paths through a finite state space; property-based
+testing samples from a distribution of inputs.  Both paradigms are
+\emph{point-evaluation} paradigms: the unit of information is a Boolean value
+at a specific execution point.
+
+The contact map framework is not a replacement for these paradigms within
+their own domain of applicability.  It is a different level of analysis.  A
+test failure is \emph{evidence} that some pair of components is more similar
+(in S-entropy space) than the minimum sufficient contact map would predict ---
+that is, a test failure is a signal about the contact map, not a refutation of
+a system-level property.
+
+More precisely: let $\phi(x, f(x)) = 0$ be a test failure at input $x$.  This
+event carries information $-\log_2 p_{\text{fail}}$ bits about the execution,
+where $p_{\text{fail}}$ is the prior probability of failure.  In the contact
+map framework, this information is a partition operation of type ``dynamic''
+that updates the estimate $\hat{\CM}$.  The test failure does not directly
+certify a partition depth; it contributes evidence that the contact distance
+$\CM(u_i, u_j)$ between the failing unit $u_i$ and the unit responsible for
+the violated property $u_j$ is less than previously estimated.
+
+\subsection{The First Cannot Answer the Second}
+
+The central methodological claim of this paper is categorical:
+
+\begin{proposition}
+No finite collection of point-evaluation predicates can determine $\CMbmin$ for
+a non-trivial bounded resolvable space.
+\end{proposition}
+
+\begin{proof}
+$\CMbmin$ is defined over the contact locus $\Part_{\bmin}$, which is an
+uncountably-indexed family of partition configurations (parameterised by all
+valid partitions $\Part \in \mathfrak{P}$).  A finite collection of
+point-evaluation predicates can certify at most countably many bits of
+information \citep{cover2006elements}, which is insufficient to determine an
+uncountable family.  Moreover, by Rice's theorem \citep{rice1953classes}, the
+semantic property defining $\CMbmin$ is non-trivial and undecidable; hence no
+computable point-evaluation oracle can determine it.
+\end{proof}
+
+\subsection{The Second Subsumes the First}
+
+\begin{proposition}
+Every classical test assertion is a partition operation in the contact map
+framework (specifically, a dynamic-type analyse block with boolean output).
+\end{proposition}
+
+\begin{proof}
+A test assertion $\phi(x_i, f(x_i)) \in \{0,1\}$ can be encoded as a
+partition operation $\mathcal{O}_{\phi,x_i} : \mathfrak{S} \to \hat{\CM}$
+that updates the contact map estimate based on the pass/fail outcome.  A
+passing test increases confidence that $\CM(u_i, u_j) \geq \theta$ for some
+threshold $\theta$; a failing test provides evidence that $\CM(u_i, u_j) <
+\theta$.  Hence every classical test is a special case of the partition
+operations composable within the DSL's \texttt{analyse dynamic} block.
+\end{proof}
+
+\subsection{Falsifiability and Scope}
+
+The framework is falsifiable in the following sense.
+
+\begin{proposition}
+The claim ``$\CMbmin^\mathfrak{S}(\cdot, \cdot) \geq \theta$ for all adjacent
+pairs'' is falsified by exhibiting a pair $(u_i, u_j) \in E_C$ with
+$\dS(S(u_i), S(u_j)) < \theta$, which is detectable by any partition
+operation that discriminates $u_i$ from $u_j$.
+\end{proposition}
+
+The framework's scope is limited to systems that can be modelled as bounded
+resolvable spaces --- i.e., finite software systems with well-defined unit
+boundaries and measurable coupling weights.  It does not apply to systems with
+zero-measure components (vacuous units) or systems with no measurable
+separation (fully monolithic systems with no partition structure).
+
+\subsection{The DSL as Audit Trail}
+
+A completed DSL execution file serves as a complete audit trail for a contact
+map investigation.  By the Non-Return Theorem (Theorem~\ref{thm:non-return})
+and Compositional Soundness (Theorem~\ref{thm:compositional}), the sequence of
+committed partitions in $\mathcal{C}$ is a monotone non-decreasing record of
+the investigation's findings.  This has practical implications:
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Reproducibility}: the script can be re-executed to reproduce
+    the contact map estimate (modulo non-determinism in LLM inference);
+  \item \textbf{Auditability}: the committed partitions form a verifiable
+    record of what was individuated and when;
+  \item \textbf{Extensibility}: new \texttt{analyse} blocks can be appended
+    to refine the estimate without invalidating prior committed partitions.
+\end{enumerate}
+
+% ==========================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ==========================================================================
+
+We have introduced a measure-theoretic framework for software system
+characterisation grounded in the concept of the \emph{minimum sufficient
+contact map}.  The framework rests on three main results.
+
+First, the \emph{Partition Floor Theorem} (Theorem~\ref{thm:floor-positive}),
+proved by three independent methods (geometric, representational, economic),
+establishes that no investigation strategy can drive the separator between
+adjacent components to zero measure.  The irreducible floor $\bmin > 0$ is
+a property of the space, not of the investigation method.
+
+Second, the \emph{Minimum Sufficiency Theorem}
+(Theorem~\ref{thm:minimum-sufficiency}) establishes that the partition floor,
+the minimum sufficient contact map, the minimum sufficient Lagrangian, and
+the minimum sufficient action are in canonical bijective correspondence.
+Every additional structural annotation is a partition depth inflation; none
+reduces the floor.
+
+Third, the \emph{Local Invisibility Theorem}
+(Theorem~\ref{thm:local-invisibility}) shows that universal local validity
+(every unit passes its local verifier) does not imply global contact map
+coherence.  This is the formal basis for the claim that classical point-
+evaluation testing cannot determine the contact map.
+
+The \emph{Wind Tunnel DSL}, specified by a formal context-free grammar with
+compositional, monotone, floor-aware operational semantics, provides the
+language in which contact map investigations are specified, executed, and
+recorded.  Its co-authorship model --- users write structural intuition, the
+system writes investigation --- is a practical instantiation of the
+theoretical framework.
+
+The \emph{Water Level Invariance Theorem} (Theorem~\ref{thm:water-beads})
+formalises the core epistemic insight: rearranging observable states (test
+outcomes, type annotations, coverage reports) does not change the water level
+$\bmin$.  The system's job is to measure $\bmin$ accurately, not to remove
+it.
+
+Future work includes: (i) constructive bounds on $\bmin$ for specific classes
+of software systems (microservices, monoliths, functional pipelines); (ii) a
+type-theoretic embedding of the DSL in a dependent type system; (iii)
+empirical validation of the coordination regime boundaries against known
+failure modes in production systems.
+
+% ==========================================================================
+% Bibliography
+% ==========================================================================
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

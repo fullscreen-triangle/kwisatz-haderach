@@ -1,0 +1,107 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — COMPUTER VISION track (quick applications)
+% Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Computer-vision engineer: image analysis, GPU image processing, and CNNs ---
+microscopy and camera-based vision, from research to deployed tool.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computer-vision researcher and engineer working on image analysis and GPU image
+  processing --- segmentation, deconvolution, registration, and morphometry for
+  microscopy, and camera-based vision for physiological signals. I build and
+  deploy validated, GPU-accelerated tools.
+}
+
+\section{Technical Skills}
+\cvitem{Image analysis}{
+  Segmentation, point-spread-function deconvolution, registration, morphometry;
+  scale / coordinate (geometry) reconstruction; uncertainty quantification
+}
+\cvitem{Deep learning for vision}{
+  PyTorch (CNNs, attention); representation learning; image classification
+}
+\cvitem{GPU image processing}{
+  WebGL2 / GLSL shaders, WebGPU; real-time image pipelines
+}
+\cvitem{Modalities}{
+  Fluorescence and phase-contrast microscopy; camera-based (RGB video) vision
+}
+\cvitem{Programming}{
+  Python (primary) \& PyTorch, Rust, TypeScript / WebGL, GLSL, Bash
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Computer-Vision \& Software Researcher}{Bitspark GmbH}{}{}{
+  Built and deployed GPU-accelerated image-analysis and camera-based vision tools;
+  open-source and documented.
+}
+\cventry{2019--2021}{Computational Science --- ML \& HPC}{Technische Universität München}{Munich}{}{
+  CNN-based classification (PyTorch) at HPC scale; large-scale data processing.
+  Taught at Master's level.
+}
+\cventry{2011--2014}{Fluorescence Microscopy (BSc thesis)}{Jacobs University Bremen}{}{}{
+  DNA interstrand crosslinking --- cell culture and fluorescence imaging.
+}
+
+\section{Selected Projects}
+\cvitem{hieronymus}{
+  GPU-accelerated microscopy image analysis --- segmentation, deconvolution,
+  registration, morphometry; WebGL / GLSL.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+\cvitem{BRUT (rPPG)}{
+  Camera-based remote photoplethysmography --- recovers physiological signals
+  (melanin, haemoglobin, vasodilation) from RGB video via a layered optical skin
+  model. \href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app}
+}
+\cvitem{Microscopy Image Calculus}{
+  Formal framework for quantitative microscopy image analysis (deconvolution,
+  scale fields, metric-preserving reconstruction).
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

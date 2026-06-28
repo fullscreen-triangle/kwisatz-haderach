@@ -1,0 +1,157 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Research Engineer GenAI (Post-Training & Agentic AI)
+% Fraunhofer IAIS, NetMedia, Dresden. TVöD E13, 2 years. Online portal.
+% Lead: Agentic AI / multi-agent systems + foundation-model post-training + PyTorch/ML.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+\quote{GenAI research engineer: agentic and multi-agent systems, foundation-model
+adaptation, and PyTorch ML --- with a builder's record of research turned into
+deployed tools.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	PROFILE
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+
+\cvitem{}{
+  Computational researcher and engineer working on \textbf{agentic / multi-agent
+  AI}, \textbf{foundation-model adaptation}, and \textbf{ML in PyTorch}. I design
+  conceptual frameworks and turn them into working, deployed systems. Strongly
+  oriented to abstract and conceptual work, with a track record of research that
+  ships.
+}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED GENAI SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{Selected GenAI / Agentic Systems}
+
+\cvitem{kwasa-kwasa / Turbulance}{
+  \textbf{A declarative agentic-orchestration language.} Designed and implemented
+  a programming language for multi-agent, evidence-bearing computation: an
+  interpreter with confidence/argumentation semantics, multi-substrate delegation
+  (LLM oracles, tools, Python specialists), and grounding of generated values.
+  Rust core + TypeScript runtime; packaged as VSCode tooling incl.\ a language
+  server. \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Metacognitive multi-agent pipeline.} An 8-stage RAG / reasoning pipeline
+  with resource-aware orchestration, throttle handling, and a process monitor;
+  Rust core (15--50$\times$), FastAPI + Ray + Docker.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+\cvitem{Foundation-model adaptation}{
+  \textbf{Post-training / fine-tuning.} Low-rank (LoRA) adaptation of pretrained
+  models for domain tasks; knowledge distillation; a research line on training
+  methodology (curriculum design / inverse curricula).
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent AI / ML Researcher \& Engineer}{Bitspark GmbH}{}{}{
+  Full-time design and implementation of agentic / multi-agent systems,
+  foundation-model adaptation, and ML pipelines. From concept to deployed,
+  documented, benchmarked tools (validated against reference data). Rust,
+  Python/PyTorch, distributed/GPU.
+}
+
+\cventry{2019--2021}{Computational Science --- ML \& HPC}{Technische Universität München}{Munich}{}{
+  Deep-learning pipelines (PyTorch, CNNs) at HPC scale; distributed processing of
+  $>$100\,GB datasets on SLURM clusters; statistical evaluation and benchmarking.
+  Taught at Master's level.
+}
+
+\cventry{2017--2018}{Data Pipelines}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated, reproducible high-throughput data-processing pipelines.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Machine learning, statistics, and large-scale data analysis.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM
+  (2019--2021; not completed).}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Agentic AI}{
+  Multi-agent / agent orchestration systems; tool/LLM/oracle delegation;
+  RAG and reasoning pipelines; evidence/grounding mechanisms
+}
+
+\cvitem{ML / foundation models}{
+  PyTorch (CNNs, autoencoders, attention/transformers); foundation-model
+  fine-tuning (LoRA); knowledge distillation; representation learning;
+  evaluation \& benchmarking pipelines
+}
+
+\cvitem{Infrastructure}{
+  GPU training; SLURM clusters; Ray, Dask; Docker, Kubernetes; FastAPI;
+  cloud-portable workflows
+}
+
+\cvitem{Programming}{
+  Python (primary) \& PyTorch, Rust, TypeScript, R, Bash, SQL;
+  language/compiler design
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational (improving)}{resident in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

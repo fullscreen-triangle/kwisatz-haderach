@@ -1,0 +1,168 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD Candidate, AMBIOM (Analysis of Microscopic BIOMedical images)
+% Leibniz-Institut für Analytische Wissenschaften (ISAS), Dortmund.
+% Ref 401_2026. Deadline 08.07.2026. TV-L E13, 4 years.
+% Lead: microscopy image analysis / computer vision + ML representation learning + biology.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Microscopy image analysis and computer vision, with machine-learning
+representation learning for cell modelling --- and the biology to ground it.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	PROFILE
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+
+\cvitem{}{
+  Computational researcher in \textbf{microscopy image analysis and computer
+  vision}, with hands-on \textbf{machine-learning} and a background in
+  \textbf{cell biology and bioinformatics}. I have built and deployed a
+  quantitative microscopy image-analysis framework, and I am keen to formalise
+  this work into a PhD on large-scale 3D microscopy analysis, shape modelling,
+  and representation learning for cells.
+}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED WORK
+%----------------------------------------------------------------------------------------
+
+\section{Selected Work}
+
+\cvitem{Microscopy image analysis}{
+  \textbf{Quantitative image-analysis framework} --- segmentation, point-spread-function
+  deconvolution, scale-field / coordinate (geometry) reconstruction, and
+  morphometry with uncertainty quantification, for fluorescence and
+  phase-contrast microscopy. GPU-accelerated (WebGL/GLSL); live, deployed tool.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+
+\cvitem{Shape \& geometry modelling}{
+  \textbf{Coordinate-field reconstruction} --- recovering metric-preserving
+  geometry from image observations (scale fields, geodesic distance), the basis
+  for quantitative 3D shape characterisation of biological structures.
+}
+
+\cvitem{ML / representation learning}{
+  Deep learning in \textbf{PyTorch} (CNNs, autoencoders / representation learning,
+  attention); foundation-model fine-tuning (LoRA); applied to spectral and
+  imaging data and to data-driven cell/disease-state modelling.
+}
+
+\cvitem{Cell modelling}{
+  \textbf{Cell-state characterisation} --- spectral and circuit models of cellular
+  state for diagnostics (tumour disease state, immunopeptidomics), connecting
+  imaging and molecular data.
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Computational Researcher}{Bitspark GmbH}{}{}{
+  Full-time research in microscopy image analysis, computer vision, machine
+  learning, and computational biology. Built and deployed open, documented,
+  GPU-accelerated tools; authored scientific papers.
+}
+
+\cventry{2019--2021}{Computational Lipidomics --- Bioinformatics \& HPC}{Technische Universität München}{Munich}{}{
+  Large-scale high-throughput data analysis at HPC scale; CNN-based classification
+  (PyTorch); statistical evaluation of $>$100\,GB datasets. Taught at Master's
+  level and supervised student work.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated high-throughput LC-MS/MS and MALDI-TOF data pipelines.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Image and sequence analysis, statistics, and machine learning for biological
+  data.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Molecular and cell biology, analytical methods.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Thesis: DNA interstrand crosslinking --- cell culture and fluorescence
+  microscopy.
+}
+
+\cvitem{}{\textit{Additional:} doctoral research in computational lipidomics at
+  TUM (2019--2021; not completed).}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Image analysis / CV}{
+  Segmentation, deconvolution, registration, morphometry; coordinate-field /
+  geometry reconstruction; GPU/GLSL image processing; 2D and (towards) 3D
+}
+
+\cvitem{Machine learning}{
+  PyTorch (CNNs, autoencoders, attention); representation learning;
+  foundation-model fine-tuning (LoRA); scikit-learn
+}
+
+\cvitem{Programming}{
+  Python (primary), Rust, TypeScript/WebGL, R, Bash, SQL
+}
+
+\cvitem{Biology}{
+  Cell biology, biochemistry, bioinformatics; transcriptomics, proteomics,
+  metabolomics
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

@@ -1,0 +1,111 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — COMPUTATIONAL BIOLOGY track (quick applications)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Computational biologist: multi-omics, systems biology, and mass spectrometry,
+with machine learning and strong software engineering --- from method to deployed tool.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computational biologist working across genomics / transcriptomics, proteomics /
+  metabolomics, and systems-biology modelling. I combine machine learning with
+  rigorous software engineering, and validate against authoritative reference data.
+}
+
+\section{Technical Skills}
+\cvitem{Omics}{
+  Genomics, transcriptomics, proteomics, metabolomics; multi-omics integration
+}
+\cvitem{Systems biology}{
+  Cellular and circuit modelling; pathway and network analysis
+}
+\cvitem{ML \& statistics}{
+  PyTorch, scikit-learn; statistical modelling; representation learning
+}
+\cvitem{Software \& data}{
+  Python (primary), R, Rust, SQL; HPC (Ray, Dask, SLURM); reproducible pipelines;
+  database design (lipidomics)
+}
+\cvitem{Validation}{
+  NIST, IEDB, 1000~Genomes / gnomAD / UK~Biobank
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Computational Biology Researcher}{Bitspark GmbH}{}{}{
+  Multi-omics, systems-biology, and mass-spectrometry tools; deployed, documented,
+  reference-validated.
+}
+\cventry{2019--2021}{Computational Lipidomics}{Technische Universität München}{Munich}{}{
+  High-throughput mass spectrometry and multi-omics analysis at HPC scale. Taught
+  at Master's level.
+}
+\cventry{2017--2018}{Clinical Glycomics \& Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  LC-MS/MS and MALDI-TOF analysis for clinical samples.
+}
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics on tumour samples.
+}
+
+\section{Selected Projects}
+\cvitem{gospel}{
+  Multi-omics integration (genotype + transcriptomics + metagenomics); validated
+  against 1000~Genomes, gnomAD, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+\cvitem{systems-biology-shaders}{
+  Computational cell / systems-biology modelling (GPU pipeline).
+  \href{https://systems-biology-shaders.vercel.app/}{systems-biology-shaders.vercel.app}
+}
+\cvitem{syndrome}{
+  Computational oncology --- neoantigen / MHC prediction (AUC~0.81, IEDB).
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+\cvitem{Crown Prince}{
+  Computational pharmacology (PK / PD / ADME); NIST-validated.
+  \href{https://crown-prince-four-courners.vercel.app/}{crown-prince-four-courners.vercel.app}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

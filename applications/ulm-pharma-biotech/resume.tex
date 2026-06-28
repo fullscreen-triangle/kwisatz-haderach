@@ -1,0 +1,178 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Akademische:r Beschäftigte:r, Institut für Pharmazeutische Biotechnologie
+% Universität Ulm. Ref 26067. Deadline 18.06.2026. TV-L E13, start 01.08.2026.
+% Focus: bioinformatics of high-throughput omics + AI for large datasets + teaching.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Bioinformatician for high-throughput omics --- transcriptomics, proteomics,
+and metabolomics --- with production AI tooling for large biological datasets,
+and a commitment to interdisciplinary teaching.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Molecular biotechnology, drug development, analytical methods.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Bioinformatics of high-throughput data: sequence analysis, variant calling,
+  RNA-seq, statistical and machine learning methods for biological datasets.
+}
+\cventry{2019--2021}{Doctoral research, Computational Lipidomics}{Technische Universität München}{}{}{
+  HPC mass-spectrometry pipelines and multi-omics integration; transitioned to
+  independent research.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Thesis: DNA interstrand crosslinking --- mammalian cell culture and
+  fluorescence microscopy.
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Bioinformatics \& Computational Biology Researcher}{Bitspark GmbH}{}{}{
+  Full-time development of bioinformatic pipelines and AI tooling for
+  high-throughput omics data --- genomics, transcriptomics, proteomics, and
+  metabolomics. All systems documented, validated against reference data, and
+  deployed as open, reproducible tools.
+}
+
+\cventry{2019--2021}{Computational Lipidomics --- Bioinformatics, HPC \& Teaching}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  High-throughput mass-spectrometry analysis at HPC scale; multi-omics
+  statistical integration; processing of $>$100\,GB datasets. Taught at
+  Master's level and supervised student work.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data pipelines; reproducible high-throughput
+  workflows for clinical instrument data.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics on tumour samples; analysis of high-dimensional
+  feature sets.
+}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED BIOINFORMATICS SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{Selected Bioinformatics Systems}
+
+\cvitem{lavoisier}{
+  \textbf{High-Throughput Mass-Spectrometry Pipeline.}
+  Proteomics and metabolomics analysis; numerical pipeline + CNN spectral
+  classification (PyTorch); distributed execution; 98.9\% NIST accuracy on
+  $>$100\,GB datasets.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  \textbf{Multi-Omics Integration.}
+  Joint modelling over host genotype, transcriptomics, and metagenomics;
+  validated against 1000~Genomes, gnomAD, and UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{disease-state modelling}{
+  \textbf{Neuroscience and Disease Characterisation.}
+  Wearable and immunopeptidomic disease-state models, including
+  neurodegeneration (Parkinson's, ataxia) and tumour disease state ---
+  high-throughput signal and sequence analysis applied to pathological detection.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Omics bioinformatics}{
+  Transcriptomics (RNA-seq), proteomics and metabolomics (mass spectrometry),
+  genomics (variant calling); multi-omics integration; pathological-feature
+  detection in high-throughput data
+}
+
+\cvitem{AI / ML for large datasets}{
+  PyTorch (CNNs, sequence models), scikit-learn, XGBoost; Bayesian and mixture
+  modelling; foundation-model fine-tuning (LoRA); reproducible AI tooling for
+  biological datasets
+}
+
+\cvitem{Data engineering}{
+  Ray, Dask, SLURM-compatible HPC pipelines; Docker, Kubernetes; memory-mapped
+  I/O, HDF5, Parquet for $>$100\,GB datasets
+}
+
+\cvitem{Languages}{
+  Python (primary), Rust, R, Bash, SQL; Nextflow / Snakemake-style workflows
+}
+
+\cvitem{Reference data}{
+  1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST
+}
+
+%----------------------------------------------------------------------------------------
+%	TEACHING & MENTORING
+%----------------------------------------------------------------------------------------
+
+\section{Teaching \& Communication}
+
+\cvitem{}{
+  Taught at Master's level at TUM (2019--2021) and supervised student work.
+  Extensive open technical documentation and tutorial material across published
+  bioinformatics tools; experienced in explaining high-throughput analysis to
+  interdisciplinary, non-specialist audiences. Keen to build and deliver
+  bioinformatics curriculum for the new Pharmaceutical \& Molecular
+  Biotechnology programme.
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

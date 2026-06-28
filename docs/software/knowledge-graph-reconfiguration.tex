@@ -1,0 +1,825 @@
+% =====================================================================
+%  Knowledge-Graph Reconfiguration:
+%  Catalytic Path-Introduction in Finite Contact Graphs
+%
+%  A graph-theoretic account of how a finite agent's reachable
+%  structure is altered by minimal committed reshuffles, and the
+%  consequences thereof.
+%
+%  Author: Kundai Farai Sachikonye
+%          Technical University of Munich
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Premise}
+\newtheorem{construction}[theorem]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+\crefname{axiom}{Premise}{Premises}
+\Crefname{axiom}{Premise}{Premises}
+
+% ---- Notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\floorc}{\beta}
+\newcommand{\Nbr}{N}
+\newcommand{\cut}{\partial}
+\newcommand{\Res}{\rho}
+\newcommand{\Inv}{\iota}            % invariant cell
+\newcommand{\Walk}{W}
+\newcommand{\rec}{M}                % committed count
+\newcommand{\hol}{\eta}            % holonomy
+\newcommand{\reshuffle}{\sigma}    % a reshuffle
+\newcommand{\abs}[1]{\lvert#1\rvert}
+
+\title{\textbf{Knowledge-Graph Reconfiguration:\\[2pt]
+Catalytic Path-Introduction in Finite Contact Graphs}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+% =====================================================================
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We study how the reachable structure of a finite weighted graph changes
+under minimal committed edits, and what such edits can and cannot do. The
+objects are elementary: a finite weighted graph whose vertices are the
+distinguishable parts an agent has resolved, whose edges carry the cost of
+separating one part from another, and whose distinguished cells we call
+\emph{invariants}---multiply-reachable subgraphs preserved under
+relabelling. We take a single premise: the graph is finite and its edge
+weights are bounded below by a positive floor. From it we derive: (T0) a
+strictly positive floor on every separating cut; (T1) that an invariant is
+fixed by its complement, never by a single vertex, hence is a region and
+not a point; (T2) a \emph{holonomy} functional on cycles that vanishes
+exactly on consistent reachability and is nonzero on inconsistent
+reachability; (T3) that the minimal committed edit---a
+\emph{reconfiguration unit}---introduces or reweights exactly one
+floor-crossing path and increments a monotone committed count, hence is
+irreversible; (T4) that a reconfiguration is a \emph{catalyst}: it alters
+which paths reach an invariant without being itself a vertex or a path, and
+is therefore not extractable from the reconfigured graph; (T5) that a
+finite expression of a reconfiguration always carries removable slack, so
+no finite expression is identical to the reconfiguration it specifies; and
+(T6) a four-fold classification of reconfigurations by two binary
+invariants---whether the introduced path closes holonomy, and whether
+alternate paths to the target cell survive---together with the result that
+a reconfiguration whose stated endpoints close holonomy may still route
+through a cell whose holonomy does not close (a \emph{bridge}), detectable
+only by auditing the route and not the endpoints. We close with a Master
+Theorem: every consequence T0--T6 is forced for finite floored graphs and
+fails when finiteness or the floor is dropped. All claims are proved of the
+abstract graph; interpretive readings are confined to remarks on which no
+theorem depends.
+\end{abstract}
+
+\noindent\textbf{Keywords:} finite weighted graph; edge-weight floor;
+reachability; cycle holonomy; graph reconfiguration; catalytic edit;
+monotone committed count; invariant cell; path-multiplicity.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+A finite agent resolves its surroundings into finitely many distinguishable
+parts and the costs of telling them apart. Any such resolution is a finite
+weighted graph. This paper asks one structural question about such graphs:
+\emph{what happens to the set of paths reaching a distinguished cell when
+the graph is minimally edited, and what can such an edit do?} We answer with
+a chain of consequences forced by a single premise---that the graph is
+finite and positively weighted.
+
+The development is deliberately confined to graph theory. We define a
+\emph{thing}, a \emph{resolution} (``knowledge''), an \emph{invariant}
+(``truth''), and a \emph{reconfiguration} (``the propagation of an idea'')
+entirely as structures on a finite weighted graph, and prove their
+properties as theorems. The everyday words are offered only in remarks,
+explicitly marked, on which no theorem depends. This keeps the results
+where they belong: claims about finite weighted graphs, true or false by
+the standards of graph theory alone.
+
+\subsection{Method: conditional consequence}
+
+The paper proves a conditional. \emph{If} a finite floored contact graph
+exists, \emph{then} a determinate chain of structural facts about its
+reconfigurations is forced. We assume nothing about what the vertices
+\emph{are}; we assume only that they are finite in number and positively
+separated, and we read off what their reconfigurations cannot lack. The
+deductions are combinatorial and order-theoretic throughout.
+
+\subsection{The single premise}
+
+\begin{axiom}[Finiteness with a floor]
+\label{ax:finite}
+A \emph{contact graph} is a finite weighted graph $\Gph=(\V,\E,\wt)$ with
+$\abs{\V}<\infty$, connected, in which every edge weight is bounded below by
+a positive constant: there is $\floorc>0$ with $\wt(e)\ge\floorc$ for all
+$e\in\E$.
+\end{axiom}
+
+The premise is almost nothing: a finite graph whose edges cost something.
+Its consequences are the subject of the paper.
+
+\subsection{The chain of consequences}
+
+Under \Cref{ax:finite} we prove:
+
+\begin{enumerate}[label=\textbf{(T\arabic*)},leftmargin=3em,start=0]
+\item \emph{The floor} (\Cref{sec:floor}): every separating cut has weight
+$\ge\floorc>0$; no two parts are separated at zero cost.
+\item \emph{Invariants are regions} (\Cref{sec:invariant}): a
+multiply-reachable cell is fixed by its complement, realised by no single
+vertex, and preserved under relabelling.
+\item \emph{Holonomy} (\Cref{sec:holonomy}): a functional on cycles that is
+zero on consistent reachability and nonzero on inconsistent reachability.
+\item \emph{The reconfiguration unit} (\Cref{sec:unit}): the minimal
+committed edit introduces one floor-crossing path and increments a monotone
+count; it is irreversible.
+\item \emph{Reconfiguration is catalytic} (\Cref{sec:catalyst}): an edit
+alters reachability without being a vertex or a path, hence is not
+extractable from the result.
+\item \emph{Expressive slack} (\Cref{sec:slack}): every finite specification
+of a reconfiguration carries removable slack, so no specification is
+identical to what it specifies.
+\item \emph{The four modes and the bridge} (\Cref{sec:modes}):
+reconfigurations classify by (closes-holonomy?) $\times$
+(alternates-survive?), and an edit with holonomy-closing endpoints may route
+through a non-closing cell.
+\end{enumerate}
+
+\Cref{sec:master} proves these are forced for finite floored graphs and fail
+otherwise.
+
+% =====================================================================
+\section{The contact graph and its cells}
+\label{sec:setting}
+% =====================================================================
+
+Throughout, $\Gph=(\V,\E,\wt)$ is a contact graph (\Cref{ax:finite}): finite,
+connected, weighted, with floor $\floorc>0$. Graphs are simple unless
+stated.
+
+\begin{definition}[Cut]
+\label{def:cut}
+For $S,T\subseteq\V$ disjoint, the \emph{cut} is
+$\cut(S,T)=\{uv\in\E:u\in S,\,v\in T\}$ with weight
+$\wt(\cut(S,T))=\sum_{e\in\cut(S,T)}\wt(e)$. We write $\cut(S):=\cut(S,\V\setminus S)$.
+\end{definition}
+
+\begin{definition}[Cell; induced subgraph]
+\label{def:cell}
+A \emph{cell} is a nonempty $U\subseteq\V$; its \emph{induced subgraph}
+$\Gph[U]$ has vertex set $U$ and the edges of $\E$ with both ends in $U$. A
+cell is \emph{proper} if $\varnothing\neq U\subsetneq\V$.
+\end{definition}
+
+\begin{notation}[Vocabulary, on which nothing depends]
+\label{not:vocab}
+A reader may wish to read a vertex as a \emph{distinguished part}, an edge
+weight as the \emph{cost of telling two parts apart}, and a cell as
+\emph{something an agent has resolved}. We use only the graph terms; the
+readings are orientation. In particular ``thing,'' ``agent,'' ``knowledge,''
+``truth,'' ``idea,'' and ``propagation'' name graph structures defined
+below and carry no commitment beyond those definitions.
+\end{notation}
+
+% =====================================================================
+\section{T0: the floor}
+\label{sec:floor}
+% =====================================================================
+
+\begin{theorem}[Floor]
+\label{thm:floor}
+Every proper cell $U\subsetneq\V$ has $\wt(\cut(U))\ge\floorc>0$. No proper
+cell is separated from its complement at zero cost.
+\end{theorem}
+
+\begin{proof}
+Since $\Gph$ is connected and $U$ is a nonempty proper subset, $\cut(U)\neq
+\varnothing$ (else $\Gph$ disconnects). Then $\wt(\cut(U))\ge\wt(e^\ast)\ge
+\floorc>0$ for any $e^\ast\in\cut(U)$, using $\wt(e)\ge\floorc$.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:floor-read}
+Read: ``no distinction is free.'' Telling any part from the rest costs at
+least $\floorc$. Nothing below depends on this reading; T0 is the statement
+that a finite positively-weighted graph has no zero-weight cut.
+\end{remark}
+
+% =====================================================================
+\section{T1: invariants are regions, not points}
+\label{sec:invariant}
+% =====================================================================
+
+We single out the cells that are stable under relabelling and reached by
+more than one route. These are the objects we will call invariants.
+
+\begin{definition}[Reachability and path-multiplicity]
+\label{def:paths}
+A \emph{path} from $u$ to a cell $U$ is a walk $u=v_0,v_1,\dots,v_k$ with
+$v_k\in U$ and each $v_iv_{i+1}\in\E$. The cell $U$ is
+\emph{$m$-reachable from $u$} if there are $m$ internally edge-disjoint such
+paths. We write $\pi(u,U)$ for the maximum number of edge-disjoint paths
+from $u$ to $U$.
+\end{definition}
+
+\begin{definition}[Invariant cell]
+\label{def:invariant}
+A cell $\Inv\subseteq\V$ is an \emph{invariant} if (i) it is
+\emph{multiply-reachable}: $\pi(u,\Inv)\ge2$ for every $u\notin\Inv$ in the
+same component; and (ii) it is \emph{relabelling-stable}: for every weighted
+automorphism $\phi$ of $\Gph$, $\phi(\Inv)$ is again an invariant with
+$\wt(\cut(\phi(\Inv)))=\wt(\cut(\Inv))$.
+\end{definition}
+
+\begin{theorem}[Invariants are regions]
+\label{thm:region}
+Let $\Inv$ be an invariant. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Positive boundary.} $\wt(\cut(\Inv))\ge\floorc>0$.
+\item \textbf{Not a point.} If $\abs{\V}\ge3$, no single vertex $v$ realises
+$\Inv$ in the sense $\Inv=\{v\}$ with $\pi(u,\{v\})\ge2$ forced for all $u$;
+generically $\abs{\Inv}\ge2$ or $\Inv$ is reached by edge-disjoint paths
+through distinct boundary vertices. The invariant is borne by a region of
+its boundary, not by one vertex.
+\item \textbf{Complement-fixed.} $\Inv$ is determined by its complement:
+$\Inv=\V\setminus(\V\setminus\Inv)$, and no rule naming a single vertex of
+$\Inv$ in advance is needed to fix it.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) is \Cref{thm:floor} applied to $U=\Inv$. (ii): multiple reachability
+($\pi\ge2$) requires at least two edge-disjoint paths into $\Inv$; by
+Menger's theorem \citep{diestel2017} the minimum vertex cut separating $u$
+from $\Inv$ has size $\ge2$, so no single boundary vertex carries all routes;
+hence the ``locus'' of $\Inv$'s reachability is a set of $\ge2$ boundary
+vertices, a region. (iii): complementation $U\mapsto\V\setminus U$ is an
+involution on subsets of a finite set, so specifying $\V\setminus\Inv$
+fixes $\Inv$ uniquely with no further datum.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:truth-read}
+Read an invariant as a ``truth'': a cell reached by many independent routes,
+stable under re-encoding, fixed by what it is not, and never collapsible to
+a single point. Multiple-reachability is the graph form of
+``independently anchored''; relabelling-stability is the graph form of
+``the same regardless of how it is described.'' No theorem below depends on
+this reading.
+\end{remark}
+
+% =====================================================================
+\section{T2: holonomy on cycles}
+\label{sec:holonomy}
+% =====================================================================
+
+We now equip the graph with a consistency functional on cycles. It will
+distinguish reachability that closes up from reachability that does not.
+
+\begin{definition}[Transport and holonomy]
+\label{def:holonomy}
+Let $g:\E\to A$ assign to each edge an element of an abelian group $(A,+)$,
+the \emph{transport}, with $g(uv)=-g(vu)$. For a cycle
+$c=(v_0,v_1,\dots,v_k=v_0)$, the \emph{holonomy} of $c$ is
+\[
+  \hol(c)\;=\;\sum_{i=0}^{k-1} g(v_iv_{i+1})\;\in\;A.
+\]
+The transport is \emph{consistent} if $\hol(c)=0$ for every cycle $c$.
+\end{definition}
+
+\begin{proposition}[Consistency is path-independence]
+\label{prop:pathindep}
+A transport $g$ is consistent if and only if, for all $u,v$ and all paths
+$P,P'$ from $u$ to $v$, $\sum_{e\in P}g(e)=\sum_{e\in P'}g(e)$.
+\end{proposition}
+
+\begin{proof}
+If $g$ is consistent, then $P$ followed by the reverse of $P'$ is a cycle of
+holonomy $0$, giving $\sum_P g=\sum_{P'} g$. Conversely, any cycle is a path
+from $v_0$ to itself, and path-independence forces its sum to equal the
+empty-path sum, $0$.
+\end{proof}
+
+\begin{theorem}[Holonomy detects inconsistent reachability]
+\label{thm:holonomy}
+Let $\Inv$ be an invariant and $g$ a transport. The reachability of $\Inv$
+is \emph{consistent} (all routes to $\Inv$ agree under $g$) if and only if
+every cycle meeting $\Inv$ has $\hol=0$. If some cycle through the routes to
+$\Inv$ has $\hol\neq0$, the routes disagree: there exist two paths to $\Inv$
+whose transports differ.
+\end{theorem}
+
+\begin{proof}
+Immediate from \Cref{prop:pathindep}: agreement of all routes to $\Inv$ is
+path-independence on the paths into $\Inv$, equivalent to vanishing holonomy
+on cycles formed by pairs of such paths. A nonzero cycle holonomy exhibits,
+by construction, two paths with unequal transport sums.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:holonomy-read}
+Read $\hol(c)=0$ as ``the accounts you reach by going around different ways
+agree.'' A true invariant closes all its cycles (zero holonomy): every
+independent route to it tells the same story. A claim that passes a check
+on one route but fails when you go around another way is exactly a cycle of
+nonzero holonomy. Nothing below depends on the reading; T2 is a statement
+about group-valued transports on cycles.
+\end{remark}
+
+% =====================================================================
+\section{T3: the reconfiguration unit}
+\label{sec:unit}
+% =====================================================================
+
+We now define the minimal committed edit of a contact graph and prove it is
+quantised and irreversible.
+
+\begin{definition}[Reconfiguration]
+\label{def:reconfig}
+A \emph{reconfiguration} of $\Gph=(\V,\E,\wt)$ is an edit producing
+$\Gph'=(\V,\E',\wt')$ on the same vertex set by adding edges, deleting edges,
+or changing weights, such that $\Gph'$ is again a contact graph (finite,
+connected, floor $\ge\floorc$). A reconfiguration is \emph{path-introducing}
+for a cell $U$ if $\pi'(u,U)>\pi(u,U)$ for some $u$ (a new edge-disjoint
+route to $U$ appears).
+\end{definition}
+
+\begin{definition}[Committed count]
+\label{def:count}
+Fix an ordering of committed edits. The \emph{committed count} $\rec$ after a
+finite sequence of reconfigurations is the number of edits performed (each
+add, delete, or reweight that changes $\Gph$ counts one). A
+reconfiguration is \emph{committed} when it is recorded; the record only
+grows.
+\end{definition}
+
+\begin{definition}[Reconfiguration unit]
+\label{def:unit}
+A \emph{reconfiguration unit} \textup{(}for a cell $U$\textup{)} is a
+path-introducing reconfiguration that is \emph{minimal}: it introduces
+exactly one new floor-crossing path to $U$ (raising $\pi(\cdot,U)$ by one
+along a single route), with no proper sub-edit also path-introducing for $U$.
+\end{definition}
+
+\begin{theorem}[The unit is floored and quantised]
+\label{thm:unit-floor}
+Every reconfiguration unit for $U$ deposits boundary content $\ge\floorc>0$
+along its introduced route, and raises $\pi(\cdot,U)$ by exactly one. There
+is no path-introducing reconfiguration of content below $\floorc$.
+\end{theorem}
+
+\begin{proof}
+A new floor-crossing route to $U$ contains at least one edge crossing
+$\cut(U')$ for some $U'\supseteq U$; by \Cref{thm:floor} that edge has weight
+$\ge\floorc$, so the introduced route carries content $\ge\floorc$. An edit
+that introduces a route entirely of edges below $\floorc$ would violate the
+floor of $\Gph'$ as a contact graph (\Cref{def:reconfig}); hence no such
+sub-floor path-introduction exists. Minimality (\Cref{def:unit}) gives
+exactly one new edge-disjoint route, so $\pi(\cdot,U)$ rises by one.
+\end{proof}
+
+\begin{theorem}[Non-return]
+\label{thm:nonreturn}
+The committed count $\rec$ is strictly monotone: each committed
+reconfiguration increases $\rec$ by one, and no committed reconfiguration is
+undone by a further reconfiguration without itself being a further committed
+edit (which increases $\rec$ again). Consequently no finite sequence returns
+the system to a prior committed state: a configuration revisited as a
+\emph{graph} is never revisited as a \emph{state} $(\Gph,\rec)$.
+\end{theorem}
+
+\begin{proof}
+Each committed edit appends one to the record (\Cref{def:count}), so $\rec$
+strictly increases. ``Undoing'' edit $k$ is itself an edit $k'$ with
+$\rec_{k'}=\rec_k+1>\rec_k$; the resulting graph may equal an earlier graph,
+but the state $(\Gph,\rec)$ differs in its second component. Hence for
+$i<j$, the states at steps $i$ and $j$ are distinct even when the graphs
+coincide.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:unit-read}
+Read a reconfiguration unit as ``an idea in unit form'': the minimal
+committed change to an agent's resolved structure that actually introduces a
+new route to an invariant. \Cref{thm:unit-floor} reads ``an idea must carry
+at least a floor's worth of new uncertainty to move the graph at all''; below
+the floor nothing is introduced. \Cref{thm:nonreturn} reads ``a received
+reconfiguration cannot be un-received''---the graph can only be reconfigured
+further, never restored to the pre-edit state, because the committed count
+is part of the state. No theorem depends on these readings.
+\end{remark}
+
+% =====================================================================
+\section{T4: reconfiguration is catalytic and not extractable}
+\label{sec:catalyst}
+% =====================================================================
+
+We show that a reconfiguration is not an element of the graph it edits: it is
+neither a vertex nor a path, but a change in the reachability relation, and
+cannot be recovered as a located object from the reconfigured graph alone.
+
+\begin{definition}[Catalytic edit]
+\label{def:catalytic}
+A reconfiguration $\reshuffle:\Gph\mapsto\Gph'$ is \emph{catalytic for the
+cell $U$} if it changes the reachability $\pi(\cdot,U)$ but is not itself a
+vertex of $\V$ nor a single path of $\Gph$ or $\Gph'$; formally,
+$\reshuffle$ is the difference of reachability structures,
+$\reshuffle=\pi'(\cdot,U)-\pi(\cdot,U)$, a function on vertices, not an
+element of $\V$ or a walk.
+\end{definition}
+
+\begin{theorem}[Reconfigurations are not extractable]
+\label{thm:notextract}
+Let $\reshuffle$ be a catalytic edit carrying $\Gph$ to $\Gph'$. There is no
+vertex $v\in\V'$ and no single path $P$ in $\Gph'$ such that $\reshuffle$
+equals $v$ or $P$; the edit is recoverable only as the \emph{relation}
+$\pi'-\pi$, and two distinct graphs $\Gph_1\neq\Gph_2$ may admit the same
+$\reshuffle$ \textup{(}the same change in reachability\textup{)}. Hence
+$\reshuffle$ cannot be located inside $\Gph'$ as one of its parts.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:catalytic}, $\reshuffle$ is a function $\V\to\Z_{\ge0}$
+(the per-vertex change in edge-disjoint route count), an object of a
+different type from a vertex (an element of $\V$) or a path (a walk in
+$\Gph'$); no element of one type equals an element of another. That distinct
+graphs may share a $\reshuffle$: take $\Gph_1,\Gph_2$ differing by an
+automorphism of the introduced route; both realise the same
+$\pi'-\pi$, so $\reshuffle$ does not determine the graph and is not a
+located part of it. Therefore $\reshuffle$ is recoverable only as the
+reachability difference, not as a vertex or path of $\Gph'$.
+\end{proof}
+
+\begin{corollary}[Reached from many, present in none]
+\label{cor:manynone}
+If a cell $\Inv$ is an invariant (multiply-reachable), the reconfiguration
+that made it multiply-reachable is reached by---i.e.\ consistent with---many
+routes and is identical to none of them. It is the change in the route
+structure, not a route.
+\end{corollary}
+
+\begin{proof}
+Multiple reachability means $\ge2$ edge-disjoint routes
+(\Cref{def:invariant}); the edit raising $\pi$ is, by \Cref{thm:notextract},
+the reachability difference, not any one of those routes. Hence it is
+consistent with all and equal to none.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:catalyst-read}
+Read: an idea is a \emph{catalyst}. It reshuffles which routes reach a truth
+without being a route or a vertex, is not consumed into the result, and
+cannot be pointed at inside the reconfigured graph---only its effect on the
+routes can. This is why ``you cannot extract the idea'': the idea is the
+reconfiguration, and a reconfiguration is a relation-change, not a located
+part. No theorem depends on the reading.
+\end{remark}
+
+% =====================================================================
+\section{T5: every finite specification carries slack}
+\label{sec:slack}
+% =====================================================================
+
+A reconfiguration may be \emph{specified} by a finite description---a finite
+list of edits. We show that any such description admits a non-identity
+re-description, so the description is never identical to the reconfiguration
+it specifies.
+
+\begin{definition}[Specification; slack]
+\label{def:spec}
+A \emph{specification} of a reconfiguration $\reshuffle$ is a finite sequence
+of edits whose net effect is $\reshuffle$. A specification has \emph{slack}
+if there is a distinct specification with the same net effect $\reshuffle$
+(a different list realising the same reachability change), or a removable
+edit whose deletion leaves $\reshuffle$ unchanged.
+\end{definition}
+
+\begin{theorem}[Specifications carry slack]
+\label{thm:slack}
+Let $\reshuffle$ be a reconfiguration introducing at least one route, and let
+$\Sigma$ be any finite specification of $\reshuffle$ in a graph with
+$\abs{\V}\ge3$. Then $\Sigma$ has slack: there exists a distinct
+specification $\Sigma'\neq\Sigma$ with the same net effect, or a removable
+edit. Consequently no specification is uniquely determined by its effect;
+the map (specification)$\to$(reconfiguration) is non-injective.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:notextract}, distinct graphs/edits may realise the same
+$\reshuffle$; concretely, the introduced route may be re-routed through an
+alternative edge-disjoint path (which exists once $\abs{\V}\ge3$ and the
+target is multiply-reachable, \Cref{def:invariant}), or padded by an edit and
+its inverse-in-effect, yielding $\Sigma'\neq\Sigma$ with the same net
+reachability change. Hence $\Sigma$ is not the unique realiser of
+$\reshuffle$; the specification carries slack and is not identical to
+$\reshuffle$.
+\end{proof}
+
+\begin{corollary}[The minimal specification is not the reconfiguration]
+\label{cor:notthething}
+Even a minimal specification (one with no removable edit) is one realiser
+among others of $\reshuffle$; it is a particular route to the
+reconfiguration, not the reconfiguration, which is the reachability change
+common to all its realisers.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:slack} the effect $\reshuffle$ has $\ge2$ realisers whenever a
+re-route exists; a minimal specification is one of them. The invariant
+content---$\reshuffle$ itself---is what they share, not what any one is.
+\end{proof}
+
+\begin{remark}[Reading]
+\label{rem:slack-read}
+Read: if it can be put into words (a finite specification), it is not the
+idea but a route to the idea, because some other words would have served
+(slack). The idea is the reachability change common to all the sentences
+that specify it; each sentence is a particular realiser with removable
+choices, and the existence of an alternative realiser is the proof that the
+sentence is not the idea. No theorem depends on this reading.
+\end{remark}
+
+% =====================================================================
+\section{T6: the four modes and the bridge}
+\label{sec:modes}
+% =====================================================================
+
+We classify reconfigurations by two binary invariants and isolate a mode
+whose endpoints close holonomy while its route does not.
+
+\begin{definition}[Two invariants of a reconfiguration]
+\label{def:twoinv}
+For a reconfiguration $\reshuffle$ introducing a route to a target cell $U$,
+define:
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2.2em]
+\item \emph{Closure} $\kappa(\reshuffle)\in\{0,1\}$: $\kappa=1$ iff the
+introduced route's target cell $U$ is an invariant whose cycles all have
+$\hol=0$ (holonomy-closing); $\kappa=0$ otherwise.
+\item \emph{Survival} $s(\reshuffle)\in\{0,1\}$: $s=1$ iff after
+$\reshuffle$ the target retains $\pi(\cdot,U)\ge2$ (alternate routes
+survive); $s=0$ iff $\reshuffle$ leaves or makes $U$ singly-reachable
+(alternates removed).
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Four modes]
+\label{thm:fourmodes}
+Every route-introducing reconfiguration falls in exactly one of four classes
+by $(\kappa,s)$:
+\[
+\begin{array}{ll}
+(\kappa,s)=(1,1): & \text{adds a holonomy-closing route; alternates survive.}\\
+(\kappa,s)=(0,1): & \text{adds a non-closing route; alternates survive.}\\
+(\kappa,s)=(1,0): & \text{adds a closing route while removing alternates.}\\
+(\kappa,s)=(0,0): & \text{adds a non-closing route while removing alternates.}
+\end{array}
+\]
+The classes are disjoint and exhaustive, and each is realisable.
+\end{theorem}
+
+\begin{proof}
+$(\kappa,s)\in\{0,1\}^2$ partitions reconfigurations into four disjoint,
+exhaustive classes by definition. Realisability: for $(1,1)$ add an
+edge-disjoint route to a multiply-reachable invariant; for $(0,1)$ add a
+route to a non-invariant cell while leaving $\pi\ge2$ elsewhere; for $(1,0)$
+add a closing route and delete competing routes until $\pi=1$; for $(0,0)$
+do the latter to a non-closing target. Each construction satisfies
+\Cref{ax:finite} on $\Gph'$.
+\end{proof}
+
+\begin{definition}[Bridge]
+\label{def:bridge}
+A \emph{bridge} is a reconfiguration whose introduced route has
+holonomy-closing \emph{endpoints} (each stated terminal cell is an invariant
+with $\hol=0$) but passes through an intermediate cell $U^\dagger$ that is
+\emph{not} an invariant and whose local cycles have $\hol\neq0$. Formally:
+the route $u\rightsquigarrow U^\dagger\rightsquigarrow U$ has
+$\kappa$-closing $u$ and $U$ but a non-closing $U^\dagger$ on the path.
+\end{definition}
+
+\begin{theorem}[Endpoint-audit cannot detect a bridge]
+\label{thm:bridge}
+Let $\reshuffle$ be a bridge with stated endpoints $u,U$ and hidden
+intermediate $U^\dagger$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Endpoints pass.} Every cycle confined to the stated endpoint
+cells has $\hol=0$: an audit restricted to the endpoints detects no
+inconsistency.
+\item \textbf{Route fails.} There is a cycle through $U^\dagger$ with
+$\hol\neq0$: an audit of the route detects the inconsistency.
+\item \textbf{Undetectable by endpoints alone.} No function of the endpoint
+holonomies determines $\hol$ at $U^\dagger$; detection requires evaluating
+holonomy along the introduced route, not at its termini.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) By hypothesis the endpoint cells are invariants with vanishing cycle
+holonomy, so any cycle within them sums to $0$. (ii) By hypothesis some cycle
+through $U^\dagger$ has $\hol\neq0$; it exists by \Cref{def:bridge}. (iii)
+The endpoint holonomies are all $0$ regardless of $\hol(U^\dagger)$, so they
+carry no information about it; $\hol(U^\dagger)$ is a separate cycle sum,
+recoverable only by traversing the route through $U^\dagger$. Hence no
+endpoint-only function determines it.
+\end{proof}
+
+\begin{corollary}[Route-audit detects the bridge]
+\label{cor:routeaudit}
+A bridge is detected if and only if holonomy is evaluated along its
+introduced route (through $U^\dagger$), not merely at its stated endpoints.
+The minimal detector is the cycle through $U^\dagger$.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:bridge}(ii)--(iii).
+\end{proof}
+
+\begin{remark}[Reading, on which nothing depends]
+\label{rem:modes-read}
+The four modes read, respectively, as: a reconfiguration that adds a true,
+checkable route while leaving other checks in place; one that adds a
+plausible route to an un-anchored cell while leaving checks in place; one
+that adds a true route while removing the other checks; and one that adds an
+un-anchored route while removing the checks. A \emph{bridge} reads as a
+reconfiguration assembled from true, checkable endpoints whose
+\emph{intermediate} cell is not checkable: every stated claim closes its
+cycle, yet a cycle through the unstated intermediate does not.
+\Cref{thm:bridge} reads ``checking only the stated endpoints cannot catch
+it; only auditing the route can.'' We assert only the graph statements; the
+readings are orientation and no theorem depends on them.
+\end{remark}
+
+\begin{remark}[A neutrality reading]
+\label{rem:neutral}
+Note that a single introduced route, considered in isolation, carries no
+$(\kappa,s)$ value: closure and survival are properties of the route
+\emph{within the whole graph} (which cell it reaches, whether cycles close,
+whether alternates remain), not of the route as a sequence of edges. The
+same edge-sequence may be class $(1,1)$ in one graph and part of a bridge in
+another. A reader may take this as the statement that the moral or epistemic
+status of a step is a property of the path-in-its-graph, not of the step;
+identical local edits differ only in the routes they are steps of. No theorem
+depends on this reading.
+\end{remark}
+
+% =====================================================================
+\section{The Master Theorem}
+\label{sec:master}
+% =====================================================================
+
+\begin{theorem}[Forced by finiteness with a floor]
+\label{thm:master}
+The consequences T0--T6 hold for every finite contact graph
+\textup{(}\Cref{ax:finite}\textup{)}, and fail to be forced when finiteness
+or the positive floor is dropped:
+\begin{enumerate}[label=\textup{(\alph*)},leftmargin=2.2em]
+\item \textbf{Zero floor.} If $\inf_e\wt(e)=0$, a cell may be separated at
+arbitrarily small cost, so T0 fails; a route may be introduced below any
+positive content, so the unit T3 is not floored; and an invariant may be
+approached at vanishing cost, weakening T1.
+\item \textbf{Infinite vertex set.} If $\abs{\V}=\infty$, a vertex may have
+infinite degree, so a minimal route-introducing edit need not exist (T3),
+and reachability counts $\pi$ need not be finite, weakening T1 and T4.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The forward direction is the conjunction of
+\Cref{thm:floor,thm:region,thm:holonomy,thm:unit-floor,thm:nonreturn,%
+thm:notextract,thm:slack,thm:fourmodes,thm:bridge}, each proved under
+\Cref{ax:finite}. (a): a graph with cuts of weight $2^{-n}\to0$ violates the
+conclusion of \Cref{thm:floor}; the rest follow as stated. (b): an infinite
+star has a centre of infinite degree, defeating the minimality and finiteness
+used in \Cref{thm:unit-floor,thm:notextract}. Hence finiteness with a
+positive floor is necessary as well as sufficient.
+\end{proof}
+
+% =====================================================================
+\section{Discussion: the dictionary}
+\label{sec:dict}
+% =====================================================================
+
+We collect, in one place and as orientation only, the correspondence between
+the graph structures proved above and the everyday vocabulary they were
+designed to replace. \emph{No theorem depends on any entry of this
+dictionary.} Each everyday term names exactly the graph structure beside it
+and carries no further commitment.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Graph structure} & \textbf{Reading (orientation only)}\\
+\midrule
+Vertex / proper cell & a distinguished part / a resolved thing\\
+Edge weight $\ge\floorc$ & cost of telling two parts apart\\
+Floor $\floorc>0$ (T0) & no distinction is free\\
+Invariant cell (T1) & a truth: multiply-reached, region not point\\
+Cycle holonomy $\hol$ (T2) & whether routes to a truth agree\\
+$\hol=0$ on all cycles & consistent (``anchored'') reachability\\
+Reconfiguration unit (T3) & an idea, in unit form\\
+Monotone count, non-return (T3) & a received idea cannot be un-received\\
+Catalytic edit, not extractable (T4) & an idea is a catalyst, not a thing\\
+Specification slack (T5) & if it can be said, it is not the idea\\
+$(\kappa,s)=(1,1)$ & adding a checkable route, checks intact\\
+$(\kappa,s)=(0,\cdot)$ & adding an un-anchored route\\
+$(\kappa,s)=(\cdot,0)$ & removing the alternate checks\\
+Bridge (T6) & true endpoints, un-anchored hidden route\\
+Route-audit (T6 cor.) & checking the path, not the stated endpoints\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[Why the dictionary is severed]
+\label{rem:severed}
+The everyday terms are contested and their informal definitions invite
+dispute. By proving every result of the abstract graph and confining the
+vocabulary to this table, we ensure that disagreement about the words cannot
+touch the theorems: one may reject every reading in the right-hand column and
+the left-hand column stands unchanged. The mathematical content is the
+graph theory; the readings are an interpretation a reader may take or leave.
+\end{remark}
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+From a single premise---a finite graph whose edges cost something---we
+derived a determinate chain about how its reachable structure changes under
+minimal committed edits. A separating cut is never free (T0). A
+multiply-reached, relabelling-stable cell is a region fixed by its
+complement, never a point (T1). A group-valued transport has a cycle
+holonomy that vanishes exactly on consistent reachability (T2). The minimal
+committed edit introduces one floor-crossing route, increments a monotone
+count, and is therefore irreversible (T3). Such an edit is a catalyst---a
+change in the reachability relation, neither vertex nor path, not extractable
+from the result (T4). Every finite specification of it carries removable
+slack, so no specification is identical to what it specifies (T5). Edits
+classify by closure and survival into four modes, among which a
+\emph{bridge}---true endpoints, un-anchored intermediate---passes every
+endpoint check and is caught only by auditing the route (T6). All are forced
+by finiteness with a floor and fail without it (Master Theorem).
+
+The everyday correspondents---thing, knowledge, truth, idea, propagation,
+and the modes of true and false transmission---are recorded in the
+dictionary of \Cref{sec:dict} as orientation on which no theorem depends.
+The results are statements about finite weighted graphs, and stand or fall
+as such.
+
+% =====================================================================
+\bibliographystyle{plainnat}
+\begin{thebibliography}{9}
+\bibitem[Diestel(2017)]{diestel2017} Reinhard Diestel.
+\emph{Graph Theory}, 5th edition. Graduate Texts in Mathematics 173,
+Springer, 2017.
+\bibitem[Bollob\'as(1998)]{bollobas1998} B\'ela Bollob\'as.
+\emph{Modern Graph Theory}. Graduate Texts in Mathematics 184,
+Springer, 1998.
+\end{thebibliography}
+
+\end{document}

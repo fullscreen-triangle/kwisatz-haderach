@@ -1,0 +1,1066 @@
+% =====================================================================
+%  Why Graph-Structured Systems Engaged by Finite Agents
+%  Must Admit Operational Structure: A Conditional Derivation
+%
+%  Author: Kundai Farai Sachikonye
+%          Technical University of Munich
+% =====================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Premise}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\crefname{axiom}{Premise}{Premises}
+\Crefname{axiom}{Premise}{Premises}
+
+% ---- Notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zp}{\mathbb{Z}_{\geq 0}}
+\newcommand{\Graph}{\mathcal{G}}
+\newcommand{\Vrt}{\mathsf{V}}
+\newcommand{\Edg}{\mathsf{E}}
+\newcommand{\Agent}{\mathcal{A}}
+\newcommand{\Op}{\mathsf{Op}}
+\newcommand{\Res}{\rho}
+\newcommand{\floor}{\beta}
+\newcommand{\OpStr}{\mathfrak{O}}
+
+\title{\textbf{Why Graph-Structured Systems Engaged by Finite Agents\\
+Must Admit Operational Structure}\\[4pt]
+\large A Conditional Derivation}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+% =====================================================================
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We give a conditional derivation: granted two premises---that the
+engaging agents are finite, and that the engaged system is a finite
+graph---we show that the system necessarily admits an
+\emph{operational structure} in a precise sense. The argument is
+constructive. We define a finite graph-structured system and a finite
+agent, derive that any distinguishability relation an agent can
+realise has a strictly positive floor on edge measure, prove that
+this floor forces a residue on every agent--graph interaction, and
+show that the closure of these residues under composition is a monoid
+with identity and a partial order. This monoid acting on the graph is
+what we call the system's operational structure. The structure is
+not chosen; it is the unique closure of the agent's realisable
+interactions under the constraints imposed by finiteness on both
+sides. We classify operational structures into three canonical
+types---algebraic, dynamical, computational---and show every
+realisable structure is a combination of these. The derivation makes
+no metaphysical commitments and applies wherever the two premises
+hold; the framework is silent outside that scope. We close by stating
+the narrow falsifiability of the main theorem: it can be refuted only
+by exhibiting a finite agent realising distinguishability with zero
+floor on a finite graph, which we prove is structurally impossible.
+The paper is self-contained; no result of the author is cited; the
+literature references are to standard mathematical lemmas.
+\end{abstract}
+
+\medskip
+\noindent\textbf{Keywords:} finite agents; finite graphs; operational
+structure; distinguishability floor; residue propagation; monoid
+closure; conditional derivation.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The conditional question}
+
+The question this paper addresses is short:
+\begin{quote}\itshape
+On the condition that the engaging agents are finite and the engaged
+system is a finite graph, what structure of operations must the
+system admit?
+\end{quote}
+We answer: a specific monoidal operational structure, derivable from
+the two premises alone, with no further hypotheses.
+
+The result is conditional throughout. We do not assert that all
+agents are finite, or that all systems are graphs, or that systems
+are fundamentally relational. We assert only that \emph{if} both
+conditions hold, the operational structure of
+\cref{thm:opstructure} is forced. The framework is silent outside
+that scope: where either premise fails, the derivation does not
+apply and makes no prediction.
+
+\subsection{Why this matters}
+
+Engineering practice routinely treats operational structures---
+function composition, command pipelines, state-machine transitions,
+query algebras---as design choices to be selected for convenience.
+The argument here shows that for the dominant case (finite agents
+engaging finite graphs, which covers essentially all of practical
+software, embedded systems, sensor networks, knowledge graphs, and
+finite databases) the operational structure is \emph{not} a design
+choice but a derivable necessity. The class of admissible structures
+is forced; only the labelling within the class is free.
+
+This converts a large family of engineering decisions from
+\emph{which structure to invent} into \emph{which structure has the
+two premises already determined}. The latter is a discovery task
+with a definite answer; the former is a design task with no
+objective ground.
+
+\subsection{Method}
+
+The derivation is constructive. We fix the two premises in
+\cref{sec:premises}, derive three consequences in
+\cref{sec:consequences} (distinguishability floor, residue
+propagation, closure under composition), prove the main theorem in
+\cref{sec:main}, classify the resulting structures in
+\cref{sec:classification}, and locate the falsifiability of the
+argument in \cref{sec:falsifiability}. Every step is a finite
+combinatorial or measure-theoretic claim with a self-contained
+proof; no result of the author is cited.
+
+\subsection{Relation to existing frameworks}
+
+The argument touches finite graph theory \citep{diestel2017,
+bollobas1998}, finite-state automata \citep{hopcroft2007}, measure
+theory of finite partitions \citep{halmos1950}, monoid theory in
+algebraic structures \citep{howie1995}, and order theory on finite
+lattices \citep{daveypriestley2002}. We use only the textbook
+content of each field. The novel contribution is the closure
+argument (\cref{thm:opstructure}) that forces a particular monoidal
+structure from the conjunction of the two premises; the constituent
+pieces are standard, but their conjunction has not been packaged as
+a forced structural result, to the author's knowledge.
+
+% =====================================================================
+\section{Premises}
+\label{sec:premises}
+% =====================================================================
+
+We fix two premises. Both are operational conditions on the agent
+and the system; neither is a metaphysical hypothesis about the
+world.
+
+\subsection{Finite graph-structured system}
+
+\begin{definition}[Finite graph-structured system]
+\label{def:graph}
+A \emph{finite graph-structured system} is a triple $\Graph =
+(\Vrt, \Edg, w)$ where $\Vrt$ is a finite non-empty set of
+\emph{vertices}, $\Edg \subseteq \Vrt \times \Vrt$ is a finite set
+of \emph{edges}, and $w: \Edg \to \R_{\geq 0}$ is an \emph{edge
+measure} assigning to each edge a non-negative real weight. We do
+not require edges to be undirected or distinct; multigraphs are
+admitted.
+\end{definition}
+
+\begin{axiom}[Finite graph hypothesis]
+\label{ax:graph}
+The engaged system $\Graph = (\Vrt, \Edg, w)$ is a finite
+graph-structured system: $|\Vrt| < \infty$, $|\Edg| < \infty$, and
+$w$ takes finite values throughout.
+\end{axiom}
+
+The graph need not be connected, simple, or planar. It need not be
+metric, in the sense that $w$ need not satisfy the triangle
+inequality. We require only that it has a finite number of
+vertices, a finite number of edges, and a finite-valued non-negative
+measure on its edges.
+
+\begin{remark}[Why graphs]
+\label{rem:why_graphs}
+We pick graphs as the primitive structure because they are the
+minimal combinatorial encoding of relational data: a set of entities
+together with the relations between them. Any system describable as
+``entities standing in relations'' is encodable as a graph, possibly
+a multigraph with labelled edges. Trees, finite-state machines,
+knowledge bases, relational databases, dependency graphs, and finite
+hypergraphs all reduce to or extend this minimal form. The choice
+restricts neither the scope of application nor the generality of the
+result.
+\end{remark}
+
+\subsection{Finite agent}
+
+\begin{definition}[Distinguishability relation]
+\label{def:distrel}
+A \emph{distinguishability relation} on $\Graph$ is a binary
+relation $\sim \subseteq \Vrt \times \Vrt$ such that for each pair
+$(u, v)$, the agent has either established $u \sim v$ (the pair is
+treated as a single entity), or $u \not\sim v$ (the pair is treated
+as distinct entities), but not both.
+\end{definition}
+
+\begin{definition}[Finite agent]
+\label{def:agent}
+A \emph{finite agent} $\Agent$ on $\Graph$ is specified by:
+\begin{enumerate}[label=(F\arabic*),leftmargin=2.6em,nosep]
+\item\label{F:fin_state} A finite internal state space $S_\Agent$
+with $|S_\Agent| < \infty$, encoding all distinctions the agent can
+hold at once.
+\item\label{F:fin_descr} A finite descriptive scheme: each
+distinguishability decision is recorded by an injection from the
+$\sim$-classes into $S_\Agent$, so the number of distinct
+equivalence classes the agent can simultaneously hold is at most
+$|S_\Agent|$.
+\item\label{F:fin_cost} A finite cost budget: each act of
+distinguishing a pair $(u,v)$ as $u \not\sim v$ has a cost
+$c(u,v) > 0$ bounded below by a positive constant $c_0$, and the
+agent's total expenditure over its lifetime is bounded by a finite
+budget $C_{\Agent} < \infty$.
+\end{enumerate}
+\end{definition}
+
+\begin{axiom}[Finite agent hypothesis]
+\label{ax:agent}
+Any agent engaging $\Graph$ is a finite agent in the sense of
+\cref{def:agent}: it has finite internal state, finite descriptive
+scheme, and finite cost budget.
+\end{axiom}
+
+We make no further assumptions about the agent's architecture: it
+may be a human, a machine, a sensor network, a software process, a
+finite collective. The three finiteness conditions of
+\cref{def:agent} are the substantive content of \cref{ax:agent}.
+
+\subsection{What the premises do not say}
+
+\Cref{ax:graph,ax:agent} are sharp where they need to be sharp and
+silent elsewhere. We list three things the premises explicitly do
+not say.
+
+\begin{enumerate}[nosep,leftmargin=*]
+\item They do not say the world is finite. Reality at large is
+permitted to be infinite; the premises restrict only the system the
+agent engages and the agent itself, both of which are finite.
+\item They do not say the graph encodes everything about the system.
+A graph is a \emph{model} of the system the agent uses; what the
+system is in itself, outside the agent's modelling, is not
+addressed.
+\item They do not say agents must be physical. The argument applies
+to any agent satisfying~\ref{F:fin_state}--\ref{F:fin_cost},
+whatever its substrate.
+\end{enumerate}
+
+\subsection{Scope}
+
+The conjunction of the two premises covers the dominant case of
+engineering practice: software systems, embedded controllers,
+sensor networks, knowledge bases, finite databases, finite-state
+protocols, and finite communication graphs. It does not cover
+putative infinite agents (perfect oracles, unbounded computation) or
+putative infinite systems (continuous fields engaged directly,
+without finite discretisation). Where finite discretisation is
+imposed---which is the case in all realised engineering
+systems---the premises apply.
+
+% =====================================================================
+\section{Consequences of the Two Premises}
+\label{sec:consequences}
+% =====================================================================
+
+We derive three consequences of the conjunction of \cref{ax:graph}
+and \cref{ax:agent}. Each is forced by the premises alone; no
+additional hypothesis is invoked.
+
+\subsection{The distinguishability floor}
+
+\begin{theorem}[Floor on edge measure for realisable
+distinguishability]
+\label{thm:floor}
+Let $\Graph$ satisfy \cref{ax:graph} and $\Agent$ satisfy
+\cref{ax:agent}. Then there exists a constant $\floor > 0$,
+depending on $\Agent$ and $\Graph$ but independent of any individual
+pair, such that for every pair $(u, v) \in \Vrt \times \Vrt$ that
+$\Agent$ can realise as $u \not\sim v$, the path through the graph
+that $\Agent$ uses to distinguish $u$ from $v$ contains an edge of
+measure $\geq \floor$.
+\end{theorem}
+
+\begin{proof}
+By~\ref{F:fin_cost}, every act of distinguishing has cost
+$c(u,v) \geq c_0 > 0$. Suppose, for contradiction, that there is no
+positive floor on the edge measures used: then for every
+$\epsilon > 0$, $\Agent$ can realise a distinction $u \not\sim v$
+using only edges $e$ with $w(e) < \epsilon$.
+
+Consider the set of edge measures that appear on agent-realised
+distinguishability paths. By~\ref{F:fin_descr}, the number of
+distinguishability acts the agent can record is bounded by
+$|S_\Agent|^2$, a finite number. Each such act uses finitely many
+edges, so the union of all edge measures appearing on agent-realised
+paths is a finite subset of $\R_{\geq 0}$. Null-measure edges do
+not contribute to a distinction (a null edge connects vertices
+that share all of the agent's path-measure, so $u \not\sim v$
+across a null edge is not realisable; the agent's descriptive
+scheme records no measure differential). Hence the set of
+edge-measure contributions to realised distinctions is a finite
+subset of $\R_{> 0}$.
+
+The infimum of a finite non-empty set of strictly positive numbers
+is itself strictly positive. Set
+$\floor := \min \{w(e) : w(e) > 0,\,e \text{ appears on some
+agent-realised distinguishability path}\}$. Then $\floor > 0$ and
+every realised distinguishability path contains an edge of measure
+$\geq \floor$, contradicting the assumption. $\qed$
+\end{proof}
+
+\begin{remark}[Floor is a finiteness floor]
+\label{rem:floor_is_finiteness}
+The floor $\floor$ is not a metaphysical lower bound on what edges
+``can be.'' It is the lower bound forced by the finiteness of
+$\Edg$ and the requirement that distinguishability be realisable.
+With a finite edge set having positive-measure edges, the minimum
+positive measure is itself positive. This is a combinatorial
+observation, not a substantive claim about the structure of
+reality.
+\end{remark}
+
+\subsection{Residue: every distinguishability act deposits content}
+
+\begin{definition}[Residue]
+\label{def:residue}
+The \emph{residue} $\Res(u,v)$ of a distinguishability act
+$u \not\sim v$ realised by $\Agent$ is the sum of edge measures
+along the path the agent uses:
+\[
+  \Res(u,v) = \sum_{e \in \mathrm{path}_\Agent(u,v)} w(e).
+\]
+By \cref{thm:floor}, $\Res(u,v) \geq \floor > 0$ for every
+realisable distinguishability act.
+\end{definition}
+
+\begin{theorem}[Residues are additive under composition]
+\label{thm:residue_additive}
+Let $u \not\sim v$ and $v \not\sim w$ be two distinguishability
+acts realised by $\Agent$. The composed act $u \not\sim w$ (if
+realisable) has residue:
+\[
+  \Res(u, w) \leq \Res(u, v) + \Res(v, w).
+\]
+Equality holds when the path the agent uses for the composed act is
+the concatenation of the individual paths.
+\end{theorem}
+
+\begin{proof}
+The residue of the composed act is the sum of edge measures along
+the agent's path from $u$ to $w$. By the triangle inequality for
+sums of non-negative numbers, the shortest such path has total
+measure no greater than the sum of any concatenated route. If the
+agent uses the concatenation $u \to v \to w$, equality holds;
+otherwise the agent has found a shorter path and the inequality is
+strict. $\qed$
+\end{proof}
+
+\begin{corollary}[Residue accumulates and does not refund]
+\label{cor:res_accumulate}
+For any sequence of distinguishability acts
+$u_0 \not\sim u_1 \not\sim u_2 \not\sim \cdots \not\sim u_n$, the
+total residue deposited satisfies:
+\[
+  \sum_{i=0}^{n-1} \Res(u_i, u_{i+1}) \geq n\floor > 0.
+\]
+The cumulative residue strictly grows with the number of acts and
+is bounded below by $n\floor$. No act reduces the cumulative total;
+the sum is monotone non-decreasing in $n$.
+\end{corollary}
+
+\begin{proof}
+By \cref{thm:floor}, each $\Res(u_i, u_{i+1}) \geq \floor$. Summing
+$n$ non-negative terms each $\geq \floor$ gives $\geq n\floor$.
+Monotonicity in $n$ is immediate from the non-negativity of each
+term. $\qed$
+\end{proof}
+
+\subsection{Closure: distinguishability acts compose}
+
+\begin{definition}[Composition]
+\label{def:compose}
+Let $\mathcal{D}_\Agent$ be the set of distinguishability acts
+$\Agent$ can realise on $\Graph$, each represented as an ordered
+pair $(u, v)$ with $u \not\sim v$. \emph{Composition} of two acts
+$(u, v)$ and $(v, w)$ is the act $(u, w)$, provided $\Agent$ can
+realise it.
+\end{definition}
+
+\begin{lemma}[Composition is associative]
+\label{lem:assoc}
+Composition of distinguishability acts is associative: for any
+realisable triple $(u, v)$, $(v, w)$, $(w, x)$,
+\[
+  ((u,v)\circ(v,w))\circ(w,x) = (u,v)\circ((v,w)\circ(w,x)).
+\]
+\end{lemma}
+
+\begin{proof}
+Both sides are the act $(u, x)$, identified by the same source
+vertex $u$ and the same target vertex $x$. As an ordered pair, the
+act is uniquely determined by its endpoints, so the two
+compositions produce the same act. $\qed$
+\end{proof}
+
+\begin{lemma}[Identity exists]
+\label{lem:identity}
+The \emph{trivial act} $\mathrm{id} = (u, u)$ for any $u \in \Vrt$
+satisfies $(u, v) \circ \mathrm{id} = (u, v)$ and
+$\mathrm{id} \circ (u, v) = (u, v)$ for every realisable act
+$(u, v) \in \mathcal{D}_\Agent$, where the identity is taken with
+matched endpoint.
+\end{lemma}
+
+\begin{proof}
+The trivial act has residue $\Res(u, u) = 0$ (no edge traversed)
+and acts as identity on either side by composition. The agent need
+not realise the trivial act to perform a distinguishability, but it
+can include it costlessly in any composition. $\qed$
+\end{proof}
+
+\begin{theorem}[Closure under composition is a monoid]
+\label{thm:monoid}
+The set $\mathcal{D}_\Agent \cup \{\mathrm{id}\}$ equipped with the
+composition $\circ$ forms a monoid: associative, with identity.
+\end{theorem}
+
+\begin{proof}
+\cref{lem:assoc} establishes associativity; \cref{lem:identity}
+establishes the identity. Closure of the underlying set under
+$\circ$ holds whenever the composed act is realisable; by extending
+the set to its closure under composition (adding realisable but
+not directly performed acts), we obtain a monoid in the strict
+sense. $\qed$
+\end{proof}
+
+% =====================================================================
+\section{The Operational Structure Theorem}
+\label{sec:main}
+% =====================================================================
+
+We now state and prove the main result: a finite agent engaging a
+finite graph cannot avoid admitting an operational structure in the
+following precise sense.
+
+\subsection{Operational structure}
+
+\begin{definition}[Operational structure]
+\label{def:opstr}
+An \emph{operational structure} on a finite graph $\Graph$ relative
+to a finite agent $\Agent$ is a quadruple
+$\OpStr_\Agent = (\Op, \circ, \mathrm{id}, \leq)$ where:
+\begin{enumerate}[label=(O\arabic*),leftmargin=2.6em,nosep]
+\item\label{O:set} $\Op$ is a finite non-empty set of
+\emph{operations} the agent can apply to vertices or pairs of
+vertices of $\Graph$.
+\item\label{O:monoid} $\circ: \Op \times \Op \to \Op$ is an
+associative composition with identity $\mathrm{id} \in \Op$.
+\item\label{O:order} $\leq$ is a partial order on $\Op$ such that
+$f \leq g$ iff $\Res(f) \leq \Res(g)$, where $\Res$ is the residue
+deposited by the operation.
+\item\label{O:floor} For every non-identity $f \in \Op$,
+$\Res(f) \geq \floor > 0$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Operational Structure Theorem]
+\label{thm:opstructure}
+Under \cref{ax:graph} and \cref{ax:agent}, every distinguishability
+relation $\sim$ that the agent realises on $\Graph$ induces a
+unique operational structure $\OpStr_\Agent$. The structure is
+forced by the conjunction of the two premises and cannot be avoided
+by the agent's choice of method.
+\end{theorem}
+
+\begin{proof}
+We construct $\OpStr_\Agent$ from the agent's realised
+distinguishability acts and verify the four clauses.
+
+\emph{Set of operations~\ref{O:set}.} Let $\Op = \mathcal{D}_\Agent
+\cup \{\mathrm{id}\}$. By \cref{ax:agent},
+$|\mathcal{D}_\Agent|$ is bounded by $|S_\Agent|^2 < \infty$.
+Hence $\Op$ is finite.
+
+\emph{Monoid structure~\ref{O:monoid}.} By \cref{thm:monoid},
+$\Op$ under composition is a monoid with identity.
+
+\emph{Partial order~\ref{O:order}.} Define $f \leq g$ iff
+$\Res(f) \leq \Res(g)$. Reflexivity, transitivity, and antisymmetry
+(up to residue-equivalence) follow from the same properties of
+$\leq$ on $\R_{\geq 0}$.
+
+\emph{Floor~\ref{O:floor}.} By \cref{thm:floor}, every realised
+distinguishability act has residue $\geq \floor > 0$. The identity
+has residue $0$, so the floor applies only to non-identity
+operations, as stated.
+
+\emph{Uniqueness.} The structure is determined by (i) the agent's
+finite descriptive scheme (which fixes $\Op$ up to relabelling),
+(ii) the composition law on the graph (which is determined by the
+graph and the agent's path-choices, both finite), (iii) the
+residue function (determined by $w$), and (iv) the floor (the
+minimum positive edge measure, determined by $\Graph$). Hence the
+structure is unique given $(\Agent, \Graph)$.
+
+\emph{Forcing.} The four clauses follow from the premises alone,
+with no further hypothesis. If an agent attempts to deny one of
+them, the denial reduces to denying one of the premises:
+rejecting~\ref{O:set} requires $|\Op| = \infty$ (denial of
+\ref{F:fin_descr}); rejecting~\ref{O:monoid} requires
+non-associative composition (denial of the agent's recording of the
+composed result, again \ref{F:fin_descr});
+rejecting~\ref{O:order} requires negative or unordered residue
+(denial of \cref{def:graph}, $w \geq 0$); rejecting~\ref{O:floor}
+requires zero-residue distinguishability acts (denial of
+\cref{thm:floor}, hence of finiteness). The structure is forced.
+$\qed$
+\end{proof}
+
+\subsection{Consequences of the theorem}
+
+\begin{corollary}[Operations are not chosen, only labelled]
+\label{cor:not_chosen}
+The set $\Op$, the composition $\circ$, the order $\leq$, and the
+floor $\floor$ are determined by $(\Agent, \Graph)$. Choosing an
+operational structure for a finite agent on a finite graph is
+choosing labels for elements of a structure that already exists; it
+is not creating the structure.
+\end{corollary}
+
+\begin{proof}
+Immediate from the uniqueness clause of \cref{thm:opstructure}.
+The relabelling freedom is the choice of names for the operations;
+the structure underneath is fixed. $\qed$
+\end{proof}
+
+\begin{corollary}[Finite-system engineering is a discovery task]
+\label{cor:discovery}
+Designing operations for a finite system engaged by finite agents
+is the task of discovering the structure that $(\Agent, \Graph)$
+determines, not of inventing one. Two designs disagreeing about
+which operations to admit are disagreeing about $(\Agent, \Graph)$,
+not about taste.
+\end{corollary}
+
+\begin{proof}
+By \cref{cor:not_chosen}, the structure is determined; differences
+between designs reduce to differences in the underlying agent--graph
+pair. $\qed$
+\end{proof}
+
+\begin{corollary}[The operational structure has no minimum below the
+floor]
+\label{cor:no_below}
+There is no operation in $\OpStr_\Agent$ with residue strictly less
+than $\floor$, other than the identity. The floor is reachable
+(operations of residue exactly $\floor$ may exist, corresponding to
+single-edge distinctions along the lightest positive edge); it is
+not crossable downward.
+\end{corollary}
+
+\begin{proof}
+By~\ref{O:floor}, all non-identity operations have residue
+$\geq \floor$. Operations of residue exactly $\floor$ exist iff
+there is a single edge of weight $\floor$ that realises a
+distinction; this is true whenever $\floor$ is attained by some
+edge in $\Graph$, which by \cref{thm:floor} is the case. $\qed$
+\end{proof}
+
+% =====================================================================
+\section{Classification of Operational Structures}
+\label{sec:classification}
+% =====================================================================
+
+We classify the operational structures arising under the two
+premises. Three canonical types exhaust the possibilities; every
+realisable $\OpStr_\Agent$ is a combination of them.
+
+\subsection{Algebraic operations}
+
+\begin{definition}[Algebraic operation]
+\label{def:alg}
+An operation $f \in \Op$ is \emph{algebraic} if it acts on the
+vertex set independently of the order in which its inputs are
+presented, and its composition with other operations preserves
+residue additivity exactly (equality in
+\cref{thm:residue_additive}).
+\end{definition}
+
+Examples: equivalence-class formation, set union under a
+distinguishability relation, vertex relabelling under a graph
+automorphism. Algebraic operations are static: they re-express the
+graph without exploiting its dynamics.
+
+\subsection{Dynamical operations}
+
+\begin{definition}[Dynamical operation]
+\label{def:dyn}
+An operation $f \in \Op$ is \emph{dynamical} if it changes the
+graph itself: adding vertices, adding or removing edges, or
+modifying $w$. A dynamical operation transitions
+$\Graph_t \to \Graph_{t+1}$ in discrete steps indexed by
+$t \in \Zp$.
+\end{definition}
+
+Examples: graph edits, state-machine transitions, edge-weight
+updates. Dynamical operations exploit the temporal structure of
+the agent--graph interaction.
+
+\begin{lemma}[Dynamical operations have strictly positive residue]
+\label{lem:dyn_residue}
+Every realisable dynamical operation has residue $\geq \floor$.
+\end{lemma}
+
+\begin{proof}
+Adding or modifying an edge of weight $< \floor$ would create an
+edge that cannot contribute to any distinguishability act
+(\cref{thm:floor}); the operation is vacuous. To be non-vacuous,
+the operation must touch at least one edge of weight $\geq \floor$,
+hence deposit residue $\geq \floor$. $\qed$
+\end{proof}
+
+\subsection{Computational operations}
+
+\begin{definition}[Computational operation]
+\label{def:comp}
+An operation $f \in \Op$ is \emph{computational} if it produces a
+binary output (yes/no, equal/distinct, present/absent) by traversing
+a finite portion of $\Graph$ in a sequence of edge accesses.
+\end{definition}
+
+Examples: membership queries, reachability queries, path-existence
+checks, equivalence tests.
+
+\begin{lemma}[Computational operations decompose into elementary
+acts]
+\label{lem:comp_decompose}
+Every computational operation decomposes into a finite sequence of
+elementary distinguishability acts, each of residue $\geq \floor$.
+The total residue is the sum of residues along the sequence.
+\end{lemma}
+
+\begin{proof}
+A computational operation accesses edges in a finite sequence (by
+finiteness of the agent's procedure). Each edge access either
+contributes to a distinguishability act or returns the trivial act
+$\mathrm{id}$. The non-trivial accesses each have residue
+$\geq \floor$; the total is the sum. $\qed$
+\end{proof}
+
+\subsection{Closure under combination}
+
+\begin{theorem}[Three-type completeness]
+\label{thm:three_types}
+Every realisable operation in $\OpStr_\Agent$ is a combination of
+algebraic, dynamical, and computational operations. There are no
+realisable operations of a fourth type.
+\end{theorem}
+
+\begin{proof}
+Let $f \in \Op$ be a realisable operation. By the agent's finite
+descriptive scheme, $f$ is recorded as an effect on the agent's
+internal state. The effect is one of:
+\begin{enumerate}[nosep,leftmargin=*]
+\item A change in equivalence-class structure without graph
+modification: algebraic.
+\item A change in the graph itself: dynamical.
+\item A query producing a binary output: computational.
+\end{enumerate}
+Any composite operation decomposes into these three types in some
+order. There is no fourth category because the agent's effect on
+the graph is exhausted by re-classifying, editing, or querying;
+any other ``effect'' would have to leave both the graph and the
+equivalence structure untouched while producing no output, which by
+\ref{F:fin_state}--\ref{F:fin_cost} is the trivial act
+$\mathrm{id}$. $\qed$
+\end{proof}
+
+\begin{remark}[Composition across types]
+\label{rem:cross_type}
+Operations of different types compose in $\Op$ without restriction:
+a query followed by an edit followed by a relabelling is a single
+composite operation. The classification labels the type of each
+component; the monoid structure operates on the composites.
+\end{remark}
+
+% =====================================================================
+\section{The Forced Structure in Detail}
+\label{sec:detail}
+% =====================================================================
+
+We restate the main result as a structural recipe, making explicit
+what $\OpStr_\Agent$ looks like once $(\Agent, \Graph)$ is fixed.
+
+\subsection{The structure recipe}
+
+Given $(\Agent, \Graph)$ satisfying \cref{ax:agent} and
+\cref{ax:graph}:
+\begin{enumerate}[label=(R\arabic*),leftmargin=2.6em,nosep]
+\item\label{R:floor} Compute $\floor = \min \{w(e) : e \in \Edg,\,
+w(e) > 0\}$. This is the operational floor of the structure.
+\item\label{R:ops} Enumerate the agent's realisable
+distinguishability acts on $\Graph$; close under composition to
+obtain $\Op$.
+\item\label{R:residue} For each $f \in \Op$, compute the residue
+$\Res(f)$ as the path-measure sum.
+\item\label{R:order} Order $\Op$ by residue: $f \leq g$ iff
+$\Res(f) \leq \Res(g)$.
+\item\label{R:classify} Classify each $f \in \Op$ as algebraic,
+dynamical, or computational by inspection of its effect.
+\end{enumerate}
+
+\begin{proposition}[The recipe is well-defined and terminates]
+\label{prop:recipe}
+The recipe \ref{R:floor}--\ref{R:classify} is well-defined and
+terminates in finite time for any $(\Agent, \Graph)$ satisfying the
+two premises.
+\end{proposition}
+
+\begin{proof}
+\ref{R:floor} is a minimum over a finite non-empty set of positive
+reals: well-defined and computable in $O(|\Edg|)$ time.
+\ref{R:ops} is the closure of a finite generating set under a
+finite binary operation: terminates because
+$|\Op| \leq |S_\Agent|^2$ is finite.
+\ref{R:residue} sums finitely many non-negative reals per
+operation: well-defined and computable in $O(|\Vrt|)$ per operation.
+\ref{R:order} is a comparison on a finite totally ordered set
+($\R_{\geq 0}$): well-defined.
+\ref{R:classify} is a case distinction over three cases per
+operation: well-defined.
+Each step terminates; the recipe terminates. $\qed$
+\end{proof}
+
+\subsection{What the structure looks like}
+
+\begin{proposition}[Structural shape]
+\label{prop:shape}
+The operational structure $\OpStr_\Agent$ has the following shape:
+\begin{enumerate}[nosep,leftmargin=*]
+\item It is a finite monoid (\cref{thm:monoid}).
+\item Its non-identity elements have residues bounded below by
+$\floor > 0$ (\cref{thm:floor}).
+\item It is partially ordered by residue, with the identity as the
+unique minimum (residue $0$) and the maximum being the operation of
+highest residue (the most expensive realised act).
+\item Its operations decompose into three canonical types
+(\cref{thm:three_types}).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Each clause is a restatement of an earlier result. The shape is the
+conjunction of those results. $\qed$
+\end{proof}
+
+\subsection{Why the structure is operational rather than only
+combinatorial}
+
+The structure $\OpStr_\Agent$ is called \emph{operational} because
+each element represents an act the agent can perform, with a
+quantifiable cost (residue) and a quantifiable order (residue
+comparison). It differs from a purely combinatorial structure---a
+finite monoid considered abstractly---in two ways:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Each element is associated with a concrete act on the graph,
+not merely an abstract symbol.
+\item Composition is realised, not merely defined: composing two
+acts produces a third act the agent can perform, with predictable
+residue deposited on the graph.
+\end{enumerate}
+The operational character is essential to the result: we are not
+classifying the agent's grammar but its realisable acts on a
+concrete finite system. The two coincide only because the premises
+force the agent's grammar to track its acts; in richer settings
+the two diverge.
+
+% =====================================================================
+\section{Falsifiability}
+\label{sec:falsifiability}
+% =====================================================================
+
+\subsection{Where the argument can fail}
+
+The main theorem (\cref{thm:opstructure}) is a conditional claim
+under \cref{ax:graph} and \cref{ax:agent}. It can be falsified only
+by:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Showing the two premises jointly imply a contradiction (they
+do not, by inspection: a finite graph and a finite agent obviously
+coexist; we are reading this on one).
+\item Showing some step in the derivation does not follow from the
+premises (a mathematical refutation of one of the proved lemmas).
+\item Showing the premises do not apply to a particular case (which
+is honest: the framework declines to address that case).
+\end{enumerate}
+
+The substantive falsification target is (2): exhibiting a finite
+agent realising distinguishability with zero floor on a finite
+graph. We close this case in the next subsection.
+
+\subsection{Zero-floor distinguishability is structurally impossible}
+
+\begin{theorem}[Zero-floor impossibility]
+\label{thm:zero_floor}
+Under \cref{ax:graph} and \cref{ax:agent}, there is no agent--graph
+pair $(\Agent, \Graph)$ admitting a realisable distinguishability
+act of residue $< \floor$, where $\floor$ is the operational floor
+defined by the pair.
+\end{theorem}
+
+\begin{proof}
+Suppose for contradiction such a pair exists, with an act
+$u \not\sim v$ of residue $\Res(u, v) < \floor$. Since the residue
+is the sum of edge measures along the agent's path, and each edge
+measure is either $0$ (does not contribute) or $\geq \floor$ (by
+the definition of $\floor$ as the minimum positive edge measure
+appearing on some realised path), the sum is either $0$ or
+$\geq \floor$.
+
+If the sum is $0$, the agent has used only null edges: the two
+vertices $u, v$ are connected by null edges only, hence are
+indistinguishable in $\Graph$ (any path the agent could take has
+zero measure, so by~\ref{F:fin_descr}, the agent cannot record a
+non-trivial distinguishability between them). The act is vacuous;
+it is not a realised distinguishability.
+
+If the sum is $\geq \floor$, the residue is $\geq \floor$,
+contradicting the assumption.
+
+In either case, the assumed pair does not exist. $\qed$
+\end{proof}
+
+\begin{corollary}[The main theorem is irrefutable from within the
+premises]
+\label{cor:irrefutable}
+\Cref{thm:opstructure} cannot be refuted by an example satisfying
+\cref{ax:graph} and \cref{ax:agent}. Refutation requires either
+denying one of the premises or finding an error in a constituent
+lemma; no example produced under the premises is a counterexample.
+\end{corollary}
+
+\begin{proof}
+Refutation by example requires a $(\Agent, \Graph)$ satisfying the
+premises in which the theorem fails. By the construction of
+$\OpStr_\Agent$ from $(\Agent, \Graph)$ in the theorem's proof, and
+the zero-floor impossibility (\cref{thm:zero_floor}), no such
+example exists. $\qed$
+\end{proof}
+
+\subsection{Honest scope}
+
+\begin{remark}[The argument is silent outside its premises]
+\label{rem:silent}
+We make no claim about agents that fail \cref{ax:agent} (putative
+infinite agents, oracles, perfect observers) or systems that fail
+\cref{ax:graph} (continuous fields without finite discretisation,
+infinite combinatorial structures). The argument has nothing to
+say about those cases. This silence is intended: the framework is
+deliberately narrow, sharp where the premises hold, mute elsewhere.
+This is the right shape for a conditional architectural claim. It
+allows the result to be definite without overreaching.
+\end{remark}
+
+% =====================================================================
+\section{Implications}
+\label{sec:implications}
+% =====================================================================
+
+We draw three implications of the main theorem for engineering
+practice. Each is a direct consequence of \cref{thm:opstructure} or
+its corollaries.
+
+\subsection{Software architecture under the conditional}
+
+The conjunction of \cref{ax:graph} and \cref{ax:agent} covers all
+realised software systems: any program with finite memory and
+finite execution is a finite agent, and any data structure it
+manipulates is a finite graph. By \cref{thm:opstructure}, the
+program's operational structure is forced by its data structure and
+its agency: it is not chosen.
+
+In practice this means: arguments about which operations a program
+``should'' admit reduce to arguments about $(\Agent, \Graph)$.
+Two architectures disagreeing about the operational interface are
+disagreeing about one of: which finite data structure the system is
+modelled as; which finite agent the program is. Once those are
+agreed, the operations are determined.
+
+\subsection{Database query algebras}
+
+A finite database is a finite graph in the sense of
+\cref{def:graph}: the schema gives the vertices (tables, attributes,
+values), the foreign-key relations give the edges, and the
+cardinalities give the edge measures. A finite query engine is a
+finite agent in the sense of \cref{def:agent}: bounded internal
+state, finite query plan space, finite cost budget per query.
+
+By \cref{thm:opstructure}, the query algebra is forced. The choice
+between relational algebra, calculus, and CRUD is the choice of
+which subset of the forced algebra to expose; it is not the choice
+of which algebra to invent. The minimal operational floor is the
+smallest positive edge weight in the schema graph (typically a unit
+cardinality), and every realisable query has residue $\geq$ this
+floor.
+
+\subsection{Knowledge graphs and reasoning}
+
+A finite knowledge graph---ontology, RDF triple store, labelled
+property graph---is a finite graph in the sense of \cref{def:graph}.
+A finite reasoner---SPARQL engine, description-logic prover, graph
+neural network---is a finite agent in the sense of \cref{def:agent}.
+By \cref{thm:opstructure}, the reasoner's operational structure is
+forced by the graph it queries and the resources it has.
+
+The implication is that the apparent diversity of reasoning systems
+collapses, under the conditional, to relabelling. Two reasoners
+with the same $(\Agent, \Graph)$ admit the same operations up to
+naming; their differences are presentational, not structural.
+Cross-system calibration (translation of one query language into
+another) is guaranteed to exist whenever $(\Agent, \Graph)$ is
+shared.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+\subsection{What we have established}
+
+We have shown that under two finiteness premises---finite engaging
+agent (\cref{ax:agent}), finite engaged graph-structured system
+(\cref{ax:graph})---the system necessarily admits an operational
+structure $\OpStr_\Agent$ that is forced by the premises and unique
+given the pair $(\Agent, \Graph)$. The structure is a finite monoid
+with a partial order by residue, a strictly positive floor on
+non-identity residues, and a three-type classification (algebraic,
+dynamical, computational) that exhausts the realisable operations.
+
+The result is a conditional architectural claim. It does not
+address what reality is in itself; it addresses what structure
+follows when the two conditions hold. Where they hold---which is
+the case in essentially all realised engineering systems---the
+operational structure is determined.
+
+\subsection{What we have not claimed}
+
+We have not claimed that:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Reality is fundamentally finite. The premises restrict the
+agent and the system the agent engages, not the world.
+\item All systems are graphs. The premises identify the conditions
+under which the result holds; systems failing the conditions are
+not addressed.
+\item Operational structures are the only structures of interest.
+Other structures (continuous dynamics, categorical limits, infinite
+processes) may coexist with operational structure; we have not
+spoken to them.
+\end{enumerate}
+
+\subsection{The narrowness of the result is the point}
+
+A conditional result is sharp because it is narrow. The framework
+established here speaks definitively about a specific class of
+situations and is silent about others. This is exactly the right
+shape for an architectural claim: scope is a feature, and the scope
+of \cref{thm:opstructure} is the scope of finite agency engaging
+finite graph-structured systems. Within that scope, the operational
+structure is forced. Outside it, the framework declines to address
+the case.
+
+\subsection{What this enables}
+
+The main practical consequence is that engineering decisions over
+$(\Agent, \Graph)$ become discovery tasks rather than invention
+tasks. To design a finite system's operational structure is to
+identify the unique $\OpStr_\Agent$ that the agent--graph pair
+determines. To compare two designs is to ask whether they realise
+the same $(\Agent, \Graph)$. To extend a system is to ask how the
+extension changes $(\Agent, \Graph)$ and re-derive the structure.
+
+The framework converts what is currently treated as a matter of
+architectural taste into a matter of formal derivation. Whether
+this is a useful conversion in practice depends on whether the cost
+of formalising $(\Agent, \Graph)$ for a given system is less than
+the cost of debating its operational structure informally. We
+expect this to be true at scale---for large systems with many
+stakeholders and long lifetimes---and false at small scale, where
+the informal debate is cheap.
+
+\subsection{Closing}
+
+The structure of operations on a finite graph engaged by a finite
+agent is not a design problem. It is a derivation from the two
+finiteness premises. The derivation produces a unique answer. The
+answer is a finite monoid with a positive floor and a three-type
+classification. That is what the conditional architecture says, and
+that is all it says.
+
+% =====================================================================
+\begin{thebibliography}{9}
+
+\bibitem[Bollob\'as(1998)]{bollobas1998} B\'ela Bollob\'as.
+\emph{Modern Graph Theory}.
+Graduate Texts in Mathematics 184, Springer, 1998.
+
+\bibitem[Davey and Priestley(2002)]{daveypriestley2002}
+B.~A. Davey and H.~A. Priestley.
+\emph{Introduction to Lattices and Order}, 2nd edition.
+Cambridge University Press, 2002.
+
+\bibitem[Diestel(2017)]{diestel2017} Reinhard Diestel.
+\emph{Graph Theory}, 5th edition.
+Graduate Texts in Mathematics 173, Springer, 2017.
+
+\bibitem[Halmos(1950)]{halmos1950} Paul R. Halmos.
+\emph{Measure Theory}.
+Van Nostrand, 1950.
+
+\bibitem[Hopcroft, Motwani and Ullman(2007)]{hopcroft2007}
+John E. Hopcroft, Rajeev Motwani, and Jeffrey D. Ullman.
+\emph{Introduction to Automata Theory, Languages, and Computation},
+3rd edition. Addison-Wesley, 2007.
+
+\bibitem[Howie(1995)]{howie1995} John M. Howie.
+\emph{Fundamentals of Semigroup Theory}.
+London Mathematical Society Monographs 12, Oxford University Press,
+1995.
+
+\end{thebibliography}
+
+\end{document}

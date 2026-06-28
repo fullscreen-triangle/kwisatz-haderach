@@ -1,0 +1,965 @@
+% =====================================================================
+%  A COUNTING BOUND ON TRANSVERSE RELAXATION
+%  Schmidt-Rank Growth, the Margolus--Levitin Ceiling, and a
+%  Perturbation-Independent Loschmidt-Echo Floor
+%
+%  Self-contained. No external framework assumed.
+% =====================================================================
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,
+            citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small A Counting Bound on Transverse Relaxation}
+\fancyhead[LO]{\small}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Hilb}{\mathcal{H}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\sysrho}{\rho_{\mathrm{S}}}
+\newcommand{\Svn}{S_{\mathrm{vN}}}
+\newcommand{\Meff}{M_{\mathrm{eff}}}
+\newcommand{\Tone}{T_{1}}
+\newcommand{\Ttwo}{T_{2}}
+\newcommand{\Tstar}{T_{2}^{\ast}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Ham}{\mathcal{H}}
+\DeclareMathOperator{\Var}{Var}
+
+% =====================================================================
+\title{\textbf{A Counting Bound on Transverse Relaxation:\\[2pt]
+Schmidt-Rank Growth, the Margolus--Levitin Ceiling,\\
+and a Perturbation-Independent Loschmidt-Echo Floor}}
+
+\author{}
+\date{\today}
+% =====================================================================
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+The transverse relaxation time $\Ttwo$ of a spin ensemble, and the
+irreducible attenuation of its Hahn and Loschmidt echoes, are normally
+computed from a microscopic relaxation theory (Bloch--Redfield, or its
+strong-coupling Anderson--Kubo limit) in which the relaxation rate is a
+second-moment integral of a bath correlation function. We present an
+independent, information-theoretic derivation that does not begin from a
+correlation function but from a single counting principle: the number of
+mutually distinguishable states a system can resolve under a Hamiltonian
+of energy spread $\Delta E$ grows no faster than the Margolus--Levitin
+ceiling $2\Delta E/\pi\hbar$. We make this concrete by identifying the
+``count'' with the effective Schmidt rank $\Meff(t)=\exp \Svn(\sysrho(t))$
+of the reduced spin state, where $\Svn$ is the von Neumann entropy of the
+spin density operator after the bath is traced out. Three results follow.
+\textbf{(i)} A \emph{counting bound on relaxation}: the transverse
+relaxation rate is bounded by the rate of Schmidt-rank growth, which is
+in turn bounded by the Margolus--Levitin ceiling evaluated at the
+spin--bath coupling energy; saturation of the bound reproduces the
+Anderson--Kubo rigid-lattice rate $1/\Ttwo\simeq\langle\delta\omega^{2}
+\rangle^{1/2}$ with no fitted constant. \textbf{(ii)} A \emph{derivation,
+not a postulate, of monotonicity}: starting from a strictly
+time-reversal-invariant total Hamiltonian, the reduced spin entropy
+$\Svn(\sysrho(t))$ is non-decreasing under coarse-grained evolution by
+the data-processing inequality, so the count is monotone although the
+microscopic dynamics is reversible---the arrow enters solely through the
+partial trace, and the spin echo separates the reversible
+(product-state) part of dephasing from the irreversible
+(entanglement-committed) part exactly. \textbf{(iii)} A
+\emph{perturbation-independent echo floor}: counting the distinguishable
+many-body trajectories accessible after $n$ coherent steps over $d$
+coupling channels gives $T(n,d)=d(d+1)^{n-1}$, whose logarithmic growth
+rate $\ln(d{+}1)$ per step is independent of the coupling strength;
+converted to a physical rate this predicts a Loschmidt-echo decay floor
+$1/\tau_{\mathrm{floor}}=(\omega_{\mathrm{loc}}/2\pi)\ln(d{+}1)$ that does
+not recede as the reversal engineering improves. The prediction
+reproduces the observed environment-independence of polarization-echo
+decay and, unlike the semiclassical Lyapunov account, predicts a nonzero
+floor for non-chaotic and integrable many-body spin systems---a
+falsifiable point of departure. We state the assumptions explicitly,
+prove each result, and identify the experiments that would confirm or
+refute the framework.
+\end{abstract}
+
+\noindent\textbf{Keywords:} transverse relaxation; spin echo; Loschmidt
+echo; Schmidt rank; von Neumann entropy; Margolus--Levitin bound; quantum
+speed limit; data-processing inequality; environment-independent
+decoherence; irreversibility.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+A precessing spin ensemble in a static magnetic field loses transverse
+coherence on two timescales \citep{bloch1946,abragam1961,slichter1990}.
+The faster, $\Tstar$, reflects static spread in precession frequencies
+across the sample; it is reversible, and the Hahn echo
+\citep{hahn1950} undoes it exactly with a single refocusing pulse. The
+slower, $\Ttwo$, reflects time-dependent fluctuating fields; it is not
+undone by refocusing, and it sets the floor of the echo amplitude. The
+standard account of $\Ttwo$ is Bloch--Redfield theory
+\citep{redfield1957,abragam1961}: the relaxation rate is a spectral
+integral of a bath autocorrelation function, reducing to
+$1/\Ttwo=\tfrac12\gamma^{2}\langle\delta B^{2}\rangle\tau_{c}$ in the
+motional-narrowing limit and to the rigid-lattice second moment
+$1/\Ttwo\simeq\langle\delta\omega^{2}\rangle^{1/2}$ when the bath is slow
+\citep{anderson1953,kubo1962}.
+
+This theory is quantitatively successful and we do not dispute it. We
+ask a different question. The relaxation rate, in the standard account,
+is the output of a correlation function whose form is supplied by the
+microscopic model. Is there a derivation of the \emph{same number} from a
+principle that does not presuppose the correlation function---a principle
+about how fast distinguishable information can be generated at all? And
+does that principle say anything the correlation-function account does
+not, in the regime where the two might diverge?
+
+We answer both questions affirmatively. The organizing principle is a
+\emph{quantum speed limit}: the Margolus--Levitin theorem
+\citep{margolus1998,mandelstam1945,deffner2017}, which bounds the rate at
+which a system can pass between distinguishable states by its energy
+spread. We convert this into a bound on a \emph{counting} quantity---the
+effective number of states the environment has resolved about the
+spins---and show that the relaxation rate is the saturation of this
+bound.
+
+\subsection{The three layers of the argument}
+
+The paper has a deliberate three-layer structure, each layer answering a
+distinct objection one might raise against the previous one.
+
+\paragraph{Foundation (Section~\ref{sec:ceiling}): a counting ceiling
+fixes the rate constant.} We define a count---the effective Schmidt rank
+of the reduced spin state---and prove that its rate of growth is bounded
+by the Margolus--Levitin ceiling evaluated at the spin--bath interaction
+energy. Saturating the ceiling reproduces the Anderson--Kubo rigid-lattice
+relaxation rate with no adjustable proportionality constant. This answers
+the objection ``the rate constant is fitted, not derived.''
+
+\paragraph{Mechanism (Section~\ref{sec:mechanism}): monotonicity is
+derived, not assumed.} We then show \emph{why} the count grows at all,
+and only forward. Starting from a strictly time-reversal-invariant total
+Hamiltonian for spins-plus-bath, the reduced spin entropy is
+non-decreasing under the coarse-grained (bath-averaged) dynamics by the
+data-processing inequality for completely positive trace-preserving maps.
+The microscopic dynamics is reversible; the count is monotone; the only
+step that breaks the symmetry is the partial trace. The Hahn echo is the
+experimentum crucis: it separates the part of dephasing that leaves the
+spin--bath state a product (reversible, refocusable) from the part that
+entangles spins with the bath (irreversible, committed). This answers the
+objection ``the monotonicity is true by definition, not earned from
+reversible mechanics.''
+
+\paragraph{Headline (Section~\ref{sec:floor}): a
+perturbation-independent floor.} Finally we count the distinguishable
+many-body trajectories a spin system can traverse in $n$ coherent steps
+when it is coupled through $d$ channels. The count is $T(n,d)=d(d+1)^{n-1}$,
+and its logarithmic growth rate per step, $\ln(d+1)$, depends only on the
+channel multiplicity $d$ and \emph{not} on the coupling strength.
+Converted to a physical rate through the local precession frequency, this
+predicts an irreducible Loschmidt-echo decay rate
+$1/\tau_{\mathrm{floor}}=(\omega_{\mathrm{loc}}/2\pi)\ln(d+1)$ that does
+not improve as the experimental reversal is made more perfect. This
+reproduces the central empirical finding of polarization-echo experiments
+\citep{levstein1998,pastawski2000,jalabert2001}---decay independent of the
+residual imperfection---and makes a prediction the semiclassical Lyapunov
+account does not: a nonzero floor even for integrable, non-chaotic spin
+systems.
+
+\subsection{Relation to existing theory}
+
+We are not proposing a replacement for relaxation theory; we are
+proposing a bound that the standard theory must respect and that, at
+saturation, the standard theory realizes. The relationship is the same as
+that between the Carnot bound and a specific heat engine: the bound is
+derived from a general principle (here, the quantum speed limit), and a
+particular microscopic model either saturates it or falls below it. The
+content of the paper is (a) that transverse relaxation \emph{saturates}
+the counting ceiling in the rigid-lattice regime, (b) that the
+monotonicity of the count is forced by open-system structure rather than
+assumed, and (c) that one consequence---the echo floor---is both
+quantitative and, in a specific regime, distinguishable from the
+orthodox semiclassical prediction.
+
+% =====================================================================
+\section{Setup and assumptions}
+\label{sec:setup}
+% =====================================================================
+
+We fix notation and state every assumption explicitly, so that each later
+theorem can be traced to the hypotheses it requires.
+
+\subsection{The spin--bath system}
+
+\begin{definition}[Spin--bath decomposition]
+\label{def:sysbath}
+The total Hilbert space is $\Hilb=\Hilb_{\mathrm{S}}\otimes
+\Hilb_{\mathrm{B}}$, where $\Hilb_{\mathrm{S}}$ carries the observed spin
+ensemble ($N$ spins, $\dim\Hilb_{\mathrm{S}}=2^{N}$) and
+$\Hilb_{\mathrm{B}}$ carries everything else with which the spins
+interact (other spins, lattice phonons, molecular degrees of freedom). The
+total Hamiltonian is
+\begin{equation}
+H = H_{\mathrm{S}}\otimes\mathbb{1}
+  + \mathbb{1}\otimes H_{\mathrm{B}}
+  + H_{\mathrm{SB}},
+\label{eq:Htotal}
+\end{equation}
+with $H_{\mathrm{SB}}$ the spin--bath coupling. The reduced spin state is
+$\sysrho(t)=\Tr_{\mathrm{B}}\,\rho(t)$, where $\rho(t)$ is the state of
+the closed total system.
+\end{definition}
+
+\begin{assumption}[Reversible substrate]
+\label{ass:reversible}
+The total Hamiltonian \eqref{eq:Htotal} is time-independent and Hermitian,
+and is time-reversal invariant: there is an antiunitary $\Theta$ with
+$\Theta H\Theta^{-1}=H$. The total evolution $U(t)=e^{-iHt/\hbar}$ is
+unitary, hence exactly reversible.
+\end{assumption}
+
+This is the crux of Loschmidt's objection \citep{loschmidt1876}: the
+substrate is reversible, and any irreversibility we derive must therefore
+not be smuggled in through a non-reversible postulate. Assumption~%
+\ref{ass:reversible} holds it fixed.
+
+\begin{assumption}[Initially uncorrelated preparation]
+\label{ass:product}
+At $t=0$ the spin ensemble is prepared in a definite state uncorrelated
+with the bath: $\rho(0)=\sysrho(0)\otimes\rho_{\mathrm{B}}(0)$. In the
+spin-echo context this is the post-$90^{\circ}$-pulse transverse state.
+\end{assumption}
+
+Assumption~\ref{ass:product} is the standard and physically warranted
+initial condition for a relaxation experiment: the pulse prepares the
+spins independently of the bath microstate. It is the only place an
+``initial condition'' enters, and it is the weakest possible one (a
+product state, not a low-entropy fine-tuning).
+
+\begin{assumption}[Coupling energy scale]
+\label{ass:coupling}
+The spin--bath coupling has a finite energy spread in the relevant state,
+\begin{equation}
+\Delta E_{\mathrm{SB}}
+  := \bigl(\langle H_{\mathrm{SB}}^{2}\rangle
+          - \langle H_{\mathrm{SB}}\rangle^{2}\bigr)^{1/2}
+  = \hbar\,\langle\delta\omega^{2}\rangle^{1/2},
+\label{eq:dE}
+\end{equation}
+where $\langle\delta\omega^{2}\rangle$ is the second moment of the
+fluctuating local precession frequency. We write
+$b:=\langle\delta\omega^{2}\rangle^{1/2}$ for this coupling frequency; it
+is the single material parameter of the theory and is, in any concrete
+system, computable from the dipolar (or hyperfine, or exchange) couplings
+by the standard van Vleck moment formulae \citep{abragam1961}.
+\end{assumption}
+
+\subsection{The count}
+
+The central object is not the cycle count of a clock but a count of
+\emph{distinguishable spin states the bath has come to encode}.
+
+\begin{definition}[Effective Schmidt rank / partition count]
+\label{def:count}
+Let $\sysrho(t)$ have von Neumann entropy
+$\Svn(\sysrho)=-\Tr\!\bigl(\sysrho\ln\sysrho\bigr)$. The
+\emph{effective Schmidt rank} of the spin--bath state, equivalently the
+\emph{partition count} of the spin ensemble, is
+\begin{equation}
+\Meff(t) := \exp\!\bigl[\Svn(\sysrho(t))\bigr].
+\label{eq:Meff}
+\end{equation}
+$\Meff$ is the effective number of orthogonal bath states correlated with
+distinct spin states (the participation number of the Schmidt
+decomposition of the global pure state across the S$\mid$B cut)
+\citep{nielsen2010}.
+\end{definition}
+
+Three remarks fix the interpretation. First, $\Meff(0)=1$ by
+Assumption~\ref{ass:product} (a product state has Schmidt rank one).
+Second, $\Meff$ is dimensionless and basis-independent. Third, $\Meff$ is
+exactly the quantity that controls echo attenuation: an echo recovers
+coherence only to the extent that the spin state can be disentangled from
+the bath by an operation on the spins alone, and the obstruction to that
+is precisely $\Svn(\sysrho)>0$. We make this precise in
+Section~\ref{sec:mechanism}.
+
+\begin{remark}[Why a count, and why this count]
+\label{rem:why-count}
+The word ``count'' is used advisedly. $\ln\Meff=\Svn(\sysrho)$ is the
+number of bits the bath has acquired about the spins; $\Meff$ is the
+number of distinguishable alternatives those bits resolve. Relaxation,
+decoherence, and echo attenuation are all, in this reading, the growth of
+$\Meff$. The remainder of the paper bounds the \emph{rate} of that
+growth, proves it \emph{monotone}, and computes its \emph{floor}.
+\end{remark}
+
+% =====================================================================
+\section{Foundation: the counting ceiling on the relaxation rate}
+\label{sec:ceiling}
+% =====================================================================
+
+We first bound how fast $\Meff$ can grow, using only the energy spread of
+the dynamics, and show that saturating the bound returns the known
+relaxation rate.
+
+\subsection{The Margolus--Levitin ceiling}
+
+\begin{lemma}[Distinguishability rate ceiling]
+\label{lem:ML}
+Let a quantum system evolve under a time-independent Hamiltonian of energy
+spread $\Delta E$ (with the ground-state energy set to zero, mean energy
+$\langle E\rangle$). The minimum time to evolve into an orthogonal
+(perfectly distinguishable) state satisfies the Mandelstam--Tamm and
+Margolus--Levitin bounds
+\begin{equation}
+\tau_{\perp}\;\geq\;\max\!\left\{\frac{\pi\hbar}{2\,\Delta E},\;
+\frac{\pi\hbar}{2\,\langle E\rangle}\right\}.
+\label{eq:ML}
+\end{equation}
+Consequently the rate at which mutually orthogonal states can be
+generated is bounded:
+\begin{equation}
+\frac{\dd N_{\perp}}{\dd t}\;\leq\;\frac{2\,\Delta E}{\pi\hbar}.
+\label{eq:rate-ceiling}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The Mandelstam--Tamm bound $\tau_{\perp}\geq\pi\hbar/2\Delta E$ follows
+from the energy--time uncertainty relation applied to the survival
+amplitude $\langle\psi(0)|\psi(t)\rangle$
+\citep{mandelstam1945,deffner2017}; the Margolus--Levitin bound
+$\tau_{\perp}\geq\pi\hbar/2\langle E\rangle$ is an independent inequality
+from the spectral decomposition of the survival amplitude
+\citep{margolus1998}. Both are tight. A sequence of $N_{\perp}$ mutually
+orthogonal states must be separated by at least $\tau_{\perp}$ in time, so
+in elapsed time $t$ at most $t/\tau_{\perp}$ such states are reachable,
+giving \eqref{eq:rate-ceiling}.
+\end{proof}
+
+\subsection{From the ceiling to the relaxation rate}
+
+We now apply Lemma~\ref{lem:ML} to the bath's acquisition of which-spin
+information. The relevant ``system'' for the speed limit is the
+\emph{conditional bath state}: when the spins are in configuration $s$,
+the bath evolves under an effective Hamiltonian
+$H_{\mathrm{B}}^{(s)}=H_{\mathrm{B}}+\langle s|H_{\mathrm{SB}}|s\rangle$.
+Two distinct spin configurations $s\neq s'$ drive the bath along
+trajectories whose conditional Hamiltonians differ by
+$\Delta H_{\mathrm{B}}=\langle s|H_{\mathrm{SB}}|s\rangle
+-\langle s'|H_{\mathrm{SB}}|s'\rangle$, of energy spread of order
+$\Delta E_{\mathrm{SB}}$ (Assumption~\ref{ass:coupling}).
+
+\begin{theorem}[Counting bound on transverse relaxation]
+\label{thm:counting-bound}
+Under Assumptions~\ref{ass:reversible}--\ref{ass:coupling}, the rate of
+growth of the partition count is bounded by the Margolus--Levitin ceiling
+at the coupling energy:
+\begin{equation}
+\frac{\dd}{\dd t}\ln\Meff(t)
+\;=\;\frac{\dd \Svn(\sysrho)}{\dd t}
+\;\leq\;\frac{2\,\Delta E_{\mathrm{SB}}}{\pi\hbar}
+\;=\;\frac{2}{\pi}\,b .
+\label{eq:counting-bound}
+\end{equation}
+The transverse relaxation rate, defined operationally as the initial
+decay rate of the transverse coherence
+$\mathcal{C}(t)=|\Tr(\sysrho(t)\,\sigma_{+})|$, is bounded by the same
+ceiling,
+\begin{equation}
+\frac{1}{\Ttwo}\;\leq\;\frac{2}{\pi}\,b
+\;=\;\frac{2}{\pi}\,\langle\delta\omega^{2}\rangle^{1/2}.
+\label{eq:T2-bound}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The bath states correlated with distinct spin configurations become
+distinguishable no faster than the ceiling \eqref{eq:rate-ceiling} allows,
+with $\Delta E=\Delta E_{\mathrm{SB}}$. Each newly distinguishable bath
+state adds at most one unit to the participation number of the Schmidt
+decomposition, i.e.\ increments $\Meff$ by at most a factor controlled by
+$\dd N_{\perp}/\dd t$; taking logarithms, $\dd\ln\Meff/\dd t\leq
+2\Delta E_{\mathrm{SB}}/\pi\hbar$, which is \eqref{eq:counting-bound}. For
+\eqref{eq:T2-bound}: transverse coherence is the off-diagonal weight of
+$\sysrho$, and its decay is bounded below in time (equivalently the rate
+bounded above) by the rate at which the bath resolves the spin's phase,
+which is exactly the distinguishability rate just bounded. Substituting
+$\Delta E_{\mathrm{SB}}=\hbar b$ gives \eqref{eq:T2-bound}.
+\end{proof}
+
+\subsection{Saturation reproduces the Anderson--Kubo rate}
+
+The ceiling \eqref{eq:T2-bound} is an inequality. Its physical content is
+fixed by asking when it is saturated.
+
+\begin{proposition}[Rigid-lattice saturation]
+\label{prop:saturation}
+In the slow-bath (rigid-lattice) limit, where the bath correlation time
+$\tau_{c}$ is long compared with $1/b$, the ceiling
+\eqref{eq:T2-bound} is saturated up to an $O(1)$ geometric factor, and the
+relaxation rate is
+\begin{equation}
+\frac{1}{\Ttwo}\;\simeq\;\langle\delta\omega^{2}\rangle^{1/2}
+\;=\;b,
+\label{eq:AK}
+\end{equation}
+the Anderson--Kubo rigid-lattice second-moment rate
+\citep{anderson1953,kubo1962}, with no fitted proportionality constant.
+\end{proposition}
+
+\begin{proof}
+When $\tau_{c}\gg 1/b$ the conditional bath Hamiltonians are effectively
+static over the coherence time, so the phase accumulated by the spin is
+$\varphi(t)\approx\delta\omega\,t$ with $\delta\omega$ drawn from a
+distribution of width $b$. The coherence is the Gaussian average
+$\mathcal{C}(t)=\langle e^{i\delta\omega t}\rangle
+=\exp(-\tfrac12 b^{2}t^{2})$, whose $1/e$ time is
+$\sqrt{2}/b$. Identifying the decay rate gives $1/\Ttwo\simeq b$, which
+saturates \eqref{eq:T2-bound} to within the factor $\pi/2$ (the difference
+between the Gaussian $1/e$ time and the orthogonality time of the
+Margolus--Levitin bound). The motional-narrowing limit $\tau_{c}\ll 1/b$
+falls strictly below the ceiling, $1/\Ttwo\simeq b^{2}\tau_{c}\ll b$, as
+the standard theory also gives \citep{kubo1962}: the system is then far
+from saturating the speed limit, consistent with the inequality.
+\end{proof}
+
+\begin{remark}[What has and has not been derived]
+\label{rem:ceiling-status}
+Proposition~\ref{prop:saturation} reproduces the known rigid-lattice rate
+from a speed-limit ceiling, fixing the proportionality constant by
+saturation rather than by fitting. It does not, by itself, exceed
+Bloch--Redfield theory: in the rigid-lattice limit both give $1/\Ttwo\sim
+b$, and in the motional-narrowing limit both give $1/\Ttwo\sim
+b^{2}\tau_{c}$. The value added at this layer is conceptual: the rate is
+exhibited as the saturation of a universal bound on how fast a bath can
+acquire information, not as the output of a particular correlation
+function. The genuinely new prediction appears only at the third layer
+(Section~\ref{sec:floor}), where the bound is applied to many-body
+trajectory counting and yields a coupling-independent floor. The bridge to
+that result is the mechanism of the next section, which is required to
+know that the count grows monotonically at all.
+\end{remark}
+
+% =====================================================================
+\section{Mechanism: monotonicity from the partial trace}
+\label{sec:mechanism}
+% =====================================================================
+
+The ceiling of Section~\ref{sec:ceiling} bounds how fast $\Meff$ can grow.
+It does not say that $\Meff$ grows, nor that it grows only forward.
+Loschmidt's objection is precisely that a reversible substrate should not
+single out a direction. We now show that the count is monotone
+non-decreasing under the coarse-grained dynamics, that this monotonicity
+is a theorem about the partial trace rather than a postulate, and that the
+spin echo realizes the distinction between the reversible and irreversible
+parts of dephasing exactly.
+
+\subsection{The reduced dynamics is a CPTP map}
+
+\begin{lemma}[Reduced evolution is completely positive and
+trace-preserving]
+\label{lem:cptp}
+Under Assumptions~\ref{ass:reversible}--\ref{ass:product}, the map
+$\Lambda_{t}:\sysrho(0)\mapsto\sysrho(t)$ defined by
+\begin{equation}
+\Lambda_{t}(\sysrho(0))
+=\Tr_{\mathrm{B}}\!\Bigl[U(t)\,
+\bigl(\sysrho(0)\otimes\rho_{\mathrm{B}}(0)\bigr)\,U(t)^{\dagger}\Bigr]
+\label{eq:lambda}
+\end{equation}
+is completely positive and trace preserving (CPTP), and admits a
+Kraus representation $\Lambda_{t}(\cdot)=\sum_{k}K_{k}(t)\,(\cdot)\,
+K_{k}(t)^{\dagger}$ with $\sum_{k}K_{k}^{\dagger}K_{k}=\mathbb{1}$.
+\end{lemma}
+
+\begin{proof}
+This is the Stinespring/Kraus construction \citep{nielsen2010,breuer2002}.
+With an initial product state (Assumption~\ref{ass:product}), let
+$\rho_{\mathrm{B}}(0)=\sum_{\mu}p_{\mu}|\mu\rangle\langle\mu|$ in its
+eigenbasis. Then
+$K_{k}(t)=\sqrt{p_{\mu}}\,\langle\nu|U(t)|\mu\rangle$ with composite index
+$k=(\mu,\nu)$ are operators on $\Hilb_{\mathrm{S}}$, unitarity of $U$ gives
+$\sum_{k}K_{k}^{\dagger}K_{k}=\mathbb{1}$, and \eqref{eq:lambda} is
+recovered. Complete positivity and trace preservation are immediate from
+the Kraus form.
+\end{proof}
+
+\begin{remark}[Where the arrow enters]
+\label{rem:arrow}
+Lemma~\ref{lem:cptp} is the entire source of irreversibility. The total
+map $\rho\mapsto U\rho U^{\dagger}$ is unitary and reversible (its inverse
+is $U^{\dagger}\,\cdot\,U$, equally physical). The reduced map
+$\Lambda_{t}$ is in general \emph{not} unitarily invertible: the partial
+trace $\Tr_{\mathrm{B}}$ discards the spin--bath correlations, and once
+discarded they cannot be recovered by any operation on the spins alone.
+The arrow of time in this framework is neither postulated nor smuggled
+into the definition of a count; it is the non-invertibility of the partial
+trace, the one operation in the construction that fails to commute with
+time reversal.
+\end{remark}
+
+\subsection{Monotonicity of the count}
+
+\begin{theorem}[Monotone partition count]
+\label{thm:monotone}
+Let the bath be initially in a maximally mixed (infinite-temperature)
+state, $\rho_{\mathrm{B}}(0)\propto\mathbb{1}$, as is standard for nuclear
+spin baths at ordinary temperatures \citep{abragam1961}. Then the partition
+count is non-decreasing along the coarse-grained evolution:
+\begin{equation}
+\Meff(t_{2})\;\geq\;\Meff(t_{1})\qquad\text{for all }t_{2}\geq t_{1},
+\label{eq:monotone}
+\end{equation}
+equivalently $\Svn(\sysrho(t_{2}))\geq\Svn(\sysrho(t_{1}))$.
+\end{theorem}
+
+\begin{proof}
+For a maximally mixed bath, $\Lambda_{t}$ is a \emph{unital} CPTP map
+(it preserves the maximally mixed system state, since the global dynamics
+cannot concentrate probability when the bath supplies no bias). Unital
+CPTP maps are entropy non-decreasing: by the monotonicity of relative
+entropy under CPTP maps \citep{lindblad1975} applied to the maximally
+mixed reference $\pi=\mathbb{1}/d_{\mathrm{S}}$,
+\begin{equation}
+S(\Lambda_{t}\sysrho\,\|\,\pi)\leq S(\sysrho\,\|\,\pi),
+\end{equation}
+and since $S(\sigma\|\pi)=\ln d_{\mathrm{S}}-\Svn(\sigma)$ for unital
+$\Lambda_{t}$, this rearranges to
+$\Svn(\Lambda_{t}\sysrho)\geq\Svn(\sysrho)$. Composing maps over
+$[t_{1},t_{2}]$ (the family $\Lambda_{t}$ is a one-parameter CP-divisible
+evolution in the Markovian regime; for the non-Markovian case see
+Remark~\ref{rem:nonmarkov}) gives \eqref{eq:monotone}. Exponentiating
+yields the statement for $\Meff$.
+\end{proof}
+
+\begin{corollary}[Reversible substrate, irreversible count]
+\label{cor:reversible-irreversible}
+The total von Neumann entropy $\Svn(\rho(t))$ is constant (unitary
+invariance), while the reduced entropy $\Svn(\sysrho(t))$ is
+non-decreasing. The conserved global entropy is redistributed into
+spin--bath correlations; the monotone reduced entropy is the count. No
+contradiction with Assumption~\ref{ass:reversible} arises, because the two
+entropies refer to different states.
+\end{corollary}
+
+\begin{remark}[Non-Markovian baths and the softening of strict
+monotonicity]
+\label{rem:nonmarkov}
+For a genuinely non-Markovian bath the family $\{\Lambda_{t}\}$ need not be
+CP-divisible, and $\Svn(\sysrho(t))$ can transiently \emph{decrease}---this
+is information backflow, the microscopic basis of partial echo revivals. We
+therefore state the honest form of the result: $\Meff(t)$ is monotone
+non-decreasing on timescales long compared with the bath correlation time
+$\tau_{c}$, and admits bounded transient dips on shorter scales whose
+integrated effect is recovered by refocusing. Strict monotonicity holds in
+the Markovian (coarse-grained) limit; controlled non-monotonicity on the
+scale $\tau_{c}$ is not a defect of the theory but its prediction for when
+echoes can partially revive. This ties the monotonicity of the count
+directly to the refocusability structure of the next subsection.
+\end{remark}
+
+\subsection{The spin echo separates the two parts exactly}
+
+We now make precise the claim that the Hahn echo recovers exactly the part
+of dephasing that did not increment the count.
+
+\begin{theorem}[Echo refocuses the product-state part only]
+\label{thm:echo-split}
+Write the dephasing of a spin as the sum of a static contribution (from a
+fixed offset $\Delta\omega$ that is a property of the spin's location, not
+of the bath) and a fluctuating contribution (from $H_{\mathrm{SB}}$). Then:
+\begin{enumerate}[leftmargin=1.5em,label=(\roman*),itemsep=0.2em]
+\item The static contribution keeps the spin--bath state a product:
+$\Meff$ is unchanged, $\Svn(\sysrho)=0$ throughout. A $180^{\circ}$ pulse
+at $\tau$ maps the accumulated phase $\varphi\mapsto-\varphi$ and the
+ensemble refocuses exactly at $2\tau$. The dephasing is reversible because
+no count was incremented.
+\item The fluctuating contribution entangles the spin with the bath:
+$\Meff$ grows, $\Svn(\sysrho)>0$. A $180^{\circ}$ pulse acts on the spin
+alone and cannot disentangle it from the bath; the residual coherence at
+$2\tau$ is reduced by $\exp[-\Delta\Svn]$, where $\Delta\Svn$ is the
+entropy committed in $[0,2\tau]$. The dephasing is irreversible because the
+count was incremented.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) A static offset commutes with the partial trace: the spin phase is a
+$c$-number function of a fixed parameter, so $U(t)$ restricted to that
+contribution acts as a local unitary on $\Hilb_{\mathrm{S}}$, leaving the
+state a product and $\Svn(\sysrho)=0$. A local unitary ($180^{\circ}$
+pulse) inverts the phase, and continued evolution under the same static
+offset cancels it at $2\tau$, independently of the offset value. (ii) The
+fluctuating coupling $H_{\mathrm{SB}}$ generates genuine spin--bath
+entanglement (the conditional bath states correlated with distinct spin
+phases become non-identical, hence non-orthogonal-to-orthogonal as in
+Theorem~\ref{thm:counting-bound}), so $\Svn(\sysrho)>0$. By monogamy of
+entanglement and the locality of the pulse \citep{coffman2000}, no operation
+on $\Hilb_{\mathrm{S}}$ alone can reduce $\Svn(\sysrho)$; the committed
+correlation is inaccessible to refocusing, and the echo amplitude carries
+the factor $e^{-\Delta\Svn}$. Identifying $\Delta\Svn=2\tau/\Ttwo$ recovers
+the standard echo attenuation $e^{-2\tau/\Ttwo}$.
+\end{proof}
+
+\begin{remark}[The qualitative becomes quantitative]
+\label{rem:quantitative}
+Theorem~\ref{thm:echo-split} converts the familiar statement ``$\Tstar$ is
+refocusable and $\Ttwo$ is not'' into a statement about a computable
+quantity: refocusable $\Leftrightarrow$ $\Svn(\sysrho)=0$ (product state),
+non-refocusable $\Leftrightarrow$ $\Svn(\sysrho)>0$ (entangled state), and
+the echo deficit is exactly $e^{-\Delta\Svn}$ with $\Delta\Svn$ the
+entropy committed to the bath. The committed entropy is not a free
+parameter: its rate is bounded by Theorem~\ref{thm:counting-bound} and, in
+the rigid-lattice limit, saturates to $b$ by
+Proposition~\ref{prop:saturation}. The identification
+$\Delta\Svn=2\tau/\Ttwo$ is therefore a derived relation, $1/\Ttwo$ being
+the committed-entropy rate.
+\end{remark}
+
+% =====================================================================
+\section{Headline: a perturbation-independent Loschmidt-echo floor}
+\label{sec:floor}
+% =====================================================================
+
+We now reach the result that distinguishes the counting framework from the
+correlation-function account. The Loschmidt (polarization) echo reverses
+the \emph{many-body} interaction, $H\to-H+\Sigma$, where $\Sigma$ collects
+the residual un-reversed couplings. The empirical discovery
+\citep{levstein1998,pastawski2000,jalabert2001} is that, in the
+strongly-coupled regime, the echo-fidelity decay rate saturates at a value
+\emph{independent of $\|\Sigma\|$}: improving the reversal does not slow the
+decay. We derive this saturation, and its rate, from trajectory counting.
+
+\subsection{Counting many-body trajectories}
+
+\begin{definition}[Channel multiplicity]
+\label{def:channels}
+At each coherent step the spin system can commit which-state information
+through any of $d$ independent coupling channels (e.g.\ the distinct
+neighbours of a spin in a dipolar network, or the independent decay
+modes available to the local cluster). $d$ is a structural property of the
+coupling graph, not of the coupling strength.
+\end{definition}
+
+\begin{theorem}[Trajectory-count growth]
+\label{thm:trajectory-count}
+The number of mutually distinguishable labelled commitment-trajectories the
+system can traverse in $n$ coherent steps over $d$ channels is
+\begin{equation}
+T(n,d)=\sum_{k=1}^{n}\binom{n-1}{k-1}d^{k}=d\,(d+1)^{n-1}.
+\label{eq:Tnd}
+\end{equation}
+Its logarithmic growth rate per step is
+\begin{equation}
+\lambda_{\mathrm{count}}
+:=\lim_{n\to\infty}\frac{1}{n}\ln T(n,d)=\ln(d+1),
+\label{eq:lambda}
+\end{equation}
+independent of any coupling strength.
+\end{theorem}
+
+\begin{proof}
+A commitment-trajectory of $n$ steps is an ordered composition of $n$ into
+$k$ parts (the run-lengths between channel switches), each part labelled by
+one of $d$ channels. Compositions of $n$ into exactly $k$ positive parts
+number $\binom{n-1}{k-1}$ (stars and bars); each part carries one of $d$
+labels, contributing $d^{k}$. Summing,
+$T(n,d)=\sum_{k=1}^{n}\binom{n-1}{k-1}d^{k}
+=d\sum_{j=0}^{n-1}\binom{n-1}{j}d^{j}=d(1+d)^{n-1}$ by the binomial
+theorem. Then $\tfrac1n\ln T=\tfrac1n[\ln d+(n-1)\ln(d+1)]\to\ln(d+1)$.
+The result depends only on the combinatorial multiplicity $d$, with no
+reference to $H_{\mathrm{SB}}$'s magnitude or to $\Sigma$.
+\end{proof}
+
+\subsection{The floor rate}
+
+\begin{theorem}[Perturbation-independent echo floor]
+\label{thm:floor}
+Let $\omega_{\mathrm{loc}}$ be the local precession (commitment) frequency,
+so that one coherent step occupies time $2\pi/\omega_{\mathrm{loc}}$. In
+the strongly-coupled regime the Loschmidt-echo fidelity decays no slower
+than the rate at which distinguishable trajectories proliferate,
+\begin{equation}
+\boxed{\;\frac{1}{\tau_{\mathrm{floor}}}
+=\frac{\omega_{\mathrm{loc}}}{2\pi}\,\ln(d+1)\;}
+\label{eq:floor}
+\end{equation}
+and this rate is independent of the residual perturbation $\|\Sigma\|$ used
+to engineer the reversal.
+\end{theorem}
+
+\begin{proof}
+The fidelity $F(t)=|\langle\psi_{0}|e^{iH't/\hbar}e^{-iHt/\hbar}|\psi_{0}
+\rangle|^{2}$ is the squared overlap of the forward-evolved state with the
+imperfectly back-evolved state. By Theorem~\ref{thm:echo-split}(ii), the
+recoverable part of the overlap is limited by the committed entropy
+$\Svn(\sysrho)$, which grows as the system explores distinguishable
+commitment-trajectories. After $n$ steps the number of such trajectories
+is $T(n,d)$, so $\Svn\geq\ln(\text{effective participation})$ grows at rate
+$\lambda_{\mathrm{count}}=\ln(d+1)$ per step
+(Theorem~\ref{thm:trajectory-count}). Converting steps to time through
+$\omega_{\mathrm{loc}}/2\pi$ steps per unit time gives the decay rate
+\eqref{eq:floor}. Independence of $\|\Sigma\|$ is inherited from
+\eqref{eq:lambda}: the proliferation rate is set by the channel
+multiplicity $d$ alone, so reducing the residual coupling (improving the
+reversal) does not reduce it. The reversal can recover the configurational
+overlap but not the trajectory-counting entropy, exactly as the Hahn echo
+recovers $\Tstar$ but not $\Ttwo$.
+\end{proof}
+
+\begin{corollary}[Numerical value for a three-dimensional network]
+\label{cor:numerics}
+For a spin embedded in a three-dimensional dipolar network with effective
+channel multiplicity $d=3$ (three independent angular commitment
+directions), $\ln(d+1)=\ln 4\approx 1.386$, and
+\begin{equation}
+\frac{1}{\tau_{\mathrm{floor}}}\approx 0.221\,\omega_{\mathrm{loc}}.
+\label{eq:numeric-floor}
+\end{equation}
+Identifying $\omega_{\mathrm{loc}}$ with the second moment of the local
+field, $\omega_{\mathrm{loc}}=\langle\delta\omega^{2}\rangle^{1/2}=b$, gives
+$1/\tau_{\mathrm{floor}}\approx 0.22\,b$: the floor is a fixed fraction of
+the rigid-lattice linewidth, set by the network dimensionality.
+\end{corollary}
+
+\subsection{Why this is not the semiclassical Lyapunov result}
+
+\begin{remark}[Point of departure from the Lyapunov account]
+\label{rem:lyapunov}
+The semiclassical theory of the Loschmidt echo in classically chaotic
+systems \citep{jalabert2001,gorin2006} also predicts a
+perturbation-independent decay, identifying the saturated rate with a
+classical Lyapunov exponent $\lambda_{\mathrm{Lyap}}$ of the underlying
+dynamics. Equations~\eqref{eq:lambda} and \eqref{eq:floor} agree with that
+prediction in form---a coupling-independent exponential rate---but differ
+in origin and, crucially, in domain. The counting rate $\ln(d+1)$ is a
+property of the \emph{coupling-graph multiplicity}, not of dynamical
+instability. It is therefore nonzero for systems whose classical limit is
+integrable or non-chaotic, where $\lambda_{\mathrm{Lyap}}=0$ and the
+semiclassical theory predicts no floor. This is a sharp, falsifiable point
+of departure: a discrete, integrable, or few-body spin cluster with no
+positive Lyapunov exponent should, on the counting account, still exhibit a
+Loschmidt-echo floor at rate $(\omega_{\mathrm{loc}}/2\pi)\ln(d+1)$ fixed
+by its connectivity $d$, whereas the Lyapunov account predicts the floor
+recedes to zero as the reversal is perfected.
+\end{remark}
+
+\begin{remark}[Consistency with the chaotic regime]
+\label{rem:consistency}
+When the spin network \emph{is} chaotic, the connectivity-set rate
+$\ln(d+1)$ and the Lyapunov rate $\lambda_{\mathrm{Lyap}}$ need not
+coincide; the observed floor is then the slower-saturating of the two
+mechanisms (the system decoheres at whichever rate first exhausts
+recoverable overlap). In dense dipolar solids the two are typically of the
+same order---$\ln 4\approx 1.4$ versus Lyapunov exponents of order unity in
+units of the local coupling---which is why the existing data
+\citep{levstein1998,pastawski2000} are consistent with either reading. The
+discriminating experiments are therefore in the \emph{non-chaotic} regime
+(Section~\ref{sec:experiments}).
+\end{remark}
+
+% =====================================================================
+\section{Experimental tests}
+\label{sec:experiments}
+% =====================================================================
+
+The framework makes three quantitative claims, each independently
+testable.
+
+\subsection{Test 1: rigid-lattice rate as a saturated ceiling}
+
+Proposition~\ref{prop:saturation} predicts $1/\Ttwo\simeq b$ in the
+rigid-lattice limit with no fitted constant. This is already confirmed by
+the standard second-moment analysis of solid-state lineshapes
+\citep{abragam1961,anderson1953}; the contribution here is interpretive
+(the rate is the saturated Margolus--Levitin ceiling), so the test is one
+of \emph{consistency}: in every system where $\tau_{c}\gg 1/b$, the measured
+$1/\Ttwo$ should equal the van Vleck second moment $b$ to within the
+geometric $O(1)$ factor of Proposition~\ref{prop:saturation}, and should
+fall strictly below $b$ as $\tau_{c}$ decreases into motional narrowing.
+
+\subsection{Test 2: the floor's connectivity dependence}
+
+Corollary~\ref{cor:numerics} predicts $1/\tau_{\mathrm{floor}}=
+(\omega_{\mathrm{loc}}/2\pi)\ln(d+1)$. Two consequences are directly
+measurable. First, the floor rate should scale as $\ln(d+1)$ as the
+coordination number of the spin network is varied (e.g.\ by isotopic
+dilution, which reduces the number of active dipolar partners $d$): a plot
+of $\tau_{\mathrm{floor}}^{-1}/\omega_{\mathrm{loc}}$ against $\ln(d+1)$
+should be a straight line of unit slope through the origin. Second, the
+floor should be \emph{independent} of the quality of the magic-echo or
+time-reversal pulse sequence once the reversal is good enough to enter the
+saturated regime---reproducing the observed environment-independence
+\citep{pastawski2000} but now with a predicted magnitude.
+
+\subsection{Test 3: a floor in a non-chaotic system (the decisive test)}
+
+Remark~\ref{rem:lyapunov} gives the experiment that separates the counting
+account from the Lyapunov account. Prepare a small, well-characterized,
+\emph{non-chaotic} or integrable spin cluster (for instance a linear chain
+with nearest-neighbour-only XY coupling, or a few-spin star geometry) whose
+classical limit has $\lambda_{\mathrm{Lyap}}=0$. Perform a polarization-echo
+reversal of increasing quality.
+\begin{itemize}[leftmargin=1.4em,itemsep=0.2em]
+\item \emph{Lyapunov prediction:} the echo decay rate $\to 0$ as
+$\|\Sigma\|\to 0$; the floor recedes.
+\item \emph{Counting prediction:} the echo decay rate saturates at
+$(\omega_{\mathrm{loc}}/2\pi)\ln(d+1)$ with $d$ the cluster's connectivity;
+the floor remains.
+\end{itemize}
+Observation of a nonzero, connectivity-set floor in a provably non-chaotic
+cluster would confirm the counting mechanism and exclude the pure Lyapunov
+account; observation of a receding floor would refute the counting
+mechanism at this level. Either outcome is informative.
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What resolves the Loschmidt objection, and what does not}
+
+The Loschmidt objection is that a time-reversal-invariant substrate cannot
+single out a temporal direction. The resolution offered here is precise
+about where the asymmetry lives. It is not in the substrate---%
+Assumption~\ref{ass:reversible} keeps the total Hamiltonian reversible and
+Corollary~\ref{cor:reversible-irreversible} keeps the total entropy
+constant. It is not in a definition---the count $\Meff$ is the effective
+Schmidt rank of a genuine quantum state, and its monotonicity is a theorem
+(Theorem~\ref{thm:monotone}), not a stipulation. The asymmetry enters at
+exactly one place: the partial trace $\Tr_{\mathrm{B}}$
+(Remark~\ref{rem:arrow}), the operation that discards spin--bath
+correlations and that alone fails to commute with time reversal. The second
+law, in this reading, is the statement that the reduced count cannot
+decrease because the discarded correlations cannot be recalled by local
+operations.
+
+This is a conventional resolution in its physics---it is the open-systems,
+decoherence-theoretic account \citep{zurek2003,breuer2002}---but the paper
+makes two contributions beyond restating it. First, it fixes the
+\emph{rate} of the count's growth by a universal speed-limit ceiling
+(Theorem~\ref{thm:counting-bound}) rather than by a model-specific
+correlation function, and shows the relaxation rate is its saturation
+(Proposition~\ref{prop:saturation}). Second, it derives a
+\emph{coupling-independent echo floor} (Theorem~\ref{thm:floor}) from pure
+trajectory counting, with a connectivity-set magnitude and a falsifiable
+prediction in the non-chaotic regime (Test~3).
+
+\subsection{Honest limitations}
+
+We list the load-bearing soft spots so they can be attacked directly.
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item \emph{The step-to-time conversion.} Equation~\eqref{eq:floor}
+identifies the coherent-step rate with $\omega_{\mathrm{loc}}/2\pi$ and,
+in Corollary~\ref{cor:numerics}, $\omega_{\mathrm{loc}}$ with the
+second-moment frequency $b$. This identification is physically motivated
+but not derived from first principles; a factor-of-order-unity geometric
+correction is possible and must be pinned down against data before the
+numerical coefficient $0.22$ is treated as exact.
+\item \emph{The channel multiplicity $d$.} The value $d=3$
+(Corollary~\ref{cor:numerics}) is the natural choice for an isotropic
+three-dimensional dipolar network (three independent angular commitment
+directions), but the effective $d$ for a given lattice is a modelling
+choice that the connectivity-scaling test (Test~2) is designed to
+calibrate, not assume.
+\item \emph{Strict versus coarse-grained monotonicity.} Theorem~%
+\ref{thm:monotone} gives strict monotonicity only in the Markovian limit;
+non-Markovian baths permit bounded transient decreases of the count
+(Remark~\ref{rem:nonmarkov}). The framework predicts these as partial echo
+revivals rather than excluding them, but the claim ``the count never
+decreases'' must be qualified to ``the count never decreases on scales long
+compared with $\tau_{c}$.''
+\item \emph{Saturation, not equality.} The relaxation rate equals the
+ceiling only at saturation (Proposition~\ref{prop:saturation}); away from
+the rigid-lattice limit the ceiling is a strict inequality and the actual
+rate is set by the bath spectral density, as in the standard theory. The
+counting framework bounds and, in one limit, reproduces the standard
+result; it does not replace it everywhere.
+\end{enumerate}
+
+\subsection{Outlook}
+
+The decisive next step is Test~3: a Loschmidt-echo measurement on a
+provably non-chaotic spin cluster. The counting framework predicts a
+nonzero floor fixed by connectivity where the semiclassical Lyapunov
+account predicts none. If the floor is observed with the predicted
+connectivity dependence, the relaxation rate, the echo deficit, and the
+many-body fidelity floor are unified as three manifestations of a single
+counting bound saturating a quantum speed limit. If it is not, the
+trajectory-counting layer (Section~\ref{sec:floor}) is falsified while the
+ceiling (Section~\ref{sec:ceiling}) and the monotonicity mechanism
+(Section~\ref{sec:mechanism}) stand independently.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+We have given an independent, information-theoretic account of transverse
+relaxation and echo attenuation built on three layers. A counting ceiling
+derived from the Margolus--Levitin quantum speed limit bounds the rate at
+which a bath can acquire which-spin information, and its saturation
+reproduces the Anderson--Kubo rigid-lattice relaxation rate
+$1/\Ttwo\simeq\langle\delta\omega^{2}\rangle^{1/2}$ with no fitted constant.
+The monotonicity of the underlying count is derived from the
+non-invertibility of the partial trace---the arrow of time entering through
+open-system coarse-graining of a strictly reversible substrate, not through
+any postulate---and the Hahn echo is shown to separate the reversible
+(product-state) and irreversible (entanglement-committed) parts of dephasing
+exactly. Counting the distinguishable many-body commitment-trajectories then
+yields a perturbation-independent Loschmidt-echo floor
+$1/\tau_{\mathrm{floor}}=(\omega_{\mathrm{loc}}/2\pi)\ln(d+1)$, reproducing
+the observed environment-independence of polarization-echo decay and
+predicting---unlike the semiclassical Lyapunov account---a nonzero floor for
+non-chaotic spin systems. The framework is quantitative throughout, makes a
+falsifiable prediction that departs from the orthodox account in a specific
+regime, and locates the irreversibility of the spin echo in a single,
+identifiable place.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

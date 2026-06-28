@@ -1,0 +1,111 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — BACKEND DEVELOPER track (quick applications)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Backend engineer: APIs, databases, and distributed services in Java, Python,
+Rust, and PHP --- from data model to deployed cloud system.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Backend engineer building APIs, databases, and distributed services across
+  Java, Python, Rust, and PHP. I design data models --- including scientific
+  (lipidomics) databases --- build async and high-throughput services, and deploy
+  to cloud and HPC infrastructure.
+}
+
+\section{Technical Skills}
+\cvitem{Languages}{
+  Java, Python, Rust, PHP, SQL, Bash
+}
+\cvitem{Backend \& APIs}{
+  REST and async services (FastAPI, async Rust / tokio); microservices;
+  high-throughput data services; structured logging and observability
+}
+\cvitem{Databases}{
+  Relational / SQL design (incl.\ lipidomics databases); scientific stores
+  (HDF5, Parquet); query and pipeline optimisation
+}
+\cvitem{Distributed \& cloud}{
+  AWS, Firebase; Docker, Kubernetes; Ray, Dask; SLURM / HPC
+}
+\cvitem{Practices}{
+  Reproducible pipelines; benchmarking; clean modular architecture
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Backend \& Software Engineer}{Bitspark GmbH}{}{}{
+  Designed and built backend services, databases, and distributed systems in Rust,
+  Python, and related stacks; deployed to cloud and HPC; documented and open-source.
+}
+\cventry{2019--2021}{Data Infrastructure \& Pipelines}{Technische Universität München}{Munich}{}{
+  Database-backed analysis and high-throughput pipelines at HPC scale (SLURM);
+  $>$100\,GB datasets. Taught at Master's level.
+}
+\cventry{2017--2018}{Data Pipelines \& Storage}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated high-throughput data-processing pipelines and storage.
+}
+
+\section{Selected Projects}
+\cvitem{purpose}{
+  Rust backend (Cargo workspace) --- async (tokio), HTTP services, structured
+  logging, trait-based extensible architecture.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+\cvitem{four-sided-triangle}{
+  Python (FastAPI) backend with a Rust core; Ray, Docker; resource-aware
+  orchestration.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+\cvitem{Lipidomics databases}{
+  Designed and built relational databases for lipidomics data --- schema, ingestion,
+  and query.
+}
+\cvitem{lavoisier}{
+  Distributed data-processing backend; 98.9\% NIST accuracy.
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

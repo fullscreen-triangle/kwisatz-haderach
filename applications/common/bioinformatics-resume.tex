@@ -1,0 +1,114 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — BIOINFORMATICS track (quick applications)
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Bioinformatician: NGS and omics pipelines, sequence and variant analysis,
+and database development --- reproducible, validated, and at scale.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Bioinformatician building NGS and omics analysis pipelines, sequence and variant
+  analysis, and biological databases. I deliver reproducible, HPC-scale workflows
+  validated against authoritative reference data.
+}
+
+\section{Technical Skills}
+\cvitem{Sequence analysis}{
+  Variant calling, RNA-seq, transcriptome analysis; multi-omics integration
+}
+\cvitem{Mass spectrometry}{
+  Proteomics / metabolomics pipelines; metabolite identification
+}
+\cvitem{Pipelines \& databases}{
+  Reproducible workflows; relational database design (lipidomics databases);
+  HDF5, Parquet
+}
+\cvitem{HPC \& cloud}{
+  Ray, Dask, SLURM; AWS; Docker
+}
+\cvitem{Programming}{
+  Python (primary), R, Bash, SQL, Rust
+}
+\cvitem{Reference data}{
+  1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Bioinformatics Researcher}{Bitspark GmbH}{}{}{
+  Omics pipelines, bioinformatics tools, and biological databases; deployed,
+  documented, reference-validated.
+}
+\cventry{2019--2021}{Computational Lipidomics --- Bioinformatics \& HPC}{Technische Universität München}{Munich}{}{
+  High-throughput mass-spectrometry bioinformatics at HPC scale; $>$100\,GB
+  datasets. Taught at Master's level.
+}
+\cventry{2017--2018}{Glycomics \& Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data pipelines.
+}
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics; high-dimensional data analysis.
+}
+
+\section{Selected Projects}
+\cvitem{gospel}{
+  Multi-omics integration pipeline; validated against 1000~Genomes, gnomAD,
+  UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+\cvitem{lavoisier}{
+  High-throughput mass-spectrometry pipeline; 98.9\% NIST accuracy; distributed (Ray).
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+\cvitem{Lipidomics databases}{
+  Designed and built relational databases for lipidomics data --- schema, ingestion,
+  and query.
+}
+\cvitem{syndrome}{
+  Immunopeptidomics --- neoantigen / MHC prediction (AUC~0.81, IEDB).
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

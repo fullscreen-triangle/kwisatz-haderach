@@ -1,0 +1,167 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Wiss. Mitarbeiter*in, AG Neurobiologie, Institut für Biologie
+% Freie Universität Berlin. Kennung 21259000_2026. Deadline 29.06.2026. E13 TV-L.
+% HONEST computational framing: image analysis + connectome + transcriptome + comp. neuro.
+% Does NOT claim Drosophila, 2-photon/confocal facility operation, or a completed PhD.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{green}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Computational scientist: digital image analysis of microscopy data,
+neural-circuit / connectome modelling, and transcriptome analysis.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	PROFILE
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+
+\cvitem{}{
+  Computational researcher focused on \textbf{quantitative analysis of imaging
+  data}, \textbf{neural-circuit / connectome modelling}, and \textbf{transcriptome
+  analysis}. My background is computational rather than wet-lab Drosophila
+  genetics or laser-microscope operation; I would contribute to the AG
+  Neurobiologie's complementary computational and image-analysis work.
+}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED COMPUTATIONAL WORK
+%----------------------------------------------------------------------------------------
+
+\section{Selected Computational Work}
+
+\cvitem{Microscopy image analysis}{
+  \textbf{Quantitative image-analysis framework} --- segmentation, PSF
+  deconvolution, scale-field / coordinate reconstruction, and morphometry with
+  uncertainty quantification, for fluorescence and phase-contrast microscopy.
+  GPU-accelerated; live tool.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+
+\cvitem{Computational neuroscience}{
+  \textbf{Neural-circuit modelling} (project "Olduvai") --- closed-circuit
+  decomposition of motor/neural signals (supraspinal vs.\ peripheral),
+  applied to neurodegeneration (Parkinson's, ataxia) from physiological
+  time-series; circuit-graph (connectome-style) network analysis.
+}
+
+\cvitem{Transcriptome / multi-omics}{
+  \textbf{gospel} --- integration of transcriptomics with genotype and
+  metagenomics; validated against 1000~Genomes, gnomAD, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Computational Researcher}{Bitspark GmbH}{}{}{
+  Full-time computational research: quantitative image analysis,
+  neural-circuit / connectome modelling, transcriptome and multi-omics analysis.
+  Scripted, reproducible pipelines with statistical evaluation; open, documented,
+  deployed tools.
+}
+
+\cventry{2019--2021}{Computational Lipidomics --- Bioinformatics, HPC \& Teaching}{Technische Universität München}{Munich}{}{
+  High-throughput data analysis at HPC scale; statistical evaluation of
+  large datasets. Taught at Master's level and supervised student work.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  LC-MS/MS and MALDI-TOF data pipelines; reproducible high-throughput workflows.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS proteomics; statistical analysis of high-dimensional data.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{Doctoral research, Computational Lipidomics}{Technische Universität München}{}{}{
+  (Doctoral research; not completed.) Computational analysis of
+  high-throughput data.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Sequence/transcriptome analysis, statistics, ML for biological data.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Thesis: DNA interstrand crosslinking --- mammalian cell culture and
+  fluorescence microscopy.
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Image analysis}{
+  Digital image analysis (segmentation, deconvolution, registration,
+  morphometry); statistical evaluation of imaging data; GPU/GLSL image processing
+}
+
+\cvitem{Computational neuroscience}{
+  Neural-circuit and connectome-style network/graph analysis; physiological
+  time-series modelling
+}
+
+\cvitem{Data analysis}{
+  Transcriptome analysis; statistics; scripted, reproducible pipelines
+  (Python, R); HPC (Ray, Dask, SLURM)
+}
+
+\cvitem{Languages (programming)}{
+  Python (primary), Rust, R, Bash, SQL
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES & TEACHING
+%----------------------------------------------------------------------------------------
+
+\section{Teaching \& Languages}
+
+\cvitem{Teaching}{
+  Taught at Master's level at TUM (2019--2021); supervised student work.
+}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{lab language}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

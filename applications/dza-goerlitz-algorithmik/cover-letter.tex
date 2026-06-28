@@ -1,0 +1,101 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+1 June 2026
+\end{flushright}
+
+\vspace{1em}
+
+Deutsches Zentrum f\"ur Astrophysik (DZA) \\
+Department Algorithmik \\
+G\"orlitz, Germany \\
+Job-ID: D03-26-04
+
+\vspace{1.5em}
+
+\textbf{Re: Research Scientist --- Real-Time Data Processing \& Algorithm
+Development (D03-26-04)}
+
+\vspace{1em}
+
+Dear Hiring Committee,
+
+I am applying for the Research Scientist position in real-time data processing
+and algorithm development. The core of the role --- designing algorithms for
+real-time data extraction and building scalable, high-performance pipelines for
+extremely large data streams --- is the core of what I have spent the last
+several years doing. My domain has been computational biology rather than
+astrophysics, but the engineering problem is the same: extract signal from data
+streams too large to hold or process by conventional means, in time, at scale.
+
+\textbf{High-performance pipelines for very large data streams.}
+I build and deploy these systems. \href{https://github.com/fullscreen-triangle/lavoisier}{Lavoisier}
+is a distributed analysis pipeline that processes mass-spectrometry data streams
+exceeding 100\,GB: memory-mapped I/O so dataset size is bounded by storage rather
+than memory, Ray-distributed execution across HPC nodes, a structured HDF5 output
+schema, and a dual numerical/CNN path that reaches 98.9\,\% feature-extraction
+accuracy against NIST references. \href{https://github.com/fullscreen-triangle/gospel}{Gospel}
+sustains $10^6$ records per second of streaming throughput with Bayesian-network
+and mixture-model classification, validated against 1000~Genomes, gnomAD, and
+UK~Biobank. \href{https://github.com/fullscreen-triangle/four-sided-triangle}{Four-Sided-Triangle}
+is a multi-stage engine with a Rust core (10--50$\times$ over the reference
+implementation) built for parallel, horizontally-scaled execution. These are the
+methods the position calls for, demonstrated on production data.
+
+\textbf{The required expertise areas.}
+The posting asks for demonstrated expertise in at least one of several areas; my
+work spans most of them. Large-scale data analytics and real-time stream
+processing are the substance of the systems above. Machine learning and AI run
+through all of them (PyTorch CNNs and sequence models, Bayesian inference,
+GPU-accelerated computation). Parallel and high-performance computing --- Ray,
+Dask, SLURM-compatible design, Docker/Kubernetes, memory-mapped streaming --- is
+the infrastructure I work in daily. Python is my primary language, with Rust for
+performance-critical cores.
+
+\textbf{Astrophysical signal detection.}
+The detection, classification, and characterisation of signals in large data
+streams is a problem I have been drawn to independently, including work applying
+these stream-processing and signal-extraction methods to astronomical data ---
+publicly available alongside my other systems. I would welcome bringing the
+real-time and HPC methods I have built in one data-intensive domain to the
+astrophysical data streams the DZA works with, and contributing to the
+algorithmic foundations of that processing.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universit\"at T\"ubingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), and I conducted doctoral research in
+Computational Lipidomics at TUM (2019--2021) before transitioning to independent
+research, where my output has been validated, publicly documented data-processing
+systems. I work independently in international, English-language settings; English
+is native and my German is conversational. I am resident in Germany with full
+work authorisation and available at the earliest possible date.
+
+I would welcome the opportunity to discuss how this background in real-time,
+large-scale data processing could contribute to the DZA's algorithmics work.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

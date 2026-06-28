@@ -1,0 +1,157 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Machine Learning Scientist, Multimodal AI
+% Natera (Remote). Greenhouse Job 6004385004
+% Reusable template for multimodal-AI / ML-scientist (oncology) roles.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+\quote{Multimodal machine learning for oncology --- integrating imaging,
+molecular, and clinical data, from PyTorch prototype to deployed, validated tool.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent ML \& Computational Biology Researcher}{Bitspark GmbH}{}{}{
+  Full-time development of multimodal machine-learning systems across genomics,
+  proteomics/metabolomics, and biomedical imaging. PyTorch model development,
+  distributed training pipelines, and production deployment. All systems publicly
+  documented, validated against reference data, and deployed (browser-native /
+  GPU-accelerated).
+}
+
+\cventry{2019--2021}{Computational Lipidomics --- ML \& HPC}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Deep-learning mass-spectrometry analysis at HPC scale: CNN-based spectral
+  classification (PyTorch) alongside numerical pipelines; multi-omics statistical
+  integration; distributed processing of $>$100\,GB datasets.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data pipelines; reproducible workflows for
+  high-throughput clinical instrument data.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics on tumour samples; statistical analysis of
+  high-dimensional feature sets.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{Doctoral research, Computational Lipidomics}{Technische Universität München}{}{}{
+  HPC mass-spectrometry ML pipelines, multi-omics modelling, distributed training.
+  Transitioned to independent research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Sequence analysis, variant calling, RNA-seq, ML for biological data.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{Selected ML Systems}
+
+\cvitem{lavoisier}{
+  \textbf{Deep-Learning Mass-Spectrometry Pipeline.}
+  Dual pipeline: numerical MS analysis + CNN spectral classification (PyTorch);
+  Ray-distributed execution; memory-mapped I/O and HDF5 for $>$100\,GB datasets;
+  98.9\% NIST feature-extraction accuracy. Production-grade, deployed.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  \textbf{Multi-Omics Integration.}
+  Joint Bayesian-network and mixture modelling over host genotype, transcriptomics,
+  and metagenomics; $10^6$ variants/s; validated against 1000~Genomes, gnomAD,
+  UK~Biobank. Multimodal molecular integration at scale.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{syndrome}{
+  \textbf{Computational Oncology / Immunopeptidomics.}
+  Neoantigen identification and MHC-binding prediction (AUC~0.81 on 2{,}847 IEDB
+  peptides), tumour disease-state characterisation. Browser-native (WebGPU).
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{ML / Deep Learning}{
+  PyTorch (CNNs, sequence models, attention); foundation-model fine-tuning
+  (LoRA adapters); knowledge distillation; scikit-learn, XGBoost; Bayesian-network
+  and mixture modelling
+}
+
+\cvitem{Multimodal biomedical data}{
+  Genomics (variant calling, RNA-seq); proteomics / metabolomics (mass spectrometry);
+  microscopy image analysis (segmentation, deconvolution, morphometry ---
+  digital-pathology-adjacent); immunopeptidomics; integration of imaging +
+  molecular + clinical modalities
+}
+
+\cvitem{Cloud / Distributed}{
+  Ray, Dask, SLURM-compatible pipelines; Docker, Kubernetes; cloud-portable
+  training workflows; memory-mapped I/O, HDF5, Parquet
+}
+
+\cvitem{Languages}{
+  Python (primary), Rust, R, Bash, SQL, TypeScript
+}
+
+\cvitem{Reference data}{
+  1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

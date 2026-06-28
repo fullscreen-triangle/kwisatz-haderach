@@ -1,0 +1,113 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — GENERAL track (computational scientist / software engineer)
+% Quick LinkedIn/Indeed applications. Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Computational scientist and software engineer: languages and compilers, GPU
+computing, AI systems, and scientific computing --- ideas turned into deployed tools.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computational scientist and engineer spanning programming-language and compiler
+  design, GPU / graphics, AI / ML systems, and scientific computing. I
+  consistently take work from concept to deployed, documented, open-source tool.
+}
+
+\section{Technical Skills}
+\cvitem{Software engineering}{
+  Rust, TypeScript, Python; programming-language and compiler design (lexers,
+  parsers, codegen); full-stack (Next.js); async / REST; clean modular
+  architecture
+}
+\cvitem{GPU \& graphics}{
+  WebGPU, WebGL2 / GLSL shaders; GPU compute; computer vision / image analysis
+}
+\cvitem{AI / ML}{
+  PyTorch; agentic / multi-agent AI; foundation-model adaptation (LoRA); RAG and
+  reasoning pipelines
+}
+\cvitem{Data \& HPC}{
+  Ray, Dask, SLURM; Docker, Kubernetes; large-scale ($>$100\,GB) pipelines
+}
+\cvitem{Developer tooling}{
+  VSCode extensions including a language server (LSP)
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Computational Researcher \& Software Engineer}{Bitspark GmbH}{}{}{
+  Designed and built compilers / domain-specific languages, GPU pipelines, and AI
+  systems; all deployed and open-source. Rust, Python / PyTorch, TypeScript,
+  distributed / GPU.
+}
+\cventry{2019--2021}{Computational Science --- Bioinformatics, HPC \& Teaching}{Technische Universität München}{Munich}{}{
+  Large-scale data analysis and ML pipelines at HPC scale (PyTorch, SLURM).
+  Taught at Master's level and supervised student work.
+}
+\cventry{2017--2018}{Data Pipelines}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated, reproducible high-throughput data-processing pipelines.
+}
+
+\section{Selected Projects}
+\cvitem{kwasa-kwasa}{
+  A polyglot programming language with its own compiler and a suite of 5 VSCode
+  extensions (incl.\ a language server). Rust + TypeScript.
+  \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}
+}
+\cvitem{purpose}{
+  Rust CLI (Cargo workspace): an agent-queryable context tool that cuts LLM token
+  burn; trait-based extensible architecture.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+\cvitem{hieronymus}{
+  GPU-accelerated microscopy image analysis (computer vision); WebGL / GLSL.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+\cvitem{systems-biology-shaders}{
+  Domain-specific language compiling to GLSL + JS; GPU shader pipeline.
+  \href{https://systems-biology-shaders.vercel.app/}{systems-biology-shaders.vercel.app}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

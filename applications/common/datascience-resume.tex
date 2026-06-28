@@ -1,0 +1,112 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — DATA SCIENCE track (quick LinkedIn/Indeed applications)
+% Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Data scientist: machine learning, statistics, and reproducible pipelines
+over large scientific datasets --- from raw data to deployed, validated tool.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computational data scientist with deep experience in high-throughput biological
+  data --- multi-omics, mass spectrometry, and imaging. I build statistically
+  rigorous, reproducible machine-learning pipelines at scale, and take them to
+  deployed tools validated against reference data.
+}
+
+\section{Technical Skills}
+\cvitem{Analysis \& statistics}{
+  Exploratory and statistical analysis; high-dimensional data; hypothesis testing;
+  uncertainty quantification; experimental design
+}
+\cvitem{Machine learning}{
+  PyTorch, scikit-learn, XGBoost; CNNs; representation learning; model evaluation
+  and benchmarking
+}
+\cvitem{Data engineering}{
+  Ray, Dask, SLURM/HPC; Docker, Kubernetes; HDF5, Parquet, memory-mapped I/O for
+  $>$100\,GB datasets; reproducible pipelines
+}
+\cvitem{Programming}{
+  Python (primary), R, SQL, Bash, Rust
+}
+\cvitem{Data domains}{
+  Genomics / transcriptomics, proteomics / metabolomics (mass spectrometry),
+  biomedical imaging
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Data Science \& Computational Biology Researcher}{Bitspark GmbH}{}{}{
+  Full-time development of ML pipelines over multi-omics, mass-spectrometry, and
+  imaging data; deployed, documented, reference-validated tools.
+}
+\cventry{2019--2021}{Computational Lipidomics --- Data Analysis \& HPC}{Technische Universität München}{Munich}{}{
+  High-throughput analysis at HPC scale; statistical evaluation of $>$100\,GB
+  datasets; PyTorch classification. Taught at Master's level.
+}
+\cventry{2017--2018}{Glycomics \& Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data pipelines; reproducible workflows.
+}
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS proteomics; analysis of high-dimensional feature sets.
+}
+
+\section{Selected Projects}
+\cvitem{gospel}{
+  Multi-omics integration (genotype + transcriptomics + metagenomics); validated
+  against 1000~Genomes, gnomAD, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+\cvitem{lavoisier}{
+  High-throughput mass-spectrometry pipeline; 98.9\% NIST accuracy; distributed
+  (Ray). \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+\cvitem{syndrome}{
+  Computational oncology --- neoantigen / MHC prediction (AUC~0.81, IEDB).
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

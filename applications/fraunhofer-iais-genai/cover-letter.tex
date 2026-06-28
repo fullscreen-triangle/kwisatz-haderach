@@ -1,0 +1,82 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+\today
+\end{flushright}
+
+\vspace{1em}
+
+Fraunhofer-Institut für Intelligente Analyse- und Informationssysteme IAIS \\
+Abteilung NetMedia \\
+Dresden
+
+\vspace{1.5em}
+
+\textbf{Re: Research Engineer GenAI --- Post-Training and Agentic AI}
+
+\vspace{1em}
+
+Dear Hiring Team,
+
+I am applying for the Research Engineer position in GenAI with a focus on
+post-training and agentic AI. Two parts of the role line up unusually well with
+work I have already built: agentic / multi-agent systems, and foundation-model
+adaptation --- and the role's emphasis on abstract, conceptual work is exactly how
+I prefer to work.
+
+\textbf{Agentic and multi-agent AI.}
+Rather than only using agent frameworks, I have built one. Kwasa-kwasa is a
+declarative orchestration language for multi-agent, evidence-bearing computation:
+a runtime that delegates sub-computations to multiple substrates (LLM oracles,
+external tools, Python specialists), aggregates graded confidence, and grounds
+generated values against observation before they are committed. It has a Rust core
+and a TypeScript runtime and ships with VSCode tooling including a language server
+(\href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}).
+Alongside it, four-sided-triangle is an eight-stage metacognitive RAG / reasoning
+pipeline with resource-aware orchestration. Designing multi-agent systems and
+moving them toward production is the work I most want to do.
+
+\textbf{Foundation-model post-training.}
+On the model side, I work in PyTorch and have done foundation-model adaptation
+through low-rank (LoRA) fine-tuning and knowledge distillation, with a research
+interest in training methodology --- specifically curriculum design and inverse
+curricula. I am candid that the specific RL-based post-training methods and
+frameworks you name (DPO, GRPO, continual pre-training, NeMo-RL, Megatron) are
+ones I would ramp up on rather than ones I have run at cluster scale; the
+foundations --- deep ML understanding, PyTorch, SLURM-based GPU training, and
+building evaluation/benchmarking pipelines --- are already in place.
+
+\textbf{Research that ships.}
+Everything I build I take to a deployed, documented, benchmarked state, validated
+against reference data. Turning research methods into scalable, production-near
+systems is the default of how I work, which is the core of this role.
+
+I would welcome the chance to discuss how my agentic-AI and foundation-model work
+could contribute to NetMedia's projects.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

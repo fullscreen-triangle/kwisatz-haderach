@@ -1,0 +1,114 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — MACHINE LEARNING track (quick LinkedIn/Indeed applications)
+% Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Machine-learning engineer and researcher: deep learning, foundation-model
+adaptation, and agentic AI --- from research method to deployed, benchmarked system.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Machine-learning researcher and engineer working on deep learning,
+  foundation-model post-training, and agentic / multi-agent systems. I design
+  conceptual frameworks and turn them into working, deployed, rigorously evaluated
+  systems.
+}
+
+\section{Technical Skills}
+\cvitem{Deep learning}{
+  PyTorch (CNNs, autoencoders, attention / transformers); representation learning
+}
+\cvitem{Foundation models}{
+  Fine-tuning / adaptation (LoRA); knowledge distillation; evaluation and
+  benchmarking pipelines
+}
+\cvitem{Agentic AI}{
+  Multi-agent orchestration; RAG and reasoning pipelines; tool / LLM / oracle
+  delegation; evidence and grounding mechanisms
+}
+\cvitem{Training infrastructure}{
+  GPU training; SLURM clusters; Ray, Dask; Docker, Kubernetes; FastAPI
+}
+\cvitem{Programming}{
+  Python (primary) \& PyTorch, Rust, TypeScript, SQL, Bash
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent ML Researcher \& Engineer}{Bitspark GmbH}{}{}{
+  Designed and built agentic / multi-agent systems, foundation-model adaptation,
+  and ML pipelines; from concept to deployed, documented, benchmarked tools.
+}
+\cventry{2019--2021}{Computational Science --- ML \& HPC}{Technische Universität München}{Munich}{}{
+  Deep-learning pipelines (PyTorch, CNNs) at HPC scale; SLURM clusters;
+  statistical evaluation and benchmarking of $>$100\,GB datasets. Taught at
+  Master's level.
+}
+
+\section{Selected Projects}
+\cvitem{kwasa-kwasa / Turbulance}{
+  Declarative agentic-orchestration language: multi-agent, multi-substrate
+  delegation (LLM oracles, tools, Python), confidence/argumentation semantics, and
+  grounding of generated values. Rust core + TypeScript; VSCode tooling incl.\ a
+  language server.
+  \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}
+}
+\cvitem{four-sided-triangle}{
+  8-stage metacognitive multi-agent RAG / reasoning pipeline; resource-aware
+  orchestration; Rust core, FastAPI + Ray + Docker.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+\cvitem{purpose}{
+  Rust CLI: an agent-queryable context-retrieval tool that cuts LLM token burn;
+  trait-based architecture where hand-coded and LoRA-trained resolvers swap
+  transparently.
+  \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+\cvitem{Foundation-model adaptation}{
+  LoRA fine-tuning and knowledge distillation; research on training methodology
+  (curriculum design / inverse curricula).
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

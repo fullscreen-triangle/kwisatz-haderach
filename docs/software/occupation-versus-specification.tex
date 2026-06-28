@@ -1,0 +1,730 @@
+% =====================================================================
+%  Occupation versus Specification:
+%  A Structural Account of Why Improbable States Are Costly to Grasp
+%  but Free to Occur, with Application to the Loschmidt Reversal
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Space}{\Omega}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Wmac}{W}
+\newcommand{\floorc}{\beta}
+
+\title{\textbf{Occupation versus Specification:\\[2pt]
+Why Improbable States Are Costly to Grasp but Free to Occur,\\
+with Application to the Loschmidt Reversal}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small Chair of Proteomics and Bioanalytics\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We isolate a single distinction that, once made, dissolves a family of
+apparent paradoxes about time, entropy, and reversibility: the distinction
+between \emph{occupying} a state and \emph{specifying} a state. Occupation is
+what a dynamical system does---it is at a microstate because its flow took it
+there. Specification is what an embedded agent does---it singles out, prepares,
+or recognises a state by drawing a boundary that individuates it from
+everything else. We prove that these are governed by opposite economies.
+Specification of a low-probability configuration is irreducibly costly: it
+requires importing order, depositing a positive boundary residue, and (when
+the configuration is held fixed in advance) erasing the information that fixes
+it, at a cost no less than the entropy the configuration appears to save.
+Occupation of the same configuration is, by contrast, free: a bounded
+measure-preserving flow visits every accessible region, including
+low-probability ones, with no agent, no preparation, and no cost---only with
+\emph{low frequency}. We then show that the standard mental moves by which one
+tries to make an improbable state ``reachable cheaply''---renaming a
+later state the \emph{initial} state, calling a \emph{specific} state an
+\emph{arranged} state, or imagining a configuration in which the low-entropy
+state is the \emph{most probable} next step---are each a single
+category error: they transfer a property true of \emph{specification} onto
+\emph{occupation}, or they redefine the one property (low probability) that
+constitutes the state. As a worked application we treat the Loschmidt
+reversal. We prove that the reversed configuration is not the initial
+configuration (an exact result about identity), that the prepared reversal
+pays for itself (an exact result about specification cost), and that the
+spontaneous reversal is neither incoherent nor arranged but merely
+\emph{atypical} (an exact result about occupation frequency). The apparent
+incoherence of the reversal is shown to be the felt difficulty of
+\emph{specifying} it, mistaken for an impossibility of its \emph{occurring}.
+The development is structural; no claim depends on any particular physical
+system, and where a tempting stronger claim could not be supported it is
+marked as out of reach rather than asserted.
+\end{abstract}
+
+\noindent\textbf{Keywords:} occupation versus specification; boundary residue;
+individuation; low-probability states; Loschmidt's paradox; statistical arrow
+of time; Poincar\'e recurrence; Landauer cost; typicality; category error.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The distinction}
+
+A bounded dynamical system is, at every moment, in exactly one microstate.
+That microstate is maximally specific: it is one point out of an astronomically
+large state space, and the system arrived there for no reason other than that
+its flow took it there. No agent chose it; no construction produced it; it is
+simply where the system \emph{is}. We call this relation \emph{occupation}: a
+system \emph{occupies} a state.
+
+An embedded agent that studies the system performs a different act. To speak of
+a particular configuration---to prepare it, to recognise it, to single it out
+among its alternatives---the agent must \emph{individuate} the configuration:
+mark it off from everything it is not. We call this relation
+\emph{specification}: an agent \emph{specifies} a state.
+
+This paper's single thesis is that occupation and specification obey
+\emph{opposite economies}, and that conflating them is the source of a
+recurring class of confusions about entropy and the direction of time.
+
+\begin{principle}[Occupation--Specification Asymmetry]
+\label{prin:asym}
+Let $X$ be a configuration of low probability (few microstates relative to its
+alternatives). Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.4em,nosep]
+\item \emph{Specification of $X$ is costly}: an embedded agent cannot single out,
+prepare, or recognise $X$ without an irreducible expenditure---boundary residue,
+imported order, or erased information---bounded below by a positive constant and,
+in the prepared case, no less than the entropy $X$ appears to save.
+\item \emph{Occupation of $X$ is free}: a bounded measure-preserving flow visits
+$X$ with no agent and no cost, differing from its visits to high-probability
+configurations only in \emph{frequency}.
+\end{enumerate}
+\end{principle}
+
+The asymmetry is intuitive once stated: it is hard to \emph{find} a needle in a
+haystack, but the needle is in the haystack whether or not anyone looks, and the
+haystack contains, at every instant, some specific---and individually
+improbable---arrangement of straws that no one assembled.
+
+\subsection{Why the distinction matters}
+
+Many arguments that purport to show low-entropy states are impossible,
+incoherent, or self-contradictory turn out, on inspection, to establish only
+that such states are \emph{costly to specify}---and then to transfer that
+conclusion, illegitimately, to the claim that they are \emph{impossible to
+occur}. The transfer is a category error: it moves a property of the agent's
+relation to the state (specification) onto the system's relation to the state
+(occupation). \Cref{prin:asym} blocks the transfer at its root.
+
+We make the principle precise (\Cref{sec:framework}), prove the two halves
+(\Cref{sec:spec,sec:occ}), classify the category errors that violate it
+(\Cref{sec:errors}), and apply the whole to the Loschmidt reversal
+(\Cref{sec:loschmidt}), where the felt incoherence of the reversal is shown to
+be exactly the cost of specifying it, mistaken for an impossibility of its
+occurring.
+
+\subsection{Method and scope}
+
+The argument is structural. We assume only a bounded, measure-preserving,
+finitely resolvable dynamical setting (\Cref{sec:framework}); the two economies
+follow from this alone. We borrow three standard results---Poincar\'e
+recurrence \citep{poincare1890}, the Liouville theorem \citep{arnold1989}, and
+the Landauer bound on information erasure
+\citep{landauer1961,bennett1982}---and one prior structural result of the
+author's, the positivity of the boundary residue (the resolution floor) for an
+embedded individuating agent. Where a stronger claim (e.g.\ that the reversal is
+\emph{logically} incoherent rather than \emph{statistically} atypical) could not
+be supported, it is marked as out of reach.
+
+% =====================================================================
+\section{Framework}
+\label{sec:framework}
+% =====================================================================
+
+\subsection{States, macrostates, probability}
+
+\begin{definition}[Bounded measure space]
+\label{def:space}
+We work on a bounded phase space $\Space$ carrying a finite measure $\mu$ with
+$0<\mu(\Space)<\infty$, and a measure-preserving flow $\phi_t:\Space\to\Space$.
+A \emph{microstate} is a point $x\in\Space$. A \emph{macrostate} is a
+positive-measure measurable set $\Wmac\subseteq\Space$; its \emph{probability}
+is $p(\Wmac)=\mu(\Wmac)/\mu(\Space)$, and its \emph{entropy} (up to the
+Boltzmann constant) is $S(\Wmac)=\kB\log\mu(\Wmac)$.
+\end{definition}
+
+\begin{remark}[Entropy \emph{is} log-probability]
+\label{rem:entropy-is-prob}
+$S(\Wmac)$ and $\log p(\Wmac)$ differ only by the additive constant
+$-\kB\log\mu(\Space)$. ``Low entropy'' and ``low probability'' are therefore not
+two correlated properties of a macrostate but \emph{one property under two
+names}. This identity is used repeatedly below; in particular, no operation can
+raise a macrostate's probability while holding its entropy fixed, because the
+two move together by definition. We return to this in \Cref{sec:errors}.
+\end{remark}
+
+\subsection{Occupation and specification}
+
+\begin{definition}[Occupation]
+\label{def:occ}
+A system \emph{occupies} microstate $x$ at time $t$ if $\phi_t(x_0)=x$ for its
+initial condition $x_0$. Occupation is a relation between the flow and a point;
+it involves no agent and no choice.
+\end{definition}
+
+\begin{definition}[Specification]
+\label{def:spec}
+An \emph{embedded agent} is a subsystem of $\Space$ with finite descriptive
+resources. The agent \emph{specifies} a configuration $X$ when it individuates
+$X$: draws a separator marking $X$ off from $\Space\setminus X$ to the agent's
+finite resolution. Three modes of specification are distinguished:
+\begin{enumerate}[label=\textup{(S\arabic*)},leftmargin=3em,nosep]
+\item\label{s:point} \emph{Pointing}: singling out $X$ from its alternatives
+(naming, recognising).
+\item\label{s:prepare} \emph{Preparing}: forcing the system into $X$ by acting
+on it (setting coordinates, reversing momenta).
+\item\label{s:recognise} \emph{Recognising}: certifying, after the fact, that
+the system is in $X$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[The two relations are categorically distinct]
+\label{rem:two-relations}
+Occupation relates the flow to a point and needs no mind. Specification relates
+an agent to a region and is an act with resources and a cost. A system occupies
+a maximally specific microstate at every instant without any agent specifying it;
+conversely, an agent may specify a region the system never occupies. The
+remainder of the paper is the consequence of keeping these apart.
+\end{remark}
+
+\subsection{The boundary residue}
+
+We take as given the following structural result, established for an embedded
+finitely-resolved individuating agent (the resolution-floor theorem of the
+companion development): every separator an embedded agent can realise is a union
+of positive-measure cells and therefore carries measure bounded below by a
+strictly positive constant.
+
+\begin{theorem}[Positivity of the boundary residue]
+\label{thm:floor}
+Let an embedded agent of finite resolution individuate a region $X$ from
+$\Space\setminus X$ within a connected bounded $\Space$. Then the agent's
+realisable separator $\Sigma(X)$ has measure
+$\mu(\Sigma(X))\ge\floorc>0$, where $\floorc$ is the agent's resolution floor.
+No individuation an embedded agent performs is free.
+\end{theorem}
+
+\begin{proof}[Reference]
+The realisable separator is a union of cells of the agent's finite partition;
+by connectedness it contains at least one cell, and each cell has measure
+$\ge\mu_{\min}>0$; hence $\mu(\Sigma(X))\ge\mu_{\min}=:\floorc$. The full
+development, including the necessity of boundedness, appears in the companion
+paper on the irreducible boundary of a bounded resolvable space.
+\end{proof}
+
+% =====================================================================
+\section{The economy of specification}
+\label{sec:spec}
+% =====================================================================
+
+We prove that each mode of specification of a low-probability configuration is
+costly, establishing \Cref{prin:asym}(i).
+
+\subsection{Pointing and recognising are costly}
+
+\begin{proposition}[Pointing cost]
+\label{prop:point-cost}
+For an embedded agent, singling out a configuration $X$ (mode~\ref{s:point})
+deposits boundary residue $\ge\floorc>0$, independently of $X$'s probability. If
+$X$ is low-probability, the cost of \emph{locating} $X$ among its alternatives
+grows with the improbability: to point to one macrostate among $K$ equiprobable
+alternatives requires resolving $\log K$ bits of distinction, each carrying
+residue $\ge\floorc$.
+\end{proposition}
+
+\begin{proof}
+Singling out $X$ is an individuation; by \Cref{thm:floor} it carries residue
+$\ge\floorc$. Discriminating $X$ from $K-1$ alternatives is a sequence of
+$\lceil\log_2 K\rceil$ binary individuations, each contributing residue
+$\ge\floorc$; the total is $\ge\floorc\lceil\log_2 K\rceil$. For a
+low-probability $X$, $K$ is large and the locating cost is correspondingly
+large.
+\end{proof}
+
+\begin{corollary}[Recognition cost]
+\label{cor:recog-cost}
+Recognising (mode~\ref{s:recognise}) that the system occupies $X$ is an
+individuation of $X$ against $\Space\setminus X$ and carries residue
+$\ge\floorc$. There is no cost-free recognition.
+\end{corollary}
+
+\subsection{Preparing a held-fixed low-probability state pays its own apparent saving}
+
+The sharpest mode is preparation (mode~\ref{s:prepare}): forcing the system into
+a low-probability $X$ chosen in advance. Here the cost is not merely positive but
+is bounded below by the entropy the configuration appears to save.
+
+\begin{theorem}[Preparation pays for itself]
+\label{thm:landauer}
+Let an embedded agent prepare the system into a pre-specified low-probability
+macrostate $X$ by acting on it conditionally on knowledge of the system's prior
+microstate. Let $\Delta S_X=S(\Wmac_{\mathrm{typ}})-S(X)>0$ be the entropy
+deficit of $X$ relative to a typical macrostate. Then the agent's operation
+increases the entropy of its environment by at least $\Delta S_X$:
+\[
+\Delta S_{\mathrm{env}}\ \ge\ \Delta S_X .
+\]
+The preparation produces no net entropy decrease.
+\end{theorem}
+
+\begin{proof}
+Conditioning the action on the prior microstate requires the agent to acquire
+and hold the information that distinguishes the target $X$ from its alternatives,
+an amount $I_X\ge\Delta S_X/\kB$ bits (the deficit is, by
+\Cref{rem:entropy-is-prob}, the log-ratio of macrostate measures). To reuse its
+finite memory the agent must erase this information; by the Landauer bound
+\citep{landauer1961,bennett1982}, erasing $I_X$ bits dissipates at least
+$\kB T\ln 2\cdot I_X\ge T\,\Delta S_X$ of heat, raising environmental entropy by
+$\ge\Delta S_X$. Hence the apparent saving $\Delta S_X$ inside $X$ is matched or
+exceeded by $\Delta S_{\mathrm{env}}$; the books close.
+\end{proof}
+
+\begin{remark}[What \Cref{thm:landauer} does and does not establish]
+\label{rem:landauer-scope}
+\Cref{thm:landauer} resolves the \emph{prepared} case completely: an agent that
+arranges a low-probability configuration pays for it, and no second law is
+violated. It says nothing about configurations that arise \emph{without}
+preparation. That is the subject of the next section, and the whole weight of
+the occupation--specification distinction rests on the gap between the two.
+\end{remark}
+
+% =====================================================================
+\section{The economy of occupation}
+\label{sec:occ}
+% =====================================================================
+
+We prove that occupation of a low-probability configuration is free and that the
+only thing low about it is its frequency, establishing \Cref{prin:asym}(ii).
+
+\subsection{Occupation requires no agent}
+
+\begin{proposition}[Occupation is agent-free]
+\label{prop:occ-free}
+At every instant the system occupies a single, maximally specific microstate; no
+agent specifies it, prepares it, or recognises it for the occupation to obtain.
+In particular the current microstate of any system is, among the microstates of
+its macrostate, an individually improbable point that no agent arranged.
+\end{proposition}
+
+\begin{proof}
+Occupation is defined (\Cref{def:occ}) as $\phi_t(x_0)=x$: a fact about the flow,
+not about any agent. The current microstate is one point of a positive-measure
+macrostate containing astronomically many microstates; its individual
+probability is the reciprocal of that count, hence small; and it was produced by
+the flow, not by any specification (\Cref{rem:two-relations}). Thus improbable,
+maximally specific, unarranged occupation is the generic condition of every
+system at every instant.
+\end{proof}
+
+\begin{corollary}[Specificity does not entail arrangement]
+\label{cor:spec-not-arr}
+That a configuration is highly specific (low-probability, fine-tuned) does not
+entail that any agent arranged it. The current microstate is a counterexample:
+maximally specific, arranged by no one.
+\end{corollary}
+
+\subsection{Low-probability configurations are occupied, freely, but rarely}
+
+\begin{theorem}[Free but rare occupation]
+\label{thm:rare}
+Let $X\subseteq\Space$ be a low-probability macrostate, $p(X)>0$. Under the
+bounded measure-preserving flow:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.4em,nosep]
+\item \emph{Existence}: by Poincar\'e recurrence \citep{poincare1890}, almost
+every orbit enters $X$ infinitely often; $X$ is occupied, with no agent and no
+preparation.
+\item \emph{Cost}: the occupation costs nothing---no work is done, no information
+is erased, no order is imported---because no agent acts; the flow merely passes
+through $X$.
+\item \emph{Frequency}: by the ergodic average, the long-run fraction of time
+spent in $X$ equals $p(X)=\mu(X)/\mu(\Space)$, which is small precisely because
+$X$ is low-probability.
+\end{enumerate}
+Hence a low-probability configuration is occupied freely and spontaneously, and
+the only respect in which it is ``hard to reach'' by the flow is that the flow
+reaches it \emph{rarely}, not that reaching it is costly or forbidden.
+\end{theorem}
+
+\begin{proof}
+(i) is Poincar\'e recurrence on a finite-measure space. (ii) holds because
+occupation is agent-free (\Cref{prop:occ-free}); there is no actor to incur a
+cost. (iii) is the Birkhoff ergodic average for the indicator of $X$, equal to
+$p(X)$ for an ergodic flow (and bounded by it in general by the recurrence
+fraction). Smallness of the fraction is smallness of $\mu(X)$.
+\end{proof}
+
+\begin{theorem}[Symmetry of arrival cost]
+\label{thm:arrival-symmetry}
+Reaching a low-probability macrostate by the flow costs exactly as much as
+reaching a high-probability one: nothing. If arrival at a typical macrostate
+requires no agent and no work (it does not), then arrival at an atypical
+macrostate requires no agent and no work either.
+\end{theorem}
+
+\begin{proof}
+Both arrivals are occupation events (\Cref{def:occ}); by \Cref{prop:occ-free}
+neither involves an agent. The flow's reaching $X$ is the same kind of event as
+its reaching any region---an application of $\phi_t$. The configurations differ
+in measure, not in the mechanism or cost of arrival. (Under a time-reversal
+symmetry of $\phi_t$, the point is sharper still: the reflected orbit reaching
+the reflected region is an equally valid, equally costless solution; what is not
+symmetric is the \emph{measure} of the regions, never the cost of arrival.)
+\end{proof}
+
+\begin{remark}[The bedrock fact: rarity does not convert]
+\label{rem:bedrock}
+\Cref{thm:rare,thm:arrival-symmetry} together isolate the one irreducible fact.
+A low-probability configuration is real (it is occupied---\ref{thm:rare}(i)),
+uncompensated (no agent pays---\ref{thm:rare}(ii)), unarranged
+(\Cref{cor:spec-not-arr}), and \emph{rare} (\ref{thm:rare}(iii)). Its rarity is
+its identity: it cannot be made common without ceasing to be low-probability
+(\Cref{rem:entropy-is-prob}), made impossible without contradicting recurrence,
+or made arranged without an agent and a cost (\Cref{thm:landauer}). Rarity is
+the residue that survives every attempted reframing.
+\end{remark}
+
+% =====================================================================
+\section{The category errors}
+\label{sec:errors}
+% =====================================================================
+
+We now classify the moves by which one attempts to violate \Cref{prin:asym}:
+each transfers a specification-property onto occupation, or redefines the
+constitutive property of the state. We state three; they exhaust the moves
+encountered in the analysis of the Loschmidt reversal (\Cref{sec:loschmidt}).
+
+\subsection{Error A: renaming a later state ``initial''}
+
+\begin{proposition}[Naming does not confer no-past-ness]
+\label{prop:err-rename}
+Let a state $y$ be reached by the flow at time $t>0$, so $y$ has a past. Calling
+$y$ ``the initial state'' is a labelling (mode~\ref{s:point}) and does not endow
+$y$ with the property---having no past---that distinguishes an origin. Any
+theorem whose hypothesis is ``has no past'' fails to apply to $y$ regardless of
+$y$'s name.
+\end{proposition}
+
+\begin{proof}
+``Initial'' admits two senses: (a) a bookkeeping start chosen by the agent, and
+(b) the structural origin, the unique state with no past. A reached state $y$ has
+a past by construction ($y=\phi_t(x_0)$, $t>0$), so $y$ satisfies (a) by
+stipulation and fails (b) by structure. A theorem proved for sense (b) reads the
+predicate ``no past,'' which $y$ lacks; the rename supplies sense (a), which is
+inert with respect to that predicate. Hence the rename transfers nothing.
+\end{proof}
+
+\subsection{Error B: inferring arrangement from specificity}
+
+\begin{proposition}[Specific $\nRightarrow$ arranged]
+\label{prop:err-arrange}
+From ``$X$ is highly specific (low-probability)'' one cannot infer ``an agent
+arranged $X$.'' The inference confuses a property of the outcome (its measure)
+with a claim about its causal origin (an agent's action).
+\end{proposition}
+
+\begin{proof}
+\Cref{cor:spec-not-arr} exhibits a standing counterexample: the system's current
+microstate is maximally specific and arranged by no one. Specificity is measure;
+arrangement is agency; the first does not imply the second. (Equivalently: a fair
+process can yield an arbitrarily specific outcome with no intervention; the
+outcome's improbability is evidence of its rarity, not of an arranger.)
+\end{proof}
+
+\subsection{Error C: making the low-probability state ``most probable''}
+
+\begin{proposition}[One cannot raise probability at fixed entropy]
+\label{prop:err-prob}
+There is no operation that makes a low-entropy macrostate the most probable next
+state while it remains low-entropy. ``Most probable'' and ``high entropy'' are
+the same predicate (\Cref{rem:entropy-is-prob}); demanding a low-entropy state be
+most probable demands a state be simultaneously least- and most-populated.
+\end{proposition}
+
+\begin{proof}
+By \Cref{rem:entropy-is-prob}, $S(\Wmac)$ and $\log p(\Wmac)$ differ by a
+constant; maximising $p$ maximises $S$. A state that is ``most probable next''
+is, by definition, the largest accessible macrostate, i.e.\ the highest-entropy
+one. To hold $S(X)$ low while making $p(X)$ maximal is to require
+$\mu(X)=\min$ and $\mu(X)=\max$ simultaneously---a contradiction. Any apparent
+construction that achieves it has silently enlarged $X$ (raised $\mu(X)$), i.e.\
+changed the state to a different, higher-entropy one; the original low-entropy
+state has not been made probable, it has been replaced.
+\end{proof}
+
+\begin{remark}[Nesting does not help]
+\label{rem:nesting}
+Conditioning---``state $a$ makes $b$ probable, $b$ makes $c$ probable''---cannot
+make a small target probable. The conditional probability of entering a macrostate
+$X$ from any predecessor is bounded by the share of the predecessor's onward
+measure that lands in $X$, and a small $X$ catches a small share by counting:
+there is no predecessor from which most onward orbits enter a region that has few
+states. The nested chain therefore drives occupation toward larger macrostates
+(higher entropy), never toward smaller ones; it is the engine of the arrow, not a
+route around it.
+\end{remark}
+
+\begin{theorem}[The three errors share one form]
+\label{thm:one-form}
+Errors A, B, and C are instances of a single illegitimate transfer: a property
+established for the agent's relation to a state (specification: naming, locating,
+constructing) is carried onto the system's relation to the state (occupation), or
+the constitutive measure of the state is silently altered. Under
+\Cref{prin:asym} each transfer is blocked, because the two relations obey
+opposite economies and the measure is identical to the probability.
+\end{theorem}
+
+\begin{proof}
+Error A transfers a label (specification, mode~\ref{s:point}) onto a structural
+predicate of occupation (having a past); blocked by \Cref{prop:err-rename}. Error
+B transfers an agency claim (arrangement, mode~\ref{s:prepare}) onto a measure
+fact (specificity); blocked by \Cref{prop:err-arrange}. Error C alters the
+measure that \emph{is} the entropy (\Cref{rem:entropy-is-prob}); blocked by
+\Cref{prop:err-prob}. In each case the move would require occupation to inherit
+specification's cost-structure, or a state to change its measure while keeping its
+identity; \Cref{prin:asym} and \Cref{rem:entropy-is-prob} forbid both.
+\end{proof}
+
+% =====================================================================
+\section{Application: the Loschmidt reversal}
+\label{sec:loschmidt}
+% =====================================================================
+
+We apply the framework to the Loschmidt reversal. We separate four claims that
+the conventional discussion conflates, prove the three that are true, and locate
+exactly the one that is neither true nor false but a category error.
+
+\subsection{Four claims}
+
+\begin{definition}[The reversal setting]
+\label{def:reversal}
+A time-reversal-symmetric flow $\phi_t$ on a bounded $\Space$ evolves $x_0$
+forward to $x_\tau=\phi_\tau(x_0)$. The \emph{reversed state} is
+$y_\tau=T(x_\tau)$, where $T$ negates momenta. Released, $y_\tau$ evolves forward
+to $y_{2\tau}=\phi_\tau(y_\tau)$, whose configuration reflects $x_0$'s.
+\end{definition}
+
+The four claims are:
+\begin{enumerate}[label=\textup{(L\arabic*)},leftmargin=3em,nosep]
+\item\label{l:identity} The reversed endpoint $y_{2\tau}$ \emph{is} the initial
+state $x_0$.
+\item\label{l:prepared} The reversal, when prepared by an agent, decreases total
+entropy.
+\item\label{l:incoherent} The spontaneous reversal (no agent) is logically
+incoherent.
+\item\label{l:value} On the reversed orbit, the thermodynamic entropy
+$S=\kB\log\mu$ of the occupied macrostate decreases.
+\end{enumerate}
+
+\subsection{What is true}
+
+\begin{theorem}[Non-identity]
+\label{thm:non-identity}
+\ref{l:identity} is false: $y_{2\tau}\neq x_0$. The reversed endpoint is a
+distinct, later state that resembles a reflection of $x_0$ but is not $x_0$.
+\end{theorem}
+
+\begin{proof}
+$y_{2\tau}=\phi_\tau(T(\phi_\tau(x_0)))$ is reached forward; it has the past
+$[0,2\tau]$. The initial state $x_0$ is, in the structural sense, the origin of
+the analysed window. By \Cref{prop:err-rename}, having a past, $y_{2\tau}$ is not
+the no-past origin; at most it shares the configuration \emph{type} of a
+reflection of $x_0$. Calling it ``initial'' is Error~A. Hence non-identity.
+\end{proof}
+
+\begin{theorem}[Prepared reversal pays]
+\label{thm:prepared-pays}
+\ref{l:prepared} holds only with compensation: an agent that prepares $y_\tau$
+by negating $\sim\!N$ momenta conditional on the prior microstate dissipates
+environmental entropy $\ge\Delta S$, the deficit it appears to create. No net
+decrease results.
+\end{theorem}
+
+\begin{proof}
+Direct application of \Cref{thm:landauer}: preparing the held-fixed
+low-probability configuration $y_\tau$ requires acquiring and erasing the
+information that specifies it, at Landauer cost $\ge\Delta S$.
+\end{proof}
+
+\begin{theorem}[Spontaneous reversal is atypical, not incoherent]
+\label{thm:atypical}
+\ref{l:incoherent} is false. The spontaneous reversed orbit is a legal,
+agent-free occupation event (\Cref{thm:rare}): it exists (recurrence), costs
+nothing (no agent), and is merely rare (its macrostate has small measure).
+Assuming its existence yields no contradiction---only an improbability of order
+$p=\mu(X)/\mu(\Space)$.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:rare}, the low-measure reflected macrostate is occupied infinitely
+often by almost every orbit, with no agent and no cost. A contradiction would
+follow from its existence only if existence entailed an impossible state of
+affairs; it does not---the orbit is an ordinary forward trajectory of
+$\phi_t$, distinct from the origin (\Cref{thm:non-identity}), depositing positive
+individuation residue at each step it is \emph{analysed} (\Cref{thm:floor}) yet
+itself costing nothing to \emph{occur} (\Cref{prop:occ-free}). The felt
+incoherence is the cost of \emph{specifying} the orbit
+(\Cref{prop:point-cost,thm:landauer}), transferred by Error~B/Error~C onto its
+\emph{occurrence}. Removing the transfer, what remains is rarity, not
+incoherence.
+\end{proof}
+
+\subsection{What is the case}
+
+\begin{theorem}[The entropy value falls, rarely, uncompensated]
+\label{thm:value}
+\ref{l:value} is true and is not paradoxical. On the spontaneous reversed orbit
+the occupied macrostate's measure decreases, so $S=\kB\log\mu$ falls; the fall is
+uncompensated (no agent acts) and occurs with probability $\sim p(X)$. The second
+law survives not because the fall is prevented or paid for, but because it is
+atypical: the long-run fraction of time on entropy-decreasing segments is the
+measure of the low-entropy region, $p(X)\ll 1$.
+\end{theorem}
+
+\begin{proof}
+The reflected orbit traverses macrostates of decreasing measure until it reaches
+the reflected low-entropy configuration, whence (by Liouville volume
+conservation, \citep{arnold1989}) it cannot decrease without bound and turns
+upward. Along the decreasing segment $S=\kB\log\mu$ falls. By \Cref{thm:rare}(ii)
+no agent compensates; by \Cref{thm:rare}(iii) the time fraction on such segments
+is $p(X)$. The statistical second law---$S$ increases for the overwhelming
+majority of orbits and time---is consistent with a measure-zero-in-frequency set
+of decreasing segments.
+\end{proof}
+
+\subsection{Summary of the application}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{llp{6.2cm}}
+\toprule
+Claim & Status & Reason \\
+\midrule
+\ref{l:identity} identity & \textbf{false} & reached forward, has a past; rename is Error~A (\Cref{thm:non-identity}) \\
+\ref{l:prepared} prepared decrease & \textbf{compensated} & Landauer cost $\ge\Delta S$ (\Cref{thm:prepared-pays}) \\
+\ref{l:incoherent} spontaneous incoherent & \textbf{false} & occupation is free; only rare (\Cref{thm:atypical}) \\
+\ref{l:value} value falls spontaneously & \textbf{true, atypical} & uncompensated but $p(X)\!\ll\!1$ (\Cref{thm:value}) \\
+\bottomrule
+\end{tabular}
+\caption{The four Loschmidt claims under the occupation--specification
+distinction. The reversal is coherent and real; its only scarce property is
+frequency.}
+\label{tab:summary}
+\end{table}
+
+\begin{remark}[The felt incoherence diagnosed]
+\label{rem:diagnosis}
+The reversal feels incoherent because every \emph{attempt to grasp it}---to point
+to the reversed microstate, to prepare it, to recognise it---is genuinely costly
+(\Cref{sec:spec}), and an embedded agent meets that cost at every turn. The cost
+is real, and it is the content of the prepared-case resolution
+(\Cref{thm:prepared-pays}). But the cost attaches to \emph{specification}, not to
+\emph{occurrence}; transferred to occurrence it reads as impossibility. The
+distinction of \Cref{prin:asym} is exactly the removal of that transfer: the
+improbable event is costly to grasp and free to occur, and its survival of every
+reframing is its irreducible rarity (\Cref{rem:bedrock}).
+\end{remark}
+
+% =====================================================================
+\section{Scope and conclusion}
+\label{sec:scope}
+% =====================================================================
+
+\subsection{What is established}
+
+From the occupation--specification distinction and a bounded measure-preserving
+setting we have established: that specification of a low-probability
+configuration is irreducibly costly, and prepared specification pays at least its
+apparent saving (\Cref{sec:spec}); that occupation of the same configuration is
+free, agent-free, and scarce only in frequency (\Cref{sec:occ}); that the
+standard moves against this are a single category error in three forms
+(\Cref{sec:errors}); and that, applied to the Loschmidt reversal, the framework
+proves non-identity, prepared-case compensation, and spontaneous-case
+atypicality, locating the felt incoherence as the misattributed cost of
+specification (\Cref{sec:loschmidt}).
+
+\subsection{What is not claimed}
+
+We do \emph{not} claim the spontaneous reversal is logically incoherent; the
+evidence is that assuming it yields no contradiction, only improbability. We do
+\emph{not} claim the boundary residue of \emph{analysing} the reversal transfers
+to the \emph{thermodynamic} entropy of the system; the residue is agent-relative
+and the entropy is system-relative, and the two are kept apart throughout. We do
+\emph{not} derive the magnitude of the statistical arrow from the framework; that
+magnitude is the measure ratio of macrostates, a datum about the state space and
+its initial condition, not a consequence of the occupation--specification
+distinction. Where the discussion reached for a logical impossibility, the result
+delivered is a statistical atypicality, and we mark the difference rather than
+elide it.
+
+\subsection{Conclusion}
+
+The improbable is costly to grasp and free to occur. To specify a
+low-probability state---to name it, prepare it, recognise it---an embedded agent
+must import order and pay a residue, and to prepare it deliberately is to pay at
+least the entropy it seems to save. To occupy a low-probability state, a flow
+need do nothing but wander, and it will, rarely. Confusing the cost of the first
+for an impossibility of the second generates the appearance of paradox; keeping
+them apart dissolves it. In the Loschmidt case what remains, after every
+reframing is removed, is not an incoherence but a ratio: the low-entropy
+configuration is real, uncompensated, unarranged, and outnumbered. Its rarity is
+the whole of the arrow, and rarity is the one property no renaming, no nesting,
+and no act of imagination can convert into something else.
+
+% =====================================================================
+\begin{thebibliography}{9}
+\bibitem[Arnold(1989)]{arnold1989} V.~I. Arnold.
+\emph{Mathematical Methods of Classical Mechanics}. Springer, 2nd edition, 1989.
+\bibitem[Bennett(1982)]{bennett1982} C.~H. Bennett.
+The thermodynamics of computation---a review.
+\emph{International Journal of Theoretical Physics}, 21(12):905--940, 1982.
+\bibitem[Landauer(1961)]{landauer1961} R.~Landauer.
+Irreversibility and heat generation in the computing process.
+\emph{IBM Journal of Research and Development}, 5(3):183--191, 1961.
+\bibitem[Poincar\'e(1890)]{poincare1890} H.~Poincar\'e.
+Sur le probl\`eme des trois corps et les \'equations de la dynamique.
+\emph{Acta Mathematica}, 13:1--270, 1890.
+\end{thebibliography}
+
+\end{document}

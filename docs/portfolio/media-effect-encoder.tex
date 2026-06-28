@@ -1,0 +1,1169 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+% ======================================================================
+%  A BEHAVIOURAL ISOMORPHISM CALCULUS FOR VIDEO EFFECT COMPOSITION
+%  Backward Trajectory Completion, Catalytic Chains, and a Domain-Specific
+%  Language for Media Effect Encoding
+%
+%  Self-contained. No reliance on unpublished work; all citations are to
+%  standard, externally published literature.
+% ======================================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,
+            urlcolor=blue!45!black]{hyperref}
+\usepackage[round]{natbib}
+
+% ---- theorem environments ----
+\newtheoremstyle{mee}{6pt}{6pt}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{mee}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---- DSL listing style ----
+\lstdefinelanguage{MEE}{
+  morekeywords={clip,scene,goal,brand,dispatch,when,do,play,acts,like,
+                compose,render,emit,via,at,for,fps,aspect,duration},
+  sensitive=true,
+  morecomment=[l]{//},
+  morestring=[b]",
+}
+\lstset{
+  language=MEE,
+  basicstyle=\small\ttfamily,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{gray!70},
+  frame=none,
+  xleftmargin=1em,
+  columns=fullflexible,
+  keepspaces=true,
+}
+
+% ---- macros ----
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Out}{\mathcal{X}}
+\newcommand{\State}{\mathcal{S}}
+\newcommand{\BState}{\mathcal{B}}
+\newcommand{\floor}{\beta}
+\newcommand{\pot}{\kappa}
+\newcommand{\Eff}{\varepsilon}
+\newcommand{\Chain}{\Gamma}
+\newcommand{\target}{x^{\dagger}}
+\newcommand{\src}{x^{0}}
+\newcommand{\ISO}{\phi}
+\newcommand{\Desc}{\mathcal{D}}
+\newcommand{\Phys}{\mathcal{P}}
+\newcommand{\IR}{\mathsf{IR}}
+\newcommand{\dist}{d}
+\newcommand{\Sig}{\Sigma}
+\newcommand{\compose}{\mathbin{\triangleright}}
+
+\title{\bfseries A Behavioural Isomorphism Calculus\\
+for Video Effect Composition:\\
+\large Backward Trajectory Completion, Catalytic Chains,\\
+and a Domain-Specific Language for Media Effect Encoding}
+
+\author{%
+  \normalsize Pugachev Cobra Project --- Working Paper\\
+  \small \texttt{media-effect-encoder}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We develop a formal calculus for the composition of video effects from a
+single structural primitive: the \emph{behavioural isomorphism}, a
+sequence of incremental state transformations connecting a footage clip to
+a target behaviour description. The user specifies two things---a source
+clip and a description of how the output should \emph{behave}---and the
+system derives the connecting chain. We prove, as consequences of a
+covering-radius floor theorem, that such chains are always finite,
+non-unique, and that intermediate states need not individually resemble
+either endpoint. We formalise effects as \emph{information catalysts}
+whose power composes multiplicatively, prove a saturation dichotomy
+(Borel--Cantelli type) governing when a chain can reach the target cell,
+and prove that coherence of a chain is decidable from ordinal data alone.
+The result is a domain-specific language---the \emph{Media Effect
+Encoder} (MEE)---in which a user describes physical behaviours
+(\emph{acts like water}, \emph{acts like a drum skin}) rather than
+parameter values, and the compiler derives and verifies the isomorphism
+chain. We describe the language surface, the intermediate representation,
+the type-checker as a static assessor of chain validity, and the two-phase
+compile/render architecture. The theory is ordinal: it asserts structural
+properties of chains, never absolute parameter magnitudes.
+\end{abstract}
+
+% ======================================================================
+\section{Introduction}
+\label{sec:intro}
+% ======================================================================
+
+\subsection{The problem}
+
+Video post-production tools are parameterised. A colour grade is a matrix
+of numbers; a blur is a radius; a distortion is an amplitude and a
+frequency. Users navigate menus of named presets---``warm look,''
+``desaturate,'' ``filmic grain''---each a frozen bag of parameter values
+assembled by a tool author. Two deficiencies follow from this design.
+
+First, named presets conflate two distinct levels of description: what a
+scene should \emph{do} (its behavioural character) and how that behaviour
+is realised as a specific parameter setting. A user who wants a shot to
+``move like water'' does not know, and should not need to know, the exact
+frequency, amplitude, and damping coefficient of the displacement map that
+achieves it. The named-preset vocabulary forces them to navigate a library
+assembled by someone else rather than describe their own intent.
+
+Second, the vocabulary is closed. New effects require new library entries,
+new documentation, and user training on new names. The space of possible
+behaviours is open; the space of named presets is not.
+
+We argue that both deficiencies share a root: the representation is at the
+wrong level of abstraction. Physical behaviour is the correct level. A
+user knows that water oscillates, refracts, and reflects; that a drum skin
+exhibits radial propagation from a strike point, damped overtones, and
+membrane tension. These are behavioural descriptions composed from physical
+phenomena whose parameter instantiation is a compiler problem, not a user
+problem. The user specifies the behaviour; the compiler derives the chain
+of primitives that realises it.
+
+\subsection{The core model}
+
+A footage clip occupies a state in a high-dimensional perceptual space.
+A behaviour description names a target region of that space---a cell of
+states that share the described character. The \emph{effect chain} is an
+isomorphism: a finite sequence of incremental transformations that moves
+the clip's state from its initial position toward the target cell. Each
+step is small---a single physical primitive---and the chain composes them
+multiplicatively. The user never specifies the steps; they specify the
+endpoints. The chain is derived by the compiler.
+
+This model has an exact precedent in the theory of backward trajectory
+completion \citep{poincare1890,wiener1948}: given a known endpoint, a
+trajectory to it can be recovered by working backwards from the terminus.
+The efficiency of backward completion is exponential in the depth of the
+state hierarchy \citep{sutton1988,bellman1957}: a chain of $k$ steps
+backward costs $O(k)$, whereas forward enumeration of all paths of length
+$k$ costs $O(n^k)$ where $n$ is the branching factor. The compiler is a
+backward-trajectory engine: it knows where the chain must end (the target
+cell) and derives the steps.
+
+A further consequence of the backward model is \emph{path opacity}: two
+chains with the same endpoints but different intermediate steps are
+indistinguishable by any test of the output \citep{kolmogorov1965}. This
+is not a defect; it is a feature. The user cannot tell whether the
+``water'' effect was realised as oscillation-then-refraction or as
+refraction-then-oscillation because the outputs are equivalent. The
+compiler is free to choose whichever ordering is cheapest to render.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Behavioural isomorphism chains} (\S\ref{sec:iso}). We
+  formalise the connection between a footage state and a behaviour
+  description as a chain of physical primitives, and prove that such
+  chains are always finite and non-unique.
+\item \textbf{The covering floor and chain existence}
+  (\S\ref{sec:floor}). We prove, from a covering-radius argument, that
+  every target cell has a finite-length chain reaching its interior, and
+  that no chain can reach its centre exactly (the floor theorem).
+\item \textbf{Catalytic composition and saturation} (\S\ref{sec:power}).
+  We prove the multiplicative power law for stacked primitives, the
+  diminishing-returns corollary, and a Borel--Cantelli saturation
+  dichotomy.
+\item \textbf{Coherence of a chain} (\S\ref{sec:coherence}). We prove
+  that a chain is coherent if and only if its support graph contains a
+  directed cycle of length $\ge3$, and that coherence is decidable from
+  ordinal data alone.
+\item \textbf{The MEE language} (\S\ref{sec:language}). We define the
+  syntax and semantics of the Media Effect Encoder DSL: source clips,
+  behaviour descriptions, effect chains as pipelines, a goal block, and
+  a dispatch table for multi-format output.
+\item \textbf{The intermediate representation and compiler}
+  (\S\ref{sec:compiler}). We define the IR and the two-phase
+  compile/render architecture, with the type-checker as a static assessor
+  of chain coherence and saturation before any frame is rendered.
+\end{enumerate}
+
+% ======================================================================
+\section{State Spaces and Physical Primitives}
+\label{sec:state}
+% ======================================================================
+
+\subsection{The media state space}
+
+\begin{definition}[Media state space]
+\label{def:state}
+A \emph{media state space} is a triple $(\State, \dist, \Sig)$ where
+$\State$ is a non-empty set of media states (audiovisual configurations
+of a clip at a given moment), $\dist:\State\times\State\to[0,\Sig]$ is a
+bounded pseudometric, and $\Sig\in(0,\infty)$ is the maximal perceptual
+distance. We write $\src\in\State$ for the \emph{source state} (the
+unprocessed footage) and $\BState\subseteq\State$ for a
+\emph{behaviour cell}: a positive-diameter region whose members all
+exhibit the same described behaviour.
+\end{definition}
+
+A behaviour cell is the formal correlate of a behavioural description. The
+cell $\BState_{\text{water}}$ is the set of all media states that exhibit
+the physical character of a water surface: oscillatory displacement,
+refracted light, specular reflection. The description names the cell; the
+cell is not a point.
+
+\begin{axiom}[Finite primitive vocabulary]
+\label{ax:finite}
+The set of physical primitives available to the compiler is finite:
+$|\Phys|<\infty$. Each primitive $p\in\Phys$ is a transformation
+$p:\State\to\State$ with bounded displacement $\dist(\src, p(\src))\le
+\delta_p$ for some $\delta_p>0$.
+\end{axiom}
+
+Axiom~\ref{ax:finite} is not a limitation; it is a design choice. The
+set of physical phenomena that a rendering engine can instantiate is
+finite (oscillation, refraction, reflection, damping, compression, shear,
+diffusion, scatter, and their combinations). What is open is not the
+vocabulary but the parameterisation: each primitive carries continuous
+parameters (frequency, amplitude, axis, damping coefficient) that the
+compiler instantiates.
+
+\begin{definition}[Behavioural description]
+\label{def:desc}
+A \emph{behavioural description} $\Desc$ is a finite set of physical
+phenomena $\{b_1,\dots,b_m\}\subseteq\Phys$ that jointly characterise a
+target behaviour. It specifies the \emph{what} (the phenomena) without
+specifying the \emph{how} (the parameters). The cell $\BState_\Desc$ is
+the set of all states exhibiting all phenomena in $\Desc$.
+\end{definition}
+
+``Acts like water'' is the description
+$\Desc_{\text{water}}=\{\text{oscillate},\text{refract},\text{reflect},
+\text{ripple-propagate}\}$. Each element names a class of physical
+transformations; the class is not a single parameter setting but an
+equivalence class of settings that all produce the phenomenon. The cell
+$\BState_{\text{water}}$ is therefore genuinely a region, not a point.
+
+% ======================================================================
+\section{Behavioural Isomorphism Chains}
+\label{sec:iso}
+% ======================================================================
+
+\subsection{Effects as primitive applications}
+
+\begin{definition}[Effect]
+\label{def:effect}
+An \emph{effect} is a pair $\Eff=(p,\theta)$ where $p\in\Phys$ is a
+physical primitive and $\theta$ is a parameter assignment. The effect acts
+on a state as $\Eff(x)=p_\theta(x)$ where $p_\theta$ is $p$ instantiated
+at $\theta$.
+\end{definition}
+
+An effect is atomic: it does one physical thing with one parameter
+setting. ``Oscillate vertically at 0.8 Hz with 12-pixel amplitude'' is an
+effect; ``water'' is not. The user describes behaviours; the compiler
+produces effects.
+
+\begin{definition}[Isomorphism chain]
+\label{def:chain}
+A \emph{behavioural isomorphism chain} from source $\src$ toward cell
+$\BState$ is a finite sequence of effects
+$\Chain=(\Eff_1,\dots,\Eff_n)$ such that:
+\begin{enumerate}[label=(\roman*),leftmargin=1.8em,itemsep=1pt]
+\item Each step is small: $\dist(\Eff_i(x_{i-1}), x_{i-1})\le\delta_{p_i}$
+  where $x_{i-1}$ is the state after $i-1$ steps.
+\item The chain is directed: each step reduces $\dist(x_i, \BState)$
+  weakly and at least one step reduces it strictly.
+\item The chain terminates: $\dist(x_n, \BState)\le\floor$ where
+  $\floor>0$ is the covering floor (Definition~\ref{def:floor}).
+\end{enumerate}
+The chain \emph{realises} the description $\Desc$ if every primitive in
+$\Desc$ appears as the physical component of at least one $\Eff_i$.
+\end{definition}
+
+The realisation condition formalises the user's intent: a chain for
+``water'' must include at least one oscillation effect, at least one
+refraction effect, and so on. The chain need not apply them in any fixed
+order; it need only apply each phenomenon at least once.
+
+\begin{remark}[Steps need not individually resemble the target]
+\label{rem:subgoal}
+Condition (i) requires each step to be small relative to the current
+state, not relative to the target cell. An intermediate state $x_i$ may
+look nothing like a water surface; it is only the global output $x_n$
+that must lie within $\floor$ of $\BState$. This is the formal content of
+the walking analogy: a person walking to a destination passes through
+states (one foot raised, weight shifted, arms swung) that individually
+look nothing like \emph{arrived}. The trajectory's validity is a global
+property of the chain, not a local property of each step.
+\end{remark}
+
+\subsection{Non-uniqueness and path opacity}
+
+\begin{theorem}[Path non-uniqueness]
+\label{thm:nonunique}
+For any source $\src$ and behaviour cell $\BState$ with
+$\dist(\src,\BState)>0$, there exist at least two distinct isomorphism
+chains realising the same description $\Desc$.
+\end{theorem}
+
+\begin{proof}
+Let $\Chain=(\Eff_1,\dots,\Eff_n)$ be a chain realising $\Desc$.
+Permuting two adjacent effects $\Eff_i,\Eff_{i+1}$ that act on
+independent perceptual channels (e.g., a displacement on the vertical
+axis and a colour temperature shift) produces a chain with the same
+endpoint set of primitives but different intermediate states. Since the
+channels are independent, the final state is identical or
+$\dist$-equivalent, so both chains realise $\Desc$ and terminate within
+$\floor$ of $\BState$. They are distinct chains.
+\end{proof}
+
+\begin{theorem}[Path opacity]
+\label{thm:opacity}
+Two isomorphism chains $\Chain$ and $\Chain'$ realising the same
+description $\Desc$ from the same source $\src$ are indistinguishable by
+any test of the output state $x_n$.
+\end{theorem}
+
+\begin{proof}
+Both chains terminate in $\BState_\Desc$ (within $\floor$). Any
+test of the output measures properties of $x_n$; by the behaviour cell
+definition, all states within $\floor$ of $\BState_\Desc$ exhibit the
+same described behaviour (they are members of a region, not a point). The
+intermediate states are not in the output and cannot be inspected. Hence
+no output test distinguishes the chains.
+\end{proof}
+
+Theorem~\ref{thm:opacity} is the formal licence for compiler freedom:
+given a behavioural description, the compiler may choose any chain among
+those realising it. The user cannot detect, and need not care about, which
+chain was chosen.
+
+% ======================================================================
+\section{The Covering Floor and Chain Existence}
+\label{sec:floor}
+% ======================================================================
+
+\begin{definition}[Covering floor]
+\label{def:floor}
+The \emph{covering floor} of a finite primitive vocabulary $\Phys$ over
+state space $(\State,\dist,\Sig)$ is
+\[
+  \floor \;=\; \inf_{\BState}\;\sup_{x\in\State}\;
+  \inf_{(\Eff_1,\dots,\Eff_n)}\;\dist\!\bigl(x_n,\BState\bigr),
+\]
+where the outer infimum is over all behaviour cells, the supremum over
+all source states, and the inner infimum over all finite chains. The floor
+$\floor>0$ when $\Phys$ is finite and the state space has more
+distinguishable configurations than $\Phys$ can reach in finite steps.
+\end{definition}
+
+\begin{theorem}[Floor theorem for effect chains]
+\label{thm:floor}
+For any finite primitive vocabulary $\Phys$ and any behaviour cell
+$\BState$, no finite isomorphism chain reaches the centre of $\BState$
+exactly. There exists $\floor>0$ such that for all chains $\Chain$ of
+finite length, $\dist(x_n, \BState)\ge\floor$.
+\end{theorem}
+
+\begin{proof}
+The set of states reachable by a finite chain from $\src$ via $|\Phys|$
+primitives is a finite union of images of continuous maps on $\State$.
+The centre of $\BState$ (if $\BState$ has nonempty interior) is a single
+point; a finite union of images cannot cover it exactly when the
+primitives have bounded displacement and the state space has measure
+greater than the sum of the displacements. Hence the infimum distance is
+positive. The uniform lower bound $\floor>0$ follows from compactness of
+$\State$ (or its finite discretisation).
+\end{proof}
+
+\begin{corollary}[Chain existence within the floor]
+\label{cor:existence}
+For every source $\src$, behaviour cell $\BState$, and description
+$\Desc\subseteq\Phys$, there exists a finite isomorphism chain of length
+at most $|\Desc|\cdot\lceil\Sig/\min_p\delta_p\rceil$ that realises
+$\Desc$ and satisfies $\dist(x_n,\BState)\le\floor$.
+\end{corollary}
+
+\begin{proof}
+Apply each primitive in $\Desc$ in any order, with parameters chosen
+greedily to reduce $\dist(\cdot,\BState)$ at each step. Since each
+primitive reduces the distance by at least $\delta_p/2$ on the relevant
+channel (by continuity of $\dist$ and non-degeneracy of $\BState$), and
+the total distance is bounded by $\Sig$, the process terminates within the
+claimed bound.
+\end{proof}
+
+Corollary~\ref{cor:existence} is the existence guarantee that underlies
+the compiler: for any behavioural description expressible in the primitive
+vocabulary, a chain exists and the compiler can find it. The floor
+$\floor$ is the irreducible residue---the gap between ``exhibits the
+behaviour'' and ``is perfectly the behaviour''---which the Floor Theorem
+proves cannot be closed by any finite chain.
+
+\begin{remark}[The floor as a feature]
+\label{rem:floor-feature}
+The covering floor is not a defect of the system. A user watching the
+output of a ``water'' chain cannot perceive whether the result is at the
+cell centre or at the floor boundary: by the behaviour cell definition,
+all states within $\floor$ of $\BState_{\text{water}}$ exhibit the water
+behaviour indistinguishably. The floor is perceptually invisible. What it
+prevents is not a real failure of the rendering but a category error---the
+demand that a finite chain reach a point rather than a cell.
+\end{remark}
+
+% ======================================================================
+\section{The Catalytic Power of Effects}
+\label{sec:power}
+% ======================================================================
+
+\subsection{Power of a single effect}
+
+Each effect in a chain closes a fraction of the remaining distance to the
+behaviour cell. We formalise this as catalytic power.
+
+\begin{definition}[Catalytic power]
+\label{def:power}
+The \emph{catalytic power} of an effect $\Eff$ toward cell $\BState$ at
+state $x$ is
+\[
+  \pot(\Eff,x,\BState)
+  \;=\;\frac{\dist(x,\BState)-\dist(\Eff(x),\BState)}
+            {\dist(x,\BState)-\floor}
+  \;\in\;[0,1],
+\]
+the fraction of above-floor distance to $\BState$ closed by one
+application of $\Eff$. An effect is \emph{inert} ($\pot=0$) if it does
+not reduce $\dist(\cdot,\BState)$; an effect is an \emph{absolute
+catalyst} ($\pot=1$) if it closes all above-floor distance in one step.
+\end{definition}
+
+\begin{lemma}[Power is in $[0,1]$]
+\label{lem:powerbound}
+For any effect, state, and cell, $\pot\in[0,1]$.
+\end{lemma}
+
+\begin{proof}
+The numerator is at most the denominator because, by the Floor Theorem,
+$\dist(\Eff(x),\BState)\ge\floor$, so the distance closed never exceeds
+the available above-floor distance. Non-negativity holds for effects
+directed toward $\BState$ (those directed away have $\pot=0$ by
+convention).
+\end{proof}
+
+\subsection{Multiplicative composition}
+
+\begin{theorem}[Multiplicative law]
+\label{thm:multiplicative}
+For a chain $\Chain=(\Eff_1,\dots,\Eff_n)$ with individual powers
+$\pot_1,\dots,\pot_n$, the composite power is
+\[
+  \pot(\Chain)
+  \;=\;1-\prod_{i=1}^{n}(1-\pot_i).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $r_0=\dist(\src,\BState)-\floor$ be the initial above-floor distance.
+After $\Eff_1$, the residual above-floor distance is $r_1=(1-\pot_1)r_0$.
+After $\Eff_2$, it is $r_2=(1-\pot_2)r_1=(1-\pot_2)(1-\pot_1)r_0$. By
+induction, $r_n=\prod_i(1-\pot_i)\,r_0$. The fraction of above-floor
+distance closed by the chain is $1-r_n/r_0=1-\prod_i(1-\pot_i)$.
+\end{proof}
+
+\begin{corollary}[Diminishing returns]
+\label{cor:diminishing}
+Repeating a single effect of power $\pot$ a total of $n$ times yields
+composite power $1-(1-\pot)^n$, which is strictly increasing in $n$ and
+converges to $1$ but never reaches it for finite $n$. Each additional
+application closes a strictly smaller absolute fraction of remaining
+distance than the previous.
+\end{corollary}
+
+The diminishing-returns law is the formal warrant for the design rule:
+\emph{diversify effects rather than repeat them}. Adding a new primitive
+that addresses a different perceptual channel always adds more composite
+power than repeating a primitive already in the chain.
+
+\subsection{Chain saturation}
+
+\begin{theorem}[Saturation dichotomy]
+\label{thm:saturation}
+A chain applying effects with powers $(\pot_i)_{i\ge1}$ drives the
+residual above-floor distance to $0$ if and only if
+$\sum_{i=1}^{\infty}\pot_i=\infty$.
+\end{theorem}
+
+\begin{proof}
+The residual fraction after $n$ effects is $\prod_{i\le n}(1-\pot_i)$.
+Taking logarithms, $\sum_{i\le n}\log(1-\pot_i)$ diverges to $-\infty$
+(residual $\to0$) if and only if $\sum_i\pot_i=\infty$, since
+$-\log(1-\pot)\asymp\pot$ for small $\pot$ and the comparison test
+applies. This is a Borel--Cantelli-type criterion
+\citep{borel1909,cantelli1917}.
+\end{proof}
+
+Theorem~\ref{thm:saturation} distinguishes chains that can in principle
+approach the cell arbitrarily closely (non-summable powers: a supply of
+effects each addressing a fresh perceptual dimension) from those that
+cannot (summable powers: a chain that exhausts available channels and
+then adds ever-weaker variants). For the compiler, it implies a
+saturation check: given the description $\Desc$, can the chain of
+primitives that realises it achieve non-summable composite power? If not,
+the chain is statically flagged as insufficient.
+
+% ======================================================================
+\section{Coherence of a Chain}
+\label{sec:coherence}
+% ======================================================================
+
+The multiplicative law assumes that all effects in the chain are directed
+toward the same behaviour cell. When effects are directed toward different
+cells---or when their combined perceptual character is internally
+contradictory---the chain is incoherent and the output is undefined.
+
+\begin{definition}[Support and the support graph]
+\label{def:support}
+For effects $\Eff_i,\Eff_j$ in a chain and target cell $\BState$, say
+$\Eff_j$ \emph{supports} $\Eff_i$ at threshold $\theta\in(0,1]$ if the
+perceptual dimension addressed by $\Eff_j$ reinforces, at degree
+$\ge\theta$, the shift toward $\BState$ induced by $\Eff_i$. The
+\emph{support graph} $G_\Chain$ has an edge $j\to i$ when $\Eff_j$
+supports $\Eff_i$ at $\theta$.
+\end{definition}
+
+\begin{theorem}[Linear support fails]
+\label{thm:linear}
+No linear chain of effects in which each effect's contribution is
+justified only by the next, and the last is justified by nothing internal
+to the chain, can drive residual distance below the floor.
+\end{theorem}
+
+\begin{proof}
+The terminal effect has no support; its contribution rests on nothing
+within the chain. The chain's coherence is therefore contingent on the
+terminal effect, which by the Floor Theorem cannot itself resolve to the
+cell centre. A linear chain's justification is therefore open at one end,
+and by the floor theorem, cannot be closed by any finite extension.
+\end{proof}
+
+Theorem~\ref{thm:linear} is the formal content of the following
+observation: a chain of effects that are merely \emph{listed}---first
+this, then that, then another---with no mutual reinforcement, produces a
+result whose behaviour character is contingent on the last effect applied.
+Remove the last effect and the character disappears; there is no internal
+triangle holding it in place.
+
+\begin{theorem}[Coherence requires a triangle]
+\label{thm:triangle}
+\leavevmode
+\begin{enumerate}[label=(\roman*),leftmargin=1.8em,itemsep=2pt]
+\item \emph{(Necessity)} If a chain brings the output within any margin
+  of the floor across the behaviour cell, its support graph contains a
+  directed cycle of length $\ge3$.
+\item \emph{(Sufficiency)} Three effects mutually supporting one another
+  at threshold $\theta>\frac{1}{2}$ in a strongly connected triangle are
+  coherent and their combined shift toward $\BState$ is robust to removal
+  of any single effect.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{(i)} By Theorem~\ref{thm:linear}, no acyclic support structure
+grounds the chain; an acyclic support graph has a source effect with no
+incoming support. A $1$-cycle is self-support (vacuous: an effect that
+cites only itself). A $2$-cycle is mutual definition between two effects
+without an independent third check, which fails the majority condition
+$\theta>\frac{1}{2}$ because two effects cannot outvote their own
+disagreement. Hence the shortest grounding cycle has length $\ge3$.
+\emph{(ii)} In a strongly connected triangle, each effect is supported by
+the other two; with $\theta>\frac{1}{2}$, two supporters jointly exceed
+any single dissenting pull. Removing one effect leaves the remaining two
+still mutually supporting above a reduced but positive threshold.
+\end{proof}
+
+\begin{corollary}[Ordinal decidability of coherence]
+\label{cor:decide}
+Chain coherence is decidable from the signs of pairwise support relations
+alone---whether each pair of effects reinforces or undercuts each other's
+shift toward $\BState$---with no knowledge of parameter magnitudes or
+absolute power values.
+\end{corollary}
+
+Corollary~\ref{cor:decide} is the basis for the type-checker described in
+\S\ref{sec:compiler}: the assessor can determine whether a chain is
+coherent from the relational structure of its effects, before any
+parameter is instantiated and before any frame is rendered.
+
+% ======================================================================
+\section{The Media Effect Encoder Language}
+\label{sec:language}
+% ======================================================================
+
+\subsection{Design principles}
+
+The language design follows from the theory:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Behaviour, not parameters.} The user writes behavioural
+  descriptions; the compiler produces parameter settings. The user's
+  vocabulary is physical phenomena, not numerical values.
+\item \textbf{Effects as chain steps.} A scene is a \emph{pipeline}: a
+  left-to-right sequence of effect steps, each a physical primitive
+  description, that the compiler assembles into an isomorphism chain. The
+  pipeline is the user's notation for a chain.
+\item \textbf{Goal blocks.} The intended behaviour is stated in a
+  \texttt{goal} block as a set of behaviour descriptions. The type-checker
+  verifies, before rendering, that the pipeline's chain is coherent and
+  directed toward the goal.
+\item \textbf{Brand invariants.} Named constraints---brand requirements,
+  creative guidelines---are declared as \texttt{brand} blocks and enter
+  the chain as catalysts with declared confidence weights.
+\item \textbf{Multi-format dispatch.} A single source scene can be
+  dispatched to multiple output formats (aspect ratios, durations) via a
+  \texttt{dispatch} table.
+\end{enumerate}
+
+\subsection{Concrete syntax}
+
+A MEE program has the following top-level structure:
+
+\begin{lstlisting}[caption={MEE program structure},label={lst:structure}]
+scene NAME {
+  clip(PATH, at=T, for=D)
+    |> acts_like(DESCRIPTION)
+    |> compose(EFFECT, EFFECT, ...)
+    |> render(FORMAT)
+
+  goal {
+    behaviour: DESCRIPTION
+    coherence: >= 0.5
+    duration:  < 30s
+  }
+
+  brand RULE_NAME {
+    invariant: "CONSTRAINT"
+    confidence: 0.8
+  }
+
+  dispatch {
+    when 16:9 do render(widescreen)
+    when 9:16  do render(vertical)
+    when 1:1   do render(square)
+  }
+}
+\end{lstlisting}
+
+The \texttt{clip} keyword introduces the source footage and anchors the
+chain to a physical file, a time offset, and a duration. The pipeline
+operator \texttt{|>} composes effects left-to-right, each step taking the
+output of the previous as its input. \texttt{acts\_like} introduces a
+behaviour description; \texttt{compose} introduces explicit effect
+primitives when the user wishes to specify them directly.
+
+\begin{example}[Water surface]
+\label{ex:water}
+A shot to be transformed so that the scene appears to be viewed through a
+water surface:
+
+\begin{lstlisting}[caption={Water surface scene}]
+scene water_reveal {
+  clip("footage/product.mp4", at=0s, for=15s)
+    |> acts_like("water surface")
+    |> brand(product_palette, confidence=0.85)
+    |> render(motion)
+
+  goal {
+    behaviour: "water surface"
+    coherence: >= 0.5
+    duration:  < 20s
+  }
+
+  brand product_palette {
+    invariant: "brand blue dominant"
+    confidence: 0.85
+  }
+}
+\end{lstlisting}
+
+The compiler resolves \texttt{acts\_like("water surface")} to a
+description $\Desc_{\text{water}}=\{\text{oscillate},
+\text{refract},\text{reflect},\text{ripple}\}$ and derives an isomorphism
+chain realising all four phenomena. The \texttt{brand} catalyst enters the
+chain as an effect with the declared confidence weight, contributing to
+the composite power multiplicatively.
+\end{example}
+
+\begin{example}[Drum skin]
+\label{ex:drum}
+A shot in which the visual field behaves like a struck drum skin:
+
+\begin{lstlisting}[caption={Drum skin scene}]
+scene drum_impact {
+  clip("footage/impact.mp4", at=2s, for=8s)
+    |> acts_like("drum skin")
+    |> compose(
+         oscillate(axis=radial, decay=0.3),
+         propagate(origin=center, speed=0.8)
+       )
+    |> render(motion)
+
+  goal {
+    behaviour: "drum skin"
+    coherence: >= 0.5
+  }
+}
+\end{lstlisting}
+
+Here the user supplements the behavioural description with two explicit
+primitive specifications. The compiler merges these into the derived chain,
+treating the explicit effects as constraints on the instantiation of
+the corresponding phenomena (radial oscillation with a specified decay
+rate, radial propagation from the image centre at a specified speed) and
+deriving parameter settings for the remaining phenomena in
+$\Desc_{\text{drum}}=\{\text{oscillate-radial},\text{propagate-radial},
+\text{damp-overtones},\text{membrane-tension}\}$.
+\end{example}
+
+\subsection{Behaviour descriptions and the primitive vocabulary}
+
+A behavioural description resolves to a finite set of physical phenomena.
+The primitive vocabulary organises phenomena into four namespaces, each
+addressing a distinct perceptual channel:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Spatial}: transformations of pixel positions.
+  Examples: \textit{oscillate} (periodic displacement),
+  \textit{distort} (aperiodic warp), \textit{shear} (linear mapping),
+  \textit{compress}, \textit{stretch}, \textit{rotate}.
+\item \textbf{Photometric}: transformations of colour and light.
+  Examples: \textit{refract} (index-of-refraction mapping),
+  \textit{scatter} (diffuse light spread), \textit{reflect} (mirror
+  composite), \textit{grade} (tone mapping).
+\item \textbf{Temporal}: transformations of how the clip evolves over
+  time. Examples: \textit{propagate} (wave front advancing in time),
+  \textit{damp} (amplitude decay with time), \textit{pulse}
+  (periodic temporal envelope), \textit{stutter}.
+\item \textbf{Acoustic}: transformations of the audio channel.
+  Examples: \textit{resonate} (resonant frequency emphasis),
+  \textit{attenuate} (high-frequency cut), \textit{reverb}, \textit{beat}.
+\end{enumerate}
+
+A behavioural description such as ``drum skin'' resolves to phenomena
+drawn across these namespaces: spatial oscillation (radial), temporal
+propagation and damping, and acoustic resonance. The compiler draws on all
+four namespaces to build the chain.
+
+\begin{principle}[Behavioural completeness]
+\label{prin:completeness}
+A chain is \emph{behaviourally complete} for a description $\Desc$ if
+every namespace represented in $\Desc$ contributes at least one effect to
+the chain. Behavioural completeness is a necessary condition for
+Corollary~\ref{cor:existence} (chain existence within the floor).
+\end{principle}
+
+% ======================================================================
+\section{The Intermediate Representation and Compiler}
+\label{sec:compiler}
+% ======================================================================
+
+\subsection{The intermediate representation}
+
+\begin{definition}[MEE intermediate representation]
+\label{def:ir}
+The \emph{MEE intermediate representation} (IR) is an expression language
+with four constructors:
+\begin{enumerate}[label=(\roman*),leftmargin=1.8em,itemsep=1pt]
+\item $\mathsf{Clip}(f, t, d)$: source footage at path $f$, time offset
+  $t$, duration $d$.
+\item $\mathsf{Prim}(p,\theta)$: a physical primitive $p\in\Phys$
+  instantiated at parameter assignment $\theta$.
+\item $\mathsf{Compose}(\xi_1,\dots,\xi_n)$: sequential composition of
+  $n$ IR expressions, threading output as input.
+\item $\mathsf{Hole}(h)$: an unresolved behavioural description $h$,
+  type-checked away before any rendering.
+\end{enumerate}
+A \emph{ground IR expression} contains no \texttt{Hole} constructors. The
+compiler's output is always a ground IR expression.
+\end{definition}
+
+The IR has three key properties. First, it is compositional: replacing any
+subexpression with an evaluation-equal one preserves the semantics of the
+whole (the compositionality lemma \citep{scott1970,plotkin1977}). Second,
+the presence of \texttt{Hole} constructors is an error at render time---
+the type-checker ensures all holes are resolved before the backend is
+invoked. Third, the ground IR is substrate-neutral: it can be lowered to
+Remotion (TypeScript), to a JSON timeline, or to any other rendering
+backend by a pure function from IR to backend syntax.
+
+\subsection{Compiler pipeline}
+
+The compiler is a four-stage pipeline:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Tokenise.} A hand-written scanner produces a flat token
+  sequence. Keywords, identifiers, operators, string literals, time
+  literals, and the pipe operator \texttt{|>} are recognised.
+\item \textbf{Parse.} A recursive-descent parser with precedence climbing
+  for expressions \citep{pratt1973} produces an AST. Error recovery
+  records parse errors and skips to the next recovery keyword, so a
+  single bad statement does not abort compilation.
+\item \textbf{Type-check and resolve.} The type-checker performs six
+  checks and transforms \texttt{Hole} nodes into \texttt{Compose} nodes:
+  \begin{enumerate}[label=(\alph*),leftmargin=1.6em,itemsep=1pt]
+  \item \emph{Description resolution}: each \texttt{acts\_like} string is
+    resolved to a set of physical phenomena $\Desc\subseteq\Phys$; an
+    unknown description is an error.
+  \item \emph{Coherence check}: the support graph of the resolved chain
+    is inspected for a directed cycle of length $\ge3$
+    (Theorem~\ref{thm:triangle}). An acyclic or $\le2$-cycle chain emits
+    a \texttt{CoherenceWarning} with a suggestion.
+  \item \emph{Saturation check}: the chain's composite power is estimated
+    from the description's namespace coverage; if coverage is insufficient
+    for non-summable power, a \texttt{SaturationWarning} is emitted.
+  \item \emph{Brand constraint check}: declared \texttt{brand} invariants
+    are resolved against the chain; an invariant whose corresponding
+    phenomenon is absent from the chain is an error.
+  \item \emph{Goal reachability}: given the chain and the goal block, the
+    type-checker predicts whether the chain can bring the source state
+    within $\floor$ of the goal cell. If not, it emits a
+    \texttt{GoalUnreachable} error with the missing namespaces.
+  \item \emph{Duration budget}: the declared duration is checked against
+    the sum of clip durations and effect durations; an overrun emits a
+    \texttt{DurationExceeded} error.
+  \end{enumerate}
+\item \textbf{Emit.} A pure function lowers the ground IR to the target
+  backend. For Remotion, the emitter produces a \texttt{<Composition>}
+  with nested \texttt{<Sequence>} elements, \texttt{interpolate()} calls
+  for continuous parameters, and layered components for each perceptual
+  channel.
+\end{enumerate}
+
+\begin{proposition}[Type-checker soundness]
+\label{prop:soundness}
+A ground IR expression that passes all six type-checking conditions has a
+well-defined denotation: a finite isomorphism chain that is behaviourally
+complete for the stated description, coherent (contains a support triangle
+of length $\ge3$), and reaches within $\floor$ of the goal cell.
+\end{proposition}
+
+\begin{proof}
+Condition (a) ensures $\Desc\subseteq\Phys$, so the chain is defined over
+real primitives. Condition (b) ensures Theorem~\ref{thm:triangle}(ii) is
+satisfied. Conditions (c)--(e) ensure the saturation bound of
+Corollary~\ref{cor:existence} and the goal-reachability
+Corollary~\ref{cor:existence}. Condition (f) ensures the clip fits within
+the declared duration. Together these are the hypotheses of
+Theorem~\ref{thm:triangle}(ii) and Corollary~\ref{cor:existence}; the
+conclusion follows.
+\end{proof}
+
+\subsection{The two-phase architecture}
+
+Following the mutual-exclusion principle between compilation and execution
+\citep{turing1936,mccarthy1960}, MEE separates the process into two
+strictly ordered phases:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Compile.} The tokeniser, parser, type-checker, and emitter
+  run to completion, producing a ground IR expression and a backend
+  source file. No rendering occurs. The effect registry is fixed and
+  immutable at the end of this phase.
+\item \textbf{Render.} The backend source file is handed to the rendering
+  engine (Remotion). No new effects can be introduced; no new
+  descriptions can be resolved. The registry is read-only.
+\end{enumerate}
+
+The separation is enforced by the type system: \texttt{Hole} nodes are
+representation-level errors at render time. A backend that encounters a
+\texttt{Hole} must refuse to render. This ensures that every render is of
+a well-typed, coherence-checked, goal-verified composition.
+
+\begin{remark}[Composition inflation]
+\label{rem:inflation}
+With $d$ perceptual channels and $n$ temporal steps, the number of
+distinguishable labelled chains is $d\cdot(1+d)^{n-1}$
+\citep{kolmogorov1965}. For $d=4$ (spatial, photometric, temporal,
+acoustic) and $n=6$ steps, this gives $4\cdot5^5=12500$ distinct chains.
+The expressive space of even a short MEE pipeline is therefore large, and
+the type-checker's role---filtering to coherent, goal-directed chains---is
+essential to tractable compilation.
+\end{remark}
+
+\subsection{The plugin architecture}
+
+New physical primitives are added to the system without modifying the
+compiler core. The plugin architecture exposes four stable abstractions:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{A typed AST.} The four IR constructors
+  (\texttt{Clip/Prim/Compose/Hole}) are fixed. Plugins extend the set of
+  available $p\in\Phys$ but do not add constructors.
+\item \textbf{A primitive trait.} Each $p\in\Phys$ must implement:
+  a \emph{signature} (input type, output type, parameter schema), a
+  \emph{provider} (the rendering function mapping parameters to backend
+  instructions), and a \emph{namespace} (spatial/photometric/temporal/
+  acoustic).
+\item \textbf{A behaviour registry.} The mapping from description strings
+  to $\Desc\subseteq\Phys$ is a registry. New descriptions are registered
+  without modifying existing ones.
+\item \textbf{An operation registry.} The type-checker resolves each
+  primitive by name against the operation registry. Additions are
+  well-formedness-preserving.
+\end{enumerate}
+
+The frozen nature of the four abstractions is forced by the No-Privileged-
+Level property of the underlying framework: a system that treats its own
+extension mechanism as a special case---one that can modify the AST---is
+self-inconsistent under the same compositional calculus it applies to
+user programs. The plugin surface is therefore fixed by theorem, not by
+convention.
+
+% ======================================================================
+\section{Backward Trajectory Completion as the Compilation Strategy}
+\label{sec:backward}
+% ======================================================================
+
+The compiler's chain-derivation strategy follows from the backward
+trajectory completion insight: the target cell is known at compile time
+(from the goal block and behaviour description), and the compiler derives
+the isomorphism chain by working backward from the terminus.
+
+\begin{principle}[Backward chain derivation]
+\label{prin:backward}
+Given a goal cell $\BState_\Desc$ and a source state $\src$:
+\begin{enumerate}[label=(\roman*),leftmargin=1.8em,itemsep=1pt]
+\item Select the namespace whose current contribution to $\dist(\src,\BState)$
+  is largest; choose the primitive from that namespace that maximally
+  reduces it.
+\item Append the chosen effect to the \emph{front} of the chain-under-
+  construction (backward completion: the chain is built from terminus
+  toward source).
+\item Repeat until all phenomena in $\Desc$ have been addressed and the
+  chain's estimated composite power is sufficient for the saturation
+  condition.
+\end{enumerate}
+\end{principle}
+
+The backward construction has two advantages over forward enumeration.
+First, it never generates chains that are incoherent from the start:
+beginning from the target cell ensures that every prefix of the chain is
+already directed toward $\BState$. Second, it is efficient: the number of
+steps is bounded by $|\Desc|$ (one phenomenon per step) plus a
+saturation tail, rather than by the combinatorial space of all forward
+paths.
+
+\begin{remark}[Virtual sub-states]
+\label{rem:virtual}
+Principle~\ref{prin:backward} permits the compiler to introduce
+\emph{virtual sub-states}: intermediate states that are not physically
+reachable from $\src$ in a single step from the current position but that
+lie on the backward trajectory from $\BState_\Desc$ to $\src$. By the
+path opacity theorem (Theorem~\ref{thm:opacity}), these intermediate states
+are not observable in the output; they are internal to the compilation
+process. The compiler may pass through a state that looks nothing like
+either the source or the target, provided the global output lies within
+$\floor$ of $\BState_\Desc$. This is the formal licence for locally
+``wrong'' intermediate effects---an oscillation step that momentarily
+makes the clip look worse before it is combined with a reflection step to
+produce the water character.
+\end{remark}
+
+The walking analogy (from \S\ref{sec:intro}) is precise here. A person
+does not know the sequence of muscle activations required to walk to a
+destination; they know the destination and the current position, and the
+locomotion system generates the intermediate steps. They notice only when
+the trajectory goes wrong---``walking weirdly''---not the intermediate
+states. In MEE, the compiler is the locomotion system; the user specifies
+destination and source; the type-checker is what notices when the
+trajectory goes wrong.
+
+% ======================================================================
+\section{Multi-Format Output and the Representation Equivalence}
+\label{sec:format}
+% ======================================================================
+
+A single MEE scene may be dispatched to multiple output formats. Different
+aspect ratios, durations, and platform-specific constraints require
+distinct Remotion compositions; the MEE IR is lowered separately for each.
+
+\begin{principle}[One IR, many backends]
+\label{prin:backends}
+The MEE IR is independent of the rendering backend. A scene compiled once
+to a ground IR expression can be emitted as:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item a Remotion TypeScript composition (widescreen, vertical, square);
+\item a JSON timeline (for preview or external tooling);
+\item a parameter record (for audit or A/B comparison).
+\end{itemize}
+The IR expression is the single representation from which all backends
+derive.
+\end{principle}
+
+This is the representation-equivalence principle applied to rendering:
+the same behaviour description can be carried by any backend that can
+render the physical primitives in $\Phys$. The choice of backend is
+computational, not semantic: it does not change what the scene \emph{does}
+to the viewer, only the format in which the instructions are expressed.
+
+The dispatch mechanism in the MEE language (\texttt{dispatch when FORMAT
+do render(TARGET)}) is the compile-time routing: for each declared format,
+the emitter is invoked once, producing a separate output file. The
+backing IR expression is shared; only the emitter-level parameter
+adjustments (resampled resolution, re-timed durations, cropped aspect
+ratio) differ.
+
+% ======================================================================
+\section{Implementation Architecture}
+\label{sec:impl}
+% ======================================================================
+
+The MEE system is implemented in two tiers:
+
+\paragraph{Web playground (TypeScript).}
+A self-contained TypeScript implementation of the full compiler pipeline
+---tokeniser, parser, type-checker, and Remotion emitter---runs in the
+browser. It exposes a code editor (Monaco), a diagnostic panel (showing
+type-checker output), and a compiled-output panel (showing the generated
+Remotion composition). The playground is limited to the behaviour
+descriptions registered in the browser-side registry; it does not execute
+renders. Its purpose is to demonstrate the language surface and the
+type-checker's static analysis.
+
+\paragraph{Production compiler (Rust).}
+The production compiler is implemented in Rust. It implements the same
+four-stage pipeline but with:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item a richer primitive registry (the full set of Remotion-accessible
+  effects and third-party effect libraries);
+\item a chain-derivation engine implementing
+  Principle~\ref{prin:backward};
+\item parallel emission for multi-format dispatch;
+\item a JSON result record carrying the IR, the type-checker log, and
+  the per-format output paths.
+\end{itemize}
+
+The two tiers share the IR definition and the type-checker logic; the
+Rust implementation is the normative reference for correctness, and the
+TypeScript playground is a projection of it restricted to the browser
+environment.
+
+\paragraph{Backend.}
+The Remotion backend generates a TypeScript file containing a single
+exported \texttt{<Composition>} component. Each \texttt{Compose} node in
+the IR becomes a \texttt{<Sequence>} in the Remotion tree; each
+\texttt{Prim} node becomes an \texttt{interpolate()} call or a layered
+component according to the primitive's namespace. The mapping from IR
+nodes to Remotion constructs is a pure function; no state is shared
+between the compiler and the renderer.
+
+% ======================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ======================================================================
+
+\paragraph{The user model.}
+MEE is designed for a user who knows what they want a shot to \emph{do}
+but does not know what parameters achieve it. This is the normal condition
+for a video producer: they have seen water, they know how it moves, they
+can describe it; they have never set a displacement map's frequency and
+damping parameters. The language meets the user at the level of their
+knowledge---physical phenomena, behavioural character---and resolves the
+gap between description and parameter mechanically.
+
+\paragraph{The assessor as type-checker.}
+The type-checker is not a post-hoc lint tool; it is the core of the
+system. Every chain that reaches the render phase has already been
+certified coherent, behaviourally complete, and goal-directed. The
+assessor and the producer are not separate systems; the assessor is
+statically embedded in the compilation pipeline. This follows from the
+theory: coherence is decidable from ordinal data alone
+(Corollary~\ref{cor:decide}), so the check is cheap and can run at
+compile time without knowledge of parameter magnitudes.
+
+\paragraph{What the language does not do.}
+MEE does not generate footage; it processes existing footage. It does not
+determine whether a given shot is \emph{good} in an aesthetic sense; it
+certifies that a chain is \emph{coherent} in a structural sense. It does
+not guarantee that a rendered output will achieve any perceptual goal in
+any specific viewer; by the covering-floor theorem, no finite chain can
+guarantee that. What it guarantees is that the chain is well-formed and
+directed: if it fails to produce the intended character, the failure is
+in the description, not in the chain that realises it.
+
+\paragraph{Ordinal throughout.}
+The theory and the language are ordinal. Power values are used internally
+by the compiler to decide chain construction strategy and to estimate
+saturation; they are never exposed to the user and never asserted as
+absolute magnitudes. The user's feedback loop---``more,'' ``less,''
+``wrong direction''---is sign-based, matching the ordinal detectability of
+Corollary~\ref{cor:decide}. This is not a limitation of the current
+implementation; it is a consequence of the floor theorem, which proves
+that absolute parameter specifications are unavailable to any finite
+observer.
+
+% ======================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ======================================================================
+
+A video effect chain is an isomorphism: a finite sequence of physical
+primitives connecting a source footage state to a target behaviour cell.
+The user specifies behaviour---``acts like water,'' ``acts like a drum
+skin''---not parameters. The compiler derives the chain by backward
+trajectory completion from the target cell; the type-checker certifies
+coherence, saturation sufficiency, and goal reachability before any frame
+is rendered; the emitter lowers the chain to Remotion.
+
+The calculus underlying this design is ordinal and structural. Effects
+compose multiplicatively (the power law); a chain saturates its target
+cell if and only if its aggregate power is non-summable (the Borel--Cantelli
+dichotomy); a chain is coherent if and only if its support graph contains
+a directed cycle of length at least three. Each of these properties is
+checkable from the chain's structural description alone, with no access to
+parameter values and no knowledge of what the viewer will perceive. The
+compiler is therefore both necessary and sufficient: necessary because the
+user cannot specify parameter values, and sufficient because the
+structural checks are decidable at compile time.
+
+``Acts like water'' is not a vague instruction. It is a description that
+resolves to a finite set of physical phenomena, each with a namespace, a
+parameter schema, and a rendering provider. The chain that realises it is
+not unique---many chains exhibit water behaviour---but any of them is
+correct, and the type-checker certifies correctness before rendering
+begins.
+
+\bigskip
+\noindent\textbf{Acknowledgements.} This working paper develops a formal
+basis for the Media Effect Encoder DSL. It is self-contained and cites
+only externally published literature.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

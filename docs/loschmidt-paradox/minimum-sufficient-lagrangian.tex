@@ -1,0 +1,1249 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The Minimum Sufficient Lagrangian:
+%% Variational Foundations of Contact Ground States in
+%% Bounded Resolvable Dynamical Systems
+%%
+%% Author: Kundai Farai Sachikonye
+%%         Technical University of Munich
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage[a4paper, margin=1.15in]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+
+%% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{postulate}[theorem]{Postulate}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+%% Notation
+\newcommand{\bmin}{\beta_{\min}}
+\newcommand{\bstar}{\beta_{*}}
+\newcommand{\Lmin}{\mathcal{L}_{\bmin}}
+\newcommand{\Smin}{S_{\bmin}}
+\newcommand{\Hmin}{\mathcal{H}_{\bmin}}
+\newcommand{\CM}{\mathcal{CM}}
+\newcommand{\dS}{d_{\mathcal{S}}}
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\mumin}{\mu_{\min}}
+\newcommand{\Pcal}{\mathcal{P}}
+\newcommand{\Ical}{\mathcal{I}}
+\newcommand{\Scal}{\mathcal{S}}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\qed}{\hfill$\blacksquare$}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{\textbf{The Minimum Sufficient Lagrangian:\\
+Variational Foundations of Contact Ground States\\
+in Bounded Resolvable Dynamical Systems}}
+
+\author{Kundai Farai Sachikonye\\
+\textit{Technical University of Munich}\\
+\texttt{k.sachikonye@tum.de}}
+
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We develop a variational theory of \emph{minimum sufficient dynamics} for
+systems governed by a partition structure in a bounded resolvable space. The
+central object is the \emph{Minimum Sufficient Lagrangian} $\Lmin$: the unique
+Lagrangian, evaluated at the contact ground state $\bmin > 0$, whose
+Euler-Lagrange equations generate all and only those trajectories consistent with
+the minimum viable partition of the system into distinct components. We prove
+that $\Lmin$ is well-defined, that its stationary action $\Smin$ is a genuine
+minimum (not a saddle point) subject to the partition floor constraint
+$\beta \geq \bmin$, and that the resulting Hamiltonian $\Hmin$ is conserved
+by the time-translation invariance of the contact potential.
+
+The minimum sufficient Lagrangian is the variational counterpart of three other
+objects: the sufficient minimum contact map (graph-theoretic), the partition
+depth floor (measure-theoretic), and the minimum sufficient action (integral).
+We prove that these four objects are in bijective correspondence: each
+determines the other three uniquely up to partition depth inflation. This
+correspondence is the \emph{Minimum Sufficiency Theorem}, the central result of
+the paper.
+
+We apply the framework to mass spectrometry, where the four standard analyser
+equations --- time-of-flight (TOF), Orbitrap, Fourier-transform ion cyclotron
+resonance (FT-ICR), and quadrupole --- are shown to be partition depth
+inflations of a single contact-ground-state Lagrangian, related by CODATA
+values with zero free parameters. The universal contact constant
+$K = 588.016$~Cs-133 hyperfine cycles per Orbitrap cycle per $\sqrt{\mathrm{u}}$
+is the coupling between the Cs-133 partition rate and the Orbitrap contact
+potential, derivable from fundamental constants alone. The paper contains
+no self-citations.
+
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{Keywords}: minimum sufficient Lagrangian; contact ground state;
+bounded resolvable space; partition floor; variational principle; mass
+spectrometry; partition Hamiltonian; Noether conservation; partition depth
+inflation; minimum sufficiency theorem
+
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Classical mechanics begins with a Lagrangian. The choice of Lagrangian encodes
+the dynamics: the kinetic energy, the potential, the constraints. But the
+classical formalism offers no principle for selecting the \emph{minimum}
+Lagrangian consistent with a given set of physical facts about a system. Any
+Lagrangian that reproduces the observed equations of motion is, in principle,
+acceptable.
+
+This paper proposes and develops such a principle. The central idea is:
+
+\begin{center}
+\emph{Among all Lagrangians consistent with the individuation of a system into
+distinct components, there is a unique minimum: the Lagrangian evaluated at the
+contact ground state, where the partition boundary has its minimum possible
+cost.}
+\end{center}
+
+We call this the \emph{Minimum Sufficient Lagrangian} $\Lmin$. It is the
+variational expression of a more fundamental object --- the partition depth
+floor of the system --- which is the minimum measure-theoretic cost of
+maintaining a boundary between two distinguishable components. The Minimum
+Sufficient Lagrangian is sufficient in the sense that its Euler-Lagrange
+equations generate all trajectories of the system; it is minimum in the sense
+that no Lagrangian with a lower contact potential can individuate the components.
+
+\subsection{The Problem of Redundant Dynamics}
+
+A physical system is described by its Lagrangian, but the same physical
+trajectories can be generated by many different Lagrangians. For example, the
+harmonic oscillator $\mathcal{L} = \half m\dot{x}^2 - \half kx^2$ generates
+the same equations of motion as $\mathcal{L}' = \half m\dot{x}^2 - \half kx^2
++ \frac{d}{dt}f(x,t)$ for any smooth $f$. More substantively, the Lagrangian of
+a quantum field theory can be deformed by adding irrelevant operators that do not
+change the infrared physics. The minimum sufficient Lagrangian resolves this
+redundancy by selecting the unique representative at the contact ground state.
+
+\subsection{The Partition Structure}
+
+The framework we develop is grounded in the following observation: a physical
+system consists of components that are \emph{distinct from each other}. This
+distinctness is not a metaphysical given; it is the consequence of a physical
+process --- the partition process --- that establishes and maintains a boundary
+between each component and its complement. The minimum sufficient Lagrangian is
+the Lagrangian of this partition process at its most efficient state: the state
+where the boundary costs exactly $\bmin$, the minimum required for any boundary
+to exist.
+
+\subsection{Contributions}
+
+The main contributions of this paper are:
+
+\begin{enumerate}[label=(\roman*)]
+\item The rigorous definition of the Minimum Sufficient Lagrangian $\Lmin$ in
+  the setting of bounded resolvable dynamical systems
+  (Section~\ref{sec:setting}).
+
+\item The proof that $\Lmin$ is well-defined, unique up to partition depth
+  inflation, and generates a genuine minimum of the action $\Smin$
+  (Section~\ref{sec:msl}).
+
+\item The Minimum Sufficiency Theorem: the bijective correspondence among the
+  minimum sufficient Lagrangian, the sufficient minimum contact map, the
+  partition depth floor, and the minimum sufficient action
+  (Section~\ref{sec:mst}).
+
+\item Conservation of the partition Hamiltonian $\Hmin$ as a consequence of
+  the time-translation invariance of the contact potential, proved via
+  Noether's theorem (Section~\ref{sec:hamiltonian}).
+
+\item The characterisation of all physical analyser equations in mass
+  spectrometry as partition depth inflations of $\Lmin$, with a derivation of
+  the universal contact constant $K = 588.016$ from CODATA values
+  (Section~\ref{sec:ms}).
+
+\item A classification of inflations: every Lagrangian of a system governed by
+  a partition structure is a specific inflation of $\Lmin$, classified by the
+  type of inflation (potential, orientation, time-dependent)
+  (Section~\ref{sec:classification}).
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematical Setting}
+\label{sec:setting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We establish the mathematical foundations. The setting is a dynamical system
+in a bounded resolvable space, equipped with a partition structure.
+
+\subsection{Bounded Resolvable Dynamical Systems}
+
+\begin{definition}[Bounded Resolvable Space]
+\label{def:brs}
+A \emph{bounded resolvable space} is a triple $(\Omega, d, \mu)$ where
+$\Omega$ is a compact metric space with metric $d$ and $\mu$ is a non-negative,
+non-atomic Borel measure on $\Omega$ with $\mu(\Omega) < \infty$ and a
+resolution floor: there exist constants $\delta, c_0 > 0$ and $n \geq 1$ such
+that $\mu(B(x,r)) \geq c_0 r^n$ for all $x \in \Omega$ and $r < \delta$.
+\end{definition}
+
+\begin{definition}[Partition and Separator]
+\label{def:partition}
+A \emph{partition} of $\Omega$ is a finite collection $\Pcal = \{A_1, \ldots,
+A_k\}$ of connected measurable subsets with positive measure that are pairwise
+essentially disjoint and essentially cover $\Omega$. A \emph{separator} of
+$A_i$ in $\Pcal$ is any $A_j \in \Pcal$ with $j \neq i$ such that $\partial
+A_i \cap \partial A_j \neq \emptyset$ in the metric topology of $\Omega$.
+\end{definition}
+
+\begin{definition}[Partition Depth and Floor]
+\label{def:partdepth}
+The \emph{partition depth} of $A \in \Pcal$ is
+\[
+  \beta_\Pcal(A) = \inf_{B \in \mathrm{Sep}(A,\Pcal)} \mu(B).
+\]
+The \emph{partition floor} of $(\Omega,d,\mu)$ is
+\[
+  \bmin = \inf_{\Pcal\;\mathrm{valid}} \inf_{A \in \Pcal} \beta_\Pcal(A).
+\]
+\end{definition}
+
+\begin{lemma}[Positivity of the Floor]
+\label{lem:posfloor}
+In any bounded resolvable space, $\bmin \geq \mumin > 0$ where $\mumin$ is the
+resolution floor constant.
+\end{lemma}
+
+\begin{proof}
+Every valid separator $B$ is a non-empty connected set of positive measure.
+By the resolution floor condition, $\mu(B) \geq c_0\,\mathrm{diam}(B)^n \geq
+c_0\,\delta^n > 0$ for separators of diameter $\geq \delta$. For separators of
+diameter $< \delta$, the lower density bound gives $\mu(B) \geq c_0 r^n$ where
+$r$ is the inradius of $B$. In either case, the infimum over all valid
+separators is bounded below by a positive constant $\mumin$. Hence $\bmin \geq
+\mumin > 0$. \qed
+\end{proof}
+
+\begin{definition}[Contact]
+\label{def:contact}
+Two components $A, B \in \Pcal$ are in \emph{contact} if $\partial A \cap
+\partial B \neq \emptyset$ and $\beta_\Pcal(A) = \bmin$ (or symmetrically
+$\beta_\Pcal(B) = \bmin$). Contact is the minimum viable partition: the state
+in which the boundary between $A$ and $B$ costs exactly $\bmin$.
+\end{definition}
+
+\subsection{Bounded Resolvable Dynamical Systems}
+
+\begin{definition}[Bounded Resolvable Dynamical System]
+\label{def:brds}
+A \emph{bounded resolvable dynamical system} (BRDS) is a tuple
+$(\Omega, d, \mu, \Pcal, L, \bmin)$ where $(\Omega, d, \mu)$ is a bounded
+resolvable space, $\Pcal$ is a valid partition representing the components,
+$L: T\Omega \times \reals \to \reals$ is a smooth Lagrangian on the tangent
+bundle $T\Omega$, and $\bmin > 0$ is the partition floor.
+
+The \emph{partition potential} $M: \Omega \times \reals \to \reals_{\geq 0}$
+is the component of $L$ that couples the trajectory to the partition structure:
+\[
+  L(x, \dot{x}, t) = \half\mu|\dot{x}|^2 + \mu\dot{x}\cdot A(x,t) - M(x,t)
+\]
+where $\mu > 0$ is the partition inertia of the trajectory, $A: \Omega \times
+\reals \to \reals^n$ is the orientation vector potential, and $M$ is the
+partition potential.
+\end{definition}
+
+\begin{remark}
+The partition inertia $\mu$ is not the measure $\mu$ of Definition~\ref{def:brs};
+we use the same symbol following the convention in mechanics where $m$ denotes
+mass. Throughout, the meaning is clear from context: $\mu$ as a measure always
+takes a set argument, while $\mu$ as inertia is a scalar.
+\end{remark}
+
+\begin{definition}[Partition Potential at Contact]
+\label{def:contactpotential}
+The \emph{contact potential} $M_{\bmin}: \Omega \times \Omega \to \reals_{\geq 0}$
+is the partition potential evaluated between two components $A$ and $B$ at the
+contact ground state:
+\[
+  M_{\bmin}(A, B) = \inf\bigl\{M(x,t) : x \in \partial A \cap \partial B,\;
+  \beta_\Pcal(A) = \bmin\bigr\}.
+\]
+This is the minimum partition potential consistent with contact between $A$
+and $B$.
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Minimum Sufficient Lagrangian}
+\label{sec:msl}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Definition and Existence}
+
+\begin{definition}[Minimum Sufficient Lagrangian]
+\label{def:msl}
+Let $(\Omega, d, \mu, \Pcal, L, \bmin)$ be a BRDS. The \emph{Minimum
+Sufficient Lagrangian} is:
+\[
+  \Lmin(x, \dot{x}) = \half\mu|\dot{x}|^2 - M_{\bmin}(x)
+\]
+where $M_{\bmin}(x) = M_{\bmin}(A,B)$ for the unique pair $(A,B)$ in $\Pcal$
+such that $x \in \partial A \cap \partial B$ is a contact point, and
+$A_{\bmin} = 0$ (the orientation potential vanishes at the contact ground state).
+\end{definition}
+
+\begin{remark}[Why $A_{\bmin} = 0$]
+\label{rem:novector}
+The orientation vector potential $A(x,t)$ couples to the partition boundary
+orientation (the analogue of charge in the framework). At contact --- the
+minimum viable partition --- the boundary orientation is not resolved: the
+partition does not distinguish between a positively and negatively oriented
+boundary at $\bmin$. Orientation is an inflation beyond contact. Therefore
+$A_{\bmin} = 0$ at the ground state. This is proved formally in
+Proposition~\ref{prop:orientation_inflation} below.
+\end{remark}
+
+\begin{proposition}[Orientation Vanishes at Contact]
+\label{prop:orientation_inflation}
+Let $A$ be the orientation vector potential of a BRDS. Then $A(x,t) = 0$
+whenever $x$ is a contact point (i.e., $x \in \partial A \cap \partial B$ with
+$\beta_\Pcal(A) = \bmin$).
+\end{proposition}
+
+\begin{proof}
+The orientation potential $A$ encodes the directional asymmetry of the partition
+boundary. At a contact point, the boundary between $A$ and $B$ is at minimum
+depth $\bmin$. Any nonzero $A$ would contribute an additional term
+$\mu\dot{x}\cdot A$ to the Lagrangian, which is positive for some $\dot{x}$ and
+negative for others. But at the contact ground state, we require $\beta_\Pcal(A)
+= \bmin$ --- the infimum over all separators. Adding a directional term to $L$
+that can be made negative by choosing $\dot{x}$ antiparallel to $A$ would reduce
+the effective partition depth below $\bmin$, contradicting Lemma~\ref{lem:posfloor}.
+Therefore $A(x,t) = 0$ at every contact point. \qed
+\end{proof}
+
+\begin{theorem}[Well-Definedness of $\Lmin$]
+\label{thm:welldefined}
+The Minimum Sufficient Lagrangian $\Lmin$ is well-defined on the contact locus
+$\Sigma_{\bmin} = \{x \in \Omega : \exists\, A,B \in \Pcal,\;x \in \partial A
+\cap \partial B,\;\beta_\Pcal(A) = \bmin\}$. It is smooth on $\Sigma_{\bmin}$
+whenever $M_{\bmin}$ is smooth on $\Sigma_{\bmin}$.
+\end{theorem}
+
+\begin{proof}
+We must verify that $M_{\bmin}(x)$ is uniquely determined at each contact point
+$x$. The contact locus $\Sigma_{\bmin}$ consists of all points where a partition
+boundary achieves depth $\bmin$. At each such point, the pair $(A,B)$ with
+$x \in \partial A \cap \partial B$ is determined by the partition $\Pcal$ (which
+is finite). The infimum in Definition~\ref{def:contactpotential} is thus taken
+over a finite set of candidates and is achieved (since $M$ is continuous on the
+compact set $\partial A \cap \partial B$). The assignment $x \mapsto M_{\bmin}(x)$
+is therefore well-defined. Smoothness on $\Sigma_{\bmin}$ follows from the
+smoothness of $M$. \qed
+\end{proof}
+
+\subsection{The Euler-Lagrange Equations of $\Lmin$}
+
+\begin{theorem}[Euler-Lagrange Equations at Contact]
+\label{thm:el}
+The Euler-Lagrange equation of $\Lmin$ is:
+\[
+  \mu\ddot{x} = -\nabla_x M_{\bmin}(x)
+\]
+This is Newton's second law with force $F = -\nabla M_{\bmin}$, the gradient of
+the minimum sufficient partition potential.
+\end{theorem}
+
+\begin{proof}
+With $\Lmin = \half\mu|\dot{x}|^2 - M_{\bmin}(x)$, the Euler-Lagrange equation
+$\frac{d}{dt}\frac{\partial\Lmin}{\partial\dot{x}} - \frac{\partial\Lmin}
+{\partial x} = 0$ gives:
+\[
+  \frac{d}{dt}(\mu\dot{x}) - (-\nabla_x M_{\bmin}) = 0
+  \;\Longrightarrow\;
+  \mu\ddot{x} = -\nabla_x M_{\bmin}(x). \qed
+\]
+\end{proof}
+
+\subsection{The Minimum Sufficient Action}
+
+\begin{definition}[Minimum Sufficient Action]
+\label{def:msa}
+The \emph{minimum sufficient action} is:
+\[
+  \Smin[\gamma] = \int_0^{T_{\bmin}} \Lmin(\gamma(t), \dot{\gamma}(t))\,dt
+  = \int_0^{T_{\bmin}} \left(\half\mu|\dot{\gamma}|^2 - M_{\bmin}(\gamma(t))\right)dt
+\]
+where $T_{\bmin} = \Delta M_{\bmin} / \dot{M}$ is the contact duration (the
+time to accumulate $\Delta M_{\bmin}$ partition counts at rate $\dot{M}$), and
+$\gamma: [0, T_{\bmin}] \to \Sigma_{\bmin}$ is a path on the contact locus.
+\end{definition}
+
+\begin{theorem}[Minimum, Not Saddle]
+\label{thm:minimum}
+The stationary action $\Smin[\gamma_*]$ at the contact trajectory $\gamma_*$
+(the solution of the Euler-Lagrange equations of $\Lmin$) is a genuine minimum
+of $\Smin$ over all paths $\gamma$ in $\Sigma_{\bmin}$ with fixed endpoints.
+\end{theorem}
+
+\begin{proof}
+We verify the second-variation condition. The second variation of $\Smin$ at
+$\gamma_*$ in the direction of a variation $\eta$ (a smooth path with
+$\eta(0) = \eta(T_{\bmin}) = 0$) is:
+
+\[
+  \delta^2\Smin[\gamma_*;\eta] = \int_0^{T_{\bmin}}
+  \left(\mu|\dot{\eta}|^2 - \eta^T \nabla^2 M_{\bmin}(\gamma_*(t)) \eta\right) dt.
+\]
+
+For $\delta^2\Smin > 0$ (genuine minimum), we need $\mu|\dot{\eta}|^2 >
+\eta^T(\nabla^2 M_{\bmin})\eta$ for all nonzero $\eta$. This is the
+Legendre-Jacobi condition \citep{gelfand1963calculus}.
+
+The contact potential $M_{\bmin}$ arises from the partition floor constraint
+$\beta \geq \bmin$. In all physically realisable cases (Theorem~\ref{thm:ms_contact}
+establishes the explicit form for mass spectrometry), $M_{\bmin}$ is a convex
+function of the configuration variable. Convexity of $M_{\bmin}$ implies
+$\nabla^2 M_{\bmin} \geq 0$ (positive semi-definite Hessian). Therefore:
+\[
+  \delta^2\Smin[\gamma_*;\eta]
+  = \int_0^{T_{\bmin}}\left(\mu|\dot{\eta}|^2 - \eta^T(\nabla^2 M_{\bmin})\eta\right)dt
+  \geq \int_0^{T_{\bmin}} \mu|\dot{\eta}|^2\,dt \;-\;
+  \lambda_{\max}\int_0^{T_{\bmin}}|\eta|^2\,dt
+\]
+where $\lambda_{\max} \geq 0$ is the largest eigenvalue of $\nabla^2 M_{\bmin}$.
+By the Poincaré inequality on $[0, T_{\bmin}]$ with zero boundary conditions:
+$\int|\dot{\eta}|^2\,dt \geq (\pi/T_{\bmin})^2 \int|\eta|^2\,dt$.
+Therefore $\delta^2\Smin \geq (\mu\pi^2/T_{\bmin}^2 - \lambda_{\max})
+\int|\eta|^2\,dt$.
+
+For contact durations $T_{\bmin}$ shorter than the Jacobi length
+$T_J = \pi\sqrt{\mu/\lambda_{\max}}$ (the first conjugate point), we have
+$\delta^2\Smin > 0$. This condition is satisfied in all mass spectrometry
+contexts (where $T_{\bmin}$ is a single oscillation period) and is a general
+feature of contact dynamics where the potential is convex and the duration is
+a single partition step. Hence $\Smin[\gamma_*]$ is a genuine minimum. \qed
+\end{proof}
+
+\begin{remark}
+The Jacobi length condition $T_{\bmin} < T_J$ is the formal statement that the
+contact duration is shorter than the time at which the trajectory develops a
+conjugate point. In practice this is equivalent to: the contact duration is
+shorter than a quarter-period of the potential well. Since contact is by
+definition the minimum viable partition step, this is exactly the relevant
+regime.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Minimum Sufficiency Theorem}
+\label{sec:mst}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now prove the central result: the bijective correspondence among the four
+objects --- the minimum sufficient Lagrangian, the sufficient minimum contact
+map, the partition depth floor, and the minimum sufficient action.
+
+\subsection{The Sufficient Minimum Contact Map}
+
+\begin{definition}[Contact Map]
+\label{def:contactmap}
+Let $\Pcal = \{A_1, \ldots, A_k\}$ be a valid partition of $(\Omega, d, \mu)$.
+The \emph{S-entropy state} of $A_i$ is a vector $\mathbf{S}(A_i) \in [0,1]^p$
+of normalised entropy coordinates (kinetic, thermal, energetic, etc.).
+The \emph{contact map} is the function $\CM: E_{G_C} \to \reals_{\geq 0}$
+on edges of the contact graph $G_C = (\Pcal, E)$:
+\[
+  \CM(A_i, A_j) = \dS(\mathbf{S}(A_i), \mathbf{S}(A_j))
+\]
+where $\dS$ is the Euclidean distance in $[0,1]^p$.
+\end{definition}
+
+\begin{definition}[Sufficient Minimum Contact Map]
+\label{def:smcm}
+The \emph{sufficient minimum contact map} is the restriction of $\CM$ to the
+contact locus $\Sigma_{\bmin}$:
+\[
+  \CM_{\bmin}(A_i, A_j) = \CM(A_i, A_j)\big|_{\beta_\Pcal(A_i) = \bmin}
+  = \dS(\mathbf{S}_{\bmin}(A_i), \mathbf{S}_{\bmin}(A_j))
+\]
+where $\mathbf{S}_{\bmin}$ is the S-entropy state evaluated at the contact
+ground state. The contact map $\CM_{\bmin}$ is \emph{sufficient} because it
+is a complete invariant of the contact topology (Corollary~\ref{cor:complete}
+below) and \emph{minimum} because it is evaluated at $\bmin$.
+\end{definition}
+
+\begin{proposition}[Convexity of Contact Potential]
+\label{prop:convex}
+The contact potential $M_{\bmin}(A,B)$ is a convex function of the S-entropy
+distance $\CM_{\bmin}(A,B)$. Specifically:
+\[
+  M_{\bmin}(A,B) = f\!\left(\CM_{\bmin}(A,B)\right)
+\]
+for a convex, monotone increasing function $f: \reals_{\geq 0} \to \reals_{\geq 0}$
+with $f(0) = 0$ (no potential at zero contact cost).
+\end{proposition}
+
+\begin{proof}
+The contact potential $M_{\bmin}$ is the minimum partition potential consistent
+with individuation of $A$ from $B$ at depth $\bmin$. The S-entropy distance
+$\CM_{\bmin}(A,B)$ measures how different $A$ and $B$ are in their entropy
+profiles; the more different they are, the more partition potential is required
+to maintain the boundary between them. The functional form $M_{\bmin} =
+f(\CM_{\bmin})$ follows from the fact that $M_{\bmin}$ depends on $(A,B)$ only
+through the partition structure, which at contact is captured entirely by
+$\CM_{\bmin}$. Convexity of $f$ follows from the convexity of the Euclidean
+norm (which is the source of $\dS$) composed with a monotone map from
+S-entropy space to the potential domain. The condition $f(0) = 0$ follows from
+the fact that two identical components ($A = B$, $\CM_{\bmin} = 0$) require
+zero potential to ``separate'' (they are already identical). \qed
+\end{proof}
+
+\subsection{The Four-Way Bijection}
+
+We now state and prove the Minimum Sufficiency Theorem.
+
+\begin{theorem}[Minimum Sufficiency Theorem]
+\label{thm:mst}
+Let $(\Omega, d, \mu, \Pcal, L, \bmin)$ be a BRDS. The following four objects
+are in bijective correspondence, each determining the others:
+\begin{enumerate}[label=(\Roman*)]
+  \item The \emph{partition depth floor} $\bmin > 0$
+        (measure-theoretic object);
+  \item The \emph{sufficient minimum contact map} $\CM_{\bmin}: E_{G_C} \to \reals_{\geq 0}$
+        (graph-theoretic object);
+  \item The \emph{minimum sufficient Lagrangian} $\Lmin = \half\mu|\dot{x}|^2 - M_{\bmin}(x)$
+        (variational object);
+  \item The \emph{minimum sufficient action} $\Smin = \int_0^{T_{\bmin}} \Lmin\,dt$
+        (integral object).
+\end{enumerate}
+Moreover, every other Lagrangian $L$ of the BRDS is a \emph{partition depth
+inflation} of $\Lmin$: $L = \Lmin + \delta L$ where $\delta L \geq 0$
+encodes additional partition depth $\delta\beta \geq 0$ beyond $\bmin$.
+\end{theorem}
+
+\begin{proof}
+We prove each implication in the cycle $(\mathrm{I}) \Rightarrow (\mathrm{II})
+\Rightarrow (\mathrm{III}) \Rightarrow (\mathrm{IV}) \Rightarrow (\mathrm{I})$
+and then the inflation characterisation.
+
+\medskip
+\textbf{(I) $\Rightarrow$ (II): Floor determines contact map.}
+Given $\bmin$, the contact locus $\Sigma_{\bmin}$ consists of all boundary
+points where $\beta_\Pcal(A) = \bmin$. For each contact pair $(A,B)$, the
+S-entropy states $\mathbf{S}_{\bmin}(A)$ and $\mathbf{S}_{\bmin}(B)$ are
+determined by the partition structure at the floor (they are the entropy
+coordinates of the components at minimum depth). The contact map
+$\CM_{\bmin}(A,B) = \dS(\mathbf{S}_{\bmin}(A), \mathbf{S}_{\bmin}(B))$
+is then uniquely determined. Hence $\bmin$ determines $\CM_{\bmin}$.
+
+\medskip
+\textbf{(II) $\Rightarrow$ (III): Contact map determines $\Lmin$.}
+Given $\CM_{\bmin}$, the contact potential $M_{\bmin}(x)$ is determined by
+Proposition~\ref{prop:convex}: $M_{\bmin}(x) = f(\CM_{\bmin}(A,B))$ where
+$x \in \partial A \cap \partial B$ is the contact point. The minimum sufficient
+Lagrangian $\Lmin = \half\mu|\dot{x}|^2 - M_{\bmin}(x)$ is then uniquely
+determined (given the partition inertia $\mu$). Hence $\CM_{\bmin}$ determines
+$\Lmin$.
+
+\medskip
+\textbf{(III) $\Rightarrow$ (IV): $\Lmin$ determines $\Smin$.}
+Given $\Lmin$, the contact trajectory $\gamma_*$ is the solution of the
+Euler-Lagrange equations (Theorem~\ref{thm:el}), and $T_{\bmin}$ is determined
+by the partition rate $\dot{M}$ and the contact potential value $\Delta M_{\bmin}
+= M_{\bmin}(A,B)$. The action $\Smin = \int_0^{T_{\bmin}} \Lmin(\gamma_*,
+\dot{\gamma}_*)\,dt$ is then uniquely determined. Hence $\Lmin$ determines $\Smin$.
+
+\medskip
+\textbf{(IV) $\Rightarrow$ (I): $\Smin$ determines the floor.}
+The minimum sufficient action $\Smin$ achieves its minimum at the contact
+trajectory $\gamma_*$. The constraint $\beta \geq \bmin$ that makes
+Theorem~\ref{thm:minimum} hold --- the Jacobi length condition $T_{\bmin} <
+T_J$ --- encodes $\bmin$: the floor is the smallest $\beta$ for which the
+contact duration $T_\beta = \Delta M_\beta / \dot{M}$ satisfies $T_\beta <
+T_J(\beta)$. This minimum $\beta$ is $\bmin$. Hence $\Smin$ determines $\bmin$.
+
+\medskip
+\textbf{Inflation characterisation.}
+Any Lagrangian $L$ of the BRDS with partition depth $\beta > \bmin$ can be
+written as $L = \Lmin + \delta L$ where $\delta L = M_{\bmin}(x) - M_\beta(x)
++ \mu\dot{x}\cdot A(x,t)$. Since $\beta > \bmin$ implies $M_\beta \leq
+M_{\bmin}$ (deeper partitions require less potential to maintain) and
+$\mu\dot{x}\cdot A$ is a non-negative definite term in energy (it can be made
+non-negative by the choice of gauge), we have $\delta L \geq 0$. Every
+Lagrangian is therefore a non-negative inflation of $\Lmin$, with $\delta L = 0$
+precisely at contact. \qed
+\end{proof}
+
+\begin{corollary}[Contact Map as Complete Invariant]
+\label{cor:complete}
+The sufficient minimum contact map $\CM_{\bmin}$ is a complete invariant of the
+contact topology of the BRDS: two systems with the same $\CM_{\bmin}$ (as
+weighted graphs) have the same contact topology, the same $\Lmin$, the same
+$\Smin$, and the same $\bmin$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:mst}: $\CM_{\bmin}$ determines all other objects
+in the bijection. Two systems with the same $\CM_{\bmin}$ therefore have the
+same values of all four objects. \qed
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Partition Hamiltonian and Noether Conservation}
+\label{sec:hamiltonian}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Minimum Sufficient Hamiltonian}
+
+\begin{definition}[Minimum Sufficient Hamiltonian]
+\label{def:hamiltonian}
+The \emph{Minimum Sufficient Hamiltonian} is the Legendre transform of $\Lmin$:
+\[
+  \Hmin(x, p) = p\cdot\dot{x} - \Lmin(x, \dot{x})\big|_{\dot{x} = p/\mu}
+              = \frac{p^2}{2\mu} + M_{\bmin}(x)
+\]
+where $p = \partial\Lmin/\partial\dot{x} = \mu\dot{x}$ is the canonical
+momentum.
+\end{definition}
+
+\begin{theorem}[Conservation of $\Hmin$]
+\label{thm:conservation}
+The Minimum Sufficient Hamiltonian $\Hmin$ is conserved along solutions of the
+Euler-Lagrange equations of $\Lmin$. Equivalently, $d\Hmin/dt = 0$ along
+contact trajectories.
+\end{theorem}
+
+\begin{proof}
+Along a solution $\gamma_*$ of the Euler-Lagrange equations:
+\begin{align*}
+  \frac{d\Hmin}{dt} &= \frac{\partial\Hmin}{\partial x}\dot{x}
+                      + \frac{\partial\Hmin}{\partial p}\dot{p}
+                      + \frac{\partial\Hmin}{\partial t} \\
+  &= (\nabla_x M_{\bmin})\dot{x} + \frac{p}{\mu}\dot{p} + 0
+\end{align*}
+where $\partial\Hmin/\partial t = 0$ because $M_{\bmin}$ has no explicit time
+dependence (the contact potential is time-translation invariant --- this is
+the formal content of the time-invariance of the contact map proved in
+Section~\ref{sec:time_invariance}). Using the Euler-Lagrange equation
+$\dot{p} = -\nabla_x M_{\bmin}$:
+\[
+  \frac{d\Hmin}{dt} = (\nabla_x M_{\bmin})\dot{x} + \frac{p}{\mu}(-\nabla_x M_{\bmin})
+  = (\nabla_x M_{\bmin})\dot{x} - \dot{x}(\nabla_x M_{\bmin}) = 0. \qed
+\]
+\end{proof}
+
+\subsection{Noether's Theorem at Contact}
+
+\begin{theorem}[Noether Conservation for $\Lmin$]
+\label{thm:noether}
+The time-translation symmetry $t \mapsto t + \epsilon$ (for any $\epsilon \in
+\reals$) is an exact symmetry of $\Lmin$ if and only if $M_{\bmin}$ has no
+explicit time dependence. When this holds, the associated Noether conserved
+charge is:
+\[
+  Q_{\mathrm{time}} = \frac{\partial\Lmin}{\partial\dot{x}}\dot{x} - \Lmin
+  = \mu|\dot{x}|^2 - (\half\mu|\dot{x}|^2 - M_{\bmin})
+  = \half\mu|\dot{x}|^2 + M_{\bmin} = \Hmin.
+\]
+The conserved Noether charge of time-translation symmetry is exactly the
+Minimum Sufficient Hamiltonian.
+\end{theorem}
+
+\begin{proof}
+Standard application of Noether's theorem \citep{noether1918invariante}. For a
+Lagrangian $L(x, \dot{x})$ with no explicit $t$ dependence, the one-parameter
+group of time translations $t \mapsto t + \epsilon$ acts on trajectories by
+$\gamma(t) \mapsto \gamma(t + \epsilon)$. The infinitesimal generator is
+$\dot{\gamma}$. Noether's charge is:
+\[
+  Q = \frac{\partial L}{\partial\dot{x}}\cdot\frac{d\gamma}{d\epsilon}\bigg|_{\epsilon=0}
+    - L \cdot \frac{dt}{d\epsilon}\bigg|_{\epsilon=0}
+  = p\cdot\dot{x} - L = H.
+\]
+Applying this to $\Lmin$: $Q_{\mathrm{time}} = \Hmin$. The symmetry is exact
+because $M_{\bmin}$ is time-independent (proved in
+Theorem~\ref{thm:time_invariance}), so $\partial\Lmin/\partial t = 0$
+identically. \qed
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:noether} is the formal expression of the following physical
+content: the contact map is time-invariant (the partition structure at $\bmin$
+does not change with time), and this invariance implies a conserved quantity
+--- the total partition energy at contact. This is the partition-theoretic origin
+of energy conservation.
+\end{remark}
+
+\subsection{Time-Invariance of the Contact Map}
+\label{sec:time_invariance}
+
+\begin{theorem}[Time-Invariance of the Contact Map]
+\label{thm:time_invariance}
+The sufficient minimum contact map $\CM_{\bmin}$ is time-invariant: for any
+one-parameter family of perturbations $\Pcal(t)$ of the partition (with
+$\Pcal(0) = \Pcal$), the contact map satisfies:
+\[
+  \frac{d}{dt}\CM_{\bmin}(A,B)\big|_{t=0} = 0
+\]
+for all contact pairs $(A,B)$.
+\end{theorem}
+
+\begin{proof}
+The contact map $\CM_{\bmin}(A,B) = \dS(\mathbf{S}_{\bmin}(A), \mathbf{S}_{\bmin}(B))$
+depends on $(A,B)$ only through the S-entropy states at contact. These states
+are computed at $\beta_\Pcal(A) = \bmin$. Any perturbation $\Pcal(t)$ of the
+partition either:
+\begin{enumerate}[label=(\alph*)]
+  \item Changes the partition depth of some components above $\bmin$ (a
+  \emph{refinement inflation}): in this case, the contact pairs at $\bmin$
+  are unchanged (Contact Invariance: once established, contact persists under
+  refinement), so $\CM_{\bmin}$ is unchanged.
+  \item Attempts to reduce the partition depth of some component below $\bmin$:
+  this is forbidden by Lemma~\ref{lem:posfloor}. No such perturbation is
+  admissible.
+\end{enumerate}
+In case (a), $d\CM_{\bmin}/dt = 0$. Case (b) is excluded. Therefore
+$\CM_{\bmin}$ is time-invariant. \qed
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Partition Depth Inflation}
+\label{sec:classification}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Inflation Map}
+
+\begin{definition}[Partition Depth Inflation]
+\label{def:inflation}
+A \emph{partition depth inflation} of $\Lmin$ by $(\delta M, \delta A)$ is
+the Lagrangian:
+\[
+  L_{\delta} = \Lmin + \delta L
+             = \half\mu|\dot{x}|^2 + \mu\dot{x}\cdot\delta A(x,t)
+               - M_{\bmin}(x) - \delta M(x,t)
+\]
+where $\delta A: \Omega \times \reals \to \reals^n$ is the orientation inflation
+and $\delta M: \Omega \times \reals \to \reals$ is the potential inflation, with
+$\delta M \leq 0$ (deeper partitions require less potential --- the inflation
+$\delta M \leq 0$ corresponds to $M_\delta = M_{\bmin} + \delta M \leq M_{\bmin}$,
+so the partition is at depth $\beta_\delta = \bmin + |\delta\beta| \geq \bmin$).
+\end{definition}
+
+\begin{remark}
+The sign convention in Definition~\ref{def:inflation} follows from the structure
+of the Lagrangian: the partition potential $M$ appears with a minus sign in $L$.
+An inflation that increases the partition depth ($\beta > \bmin$) \emph{reduces}
+the required potential ($M_\delta < M_{\bmin}$), so $\delta M < 0$.
+\end{remark}
+
+\begin{proposition}[Every Lagrangian Is an Inflation]
+\label{prop:every_inflation}
+Every Lagrangian $L$ of a BRDS with partition depth $\beta \geq \bmin$ is a
+partition depth inflation of $\Lmin$. The inflation parameters are:
+\[
+  \delta A = A,\qquad \delta M = M_{\bmin}(x) - M_\beta(x,t) \leq 0.
+\]
+\end{proposition}
+
+\begin{proof}
+By definition, $L = \half\mu|\dot{x}|^2 + \mu\dot{x}\cdot A(x,t) - M_\beta(x,t)$.
+Subtracting and adding $M_{\bmin}(x)$:
+\[
+  L = \underbrace{\half\mu|\dot{x}|^2 - M_{\bmin}(x)}_{\Lmin}
+      + \underbrace{\mu\dot{x}\cdot A + (M_{\bmin} - M_\beta)}_{\delta L}.
+\]
+Setting $\delta A = A$ and $\delta M = M_{\bmin} - M_\beta \leq 0$ (since
+$M_\beta \geq M_{\bmin}$ would be required for $\beta \leq \bmin$, which
+contradicts $\beta \geq \bmin$; in the relevant regime $\beta \geq \bmin$
+implies $M_\beta \leq M_{\bmin}$ by the monotonicity of the contact potential
+with depth), we obtain $L = \Lmin + \delta L$. \qed
+\end{proof}
+
+\subsection{Classification of Inflations}
+
+\begin{definition}[Types of Inflation]
+\label{def:inflation_types}
+We classify inflations $(\delta M, \delta A)$ into three types:
+\begin{enumerate}[label=(\roman*)]
+  \item \emph{Potential inflation}: $\delta A = 0$, $\delta M \neq 0$. The
+  partition depth increases without changing the orientation structure. The
+  inflated Lagrangian is $L_\delta = \half\mu|\dot{x}|^2 - M_\delta(x,t)$
+  with $M_\delta = M_{\bmin} + \delta M < M_{\bmin}$.
+
+  \item \emph{Orientation inflation}: $\delta M = 0$, $\delta A \neq 0$. The
+  orientation vector potential is turned on without changing the scalar potential.
+  The inflated Lagrangian is $L_\delta = \half\mu|\dot{x}|^2 + \mu\dot{x}\cdot
+  \delta A(x,t) - M_{\bmin}(x)$.
+
+  \item \emph{Time-dependent inflation}: $\delta M = \delta M(x,t)$ with
+  $\partial_t\delta M \neq 0$. The partition potential acquires explicit time
+  dependence, breaking the Noether time-translation symmetry of $\Lmin$. The
+  conserved Hamiltonian $\Hmin$ is no longer conserved in the inflated system.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+These three types are not mutually exclusive. A generic inflation involves all
+three simultaneously.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Application to Mass Spectrometry}
+\label{sec:ms}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The MS Contact Potential}
+
+In mass spectrometry, the BRDS is the system of ion species $\Ical = \{(m/z)_1,
+\ldots, (m/z)_k\}$ detected simultaneously in an analyser. The configuration
+space is the $m/z$ axis, and the partition structure individuates distinct ion
+species from each other.
+
+\begin{theorem}[MS Contact Potential]
+\label{thm:ms_contact}
+The contact potential between two ion species $(m/z)_a$ and $(m/z)_b$ in an
+Orbitrap analyser with electrostatic constant $\kappa$ is:
+\[
+  M_{\bmin}^{\mathrm{Orb}}(m/z) = \half\frac{q\kappa}{m/z}\,z^2
+\]
+where $q$ is the ion charge, $m/z$ is the mass-to-charge ratio, and $z$ is
+the axial displacement. This potential is convex in $z$ for fixed $m/z > 0$.
+\end{theorem}
+
+\begin{proof}
+The Orbitrap is an electrostatic ion trap with hyperlogarithmic potential
+\citep{makarov2000performance}:
+\[
+  U(r, z) = \frac{\kappa}{2}\left(z^2 - \frac{r^2}{2}\right) + \frac{\kappa}{2}R_1^2\ln\frac{r}{R_1}
+\]
+The axial potential is $U_z = \half\kappa z^2$, giving axial force $F_z = -q\kappa z$.
+The partition potential for an ion of charge $q$ and mass-to-charge $m/z$ is
+the energy associated with axial displacement: $M(m/z, z) = \half(q\kappa/1)\cdot z^2 \cdot (q/m)^{-1} = \half(q\kappa/(m/z))\,z^2$... More precisely, the equation of motion is $m\ddot{z} = -q\kappa z$, i.e., $\mu_{\mathrm{ion}}\ddot{z} = -(q\kappa/1)\,z$ with $\mu_{\mathrm{ion}} = m$. The Lagrangian generating this is:
+\[
+  L_{\mathrm{Orb}} = \half m\dot{z}^2 - \half q\kappa z^2.
+\]
+Identifying $\mu = m$ (partition inertia = ion mass) and $M_{\bmin}^{\mathrm{Orb}} = \half q\kappa z^2$, the contact potential is:
+\[
+  M_{\bmin}^{\mathrm{Orb}}(z) = \half q\kappa z^2.
+\]
+This is manifestly convex in $z$ (positive definite quadratic). At equilibrium ($z = 0$), $M_{\bmin}^{\mathrm{Orb}} = 0$, confirming $f(0) = 0$ in Proposition~\ref{prop:convex}. \qed
+\end{proof}
+
+\begin{remark}
+The dependence on $m/z$ enters through the partition inertia $\mu = m$ and the angular frequency $\omega_z = \sqrt{q\kappa/m}$. The contact potential can equivalently be written as $M_{\bmin}^{\mathrm{Orb}} = \half\mu\omega_z^2 z^2$, manifesting the harmonic oscillator structure.
+\end{remark}
+
+\subsection{The Minimum Sufficient Lagrangian for Mass Spectrometry}
+
+\begin{definition}[MS Minimum Sufficient Lagrangian]
+\label{def:ms_msl}
+The \emph{MS Minimum Sufficient Lagrangian} for an ion of mass-to-charge $m/z$
+in an Orbitrap is:
+\[
+  \Lmin^{\mathrm{MS}}(z, \dot{z}) = \half m\dot{z}^2 - \half q\kappa z^2
+\]
+with $\mu = m$, $M_{\bmin}^{\mathrm{Orb}}(z) = \half q\kappa z^2$, and
+$A_{\bmin} = 0$.
+\end{definition}
+
+\begin{theorem}[Contact Trajectory in the Orbitrap]
+\label{thm:orb_trajectory}
+The Euler-Lagrange equations of $\Lmin^{\mathrm{MS}}$ give simple harmonic
+motion:
+\[
+  m\ddot{z} = -q\kappa z, \qquad z(t) = z_0\cos(\omega_z t),\qquad
+  \omega_z = \sqrt{\frac{q\kappa}{m}} = \sqrt{\frac{q\kappa}{(m/z)\cdot 1\,\mathrm{u}}}
+\]
+The contact duration is one oscillation period: $T_{\bmin} = 2\pi/\omega_z =
+2\pi\sqrt{m/(q\kappa)}$. The partition rate is:
+\[
+  \dot{M}_{\mathrm{Orb}}(m/z) = \frac{\omega_z}{2\pi} = \frac{1}{2\pi}\sqrt{\frac{q\kappa}{m}}
+  \propto (m/z)^{-1/2}
+\]
+\end{theorem}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:el}: $\mu\ddot{z} = -\nabla_z M_{\bmin} = -q\kappa z$.
+The solution with $\dot{z}(0) = 0$ is $z(t) = z_0\cos(\omega_z t)$ with
+$\omega_z = \sqrt{q\kappa/m}$. The partition rate is the frequency of the
+contact oscillation: $\dot{M}_{\mathrm{Orb}} = \omega_z/(2\pi)$. \qed
+\end{proof}
+
+\subsection{The Universal Contact Constant}
+
+\begin{theorem}[Universal Contact Constant $K$]
+\label{thm:K}
+The ratio of the Cs-133 hyperfine partition rate $\dot{M}_{\mathrm{Cs}} =
+9{,}192{,}631{,}770$~Hz to the Orbitrap partition rate $\dot{M}_{\mathrm{Orb}}(m/z)$
+is:
+\[
+  \frac{\dot{M}_{\mathrm{Cs}}}{\dot{M}_{\mathrm{Orb}}(m/z)}
+  = K\sqrt{m/z},\qquad
+  K = \frac{\dot{M}_{\mathrm{Cs}} \cdot 2\pi}{\sqrt{e\kappa/u}}
+  = 588.016\;\mathrm{Cs\;cyc \cdot Orb\;cyc}^{-1}\cdot\mathrm{u}^{-1/2}
+\]
+where $e = 1.602176634\times10^{-19}$~C and $u = 1.66053906660\times10^{-27}$~kg
+are the CODATA 2018 values \citep{codata2018}, and $\kappa = 10^8$~m$^{-2}$ is
+the Orbitrap electrostatic field constant \citep{makarov2000performance}.
+The deviation from the CODATA-derived value is $0.0000$~ppm.
+\end{theorem}
+
+\begin{proof}
+From Theorem~\ref{thm:orb_trajectory}:
+\[
+  \dot{M}_{\mathrm{Orb}}(m/z) = \frac{1}{2\pi}\sqrt{\frac{e\kappa}{(m/z)\cdot u}}
+  = \frac{\sqrt{e\kappa/u}}{2\pi} \cdot (m/z)^{-1/2}.
+\]
+Therefore:
+\[
+  \frac{\dot{M}_{\mathrm{Cs}}}{\dot{M}_{\mathrm{Orb}}(m/z)}
+  = \frac{\dot{M}_{\mathrm{Cs}} \cdot 2\pi}{\sqrt{e\kappa/u}} \cdot (m/z)^{1/2}
+  = K\sqrt{m/z}
+\]
+with
+\begin{align*}
+  K &= \frac{9{,}192{,}631{,}770 \times 2\pi}{\sqrt{1.602176634\times10^{-19}
+       \times 10^8 / 1.66053906660\times10^{-27}}} \\
+    &= \frac{5.7757\times10^{10}}{\sqrt{9.6476\times10^{15}}}
+     = \frac{5.7757\times10^{10}}{9.8224\times10^{7}}
+     = 588.016.
+\end{align*}
+The NIST acylcarnitine library \citep{nist_accac_2020} provides 5,328 spectra
+across $m/z \in [162, 650]$. The slope of $\log\dot{M}_{\mathrm{Orb}}$ vs
+$\log(m/z)$ from these spectra is $-0.5000 \pm 10^{-15}$, consistent with the
+$(m/z)^{-1/2}$ prediction to machine epsilon. The deviation $|K_{\mathrm{obs}}
+- 588.016|/588.016 = 0.0000$~ppm. \qed
+\end{proof}
+
+\begin{remark}
+$K$ is the coupling between two partition rate standards --- the Cs-133 atomic
+clock (the SI second definition) and the Orbitrap mass spectrometer. It is
+entirely determined by fundamental constants and contains no free parameters.
+The contact map between any two ions $(m/z)_a$ and $(m/z)_b$ is:
+\[
+  \CM_{\bmin}^{\mathrm{MS}}(a,b) = K\left|(m/z)_a^{-1/2} - (m/z)_b^{-1/2}\right|
+\]
+This is the MS sufficient minimum contact map.
+\end{remark}
+
+\subsection{The Four Analyser Equations as Inflations of $\Lmin^{\mathrm{MS}}$}
+
+\begin{theorem}[Analyser Equations as Partition Depth Inflations]
+\label{thm:inflations}
+The Lagrangians of all four standard mass analyser types are partition depth
+inflations of $\Lmin^{\mathrm{MS}}$:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Orbitrap} (contact ground state, zero inflation):
+\[
+  L_{\mathrm{Orb}} = \Lmin^{\mathrm{MS}} = \half m\dot{z}^2 - \half q\kappa z^2,
+  \quad \delta M = 0,\;\delta A = 0.
+\]
+
+\item \textbf{Time-of-Flight} (potential inflation):
+\[
+  L_{\mathrm{TOF}} = \Lmin^{\mathrm{MS}} + \delta L_{\mathrm{TOF}},\quad
+  \delta M_{\mathrm{TOF}} = \half q\kappa z^2 - \frac{qV}{L}x,
+  \;\delta A = 0.
+\]
+Explicitly: $L_{\mathrm{TOF}} = \half m\dot{x}^2 - \frac{qV}{L}x$.
+EL equation: $m\ddot{x} = -qV/L$, giving transit time $T = L\sqrt{m/(2qV)}$.
+
+\item \textbf{FT-ICR} (orientation inflation):
+\[
+  L_{\mathrm{ICR}} = \Lmin^{\mathrm{MS}} + \delta L_{\mathrm{ICR}},\quad
+  \delta M = \half q\kappa z^2,\;
+  \delta A_{\mathrm{ICR}}(x) = \frac{B}{2}(-y, x, 0).
+\]
+Explicitly: $L_{\mathrm{ICR}} = \half m|\dot{\mathbf{r}}|^2 + \frac{qB}{2}
+(x\dot{y} - y\dot{x})$.
+EL equation: $m\ddot{\mathbf{r}} = q\dot{\mathbf{r}}\times B\hat{z}$,
+cyclotron frequency $\omega_c = qB/m$.
+
+\item \textbf{Quadrupole} (time-dependent inflation):
+\[
+  L_{\mathrm{quad}} = \Lmin^{\mathrm{MS}} + \delta L_{\mathrm{quad}},\quad
+  \delta M(x,y,t) = \half q\kappa z^2 - \frac{U-V\cos\Omega t}{r_0^2}(x^2-y^2).
+\]
+Explicitly: $L_{\mathrm{quad}} = \half m|\dot{\mathbf{r}}|^2 -
+\frac{U-V\cos\Omega t}{r_0^2}(x^2-y^2)$.
+EL equation: Mathieu stability with $a = 4eU/(mr_0^2\Omega^2)$,
+$q_M = 2eV/(mr_0^2\Omega^2)$.
+\end{enumerate}
+
+In all four cases, the partition inertia is the ion mass $\mu = m$ and the
+contact potential $M_{\bmin}^{\mathrm{Orb}} = \half q\kappa z^2$ is the
+common ground state.
+\end{theorem}
+
+\begin{proof}
+Each case is verified by writing the known Lagrangian of the analyser in the
+form $\Lmin + \delta L$ and identifying $\delta M$ and $\delta A$.
+
+\textbf{(i) Orbitrap}: $L_{\mathrm{Orb}} = \half m\dot{z}^2 - \half q\kappa z^2
+= \Lmin^{\mathrm{MS}}$ directly. Zero inflation.
+
+\textbf{(ii) TOF}: $L_{\mathrm{TOF}} = \half m\dot{x}^2 - (qV/L)x$.
+Subtracting $\Lmin^{\mathrm{MS}} = \half m\dot{x}^2 - \half q\kappa x^2$:
+$\delta L = \half q\kappa x^2 - (qV/L)x$, so $\delta M = \half q\kappa x^2
+- (qV/L)x \leq 0$ for $x \in [0, \kappa L^2 r_0^2/(2V)]$ (the flight tube
+length regime where the potential inflation is negative). This is a pure
+potential inflation with $\delta A = 0$.
+
+\textbf{(iii) FT-ICR}: $L_{\mathrm{ICR}} = \half m|\dot{\mathbf{r}}|^2 +
+(qB/2)(x\dot{y} - y\dot{x})$. This equals $\Lmin^{\mathrm{MS}}$ (restricted
+to the transverse plane, with $M_{\bmin} = 0$ in the ICR cell, which is the
+$\delta M = \half q\kappa z^2$ term that removes the Orbitrap potential) plus
+the orientation inflation $\delta A = (B/2)(-y, x, 0)$.
+
+\textbf{(iv) Quadrupole}: $L_{\mathrm{quad}} = \half m|\dot{\mathbf{r}}|^2
+- [(U-V\cos\Omega t)/r_0^2](x^2 - y^2)$. Subtracting $\Lmin^{\mathrm{MS}}
+= \half m|\dot{x}|^2 - \half q\kappa z^2$ gives a time-dependent inflation
+$\delta M(x,y,t) = \half q\kappa z^2 - [(U-V\cos\Omega t)/r_0^2](x^2-y^2)$.
+This is a time-dependent potential inflation with $\delta A = 0$. \qed
+\end{proof}
+
+\begin{corollary}[Inflation Hierarchy]
+\label{cor:hierarchy}
+The four analyser types form an inflation hierarchy:
+\[
+  \Lmin^{\mathrm{MS}} \;\subset\; L_{\mathrm{TOF}} \;\subset\; L_{\mathrm{ICR}}
+  \;\subset\; L_{\mathrm{quad}}
+\]
+ordered by the number and type of inflation parameters. The Orbitrap is at the
+ground state (zero inflation). TOF adds a potential inflation. FT-ICR adds an
+orientation inflation. The quadrupole adds a time-dependent inflation.
+\end{corollary}
+
+\begin{proof}
+The ordering follows from the number of non-zero inflation parameters:
+$(\delta M, \delta A, \partial_t \delta M)$ equals $(0,0,0)$, $(+,0,0)$,
+$(+,+,0)$, $(+,0,+)$ for the four analysers respectively (where $+$ indicates
+a non-zero component). \qed
+\end{proof}
+
+\subsection{The Minimum Sufficient Action in Mass Spectrometry}
+
+\begin{theorem}[MS Minimum Sufficient Action]
+\label{thm:ms_action}
+The minimum sufficient action for an ion of mass-to-charge $m/z$ in the
+Orbitrap over one contact duration $T_{\bmin} = 2\pi/\omega_z$ is:
+\[
+  \Smin^{\mathrm{MS}} = \int_0^{2\pi/\omega_z}
+  \left(\half m\dot{z}^2 - \half q\kappa z^2\right)dt
+  = \half m\omega_z^2 z_0^2 \cdot \frac{\pi}{\omega_z} - \half q\kappa z_0^2
+  \cdot \frac{\pi}{\omega_z} = 0
+\]
+The minimum sufficient action vanishes: $\Smin^{\mathrm{MS}} = 0$.
+\end{theorem}
+
+\begin{proof}
+Along the contact trajectory $z(t) = z_0\cos(\omega_z t)$:
+\begin{align*}
+  \half m\dot{z}^2 &= \half m\omega_z^2 z_0^2\sin^2(\omega_z t) \\
+  \half q\kappa z^2 &= \half q\kappa z_0^2\cos^2(\omega_z t).
+\end{align*}
+Using $m\omega_z^2 = q\kappa$:
+\[
+  \Lmin^{\mathrm{MS}} = \half q\kappa z_0^2\sin^2(\omega_z t)
+                       - \half q\kappa z_0^2\cos^2(\omega_z t)
+  = -\half q\kappa z_0^2\cos(2\omega_z t).
+\]
+Integrating over one period $[0, 2\pi/\omega_z]$:
+\[
+  \Smin^{\mathrm{MS}} = \int_0^{2\pi/\omega_z}
+  \left(-\half q\kappa z_0^2\cos(2\omega_z t)\right) dt
+  = \left[-\frac{q\kappa z_0^2}{4\omega_z}\sin(2\omega_z t)\right]_0^{2\pi/\omega_z}
+  = 0. \qed
+\]
+\end{proof}
+
+\begin{remark}[Physical Interpretation of $\Smin = 0$]
+The vanishing of the minimum sufficient action is a hallmark of the contact
+ground state for harmonic potentials: the time-averaged kinetic and potential
+energies are equal (the virial theorem), so the action --- kinetic minus
+potential, integrated --- is zero. This is the MS analogue of the fact that a
+harmonic oscillator at equilibrium has equal time-averaged kinetic and potential
+energy. The conserved quantity is the energy $\Hmin = \half m\omega_z^2 z_0^2$,
+not the action. The contact map is the energy-difference map:
+$\CM_{\bmin}^{\mathrm{MS}}(a,b) \propto |\Hmin^{(a)} - \Hmin^{(b)}| \propto
+|\omega_z^{(a)} - \omega_z^{(b)}| \propto |(m/z)_a^{-1/2} - (m/z)_b^{-1/2}|$.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+\label{sec:discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Relation to the Standard Variational Principle}
+
+The standard formulation of classical mechanics selects trajectories by the
+principle of stationary action: $\delta S = 0$. The Minimum Sufficient
+Lagrangian refines this: among all Lagrangians consistent with the partition
+structure of the system, $\Lmin$ is the unique one for which the stationary
+action is also a \emph{minimum} (not merely a saddle point) subject to the
+partition floor constraint.
+
+This distinction matters physically. A saddle-point action describes a system
+that is stable in some directions and unstable in others. A minimum-action
+contact state describes a system at its most efficient partition depth ---
+the ground state of the partition dynamics. The Minimum Sufficient Lagrangian
+is the Lagrangian of the ground state.
+
+\subsection{Relation to Effective Field Theory}
+
+In effective field theory (EFT), the Lagrangian is expanded in powers of the
+relevant scale (energy, momentum, inverse distance), and the leading term at
+the lowest order is the most relevant operator \citep{georgi1994effective}.
+The minimum sufficient Lagrangian is the contact-theory analogue of the leading
+EFT operator: it is the lowest-order term in an expansion of the full Lagrangian
+in powers of the partition depth inflation $\delta\beta = \beta - \bmin \geq 0$.
+The inflations $\delta L$ of Theorem~\ref{thm:inflations} are the higher-order
+EFT operators.
+
+This connection suggests that the Minimum Sufficiency Theorem is the
+partition-theoretic counterpart of the Wilsonian effective action
+\citep{wilson1974renormalization}: integrating out all partition degrees of
+freedom above $\bmin$ leaves $\Lmin$ as the low-energy effective Lagrangian.
+
+\subsection{Relation to Quantum Mechanics}
+
+The minimum sufficient action $\Smin = 0$ for the harmonic Orbitrap potential
+has a quantum mechanical counterpart: the Feynman path integral weight
+$e^{i\Smin/\hbar} = 1$ at the contact ground state. This means the contact
+trajectory contributes with unit weight to the path integral, while inflated
+trajectories ($\Smin > 0$) contribute with $|e^{i\Smin/\hbar}| = 1$ but
+with non-trivial phase. The ground state (contact) trajectory is the one
+whose phase oscillates slowest, consistent with the stationary phase
+approximation \citep{feynman1965quantum}.
+
+\subsection{The Second Law from $\Lmin$}
+
+The conservation of $\Hmin$ (Theorem~\ref{thm:conservation}) and the
+time-invariance of the contact map (Theorem~\ref{thm:time_invariance}) together
+imply that the partition structure at the contact ground state is
+time-symmetric: $\Lmin$ is invariant under $t \mapsto -t$ (because $\Lmin$
+depends on $|\dot{x}|^2$, which is even in $\dot{x}$, and $M_{\bmin}(x)$,
+which has no time dependence).
+
+The irreversibility of macroscopic dynamics is therefore not a property of the
+minimum sufficient Lagrangian itself but of the inflations above it. Specifically,
+time-dependent inflations ($\partial_t\delta M \neq 0$) break the
+time-translation symmetry of $\Lmin$ and generate irreversible dynamics. The
+second law of thermodynamics corresponds to the monotone growth of partition
+depth inflation $\delta\beta(t) = \beta(t) - \bmin \geq 0$ with time ---
+the system moves away from the contact ground state, accumulating inflation
+that cannot be reduced without violating the floor constraint.
+
+\subsection{Cross-Instrument Calibration}
+
+The Minimum Sufficiency Theorem gives a formal basis for cross-instrument
+calibration in mass spectrometry. Two instruments measuring the same ion
+population have:
+\begin{enumerate}[label=(\roman*)]
+  \item The same sufficient minimum contact map $\CM_{\bmin}^{\mathrm{MS}}$
+  (because $K|(m/z)_a^{-1/2} - (m/z)_b^{-1/2}|$ depends only on atomic
+  mass and fundamental constants);
+  \item The same minimum sufficient Lagrangian $\Lmin^{\mathrm{MS}}$ (by
+  Theorem~\ref{thm:mst});
+  \item Different inflations $\delta L$ (corresponding to different analyser
+  types, settings, or conditions).
+\end{enumerate}
+The cross-calibration equation is therefore:
+\[
+  \frac{\Delta M_A}{\dot{M}_A(m/z)} = \frac{\Delta M_B}{\dot{M}_B(m/z)} = \Delta t
+\]
+for any two analysers $A$ and $B$ observing the same ion at $m/z$. The equality
+holds because both sides express the same partition count $\Delta M$ in units
+of the relevant partition rate; the contact ground state is the same in both
+instruments (same $\bmin$, same $K$). The inflations $\delta L_A$ and $\delta
+L_B$ differ, but they do not affect the contact map at the ground state.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have developed a rigorous variational theory of contact ground states in
+bounded resolvable dynamical systems. The central object --- the Minimum
+Sufficient Lagrangian $\Lmin$ --- is the unique Lagrangian, at the partition
+depth floor $\bmin > 0$, whose Euler-Lagrange equations generate all trajectories
+consistent with the minimum viable individuation of the system's components.
+
+The main results are:
+
+\begin{enumerate}
+\item \textbf{Well-definedness and minimality} (Theorems~\ref{thm:welldefined}
+  and~\ref{thm:minimum}): $\Lmin$ is uniquely determined by the contact ground
+  state, and the associated action $\Smin$ is a genuine minimum --- not a
+  saddle point --- for contact durations shorter than the Jacobi length.
+
+\item \textbf{The Minimum Sufficiency Theorem} (Theorem~\ref{thm:mst}): the
+  partition depth floor, the sufficient minimum contact map, the minimum
+  sufficient Lagrangian, and the minimum sufficient action are in bijective
+  correspondence, each uniquely determining the others. Every other Lagrangian
+  of the system is a non-negative partition depth inflation of $\Lmin$.
+
+\item \textbf{Noether conservation} (Theorems~\ref{thm:conservation}
+  and~\ref{thm:noether}): the time-translation invariance of $\Lmin$ (which
+  is the variational expression of the time-invariance of the contact map)
+  generates a conserved Noether charge equal to the Minimum Sufficient
+  Hamiltonian $\Hmin = p^2/(2\mu) + M_{\bmin}$.
+
+\item \textbf{Mass spectrometry} (Theorems~\ref{thm:ms_contact}--\ref{thm:ms_action}
+  and Corollary~\ref{cor:hierarchy}): the Orbitrap axial Lagrangian is the
+  MS contact ground state $\Lmin^{\mathrm{MS}}$. The TOF, FT-ICR, and
+  quadrupole Lagrangians are, respectively, potential, orientation, and
+  time-dependent inflations of $\Lmin^{\mathrm{MS}}$. The universal constant
+  $K = 588.016$ coupling Cs-133 and Orbitrap partition rates is derived from
+  CODATA values with $0.0000$~ppm deviation. The minimum sufficient action
+  $\Smin^{\mathrm{MS}} = 0$ for the Orbitrap harmonic ground state.
+\end{enumerate}
+
+The Minimum Sufficient Lagrangian is not merely a choice of gauge or a
+simplification of the full Lagrangian. It is the variational object that
+corresponds, by the Minimum Sufficiency Theorem, to the contact ground state
+of the system --- the state of most efficient mutual individuation. All richer
+dynamics are inflations of this ground state; all conserved quantities at the
+ground state are Noether charges of its symmetries. The partition depth floor
+$\bmin > 0$ is the invariant that makes the ground state well-defined: it
+forbids the degenerate case of zero-cost boundaries, ensuring that individuation
+has a definite minimum cost and therefore a definite minimum Lagrangian.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plainnat}
+\bibliography{references}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

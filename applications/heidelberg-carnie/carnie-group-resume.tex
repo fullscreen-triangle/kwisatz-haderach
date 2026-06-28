@@ -1,0 +1,165 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — PhD position: Genome Stability and Nucleotide Metabolism in Cancer
+% Carnie Lab, Klinik Kinderheilkunde III / Hopp Children's Cancer Center (KiTZ), UKHD
+% Job-ID V000015650
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+\quote{Experimental DNA-damage background and computational omics analysis ---
+the wet-lab and dry-lab sides of genome stability and metabolism in cancer.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  HPC mass-spectrometry pipelines ($>$100\,GB mzML), multi-omics statistical
+  modelling, federated analysis across distributed clinical sites. Departed to
+  pursue independent computational research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Sequence analysis, variant calling, RNA-seq quantification, pathway analysis;
+  bioinformatics pipeline development.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  Molecular biotechnology, drug development, and analytical methods.
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Thesis: \emph{DNA interstrand crosslinking} --- experimental study of
+  crosslink formation and the cellular DNA-damage response; mammalian cell
+  culture and fluorescence microscopy.
+}
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Computational Biology Researcher \& Developer}{Bitspark GmbH}{}{}{
+  Full-time development of validated scientific data pipelines and analysis
+  frameworks across genomics, proteomics, metabolomics, and computational
+  oncology. All systems publicly documented and deployed.
+}
+
+\cventry{2019--2021}{Computational Lipidomics}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  MS-based lipidomics at HPC scale: peak detection, ion annotation (LIPID MAPS,
+  LipidBlast, HMDB), multi-omics integration, federated processing across
+  clinical sites. $>$100\,GB mzML dataset management.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF workflows for proteomics and glycomics;
+  standardised SOP development for data acquisition and processing.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics on tumour samples; data normalisation and
+  statistical analysis.
+}
+
+%----------------------------------------------------------------------------------------
+%	SOFTWARE AND COMPUTATIONAL TOOLS
+%----------------------------------------------------------------------------------------
+
+\section{Software \& Computational Tools}
+
+\cvitem{gospel}{
+  \textbf{Genomic Variant \& Multi-Omics Analysis.}
+  $10^6$ variants/second VCF processing; RNA-seq integration; Bayesian-network
+  inference and Gaussian mixture models; pathway analysis (KEGG, Reactome).
+  Validated against 1000~Genomes Ph.\ 3, gnomAD v3.1.2, and UK~Biobank.
+  Directly applicable to the analysis of genome-wide screen and ’omics data.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{lavoisier}{
+  \textbf{HPC Mass-Spectrometry / Metabolomics Pipeline.}
+  Dual-pipeline MS analysis (numerical MS1/MS2 + CNN classification, PyTorch);
+  memory-mapped I/O for datasets of arbitrary size; Ray distributed execution;
+  98.9\,\% NIST accuracy. Used for $>$100\,GB mzML datasets in lipidomics and
+  metabolomics --- the data class of the project's metabolomics arm.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{nebuchadnezzar}{
+  \textbf{Computational Pharmacology \& Drug-Metabolism Modelling.}
+  Derivation of pharmacokinetic / pharmacodynamic and drug--target trajectories
+  from molecular structure; validated 39/39 against NIST reference compounds.
+  Relevant to the mechanism and processing of antimetabolite-class compounds.
+  \href{https://github.com/fullscreen-triangle/nebuchadnezzar}{github.com/fullscreen-triangle/nebuchadnezzar}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Laboratory}{
+  Mammalian cell culture; fluorescence microscopy and imaging; molecular and
+  cell biology; DNA-damage / repair and crosslinking assays; nucleic-acid and
+  protein methods
+}
+
+\cvitem{Languages}{
+  Python (primary), R, Rust, Bash, SQL, TypeScript
+}
+
+\cvitem{Bioinformatics}{
+  Variant calling, RNA-seq quantification, CRISPR-screen and pathway analysis
+  (KEGG, Reactome, GSEA); MS / metabolomic data analysis (LIPID MAPS, HMDB,
+  NIST); FASTQ/BAM/VCF data types; Nextflow pipeline patterns
+}
+
+\cvitem{ML / Statistics}{
+  PyTorch; scikit-learn, XGBoost; Bayesian-network and mixture modelling;
+  high-dimensional statistical analysis
+}
+
+\cvitem{Reference data}{
+  1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST, LIPID MAPS, HMDB
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{working language of the position}
+\cvitemwithcomment{German}{Conversational}{living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

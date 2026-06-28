@@ -1,0 +1,146 @@
+%----------------------------------------------------------------------------------------
+% CV — Universität Greifswald / NFDI4Cat: Wiss. Mitarbeiter Biotechnologie & Enzymkatalyse
+% Tailored: semantic data standards (OWL/RDF), ML-controlled biocatalysis,
+% lab automation, closed-loop experimentation. Contact: Dr. Mark Dörr.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{green}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Bioinformatics / cheminformatics engineer: semantic data standards (OWL/RDF),
+ontologies and DSLs, agentic and closed-loop research tooling --- applied to
+enzyme catalysis and biocatalytic data.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computational scientist and software engineer working at the intersection of
+  \textbf{biocatalysis, semantic data, and research automation}. I design ontologies
+  and domain-specific languages, build FAIR-aligned data tooling, and write the
+  agentic infrastructure that drives closed-loop experimentation --- and I bring a
+  working enzyme-kinetics / catalysis background to ground the data models in the
+  chemistry they describe. Everything I build is deployed, documented, and open-source.
+}
+
+\section{Fit to NFDI4Cat}
+\cvitem{Semantic data \& FAIR}{
+  Design of ontologies, taxonomies and domain-specific languages; OWL / RDF
+  knowledge representation; FAIR-data-aligned schemas for scientific exchange
+}
+\cvitem{(Bio)catalysis domain}{
+  Enzyme kinetics and catalytic-mechanism modelling (e.g.\ carbonic anhydrase
+  turnover, transition-state vs.\ geometric frameworks); mass-spectrometry data
+}
+\cvitem{Agentic \& closed-loop}{
+  \texttt{purpose} --- an agent-queryable knowledge layer over scientific corpora;
+  autonomous, iterative experiment / measurement pipelines
+}
+\cvitem{Engineering \& DevOps}{
+  Python, JavaScript/TypeScript, Rust; Docker (Kubernetes); Git, agentic
+  programming; relational / scientific databases
+}
+
+\section{Technical Skills}
+\cvitem{Languages}{
+  Python, JavaScript / TypeScript, Rust, Java, PHP; SQL
+}
+\cvitem{Semantic web}{
+  OWL, RDF; ontology / taxonomy design; domain-specific languages and their
+  compilers (lexer / parser / codegen)
+}
+\cvitem{ML / AI}{
+  PyTorch; agentic / multi-agent systems; foundation-model adaptation (LoRA);
+  RAG and reasoning pipelines; logic / rule-based reasoning
+}
+\cvitem{Infrastructure}{
+  Docker, Kubernetes; Ray, Dask, SLURM; AWS, Firebase; large-scale ($>$100\,GB)
+  pipelines; Git
+}
+\cvitem{Developer tooling}{
+  5 VSCode extensions including a language server (LSP); reproducible CLI tooling
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Computational Researcher \& Software Engineer}{Bitspark GmbH}{}{}{
+  Built compilers / domain-specific languages, ontology-backed knowledge tooling,
+  GPU pipelines and agentic AI systems --- all deployed and open-source. Authored a
+  research corpus on enzyme catalysis, spectroscopy and (bio)catalytic data
+  representation. Rust, Python / PyTorch, TypeScript.
+}
+\cventry{2019--2021}{Computational Science --- Bioinformatics, HPC \& Teaching}{Technische Universität München}{Munich}{}{
+  Doctoral research in computational lipidomics; large-scale data analysis and ML
+  pipelines at HPC scale (PyTorch, SLURM). Built and curated lipidomics databases.
+  Taught at Master's level and supervised student work.
+}
+\cventry{2017--2018}{Data Pipelines}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated, reproducible high-throughput data-processing pipelines.
+}
+
+\section{Selected Projects}
+\cvitem{purpose}{
+  Rust CLI (Cargo workspace): an agent-queryable context layer over scientific
+  project corpora --- the closed-loop / agentic-programming pattern the NFDI4Cat
+  role calls for. \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}
+}
+\cvitem{kwasa-kwasa}{
+  A polyglot programming language with its own compiler and a suite of 5 VSCode
+  extensions (incl.\ a language server); DSL / semantic-runtime design. Rust + TypeScript.
+  \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}
+}
+\cvitem{Enzyme-catalysis research}{
+  First-principles treatment of enzyme turnover and catalytic mechanism
+  (carbonic anhydrase), with platform-invariant mass-spectrometry data models
+  --- domain grounding for biocatalytic data standards.
+}
+\cvitem{lavoisier}{
+  Mass-spectrometry analysis framework: platform-invariant featurization and
+  reproducible scientific pipelines (Python).
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\section{Education}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{required for the role}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\section{Work Authorization}
+\cvitem{}{
+  Permanent residence in Germany --- unrestricted work authorization, no
+  sponsorship required.
+}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

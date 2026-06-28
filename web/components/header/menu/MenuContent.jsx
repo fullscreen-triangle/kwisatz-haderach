@@ -12,9 +12,9 @@ function MenuContent({className}) {
         <div className={dsnCN('container-content  d-flex flex-column justify-content-center', className)}>
             <div className="nav__info">
                 <div className="nav-content">
-                    <h5 className="sm-title-block mb-10">Studio</h5>
+                    <h5 className="sm-title-block mb-10">Fullscreen Triangle</h5>
                     <p>
-                        26-30 New Damietta <br/> El-Mahalla El-Kubra, SK1 66LM
+                        Bitspark GmbH <br/> AIMe Artficial Intelligence Registry
                     </p>
 
                 </div>
@@ -27,7 +27,7 @@ function MenuContent({className}) {
                     </p>
                     <p className="links over-hidden">
                         <a className="link-hover" href="mailto:info@dsngrid.com"
-                           data-hover-text="info@dsngrid.com">info@dsngrid.com</a>
+                           data-hover-text="info@dsngrid.com">Kwisatz Haderach</a>
                     </p>
                 </div>
             </div>

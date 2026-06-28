@@ -1,0 +1,980 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The Minimum Analytic Finite Graph:
+%% Truth, Individuation, and the Contact Floor
+%% in Finite Weighted Graphs
+%%
+%% Author: Kundai Farai Sachikonye
+%%         Technical University of Munich
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage[a4paper, margin=1.15in]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{graphs, graphdrawing, positioning, arrows.meta}
+
+%% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+%% Notation
+\newcommand{\Gfin}{G_{\mathrm{fin}}}
+\newcommand{\Kn}{K_n}
+\newcommand{\wmin}{w_{\min}}
+\newcommand{\cut}{\mathrm{cut}}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\med}{\mathcal{M}}
+\newcommand{\Nbd}{\mathcal{N}}
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\Pcal}{\mathcal{P}}
+\newcommand{\Ecal}{\mathcal{E}}
+\newcommand{\Vcal}{\mathcal{V}}
+\newcommand{\bmin}{\beta_{\min}}
+\newcommand{\qed}{\hfill$\blacksquare$}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{\textbf{The Minimum Analytic Finite Graph:\\
+Truth, Individuation, and the Contact Floor}}
+
+\author{Kundai Farai Sachikonye\\
+\textit{Technical University of Munich}\\
+\texttt{k.sachikonye@tum.de}}
+
+\date{\today}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We develop a theory of individuation and truth grounded entirely in finite
+weighted graphs, without appeal to set-theoretic identity, metric spaces, or
+propositional logic. The central objects are: a finite weighted graph
+$G = (\Vcal, \Ecal, w)$ of nodes and weighted contact edges; a distinguished
+complete subgraph $\med \subseteq G$ called the \emph{medium}, which is
+simultaneously in contact with every node; and the \emph{contact floor}
+$\bmin > 0$, the minimum edge weight below which two nodes are
+indistinguishable in $G$.
+
+We prove three results. First, the \emph{Individuation Theorem}: a node $v
+\in \Vcal$ is individuated --- distinct from the medium --- if and only if
+every cut separating $v$ from the medium has weight $\geq \bmin$. Individuation
+is a structural property of the graph, not a property of the node in isolation.
+Second, the \emph{Truth Cell Theorem}: the truth of a node $v$ is not a
+point in $\Vcal$ but the minimum cut set $C^*(v)$ of weight exactly $\bmin$
+separating $v$ from the medium --- a cell, not a point. Third, the
+\emph{Reshuffling Theorem}: any measurement of $v$ is a graph automorphism
+(edge relabelling) that preserves the total edge weight (conservation of the
+medium) and produces a new arrangement of contact edges. Measurement does not
+reveal the node; it produces a new graph in which the node is individuated
+differently against a new neighbour configuration. The sequence of measurements
+converges not to the node's identity but to the contact floor $\bmin$.
+
+We apply the framework to three cases: (i) population counting, where the
+count of a finite population is shown to be a real-valued interval
+$[n, n+1)$ at any instant of observation, not an integer; (ii) analytical
+chemistry, where each instrument generation is a graph expansion adding new
+neighbour nodes to the medium, increasing individuation depth without
+approaching identity; (iii) the epistemology of classification, where the
+sufficient truth of any classified object is the structured set of
+graph-theoretic unknowables constituting its contact floor --- the minimum
+weight of its boundary with the medium.
+
+The paper contains no appeal to truth as correspondence, identity as
+self-predication, or measurement as revelation. All claims are expressed
+as properties of finite weighted graphs.
+
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{Keywords}: finite weighted graph; contact floor; individuation;
+minimum cut; truth cell; graph reshuffling; medium; population counting;
+analytical chemistry; epistemology of measurement; graph automorphism;
+conservation
+
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Problem with Point-Truth}
+
+Classical epistemology treats truth as a relation between a proposition and
+a fact: a claim is true if it corresponds to a state of affairs. This
+formulation inherits a geometric assumption: that facts are \emph{points} ---
+determinate, located, self-identical. The claim ``the number of cats in the
+world is $n$'' is true if and only if there is a unique integer $n$ that is
+the count at the relevant moment.
+
+This paper argues that point-truth is the wrong geometry. Not because the world
+is vague or indeterminate in a philosophical sense, but because of two structural
+facts that hold in any finite observable system:
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Matter is conserved.} The total weight of the system does not
+  change. Any rearrangement is a reshuffling of existing material, not a
+  creation of new information.
+
+  \item \textbf{Only a finite region of the system is observable at any
+  instant.} Every observation is a local subgraph of a larger graph. The
+  complement of the observed subgraph is always non-empty and always
+  contributing to the individuation of what is observed.
+\end{enumerate}
+
+From these two facts, it follows that the truth of any node in a finite
+weighted graph is not a point but a \emph{cell} --- the minimum cut set
+separating the node from the rest of the graph. The floor of this cell,
+the minimum achievable cut weight $\bmin > 0$, is the irreducible boundary
+cost of individuation. It is not a limitation of knowledge. It is the
+structural definition of what it means to be a distinct node.
+
+\subsection{Why Graphs}
+
+We use finite weighted graphs because they are the minimal honest language
+for the claims we wish to make. A graph has:
+
+\begin{itemize}
+  \item Nodes: the things that are individuated
+  \item Edges: the contact relations between things
+  \item Weights: the cost of maintaining each contact relation
+\end{itemize}
+
+No metric. No measure. No probability. No propositional logic. The only
+operations are: add/remove edges, relabel edges, cut the graph, count
+the cut weight. Every claim in this paper is a claim about one of these
+operations on a finite weighted graph.
+
+This is not a restriction. It is a commitment to honesty about what is
+actually being asserted. When we say ``the truth of $v$ is $C^*(v)$,'' we
+mean: the minimum cut set separating $v$ from the medium in $G$. Nothing
+more. No correspondence. No ontology beyond the graph.
+
+\subsection{Contributions}
+
+\begin{enumerate}[label=(\roman*)]
+  \item The \emph{Medium Graph} $\med$: a distinguished complete subgraph
+  simultaneously in contact with every node, playing the role of the
+  invariant in which all individuation occurs
+  (Section~\ref{sec:setting}).
+
+  \item The \emph{Contact Floor} $\bmin > 0$: the minimum edge weight
+  across all cuts in $G$, proved strictly positive for any finite graph
+  with positive edge weights (Lemma~\ref{lem:floor_positive})
+  (Section~\ref{sec:setting}).
+
+  \item The \emph{Individuation Theorem} (Theorem~\ref{thm:individuation}):
+  $v$ is individuated if and only if every cut separating $v$ from $\med$
+  has weight $\geq \bmin$ (Section~\ref{sec:individuation}).
+
+  \item The \emph{Truth Cell Theorem} (Theorem~\ref{thm:truth_cell}): the
+  truth of $v$ is the minimum cut set $C^*(v)$ of weight $\bmin$ --- a
+  cell, not a point (Section~\ref{sec:truth}).
+
+  \item The \emph{Reshuffling Theorem} (Theorem~\ref{thm:reshuffling}): a
+  measurement is a weight-preserving graph automorphism; it produces a new
+  individuating arrangement without revealing identity; the sequence of
+  measurements converges to $\bmin$, not to any node
+  (Section~\ref{sec:reshuffling}).
+
+  \item Three applications: population counting, analytical chemistry, and
+  classification epistemology (Section~\ref{sec:applications}).
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematical Setting}
+\label{sec:setting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Finite Weighted Graph}
+
+\begin{definition}[Finite Weighted Graph]
+\label{def:fwg}
+A \emph{finite weighted graph} is a triple $G = (\Vcal, \Ecal, w)$ where:
+\begin{itemize}
+  \item $\Vcal$ is a finite non-empty set of \emph{nodes};
+  \item $\Ecal \subseteq \Vcal \times \Vcal$ is a set of undirected
+  \emph{edges} (with $(u,v) = (v,u)$, no self-loops);
+  \item $w: \Ecal \to \reals_{> 0}$ assigns a strictly positive \emph{weight}
+  to each edge.
+\end{itemize}
+The \emph{total weight} of $G$ is $W(G) = \sum_{e \in \Ecal} w(e)$.
+\end{definition}
+
+\begin{definition}[Cut and Cut Weight]
+\label{def:cut}
+For a subset $S \subsetneq \Vcal$ with $S \neq \emptyset$, the \emph{cut}
+$\cut(S, \bar{S})$ is the set of edges with one endpoint in $S$ and one in
+$\bar{S} = \Vcal \setminus S$:
+\[
+  \cut(S, \bar{S}) = \{(u,v) \in \Ecal : u \in S,\, v \in \bar{S}\}.
+\]
+The \emph{cut weight} is $w(\cut(S,\bar{S})) = \sum_{e \in \cut(S,\bar{S})} w(e)$.
+\end{definition}
+
+\begin{definition}[Contact Floor]
+\label{def:floor}
+The \emph{contact floor} of $G$ is:
+\[
+  \bmin(G) = \min_{e \in \Ecal} w(e).
+\]
+It is the weight of the cheapest edge in $G$ --- the minimum cost of any
+contact relation.
+\end{definition}
+
+\begin{lemma}[Positivity of the Contact Floor]
+\label{lem:floor_positive}
+For any finite weighted graph $G$ with $|\Ecal| \geq 1$, we have $\bmin(G) > 0$.
+\end{lemma}
+
+\begin{proof}
+By Definition~\ref{def:fwg}, all edge weights are strictly positive:
+$w(e) > 0$ for all $e \in \Ecal$. The minimum of finitely many strictly
+positive numbers is strictly positive. Hence $\bmin = \min_{e \in \Ecal}
+w(e) > 0$. \qed
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:floor_positive} is elementary, but its content is non-trivial:
+it asserts that in any finite graph with positive contact costs, there is no
+zero-cost boundary. Any two distinct nodes that are connected are connected
+at cost $\geq \bmin > 0$. This is the graph-theoretic statement that
+individuation is never free.
+\end{remark}
+
+\subsection{The Medium}
+
+\begin{definition}[Medium]
+\label{def:medium}
+The \emph{medium} of $G$ is a distinguished node $\med \in \Vcal$ (or
+distinguished subset $\med \subseteq \Vcal$) that is adjacent to every
+other node in $\Vcal$. Formally, for all $v \in \Vcal \setminus \{\med\}$,
+$(v, \med) \in \Ecal$. The medium is the node that is simultaneously in
+contact with everything.
+\end{definition}
+
+\begin{remark}[The Medium as Invariant]
+\label{rem:medium_invariant}
+The medium does not change when the graph is reshuffled. Its total weight
+$\sum_{v \neq \med} w(v, \med)$ is conserved under any weight-preserving
+automorphism (Definition~\ref{def:reshuffling} below). It is the invariant
+of the system --- the thing that does not change while everything else
+rearranges. In physical terms: the medium is the water in which the marbles
+sit. The water is in contact with every marble. When the marbles are
+reshuffled, the total volume of water is unchanged.
+\end{remark}
+
+\begin{definition}[Individuation Graph]
+\label{def:indgraph}
+The \emph{individuation graph} of $v \in \Vcal \setminus \{\med\}$ is the
+subgraph $G_v \subseteq G$ induced by $v$, $\med$, and all nodes $u \neq v$
+adjacent to both $v$ and $\med$:
+\[
+  \Vcal(G_v) = \{v\} \cup \{\med\} \cup \Nbd(v) \cap \Nbd(\med)
+\]
+where $\Nbd(u)$ denotes the neighbourhood of $u$ in $G$. The individuation
+graph encodes all nodes that simultaneously individuate $v$ (by being
+neighbours of $v$) and are held in the medium (by being neighbours of $\med$).
+\end{definition}
+
+\begin{remark}[Every Neighbour Contributes]
+\label{rem:collective}
+The individuation of $v$ is not a property of $v$ alone. It is a property
+of $G_v$ --- the subgraph containing $v$, the medium, and all their shared
+neighbours. Every node $u \in \Nbd(v) \cap \Nbd(\med)$ contributes an edge
+$(v,u)$ to the boundary of $v$ and an edge $(u, \med)$ to the medium. The
+boundary of $v$ is collectively maintained by all its neighbours. This is
+the graph-theoretic content of: \emph{every other marble contributes to the
+individuation of the single marble.}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Individuation}
+\label{sec:individuation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{What It Means to Be Distinct}
+
+In a finite weighted graph, two nodes are \emph{the same} --- indistinguishable
+--- if and only if every path between them has zero cut weight. Since all
+edge weights are positive (Lemma~\ref{lem:floor_positive}), this can never
+happen for adjacent nodes. The relevant question is: how much does it cost
+to separate $v$ from the medium?
+
+\begin{definition}[Separation Cost]
+\label{def:sepcost}
+The \emph{separation cost} of node $v$ from the medium $\med$ is:
+\[
+  \sigma(v) = \min_{S \ni v,\, \med \notin S} w(\cut(S, \bar{S}))
+\]
+the weight of the minimum cut separating $v$ from $\med$.
+\end{definition}
+
+\begin{definition}[Individuation]
+\label{def:individuation}
+Node $v$ is \emph{individuated} in $G$ if $\sigma(v) \geq \bmin(G)$.
+Node $v$ is \emph{dissolved} if $\sigma(v) < \bmin(G)$ --- its boundary
+with the medium costs less than the cheapest edge in the graph, which is
+impossible for connected nodes (by Lemma~\ref{lem:floor_positive}). Therefore,
+in any connected finite weighted graph, every node is individuated.
+\end{definition}
+
+\begin{theorem}[Individuation Theorem]
+\label{thm:individuation}
+Let $G = (\Vcal, \Ecal, w)$ be a finite connected weighted graph with medium
+$\med$. Then every node $v \in \Vcal \setminus \{\med\}$ is individuated, and
+its individuation depends on the full neighbourhood structure $G_v$:
+\[
+  \sigma(v) = \min_{S \ni v,\, \med \notin S} \sum_{u \in S,\, u' \in \bar{S}}
+  w(u, u') \;\geq\; \bmin(G) > 0.
+\]
+Specifically, $\sigma(v)$ increases when new neighbours are added to $\Nbd(v)
+\cap \Nbd(\med)$ with positive edge weights, and $\sigma(v) \geq \bmin$ always.
+\end{theorem}
+
+\begin{proof}
+Connectivity of $G$ implies that at least one path connects $v$ to $\med$, so
+at least one edge must be cut in any separation. The cut weight is a sum of
+positive edge weights, bounded below by the minimum edge weight $\bmin > 0$
+(Lemma~\ref{lem:floor_positive}). Hence $\sigma(v) \geq \bmin > 0$, so $v$
+is individuated.
+
+For the dependence on $G_v$: any node $u \in \Nbd(v) \cap \Nbd(\med)$ with
+$u \notin S$ in the minimum cut contributes $w(v,u)$ to the cut weight. Adding
+a new neighbour $u'$ to $\Nbd(v) \cap \Nbd(\med)$ adds either a new term
+$w(v,u')$ to the cut (if $u' \notin S$) or extends $S$ without reducing the
+cut weight below what any remaining cut edge contributes. In either case,
+$\sigma(v)$ does not decrease. The minimum cut is collectively determined by
+all neighbours. \qed
+\end{proof}
+
+\begin{corollary}[Individuation Is Collective]
+\label{cor:collective}
+The individuation of $v$ cannot be computed from $v$ alone. It requires
+knowledge of the full neighbourhood $\Nbd(v) \cap \Nbd(\med)$ and the
+weights of all edges in $G_v$. Removing the medium $\med$ from $G$ makes
+$\sigma(v)$ undefined: there is no reference against which $v$ is individuated.
+\end{corollary}
+
+\begin{proof}
+$\sigma(v)$ is defined as the minimum cut separating $v$ from $\med$. If
+$\med$ is removed, the separation cost has no target; the concept of
+individuation requires the medium as its reference. \qed
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Truth as a Cell}
+\label{sec:truth}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Minimum Cut Set}
+
+\begin{definition}[Minimum Cut Set of $v$]
+\label{def:mincutset}
+The \emph{minimum cut set} of $v$ in $G$ is:
+\[
+  C^*(v) = \cut(S^*(v),\, \overline{S^*(v)})
+\]
+where $S^*(v) = \arg\min_{S \ni v,\, \med \notin S} w(\cut(S, \bar{S}))$
+is the minimum cut partition placing $v$ on one side and $\med$ on the other.
+The minimum cut set $C^*(v)$ is a set of edges, not a node. It is the
+boundary of $v$ at minimum cost.
+\end{definition}
+
+\begin{remark}
+$C^*(v)$ may not be unique: there may be multiple minimum cut partitions
+with the same cut weight $\sigma(v)$. The \emph{truth cell} of $v$ is any
+one of these minimum cut sets, or equivalently, the equivalence class of all
+minimum cut partitions of $v$ from $\med$.
+\end{remark}
+
+\begin{theorem}[Truth Cell Theorem]
+\label{thm:truth_cell}
+The truth of node $v$ in $G$ --- the most complete structural description of
+$v$ that is available within $G$ --- is not a point in $\Vcal$ but the
+minimum cut set $C^*(v)$: a set of edges of total weight $\sigma(v) \geq
+\bmin > 0$.
+
+Specifically:
+\begin{enumerate}[label=(\roman*)]
+  \item $C^*(v)$ has positive weight: $w(C^*(v)) = \sigma(v) \geq \bmin > 0$.
+  Truth is never a point (zero-weight cut).
+
+  \item $C^*(v)$ is a boundary, not a node: it consists of edges
+  connecting $S^*(v)$ to $\overline{S^*(v)}$, none of which is $v$ itself.
+
+  \item $C^*(v)$ is collectively determined: each edge in $C^*(v)$ involves
+  a neighbour $u \in \Nbd(v)$, and $u \in \Nbd(\med)$. The truth of $v$
+  is held open by its neighbours, not by $v$.
+
+  \item Increasing the graph (adding new nodes to $\Nbd(v) \cap \Nbd(\med)$)
+  does not change the nature of $C^*(v)$: it remains a minimum cut set.
+  Adding more neighbours makes $v$ more individuated (Theorem~\ref{thm:individuation})
+  but does not collapse $C^*(v)$ to a point.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Follows directly from Lemma~\ref{lem:floor_positive} and
+Definition~\ref{def:sepcost}: $w(C^*(v)) = \sigma(v) \geq \bmin > 0$.
+
+(ii) $C^*(v)$ is a set of edges by Definition~\ref{def:mincutset}. No node
+is an edge; $v \in \Vcal$ is not an element of $C^*(v) \subseteq \Ecal$.
+
+(iii) Each edge $(u, u') \in C^*(v)$ has $u \in S^*(v)$ and $u' \in
+\overline{S^*(v)}$. If $u = v$, then the edge is $(v, u')$ for some
+$u' \in \Nbd(v)$; if $u \neq v$ then $u \in \Nbd(v) \cap S^*(v)$ and
+$u' \in \overline{S^*(v)} \ni \med$, so $u' \in \Nbd(\med)$. In either
+case, the edge involves a neighbour of $v$ in relation to the medium.
+
+(iv) Adding node $u'$ to $\Nbd(v) \cap \Nbd(\med)$ either adds a new
+edge to the minimum cut or increases $\sigma(v)$. In either case the minimum
+cut remains a set of edges of positive total weight. It does not collapse. \qed
+\end{proof}
+
+\subsection{Why Truth Cannot Be a Point}
+
+\begin{corollary}[No Point Truth]
+\label{cor:no_point}
+In any finite connected weighted graph with $|\Vcal| \geq 2$, the truth of
+any node $v$ cannot be a point. A point-truth would require $w(C^*(v)) = 0$,
+which contradicts $\bmin > 0$.
+\end{corollary}
+
+\begin{proof}
+A point-truth for $v$ would mean $v$ is completely described by itself alone,
+with no residual boundary cost: $\sigma(v) = 0$. But $\sigma(v) \geq \bmin > 0$
+by Lemma~\ref{lem:floor_positive} applied to the minimum cut. Hence point-truth
+is structurally impossible in any finite weighted graph. \qed
+\end{proof}
+
+\begin{corollary}[Truth Is Irreducibly Relational]
+\label{cor:relational}
+The truth of $v$ is not a property of $v$. It is a property of the minimum
+cut $C^*(v)$, which is a set of edges between $v$'s neighbourhood and the
+rest of $G$. Remove all edges incident to $v$ and the truth of $v$ is
+undefined: $\sigma(v)$ has no cut to minimise over.
+\end{corollary}
+
+\subsection{The Unknowable Residue}
+
+\begin{definition}[Unknowable Residue]
+\label{def:unknowable}
+The \emph{unknowable residue} of $v$ is the set of nodes in $S^*(v)
+\setminus \{v\}$ --- the nodes that are on $v$'s side of the minimum cut
+but are not $v$ itself. These nodes are indistinguishable from $v$ at the
+resolution of $C^*(v)$: their separation from $v$ costs less than a minimum
+cut from $\med$.
+\end{definition}
+
+\begin{proposition}[The Residue Is Structural]
+\label{prop:residue}
+The unknowable residue of $v$ is not a gap in knowledge. It is a structural
+feature of $G$: it consists of exactly those nodes $u \neq v$ such that the
+minimum cut separating $\{u, v\}$ jointly from $\med$ has the same weight as
+$C^*(v)$. These nodes co-individuate with $v$ at the contact floor.
+\end{proposition}
+
+\begin{proof}
+A node $u \in S^*(v) \setminus \{v\}$ is in the unknowable residue if and only
+if moving $u$ to $\bar{S}$ does not increase the cut weight below $\sigma(v)$.
+This means $w(u, \bar{S}) \leq 0$ at the margin --- impossible since all
+weights are positive. So $u$ is in $S^*(v)$ because moving it out would
+\emph{increase} the cut weight, meaning $u$'s contribution to the cut from
+$v$'s side is net-negative. Equivalently: $u$ and $v$ are so tightly connected
+(relative to their connections to $\med$) that they share a minimum cut
+boundary. They are jointly individuated. \qed
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Measurement as Graph Reshuffling}
+\label{sec:reshuffling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Definition of Reshuffling}
+
+\begin{definition}[Graph Reshuffling]
+\label{def:reshuffling}
+A \emph{reshuffling} of $G = (\Vcal, \Ecal, w)$ is a bijection
+$\phi: \Ecal \to \Ecal'$ where $\Ecal'$ is a new edge set on $\Vcal$,
+such that:
+\begin{enumerate}[label=(\roman*)]
+  \item \emph{Weight conservation}: $\sum_{e \in \Ecal} w(e) = \sum_{e'
+  \in \Ecal'} w'(e')$. The total weight is preserved.
+  \item \emph{Medium preservation}: the medium $\med$ remains adjacent to
+  all nodes in $\Vcal \setminus \{\med\}$ in $G' = (\Vcal, \Ecal', w')$.
+  \item \emph{Node conservation}: $\Vcal$ is unchanged.
+\end{enumerate}
+The reshuffled graph is $G' = (\Vcal, \Ecal', w')$.
+\end{definition}
+
+\begin{remark}[What Reshuffling Is and Is Not]
+A reshuffling changes which nodes are adjacent and at what weight, while
+preserving the total weight and the node set. It does not add or remove
+nodes. It does not change the total weight of the medium's edges (since
+the medium remains adjacent to all nodes). It produces a new individuation
+--- a different assignment of neighbourhoods --- without creating new matter.
+
+This is the graph-theoretic statement of: \emph{matter is conserved, and
+reshuffling produces new arrangements of surfaces and volumes, not new matter.}
+\end{remark}
+
+\begin{theorem}[Reshuffling Theorem]
+\label{thm:reshuffling}
+Let $\phi$ be a reshuffling of $G$, producing $G'$. Then:
+\begin{enumerate}[label=(\roman*)]
+  \item The contact floor is preserved or increased: $\bmin(G') \geq \bmin(G)$.
+  \item The truth cell of $v$ in $G'$ is $C^*_{G'}(v)$, which may differ from
+  $C^*_G(v)$: the reshuffling produces a new individuation of $v$.
+  \item The separation cost $\sigma_{G'}(v)$ satisfies $\sigma_{G'}(v) \geq
+  \bmin(G) > 0$: $v$ remains individuated after reshuffling.
+  \item No finite sequence of reshufficings $\phi_1, \phi_2, \ldots, \phi_k$
+  produces a graph in which $\sigma(v) = 0$: the floor is never reached by
+  reshuffling.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) The minimum edge weight in $G'$ is $\min_{e' \in \Ecal'} w'(e')$. Since
+total weight is conserved and the number of edges may change, the minimum
+weight per edge can only increase (if edges are merged) or stay the same.
+Specifically, reshuffling cannot create an edge of weight less than
+$\bmin(G)$ without removing a heavier edge, which would require weight
+creation --- forbidden by conservation. Hence $\bmin(G') \geq \bmin(G)$.
+
+(ii) In $G'$, the neighbourhood $\Nbd_{G'}(v)$ differs from $\Nbd_G(v)$
+(different edges). The minimum cut $C^*_{G'}(v)$ is recomputed in the new
+graph and generally differs from $C^*_G(v)$.
+
+(iii) By the same argument as Theorem~\ref{thm:individuation} applied to
+$G'$: connectivity of $G'$ (which follows from medium preservation) and
+positivity of edge weights give $\sigma_{G'}(v) \geq \bmin(G') \geq
+\bmin(G) > 0$.
+
+(iv) By (iii), $\sigma(v) \geq \bmin(G) > 0$ after every reshuffling. No
+finite composition of reshufficings reduces $\sigma(v)$ to zero. The sequence
+$(\sigma_k(v))_{k \geq 0}$ is bounded below by $\bmin(G) > 0$. \qed
+\end{proof}
+
+\subsection{The Convergence of Measurement}
+
+\begin{corollary}[Measurement Converges to the Floor, Not to a Node]
+\label{cor:convergence}
+Let $(\phi_k)_{k \geq 1}$ be a sequence of reshufficings of $G$ such that
+$\bmin(G_k) \to L$ as $k \to \infty$. Then:
+\begin{enumerate}[label=(\roman*)]
+  \item $L \geq \bmin(G_0) > 0$: the limit is positive.
+  \item $\sigma_k(v) \to L > 0$: the separation cost converges to the
+  floor, not to zero.
+  \item The truth cell $C^*_{G_k}(v)$ converges (in the sense of its total
+  weight) to a cut of weight $L > 0$: a cell, not a point.
+\end{enumerate}
+In particular, no sequence of measurements can produce a truth cell of zero
+weight. The node $v$ is never fully revealed by measurement.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:reshuffling}(i), $\bmin(G_k)$ is non-decreasing and
+bounded. It therefore converges to some $L \geq \bmin(G_0) > 0$. By (iii),
+$\sigma_k(v) \geq \bmin(G_k) \to L > 0$. The weight of the truth cell is
+$w(C^*_{G_k}(v)) = \sigma_k(v) \to L > 0$. \qed
+\end{proof}
+
+\subsection{What Measurement Produces}
+
+\begin{proposition}[Measurement as NOT-Sequence]
+\label{prop:not_sequence}
+Each reshuffling $\phi_k$ produces a new graph $G_k$ in which $v$ has a new
+neighbourhood $\Nbd_{G_k}(v)$. The new neighbours are the nodes that
+participate in individuating $v$ in the new arrangement. The information
+content of the sequence $(\phi_1, \ldots, \phi_k)$ is not ``what $v$ is''
+but ``what $v$ is not, relative to each neighbourhood configuration.''
+
+Formally, the sequence produces a sequence of minimum cut sets:
+\[
+  C^*_{G_0}(v),\; C^*_{G_1}(v),\; \ldots,\; C^*_{G_k}(v)
+\]
+each of which is a set of NOT-edges: edges between $v$'s current partition
+and its complement. The intersection $\bigcap_{k} \mathrm{supp}(C^*_{G_k}(v))$
+--- the edges that appear in every minimum cut set --- is the irreducible
+boundary of $v$: the contact floor $\bmin$.
+\end{proposition}
+
+\begin{proof}
+Each $C^*_{G_k}(v)$ is a minimum cut set in $G_k$. By
+Corollary~\ref{cor:convergence}, its weight converges to $L \geq \bmin(G_0)$.
+The edges in $C^*_{G_k}(v)$ are those that must be cut in any minimum
+separation of $v$ from $\med$ in $G_k$. These are precisely the NOT-edges:
+edges that go between $v$'s region and the rest. As $k \to \infty$, the
+residual common structure in all cuts is the floor $\bmin$. \qed
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Applications}
+\label{sec:applications}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Population Counting}
+
+\begin{example}[The Cat Counter]
+\label{ex:cats}
+Suppose we wish to determine the number of cats in the world. We are given:
+a strict classification $\mathcal{C}$ of what constitutes a cat (a finite
+set of defining properties); a finite set of laser counters that register
+transitions (births and deaths) in real time.
+
+Model this as a finite weighted graph $G$ where:
+\begin{itemize}
+  \item Each cat is a node $v_i \in \Vcal$;
+  \item The medium $\med$ is the world-state (the invariant in which all
+  cats exist);
+  \item Edge weights $w(v_i, \med) = 1$ for each living cat (the cost of
+  individuation from the world), $w(v_i, \med) = 0$ for a dead cat --- but
+  $w = 0$ is forbidden by Lemma~\ref{lem:floor_positive}, meaning the node
+  is removed from $\Vcal$ (death = removal, not zero-weight edge).
+  \item Each birth is a node addition; each death is a node removal.
+\end{itemize}
+
+The count $|\Vcal \setminus \{\med\}|$ is the number of cat-nodes. But:
+the laser counter registers transitions. At any instant $t$, there is a
+non-zero probability that a transition is in progress (a cat is being born
+or dying). The count at $t$ is therefore not a single integer but the
+interval $[n(t), n(t)+1)$ where $n(t)$ is the last confirmed count.
+
+Formally: the total weight $W(G_t) = \sum_i w(v_i, \med)$ is conserved
+(matter conservation). Node additions/removals change $|\Vcal|$ but not
+$W(G)$ instantaneously --- the weight must be redistributed from the
+removed node's edges to the remaining graph. During a transition, the
+graph $G_t$ is in a reshuffling state: the count is simultaneously $n$ and
+$n+1$ in the sense that both partitions of the graph ($n$ cat-nodes and
+$n+1$ cat-nodes) have the same total weight.
+\end{example}
+
+\begin{theorem}[Count as Interval]
+\label{thm:count_interval}
+For any finite population modelled as a finite weighted graph with continuous
+transitions, the count at any instant $t$ is an element of the interval
+$[n(t), n(t)+1)$, not a single integer. The binary partition
+$\{n, n+1\}$ is the finest partition of the count, and the population is
+simultaneously even and odd during any transition.
+\end{theorem}
+
+\begin{proof}
+At a birth event, a new node $v_{\mathrm{new}}$ is added to $\Vcal$ and
+connected to $\med$ with weight $\bmin$. The transition is not instantaneous:
+the edge $(v_{\mathrm{new}}, \med)$ acquires weight continuously from $0$ to
+$\bmin$. During the interval when $w(v_{\mathrm{new}}, \med) \in (0, \bmin)$,
+the node exists (positive weight, hence individuated at a supraminimal cut)
+but has not yet reached the floor cost of full individuation. The count is
+therefore not $n$ (the new node is present) and not $n+1$ (the floor has not
+been reached). It is in $[n, n+1)$.
+
+The binary partition $\{$even, odd$\}$ applied to this interval gives both
+$n$ (if even) and $n+1$ (if odd) as valid descriptions simultaneously.
+Neither alone is sufficient. \qed
+\end{proof}
+
+\begin{remark}[The Best Available Truth]
+\label{rem:count_truth}
+The even/odd partition is the coarsest binary partition of the count. It is
+also the most honest: it acknowledges that the count is in $[n, n+1)$ by
+assigning it to both halves. The minimum sufficient truth of the population
+count is the pair $\{n, n+1\}$ --- not a single integer, but the smallest
+interval consistent with the graph structure at time $t$.
+\end{remark}
+
+\subsection{Analytical Chemistry: Instrument Generations as Graph Expansion}
+
+\begin{example}[The Mass Spectrometer as Graph Expansion]
+\label{ex:ms}
+An analytical instrument that separates a mixture into components models as
+a finite weighted graph where:
+\begin{itemize}
+  \item Each distinguishable component species is a node $v_i$;
+  \item The medium $\med$ is the solvent/matrix/background --- the invariant
+  simultaneously in contact with all species;
+  \item Edge weights $w(v_i, v_j)$ encode the cost of distinguishing species
+  $i$ from species $j$ (the resolving effort required);
+  \item The contact floor $\bmin$ is the minimum resolving cost across all
+  pairs --- the finest distinction the instrument can make.
+\end{itemize}
+
+A measurement is a reshuffling $\phi$: the instrument rearranges which species
+are compared to which, producing a new neighbourhood for each node.
+\end{example}
+
+\begin{theorem}[Instrument Generation as Neighbour Expansion]
+\label{thm:instrument_generation}
+Each new generation of analytical instrument corresponds to a graph expansion:
+the addition of new nodes to $\Nbd(v) \cap \Nbd(\med)$ for every node $v$.
+The effect is:
+\begin{enumerate}[label=(\roman*)]
+  \item The individuation of each node increases (Theorem~\ref{thm:individuation}):
+  $\sigma_{G'}(v) \geq \sigma_G(v)$.
+  \item The truth cell $C^*(v)$ changes: new edges appear in the minimum
+  cut, corresponding to new NOT-relations established by the new neighbours.
+  \item The contact floor $\bmin$ does not decrease: the minimum resolving
+  cost is preserved or improved.
+  \item No finite number of instrument generations collapses $C^*(v)$ to a
+  point: the truth cell remains a cell at every generation.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) By Theorem~\ref{thm:individuation}, adding neighbours to $\Nbd(v) \cap
+\Nbd(\med)$ does not decrease $\sigma(v)$.
+
+(ii) The new neighbours $u' \in \Nbd_{G'}(v) \setminus \Nbd_G(v)$ contribute
+new edges to the cut $C^*_{G'}(v)$: the NOT-relation $v \neq u'$ is now an
+edge in the boundary.
+
+(iii) By Theorem~\ref{thm:reshuffling}(i), $\bmin(G') \geq \bmin(G)$.
+
+(iv) By Corollary~\ref{cor:convergence}, the truth cell weight converges to
+$L \geq \bmin > 0$. It never reaches zero. \qed
+\end{proof}
+
+\begin{corollary}[What Each Generation Produces]
+\label{cor:generation}
+Each instrument generation does not produce more truth about $v$. It produces
+a larger NOT-sequence: a longer list of nodes from which $v$ has been
+distinguished. The truth cell $C^*(v)$ grows in the number of its edges
+(more NOT-relations) but not in its weight towards zero. Resolving power is
+neighbour count, not proximity to identity.
+\end{corollary}
+
+\begin{remark}[The Sample Preparation Regress]
+\label{rem:regress}
+The analytical result depends on the sample inserted into the instrument.
+Confirming the sample's composition requires a prior measurement, which
+requires a prior confirmed sample, and so on. In graph terms: the node
+$v_{\mathrm{sample}}$ representing the inserted sample is itself individuated
+only within the graph of all prior preparation steps. Each preparation step
+is a reshuffling of the upstream graph. The contact floor of the entire
+preparation chain is the accumulated floor across all upstream graphs:
+$\bmin^{\mathrm{chain}} = \min_k \bmin(G_k) > 0$. The floor of the
+result is bounded below by the floor of the coarsest upstream graph,
+not by the instrument alone.
+\end{remark}
+
+\subsection{The Epistemology of Classification}
+
+\begin{example}[Classification as Graph Partition]
+\label{ex:classification}
+A classification system assigns nodes to categories. Each category $C_j$
+is a subset of $\Vcal$. The classification is a partition $\Pcal =
+\{C_1, \ldots, C_k\}$ of $\Vcal \setminus \{\med\}$. The contact floor
+$\bmin(\Pcal)$ of the classification is the minimum cut weight between any
+two categories across the medium.
+\end{example}
+
+\begin{theorem}[Sufficient Truth of Classification]
+\label{thm:classification_truth}
+The sufficient truth of a classification $\Pcal$ of $G$ is not the partition
+itself but the contact floor $\bmin(\Pcal) > 0$: the minimum cost at which
+any two categories can be distinguished through the medium. The sufficient
+truth is a positive number, not a partition assignment.
+\end{theorem}
+
+\begin{proof}
+The partition $\Pcal$ assigns each node to a category. But the assignment
+is only meaningful insofar as the categories are distinguishable --- i.e.,
+insofar as the cut between any two categories has positive weight. The
+minimum such weight is $\bmin(\Pcal)$. If $\bmin(\Pcal) = 0$, two categories
+are indistinguishable (they share a zero-weight boundary) and the classification
+provides no information. Since $\bmin(\Pcal) > 0$ for any finite weighted
+graph, every classification provides some information --- but the quantity of
+information is exactly $\bmin(\Pcal)$: the minimum cost of any distinction
+the classification makes. This is the sufficient truth. \qed
+\end{proof}
+
+\begin{corollary}[Sufficient Truth Is the Floor, Not the Label]
+\label{cor:sufficient_truth}
+The sufficient truth of assigning $v$ to category $C_j$ is not the label
+$C_j$. It is the minimum cut weight separating $C_j$ from all other
+categories: $\bmin(\{C_j, \overline{C_j}\}) \geq \bmin(\Pcal) > 0$.
+The label is a convenience. The floor is the content.
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+\label{sec:discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Medium as the Only Invariant}
+
+Throughout the paper, the medium $\med$ is the single invariant. It does not
+change under reshuffling. Its total edge weight is conserved. It is the
+condition under which individuation occurs. Without the medium, no node can
+be individuated --- $\sigma(v)$ is undefined without a reference.
+
+This is the graph-theoretic statement of a physical fact: in a closed system,
+the total weight (mass, energy, information) is conserved. Reshuffling
+rearranges how that weight is distributed across edges, but the total is fixed.
+The medium is what holds the total fixed while the distribution changes.
+
+\subsection{Truth as Region}
+
+The Truth Cell Theorem establishes that truth in a finite weighted graph is
+always a cell --- a set of edges of positive total weight --- and never a
+point. This is not a limitation of knowledge or measurement. It is a structural
+consequence of $\bmin > 0$: any system in which individuation is possible
+(any system with positive edge weights) has irreducibly cellular truth.
+
+The cell is the minimum viable boundary. Below the cell, the node merges
+with the medium: it is no longer distinct. The cell is not the gap between
+current knowledge and eventual identity. It is the structure of identity
+itself. Identity, in a finite weighted graph, is always a boundary, never
+a point.
+
+\subsection{Reshuffling and the Arrow of Knowledge}
+
+The Reshuffling Theorem establishes that measurement does not reduce the
+truth cell to a point. Each measurement produces a new arrangement of
+NOT-relations --- a new set of neighbours from which the node has been
+distinguished. The sequence of measurements converges to the floor $\bmin$,
+not to zero.
+
+This gives an \emph{arrow of knowledge}: the sequence of NOT-sets grows
+monotonically (new NOT-relations are never removed, only added), and the
+floor is the asymptote. The direction of the arrow is determined by
+$\bmin > 0$: knowledge cannot exceed the floor.
+
+This is the graph-theoretic counterpart of the physical arrow of time:
+just as inflation cannot reverse below the contact floor in a dynamical
+system, knowledge cannot deepen below $\bmin$ in a finite weighted graph.
+The floor is the common invariant.
+
+\subsection{Relation to Minimum Cut Theory}
+
+The minimum cut problem in graph theory asks: what is the minimum weight
+set of edges whose removal disconnects $G$? \citep{ford1956maxflow,
+stoer1997simple}. The Truth Cell Theorem repurposes this: instead of
+asking what removes connectivity, we ask what maintains the minimum
+connection between $v$ and $\med$. The minimum cut separating $v$ from
+$\med$ is the minimum cost boundary of $v$'s individuation.
+
+The max-flow min-cut theorem \citep{ford1956maxflow} gives an algorithmic
+route to computing $\sigma(v) = C^*(v)$: it equals the maximum flow from
+$v$ to $\med$ in $G$, which is the maximum rate at which individuation
+information can flow from $v$ to the medium. The truth cell weight is the
+information bottleneck.
+
+\subsection{Relation to Information Theory}
+
+The contact floor $\bmin$ is related to the minimum description length of
+a node in $G$: the smallest number of bits needed to specify the position
+of $v$ in the minimum cut $C^*(v)$ against the medium. By Shannon's theorem
+\citep{shannon1948mathematical}, this is bounded below by $\log_2(1/p_v)$
+where $p_v$ is the probability of $v$'s minimum cut configuration. Since
+$p_v < 1$ (there are always other configurations), $\log_2(1/p_v) > 0$:
+the minimum description length is positive, consistent with $\bmin > 0$.
+
+\subsection{What This Framework Does Not Say}
+
+This paper makes no claim about:
+\begin{itemize}
+  \item The ontological status of nodes: whether they ``really exist''
+  independently of the graph;
+  \item The correspondence between graph structure and physical reality;
+  \item Whether the medium corresponds to any particular physical substrate;
+  \item The computability of the contact floor in any specific instance.
+\end{itemize}
+
+All claims are structural claims about finite weighted graphs. The
+applications in Section~\ref{sec:applications} are modelling choices:
+the claim is ``if you model the system as a finite weighted graph with
+these properties, then the following graph-theoretic results hold.'' The
+modelling choice is a scientific question; the graph-theoretic results are
+mathematical facts.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have developed a theory of individuation and truth grounded entirely in
+finite weighted graphs. The main results are:
+
+\begin{enumerate}
+\item \textbf{The contact floor is strictly positive}
+  (Lemma~\ref{lem:floor_positive}): in any finite graph with positive edge
+  weights, there is no zero-cost boundary. Individuation is never free.
+
+\item \textbf{Individuation is collective} (Theorem~\ref{thm:individuation}):
+  the separation cost $\sigma(v)$ depends on the full neighbourhood of $v$
+  through the medium. No node individuates itself. Every neighbour
+  contributes.
+
+\item \textbf{Truth is a cell} (Theorem~\ref{thm:truth_cell}): the truth of
+  a node is its minimum cut set $C^*(v)$ --- a set of edges of positive
+  total weight $\geq \bmin > 0$. Truth is never a point.
+
+\item \textbf{Measurement is reshuffling} (Theorem~\ref{thm:reshuffling}):
+  a measurement is a weight-preserving relabelling of edges. It produces
+  a new individuation of $v$ --- a new set of NOT-relations --- without
+  revealing $v$'s identity. Total weight is conserved. The medium is
+  unchanged.
+
+\item \textbf{Measurement converges to the floor}
+  (Corollary~\ref{cor:convergence}): no sequence of measurements reduces
+  the truth cell to a point. The sequence converges to the floor $\bmin > 0$.
+  The node is never fully revealed.
+
+\item \textbf{The sufficient truth of a classification is the floor}
+  (Theorem~\ref{thm:classification_truth}): the sufficient truth of
+  assigning $v$ to a category is not the category label but the minimum
+  cut weight between that category and all others through the medium.
+  The floor is the content; the label is the convenience.
+\end{enumerate}
+
+The contact floor $\bmin > 0$ is the single invariant from which all
+results follow. It is not a measurement artifact. It is not a limit of
+technology. It is the structural cost of any boundary in a finite graph
+with positive edge weights --- the minimum price of distinction. Below the
+floor, there is no distinction. Above the floor, there is always a cell,
+never a point.
+
+The medium is the other invariant: the thing simultaneously in contact with
+everything, unchanged by reshuffling, conserved in total weight. It is not
+a node like the others. It is the condition under which the others are nodes
+at all.
+
+Truth, in this framework, is the minimum cut between a node and the medium:
+the least it can be while still being distinct. It is a region. It is positive.
+It is collectively held open by every neighbour. And it is irreducibly
+unknowable --- not because knowledge is limited, but because the boundary
+itself is what the node is.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plainnat}
+\bibliography{references}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

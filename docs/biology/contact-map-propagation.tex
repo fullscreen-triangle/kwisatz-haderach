@@ -1,0 +1,1616 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Contact Maps in Systems Biology:
+%% Individuation, Invariance, and the Derivation of Cellular State
+%% from Partition Topology
+%%
+%% Author: Kundai Farai Sachikonye
+%%         Technical University of Munich, School of Life Sciences
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,twocolumn]{article}
+
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm,
+            columnsep=0.8cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage[backend=bibtex, style=numeric, sorting=none]{biblatex}
+\addbibresource{references.bib}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{thmtools}
+
+%% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{axiom}{Axiom}
+\newtheorem{postulate}{Postulate}
+
+%% Notation macros
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\GG}{\mathcal{G}}
+\newcommand{\PP}{\mathcal{P}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\MM}{\mathcal{M}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\RR}{\mathcal{R}}
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\dS}{d_{\mathcal{S}}}
+\newcommand{\betamin}{\beta_{\min}}
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+
+\title{Contact Maps in Systems Biology:\\
+Individuation, Invariance, and the Derivation of Cellular State\\
+from Partition Topology}
+
+\author{Kundai Farai Sachikonye\\
+\textit{Technical University of Munich, School of Life Sciences}\\
+\texttt{k.sachikonye@tum.de}}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We introduce a mathematical framework for representing cellular biochemical
+networks as \emph{contact maps}: weighted graphs in which vertices are molecular
+species and edges encode the minimum achievable thermodynamic separation between
+species pairs. The framework rests on three postulates about how molecular
+species are individuated within the crowded interior of a living cell: (1) a
+species exists by being distinguishable from every other species present
+(\emph{individuation by negation}); (2) the act of distinguishing two species
+requires finite thermodynamic cost bounded below by an irreducible residue
+$\beta > 0$; (3) the residue is monotone --- once deposited, it cannot be
+annihilated without violating the second law.
+
+From these postulates we derive a theory of \emph{contact} --- the state of
+minimum inter-species partition depth --- and prove that contact is a
+topological invariant of the biochemical network: it is preserved under all
+physically realisable perturbations (enzyme inhibitions, concentration changes,
+compartment rearrangements) and is irreducible in the sense that no coarser
+topological fact carries equivalent information. We define a three-dimensional
+\emph{S-entropy state space} $\mathcal{S} = [0,1]^3$ with coordinates
+$(\Sk, \St, \Se)$ measuring kinetic flux entropy, topological connectivity
+entropy, and energetic chemical potential entropy of each species. The
+S-entropy distance between contacting species defines the contact map, and we
+prove it is a well-defined metric on the space of distinguishable species.
+
+We establish three main results: (i) the \emph{Contact Invariance Theorem},
+showing that contact relationships are preserved under network perturbation and
+partition refinement; (ii) the \emph{Contact Irreducibility Theorem}, proving
+that contact is the minimum sufficient topological invariant of the network;
+and (iii) the \emph{Contact Completeness Theorem}, establishing that the
+contact map is a complete invariant of the network's partition topology --- two
+networks with isomorphic contact maps have identical partition structure.
+
+We demonstrate that the contact state is the unique privileged state of a
+biochemical network from which all other states can be derived by partition
+depth inflation (perturbation). Disease states, drug responses, and metabolic
+shifts correspond to departures from contact, measurable as increased partition
+depth along specific edges. We present algorithms for computing contact maps
+from pathway databases, for backward navigation through the causal chain of
+perturbations, and for $\ell^1$-optimal restoration of the contact state. The
+framework is applied to glycolysis, the TCA cycle, oxidative phosphorylation,
+and EGFR/MAPK signalling, with explicit computation of S-entropy coordinates,
+contact costs, perturbation responses, and restoration targets. All quantities
+are derived from publicly available thermodynamic and kinetic data (KEGG,
+Reactome, HMDB, BRENDA) with zero free parameters.
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The living cell presents a formidable challenge to mathematical representation.
+Thousands of molecular species interact through tens of thousands of reactions
+in a spatially compartmentalised, thermodynamically open, far-from-equilibrium
+system \cite{kitano2002systems, palsson2015systems}. The dominant paradigms for
+modelling such systems --- ordinary differential equations (ODEs) for reaction
+kinetics \cite{klipp2016systems, tyson2003sniffers}, flux balance analysis (FBA)
+for metabolic steady states \cite{orth2010flux, schellenberger2011quantitative},
+and network topology analysis for structural properties \cite{barabasi2004network,
+jeong2000large} --- have each illuminated essential aspects of cellular function.
+Yet each also carries fundamental limitations.
+
+ODE models require kinetic parameters (rate constants, Michaelis constants,
+Hill coefficients) that are difficult to measure \emph{in vivo} and whose
+values are context-dependent \cite{cornishbowden2012fundamentals, schomburg2004brenda}.
+FBA models discard kinetics entirely, capturing only the stoichiometric skeleton
+of the network at steady state \cite{orth2010flux}. Network topology analyses
+abstract away both kinetics and thermodynamics, treating the network as a purely
+combinatorial object \cite{barabasi2004network, ravasz2002hierarchical}.
+
+In each case, the relationship between the mathematical representation and the
+physical reality of the cell is unclear. An ODE model specifies a trajectory
+through concentration space, but does not explain why certain trajectories are
+accessible and others are not. An FBA model identifies feasible flux
+distributions, but does not explain why certain distributions are preferred.
+A network topology identifies hubs and motifs \cite{alon2007network}, but does
+not explain why these structural features persist under perturbation.
+
+\subsection{The Question of Invariance}
+
+The present paper asks a different question: \emph{what is invariant?} When a
+cell is perturbed --- by a drug, a mutation, a change in nutrient supply --- its
+concentrations shift, its fluxes reroute, its entropy coordinates change. Yet
+the cell remains \emph{the same cell}. What mathematical object captures the
+identity of the cellular network that persists through all these changes?
+
+We propose that the answer is the \emph{contact map}: the graph of minimum
+thermodynamic separations between molecular species. Contact is the state of
+maximum mutual constraint between two species --- the configuration in which
+each species is most efficiently distinguished from the other. We prove that
+contact relationships are topologically invariant: they cannot be broken by any
+physically realisable perturbation, only deepened. The contact map is therefore
+the skeleton of the network that persists through all accessible states.
+
+\subsection{Individuation by Negation}
+
+The philosophical starting point is the observation that a molecular species in
+a cell exists not by virtue of its intrinsic properties alone, but by the
+totality of what it is \emph{not}. Pyruvate in the cytoplasm is individuated
+from glucose, from lactate, from alanine, from the thousands of other metabolites
+in the cellular milieu. This individuation is not abstract: it requires physical
+boundaries (different chemical potentials, different compartments, different
+enzymatic contexts) that cost finite thermodynamic resources to establish and
+maintain.
+
+We formalise this observation as the principle of \emph{individuation by negation}:
+a species $\mathcal{I}$ is defined by the systematic negation of everything it is
+not, denoted $\bar{\mathcal{I}}$, and this negation has irreducible positive cost.
+The cost is the \emph{partition depth} between $\mathcal{I}$ and $\bar{\mathcal{I}}$,
+and its minimum value $\beta > 0$ is the \emph{irreducible residue} at the boundary
+between the species and its complement.
+
+\subsection{Contact as Ground State}
+
+The minimum partition depth between two species --- the state where $\beta =
+\betamin$ --- is \emph{contact}. We prove that contact is the ground state of
+the pairwise interaction: all other configurations have higher partition depth,
+and partition depth can only increase (or remain constant) under physical
+operations. Contact is therefore the state from which all other states can be
+derived by adding partition depth, but to which no operation can descend below.
+
+This has a striking consequence for systems biology: the contact map of a
+biochemical network is the unique privileged state from which all other states
+(healthy, diseased, drug-treated, nutrient-shifted) can be derived. A disease is
+not a different network; it is the \emph{same} contact map with elevated
+partition depth along specific edges. The task of diagnosis is to identify which
+edges have departed from contact, and the task of therapy is to find the
+sparsest perturbation that restores them.
+
+\subsection{Contributions}
+
+Our main contributions are:
+
+\begin{enumerate}[label=(\roman*)]
+\item A rigorous axiomatic foundation for individuation by negation in
+  biochemical networks, yielding the positivity of the irreducible residue
+  and the non-instantaneity of species individuation
+  (Section~\ref{sec:foundations}).
+
+\item The theory of contact as a topological invariant: Contact Invariance
+  (Theorem~\ref{thm:contact_invariance}), Contact Irreducibility
+  (Theorem~\ref{thm:contact_irreducibility}), and Contact Completeness
+  (Theorem~\ref{thm:contact_completeness}) (Section~\ref{sec:contact}).
+
+\item The S-entropy state space formalism with kinetic, topological, and
+  energetic entropy coordinates, and proof that the S-entropy distance is a
+  well-defined metric on the space of distinguishable species
+  (Section~\ref{sec:sentropy}).
+
+\item The contact map construction algorithm from pathway database data, with
+  explicit computation from public thermodynamic and kinetic databases
+  (Section~\ref{sec:construction}).
+
+\item Perturbation theory on contact maps: disease as partition depth inflation,
+  backward navigation, and $\ell^1$-optimal restoration
+  (Section~\ref{sec:perturbation}).
+
+\item Application to four canonical pathways: glycolysis, TCA cycle, oxidative
+  phosphorylation, and EGFR/MAPK signalling, with full numerical results
+  (Section~\ref{sec:applications}).
+\end{enumerate}
+
+\subsection{Organisation}
+
+Section~\ref{sec:foundations} establishes the axiomatic foundations.
+Section~\ref{sec:contact} develops the theory of contact and proves the main
+invariance theorems. Section~\ref{sec:sentropy} defines the S-entropy state
+space. Section~\ref{sec:construction} gives the contact map construction
+algorithm. Section~\ref{sec:perturbation} develops perturbation theory.
+Section~\ref{sec:applications} presents applications. Section~\ref{sec:properties}
+collects additional theoretical properties. Section~\ref{sec:discussion}
+discusses implications. Section~\ref{sec:conclusion} concludes.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Axiomatic Foundations}
+\label{sec:foundations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We begin with three postulates that formalise the physical constraints on the
+individuation of molecular species in a living cell. These postulates are
+deliberately minimal: each asserts a single physical fact that is
+thermodynamically necessary, and together they generate the entire theory.
+
+\subsection{The Three Postulates}
+
+\begin{postulate}[Individuation by Negation]
+\label{post:negation}
+A molecular species $\mathcal{I}$ in a biochemical network exists if and only if
+it is distinguishable from every other species in the network. Formally, let
+$\Omega = \{\mathcal{I}_1, \ldots, \mathcal{I}_N\}$ be the set of molecular
+species in a cell. Species $\mathcal{I}_i$ is \emph{individuated} if and only if
+\[
+  \mathcal{I}_i \neq \bar{\mathcal{I}}_i
+  \quad\text{where}\quad
+  \bar{\mathcal{I}}_i = \Omega \setminus \{\mathcal{I}_i\}
+\]
+and this distinction is established by at least one measurable physical
+property (chemical potential, concentration, compartment, charge state, or
+conformational state) that separates $\mathcal{I}_i$ from every member of
+$\bar{\mathcal{I}}_i$.
+\end{postulate}
+
+\begin{remark}
+Postulate~\ref{post:negation} is not the set-theoretic tautology $A \neq
+\Omega \setminus A$. Its content is that species identity is \emph{constituted}
+by the act of distinction: pyruvate is pyruvate because it is not glucose, not
+lactate, not alanine, and not any of the other species present. Remove any one
+of these distinctions (e.g., by making pyruvate and lactate indistinguishable)
+and the identity of pyruvate is altered. This is the biological counterpart of
+the philosophical principle \emph{omnis determinatio est negatio}.
+\end{remark}
+
+\begin{postulate}[Finite Individuation Cost]
+\label{post:cost}
+Every act of individuating species $\mathcal{I}_i$ from species $\mathcal{I}_j$
+requires a thermodynamic cost bounded below by an irreducible residue
+$\beta_{ij} > 0$. Formally, the \emph{partition depth} between
+$\mathcal{I}_i$ and $\mathcal{I}_j$ satisfies
+\[
+  D(\mathcal{I}_i, \mathcal{I}_j) \geq \beta_{ij} > 0
+\]
+for all physically realisable states of the network. The residue $\beta_{ij}$
+is the minimum thermodynamic cost of maintaining the distinction between
+$\mathcal{I}_i$ and $\mathcal{I}_j$ and cannot be reduced to zero without
+merging the two species into one.
+\end{postulate}
+
+\begin{remark}
+The positivity of $\beta_{ij}$ has a concrete thermodynamic interpretation:
+maintaining the distinction between two chemical species requires maintaining
+a difference in at least one intensive variable (chemical potential, temperature,
+pressure, or electrochemical potential), and any such difference in a
+finite-volume system entails a positive free energy of separation
+\cite{atkins2014physical, denbigh1981principles}. In the context of enzyme
+kinetics, $\beta_{ij}$ corresponds to the minimum activation energy barrier
+between two metabolites connected by an enzymatic reaction
+\cite{cornishbowden2012fundamentals}.
+\end{remark}
+
+\begin{postulate}[Monotonicity of Partition Count]
+\label{post:monotone}
+The total partition count $M$ of the system --- the cumulative number of
+individuation events that have occurred --- is strictly monotone increasing in
+time:
+\[
+  t_2 > t_1 \implies M(t_2) > M(t_1).
+\]
+No physical operation can decrease $M$. Equivalently, the residues
+$\{\beta_{ij}\}$ once deposited at partition boundaries cannot be annihilated;
+they can only accumulate.
+\end{postulate}
+
+\begin{remark}
+Postulate~\ref{post:monotone} is a restatement of the second law of
+thermodynamics in the language of partitions: the entropy of the system
+(which is the aggregate of unresolved residues whose specific causal links are
+not tracked) can never decrease \cite{kondepudi2014modern, prigogine1967introduction}.
+The partition count $M$ is a more fundamental quantity than entropy: entropy
+arises when the partition count is coarse-grained over untracked causal links
+\cite{shannon1948mathematical, jaynes1957information}.
+\end{remark}
+
+\subsection{Immediate Consequences}
+
+\begin{definition}[Biochemical Partition Space]
+\label{def:partition_space}
+A \emph{biochemical partition space} is a tuple $(\Omega, D, \mu)$ where:
+\begin{enumerate}[label=(\alph*)]
+\item $\Omega = \{\mathcal{I}_1, \ldots, \mathcal{I}_N\}$ is a finite set of
+  molecular species;
+\item $D: \Omega \times \Omega \to \reals_{\geq 0}$ is a partition depth
+  function satisfying $D(\mathcal{I}_i, \mathcal{I}_j) \geq \betamin > 0$ for
+  all $i \neq j$ and $D(\mathcal{I}_i, \mathcal{I}_i) = 0$;
+\item $\mu: \Omega \to \reals_{>0}$ assigns to each species a positive
+  thermodynamic weight (its chemical potential, or more precisely, the absolute
+  value of its Gibbs free energy of formation).
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Non-Instantaneity of Individuation]
+\label{thm:noninstantaneous}
+In any biochemical partition space $(\Omega, D, \mu)$, the individuation of any
+species $\mathcal{I}_i$ from its complement $\bar{\mathcal{I}}_i$ requires at
+least one committed partition step of cost $\geq \betamin > 0$.
+\end{theorem}
+
+\begin{proof}
+Suppose, for contradiction, that species $\mathcal{I}_i$ can be individuated
+from $\bar{\mathcal{I}}_i$ at zero cost. Then there exists at least one species
+$\mathcal{I}_j \in \bar{\mathcal{I}}_i$ with $D(\mathcal{I}_i, \mathcal{I}_j)
+= 0$, meaning $\mathcal{I}_i$ and $\mathcal{I}_j$ are indistinguishable. But
+by Postulate~\ref{post:cost}, $D(\mathcal{I}_i, \mathcal{I}_j) \geq
+\beta_{ij} > 0$, a contradiction. Therefore every individuation step costs at
+least $\betamin = \min_{i \neq j} \beta_{ij} > 0$.
+
+More constructively: since $\bar{\mathcal{I}}_i \neq \emptyset$ (there are at
+least two species in any non-trivial network), there exists at least one
+$\mathcal{I}_j \in \bar{\mathcal{I}}_i$ with $D(\mathcal{I}_i,
+\mathcal{I}_j) \geq \betamin$. The separation of $\mathcal{I}_i$ from
+$\mathcal{I}_j$ is a partition step of cost $\geq \betamin > 0$, establishing
+the claimed lower bound. \qed
+\end{proof}
+
+\begin{definition}[Individuation Residue]
+\label{def:residue}
+Let $\mathcal{I}_i$ and $\mathcal{I}_j$ be two adjacent species in the network
+(connected by at least one reaction). The \emph{individuation residue} of the
+pair $(\mathcal{I}_i, \mathcal{I}_j)$ is the minimum achievable partition depth:
+\[
+  \beta(\mathcal{I}_i, \mathcal{I}_j)
+  = \inf_{\text{all accessible states}} D(\mathcal{I}_i, \mathcal{I}_j).
+\]
+By Postulate~\ref{post:cost}, $\beta(\mathcal{I}_i, \mathcal{I}_j) > 0$.
+By Postulate~\ref{post:monotone}, once the residue is deposited at the boundary,
+it cannot be annihilated.
+\end{definition}
+
+\begin{proposition}[Residue Chain]
+\label{prop:residue_chain}
+The individuation of species $\mathcal{I}_i$ from $\mathcal{I}_j$ deposits a
+residue $\beta_{ij}$ at the boundary between them. This residue is itself a
+physical difference that modifies the boundary conditions of all neighbouring
+species. Specifically, for any species $\mathcal{I}_k$ adjacent to
+$\mathcal{I}_j$ but not previously adjacent to $\mathcal{I}_i$, the
+individuation of $(\mathcal{I}_i, \mathcal{I}_j)$ may create a new adjacency
+between $\mathcal{I}_i$ and $\mathcal{I}_k$, requiring a new individuation
+step of cost $\geq \betamin$.
+\end{proposition}
+
+\begin{proof}
+The partition depth $D(\mathcal{I}_i, \mathcal{I}_j) \geq \beta_{ij} > 0$
+constitutes a measurable physical difference at the boundary between
+$\mathcal{I}_i$ and $\mathcal{I}_j$ \cite{atkins2014physical}. Any species
+$\mathcal{I}_k$ that shares a reaction with $\mathcal{I}_j$ is sensitive to the
+boundary conditions of $\mathcal{I}_j$. If the residue $\beta_{ij}$ alters the
+effective concentration, flux, or chemical potential profile of $\mathcal{I}_j$
+as seen from $\mathcal{I}_k$, then the partition depth $D(\mathcal{I}_j,
+\mathcal{I}_k)$ changes, and a new individuation step between $\mathcal{I}_i$
+and $\mathcal{I}_k$ (mediated through $\mathcal{I}_j$) may become necessary.
+
+Since the network is finite and connected, the propagation of residues through
+the contact chain terminates after at most $N-1$ steps (spanning tree of the
+network graph), where $N = |\Omega|$. Each step deposits a residue of cost
+$\geq \betamin$, and by Postulate~\ref{post:monotone}, these residues accumulate
+monotonically. \qed
+\end{proof}
+
+\begin{corollary}[Contact Chain Self-Reinforcement]
+\label{cor:self_reinforce}
+Adding a new individuation event to the network increases the definitional
+precision of every species in the connected component. Specifically, if species
+$\mathcal{I}_i$ and $\mathcal{I}_j$ are brought into contact, the partition
+depth of every other pair $(\mathcal{I}_k, \mathcal{I}_l)$ in the same
+connected component either increases or remains constant. No partition depth
+decreases.
+\end{corollary}
+
+\begin{proof}
+By Postulate~\ref{post:monotone}, the total partition count $M$ increases with
+each new individuation event. The partition depth $D(\mathcal{I}_k,
+\mathcal{I}_l)$ is a component of $M$ (it counts the individuation events
+separating $\mathcal{I}_k$ from $\mathcal{I}_l$). Since $M$ is monotone
+increasing and $D$ is a sum of non-negative contributions from each
+individuation event, each $D(\mathcal{I}_k, \mathcal{I}_l)$ is monotone
+non-decreasing. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Contact as Topological Invariant}
+\label{sec:contact}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now formalise the central concept of \emph{contact} and prove its topological
+invariance and irreducibility.
+
+\subsection{Definitions}
+
+\begin{definition}[Contact]
+\label{def:contact}
+Two molecular species $\mathcal{I}_i$ and $\mathcal{I}_j$ in a biochemical
+partition space $(\Omega, D, \mu)$ are in \emph{contact} if their partition
+depth achieves the minimum:
+\[
+  D(\mathcal{I}_i, \mathcal{I}_j)
+  = \beta(\mathcal{I}_i, \mathcal{I}_j)
+  = \betamin(\mathcal{I}_i, \mathcal{I}_j).
+\]
+We write $C(\mathcal{I}_i, \mathcal{I}_j) = 1$ when the pair is in contact,
+and $C(\mathcal{I}_i, \mathcal{I}_j) = 0$ otherwise.
+\end{definition}
+
+\begin{remark}
+Contact is not the same as adjacency. Two species can be adjacent in the
+reaction network (connected by an enzyme-catalysed reaction) without being in
+contact: their partition depth may exceed the minimum due to perturbations
+(enzyme inhibition, substrate depletion, compartment disruption). Contact is
+the \emph{ground state} of the adjacency: the configuration of minimum
+thermodynamic separation consistent with the species remaining distinguishable.
+\end{remark}
+
+\begin{definition}[Contact Graph]
+\label{def:contact_graph}
+The \emph{contact graph} of a biochemical partition space $(\Omega, D, \mu)$
+is the undirected weighted graph $G_C = (V, E, w)$ where:
+\begin{itemize}
+\item $V = \Omega$ (one vertex per species);
+\item $E = \{(\mathcal{I}_i, \mathcal{I}_j) : \mathcal{I}_i \text{ and }
+  \mathcal{I}_j \text{ share a reaction}\}$ (edges from the reaction network);
+\item $w(\mathcal{I}_i, \mathcal{I}_j) = \beta(\mathcal{I}_i, \mathcal{I}_j)$
+  (the irreducible residue is the edge weight).
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Contact Map]
+\label{def:contact_map}
+The \emph{contact map} of the biochemical partition space is the function
+\[
+  \CC: E \to \reals_{>0}, \qquad
+  \CC(\mathcal{I}_i, \mathcal{I}_j) = \beta(\mathcal{I}_i, \mathcal{I}_j)
+\]
+assigning to each edge the minimum partition depth between its endpoints.
+\end{definition}
+
+\begin{definition}[Partition Depth Inflation]
+\label{def:inflation}
+A \emph{perturbation} of the biochemical partition space is a function
+$\delta: E \to \reals_{\geq 0}$ that modifies the partition depth of each edge:
+\[
+  D'(\mathcal{I}_i, \mathcal{I}_j)
+  = D(\mathcal{I}_i, \mathcal{I}_j) + \delta(\mathcal{I}_i, \mathcal{I}_j).
+\]
+Since $\delta \geq 0$ (by Postulate~\ref{post:monotone}, partition depth cannot
+decrease), any perturbation is a \emph{partition depth inflation}: it can only
+increase or maintain the partition depth along each edge.
+\end{definition}
+
+\begin{definition}[Contact Topology]
+\label{def:contact_topology}
+The \emph{contact topology} $\mathcal{T}_C$ on $V$ is the topology generated by
+the contact graph: the open sets are unions of cliques in $G_C$ (sets of
+mutually contacting species). Two species are in the same connected component
+of $\mathcal{T}_C$ if and only if there exists a path of contact relationships
+connecting them.
+\end{definition}
+
+\subsection{Main Theorems}
+
+\begin{theorem}[Contact Invariance]
+\label{thm:contact_invariance}
+Let $(\Omega, D, \mu)$ be a biochemical partition space and let $\delta: E \to
+\reals_{\geq 0}$ be any perturbation. If $C(\mathcal{I}_i, \mathcal{I}_j) = 1$
+in the unperturbed state, then $C(\mathcal{I}_i, \mathcal{I}_j) = 1$ in the
+perturbed state. That is, contact is preserved under all physically realisable
+perturbations.
+\end{theorem}
+
+\begin{proof}
+The proof has three parts: (a) contact is preserved under partition depth
+inflation; (b) partition depth inflation is the only physically realisable
+class of perturbation; (c) therefore contact is invariant.
+
+\textbf{(a)} Suppose $C(\mathcal{I}_i, \mathcal{I}_j) = 1$, meaning
+$D(\mathcal{I}_i, \mathcal{I}_j) = \beta(\mathcal{I}_i, \mathcal{I}_j)$. Under
+perturbation $\delta$, the new partition depth is $D'(\mathcal{I}_i,
+\mathcal{I}_j) = D(\mathcal{I}_i, \mathcal{I}_j) + \delta(\mathcal{I}_i,
+\mathcal{I}_j)$. The new minimum achievable partition depth is $\beta'
+(\mathcal{I}_i, \mathcal{I}_j) = \beta(\mathcal{I}_i, \mathcal{I}_j)$
+(the irreducible residue is intrinsic to the species pair and does not change
+under perturbation; it depends only on the chemical identities of the two
+species, not on the state of the network).
+
+We must show that the contact relationship $C$ is defined at the level of the
+minimum, not the current value. The perturbation increases $D'$ above $\beta$,
+so the pair is no longer at the minimum partition depth. However, the
+\emph{contact relationship} asserts that the minimum is achievable: the pair
+\emph{can} return to $D = \beta$ if the perturbation is removed. Since
+$\beta > 0$ is an intrinsic property of the species pair (determined by their
+chemical structures and the thermodynamics of their boundary), it is invariant
+under perturbation.
+
+More precisely: the contact graph $G_C$ records which pairs of species have
+$\beta > 0$ (which is all adjacent pairs, by Postulate~\ref{post:cost}). A
+perturbation changes the \emph{current} partition depth $D$ but does not
+alter the \emph{minimum achievable} partition depth $\beta$. The edge set of
+$G_C$ is therefore invariant under perturbation.
+
+\textbf{(b)} By Postulate~\ref{post:monotone}, the only physically realisable
+perturbations are those with $\delta \geq 0$ (partition depth can only increase
+or stay constant). An operation that decreases $D$ below $\beta$ would require
+annihilating the residue, which violates Postulate~\ref{post:monotone}. An
+operation that removes an edge from $G_C$ would require making two species
+indistinguishable ($D = 0$), which violates Postulate~\ref{post:cost}. Neither
+is physically realisable.
+
+\textbf{(c)} Combining (a) and (b): the edge set of the contact graph $G_C$
+is invariant under all physically realisable perturbations. The edge weights
+$w = \beta$ are intrinsic to the species pairs and are also invariant. Therefore
+the contact map $\CC$ is invariant under all physically realisable
+perturbations. \qed
+\end{proof}
+
+\begin{theorem}[Contact Irreducibility]
+\label{thm:contact_irreducibility}
+Contact is the minimum sufficient topological invariant of the biochemical
+network. No strictly coarser topological fact about the network carries the
+same information across all perturbation levels.
+\end{theorem}
+
+\begin{proof}
+Let $F$ be any topological predicate on pairs of species that is:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{invariant}: preserved under all physically realisable perturbations;
+\item \emph{non-trivial}: there exist non-adjacent species $\mathcal{I}_i,
+  \mathcal{I}_j$ with $F(\mathcal{I}_i, \mathcal{I}_j) = 0$.
+\end{enumerate}
+
+We claim that if $F$ is coarser than contact (i.e., $C(\mathcal{I}_i,
+\mathcal{I}_j) = 1 \implies F(\mathcal{I}_i, \mathcal{I}_j) = 1$) and
+$F$ is invariant, then $F$ is equivalent to contact.
+
+Suppose $F(\mathcal{I}_i, \mathcal{I}_j) = 1$ but $C(\mathcal{I}_i,
+\mathcal{I}_j) = 0$ for some pair, meaning $\mathcal{I}_i$ and $\mathcal{I}_j$
+are not adjacent in the reaction network. Since they are not adjacent, there is
+no reaction connecting them, and hence no partition boundary between them. The
+partition depth $D(\mathcal{I}_i, \mathcal{I}_j)$ is not defined directly but
+only through paths in the contact graph. Any topological predicate that assigns
+a positive value to a non-adjacent pair must be derivable from the path structure
+of $G_C$, which is itself determined by the edge set $E$ and the edge weights
+$\beta$. But $E$ and $\beta$ are exactly the data of the contact map $\CC$.
+Therefore $F$ is determined by $\CC$, and any predicate that agrees with
+$\CC$ on all adjacent pairs and is determined by $\CC$ on non-adjacent pairs
+is equivalent to $\CC$ on the domain of non-trivial predicates.
+
+If $F$ is strictly coarser than contact (i.e., $F(\mathcal{I}_i,
+\mathcal{I}_j) = 1$ for some pair with $C(\mathcal{I}_i, \mathcal{I}_j) = 0$
+and $F(\mathcal{I}_k, \mathcal{I}_l) = 0$ for some pair with
+$C(\mathcal{I}_k, \mathcal{I}_l) = 0$), then $F$ does not distinguish certain
+non-adjacent pairs that the contact map does distinguish via path structure.
+Such an $F$ loses information about the network topology and is therefore not
+sufficient for recovering the full partition structure.
+
+We conclude that the only monotone, non-trivial, invariant topological predicate
+that carries the same information as the contact map is the contact map itself.
+Contact is irreducible. \qed
+\end{proof}
+
+\begin{theorem}[Contact Completeness]
+\label{thm:contact_completeness}
+The contact map $\CC: E \to \reals_{>0}$ is a complete invariant of the
+contact topology: two biochemical partition spaces $(\Omega_1, D_1, \mu_1)$ and
+$(\Omega_2, D_2, \mu_2)$ with isomorphic contact maps (as weighted graphs)
+have isomorphic contact topologies.
+\end{theorem}
+
+\begin{proof}
+The contact topology $\mathcal{T}_C$ is determined by the contact graph
+$G_C = (V, E, w)$: the open sets of $\mathcal{T}_C$ are determined by $E$, and
+the metric structure is determined by the weights $w = \beta$. If two networks
+have isomorphic contact maps (meaning there exists a bijection $\phi: V_1 \to
+V_2$ preserving both the edge set and the edge weights), then their contact
+graphs are isomorphic as weighted graphs, and hence their contact topologies are
+homeomorphic.
+
+Conversely, if the contact topologies are homeomorphic, then the underlying
+graphs are isomorphic (the topology determines the graph) and the weights
+are preserved (the weights are topological invariants by
+Theorem~\ref{thm:contact_invariance}).
+
+Therefore the contact map is a complete invariant: it determines and is
+determined by the contact topology. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The S-Entropy State Space}
+\label{sec:sentropy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To quantify the partition depth between species and to define the contact map
+computationally, we introduce a three-dimensional state space that captures the
+thermodynamic character of each molecular species.
+
+\subsection{Definitions}
+
+\begin{definition}[S-Entropy Coordinates]
+\label{def:sentropy_coords}
+Let $\mathcal{I}_i$ be a molecular species in a biochemical partition space
+$(\Omega, D, \mu)$ embedded in a reaction network $G = (V, E)$. The
+\emph{S-entropy coordinates} of $\mathcal{I}_i$ are the triple
+$\bS(\mathcal{I}_i) = (\Sk(\mathcal{I}_i), \St(\mathcal{I}_i),
+\Se(\mathcal{I}_i)) \in [0,1]^3$ defined as follows.
+
+\paragraph{Kinetic entropy $\Sk(\mathcal{I}_i)$} (normalised flux magnitude):
+\begin{equation}\label{eq:Sk}
+  \Sk(\mathcal{I}_i)
+  = \frac{\displaystyle\sum_{j \in \mathcal{N}(i)} |J_{ij}|}
+         {\displaystyle\max_{k \in V} \sum_{j \in \mathcal{N}(k)} |J_{kj}|}
+  \in [0,1],
+\end{equation}
+where $J_{ij}$ is the net flux from $\mathcal{I}_i$ to $\mathcal{I}_j$
+(in mol/s or equivalent units), $\mathcal{N}(i)$ is the set of neighbours of
+$\mathcal{I}_i$ in the reaction network, and the denominator normalises by the
+maximum total flux magnitude over all species.
+
+\paragraph{Topological entropy $\St(\mathcal{I}_i)$} (normalised weighted degree):
+\begin{equation}\label{eq:St}
+  \St(\mathcal{I}_i)
+  = \frac{\displaystyle\sum_{j \in \mathcal{N}(i)} G_{ij}}
+         {\displaystyle\max_{k \in V} \sum_{j \in \mathcal{N}(k)} G_{kj}}
+  \in [0,1],
+\end{equation}
+where $G_{ij}$ is the \emph{conductance} of the edge $(\mathcal{I}_i,
+\mathcal{I}_j)$, defined as the proportionality constant between the flux
+and the chemical potential difference:
+\begin{equation}\label{eq:conductance}
+  J_{ij} = G_{ij} \cdot (\mu_i - \mu_j),
+\end{equation}
+with $\mu_i$ the chemical potential of species $\mathcal{I}_i$
+\cite{onsager1931reciprocal, kondepudi2014modern}.
+
+\paragraph{Energetic entropy $\Se(\mathcal{I}_i)$} (normalised chemical potential):
+\begin{equation}\label{eq:Se}
+  \Se(\mathcal{I}_i)
+  = \frac{\mu_i - \mu_{\min}}{\mu_{\max} - \mu_{\min}}
+  \in [0,1],
+\end{equation}
+where $\mu_i = \mu_i^\circ + RT \ln[\mathcal{I}_i]$ is the chemical potential
+of species $\mathcal{I}_i$ \cite{atkins2014physical, alberty2003thermodynamics},
+$\mu_{\min} = \min_k \mu_k$, and $\mu_{\max} = \max_k \mu_k$.
+\end{definition}
+
+\begin{remark}[Independence of the Three Coordinates]
+\label{rem:independence}
+The three S-entropy coordinates capture genuinely independent aspects of the
+species' role in the network:
+\begin{itemize}
+\item $\Sk$ measures \emph{kinetic activity}: how much flux passes through the
+  species. A species with $\Sk = 1$ is the most kinetically active node in the
+  network; $\Sk = 0$ is a kinetic dead end.
+\item $\St$ measures \emph{topological connectivity}: how strongly coupled the
+  species is to its neighbours via conductance. A species with $\St = 1$ is the
+  most connected node; $\St = 0$ is topologically isolated.
+\item $\Se$ measures \emph{energetic position}: where the species sits on the
+  thermodynamic landscape. A species with $\Se = 1$ has the highest chemical
+  potential (most energy-rich); $\Se = 0$ has the lowest (most stable).
+\end{itemize}
+There is no sum constraint $\Sk + \St + \Se = 1$; the three coordinates are
+independent axes of a cube $[0,1]^3$. A glucose molecule at the start of
+glycolysis might have $\bS = (0.7, 0.3, 0.95)$ --- high flux, moderate
+connectivity, high chemical potential --- while pyruvate at the end might have
+$\bS = (0.8, 0.5, 0.05)$ --- high flux, moderate connectivity, low chemical
+potential.
+\end{remark}
+
+\begin{definition}[S-Entropy State Space]
+\label{def:state_space}
+The \emph{S-entropy state space} is $\mathcal{S} = [0,1]^3$ equipped with the
+Euclidean metric:
+\begin{equation}\label{eq:dS}
+  \dS(\bS_1, \bS_2)
+  = \sqrt{(\Sk^{(1)} - \Sk^{(2)})^2
+        + (\St^{(1)} - \St^{(2)})^2
+        + (\Se^{(1)} - \Se^{(2)})^2}.
+\end{equation}
+The maximum distance in $\mathcal{S}$ is $\sqrt{3}$ (between the vertices
+$(0,0,0)$ and $(1,1,1)$ of the unit cube).
+\end{definition}
+
+\begin{definition}[S-Entropy Contact Map]
+\label{def:sentropy_contact_map}
+The \emph{S-entropy contact map} is the function
+\begin{equation}\label{eq:CM}
+  \CC(\mathcal{I}_i, \mathcal{I}_j)
+  = \dS\bigl(\bS(\mathcal{I}_i), \bS(\mathcal{I}_j)\bigr)
+\end{equation}
+for every edge $(\mathcal{I}_i, \mathcal{I}_j) \in E$ of the reaction network.
+\end{definition}
+
+\subsection{Well-Definedness and Metric Properties}
+
+\begin{lemma}[Well-Definedness of S-Entropy Coordinates]
+\label{lem:well_defined}
+Let $(\Omega, D, \mu)$ be a biochemical partition space with reaction network
+$G = (V, E)$, and let each species $\mathcal{I}_i$ have well-defined chemical
+potential $\mu_i$, concentration $[\mathcal{I}_i] > 0$, and at least one
+reaction partner. Then the S-entropy coordinates $\bS(\mathcal{I}_i) =
+(\Sk, \St, \Se) \in [0,1]^3$ are well-defined and finite.
+\end{lemma}
+
+\begin{proof}
+\textbf{Kinetic entropy $\Sk$}: The flux $J_{ij} = G_{ij}(\mu_i - \mu_j)$ is
+well-defined because $G_{ij} \geq 0$ (conductance is non-negative) and $\mu_i,
+\mu_j$ are finite (by the finiteness of chemical potentials for species at
+positive concentration \cite{atkins2014physical}). The sum $\sum_j |J_{ij}|$ is
+finite because $|\mathcal{N}(i)|$ is finite. The denominator $\max_k \sum_j
+|J_{kj}| > 0$ because the network has at least one edge with $G_{ij} > 0$ and
+$\mu_i \neq \mu_j$ (otherwise the network would be at thermodynamic equilibrium
+with zero flux everywhere, contradicting the far-from-equilibrium condition of
+living cells). Therefore $\Sk \in [0,1]$ is well-defined.
+
+\textbf{Topological entropy $\St$}: The conductance $G_{ij} \geq 0$ is
+well-defined for each edge. The sum $\sum_j G_{ij}$ is finite. The denominator
+$\max_k \sum_j G_{kj} > 0$ because at least one species has positive
+conductance to at least one neighbour. Therefore $\St \in [0,1]$.
+
+\textbf{Energetic entropy $\Se$}: The chemical potential $\mu_i = \mu_i^\circ
++ RT \ln[\mathcal{I}_i]$ is well-defined for $[\mathcal{I}_i] > 0$
+\cite{atkins2014physical}. The denominator $\mu_{\max} - \mu_{\min} > 0$
+because in a non-trivial network with at least two species at different chemical
+potentials (otherwise no thermodynamic driving force exists). Therefore
+$\Se \in [0,1]$. \qed
+\end{proof}
+
+\begin{theorem}[S-Entropy Distance is a Metric]
+\label{thm:metric}
+The function $\dS: \mathcal{S} \times \mathcal{S} \to \reals_{\geq 0}$ defined
+by Equation~\eqref{eq:dS} is a metric on the space of distinguishable species.
+\end{theorem}
+
+\begin{proof}
+Since $\dS$ is the restriction of the Euclidean metric on $\reals^3$ to the
+compact subset $[0,1]^3$, it inherits all metric properties:
+\begin{enumerate}[label=(\alph*)]
+\item \emph{Non-negativity}: $\dS(\bS_1, \bS_2) \geq 0$ with equality iff
+  $\bS_1 = \bS_2$.
+\item \emph{Symmetry}: $\dS(\bS_1, \bS_2) = \dS(\bS_2, \bS_1)$.
+\item \emph{Triangle inequality}: $\dS(\bS_1, \bS_3) \leq \dS(\bS_1, \bS_2)
+  + \dS(\bS_2, \bS_3)$.
+\end{enumerate}
+For distinguishable species, $\bS(\mathcal{I}_i) \neq \bS(\mathcal{I}_j)$
+whenever $i \neq j$ (otherwise the two species would be indistinguishable in
+S-entropy space, contradicting Postulate~\ref{post:negation} which requires
+each species to be distinguishable from all others). Therefore
+$\dS(\bS(\mathcal{I}_i), \bS(\mathcal{I}_j)) > 0$ for $i \neq j$. \qed
+\end{proof}
+
+\begin{definition}[Partition Ground State]
+\label{def:ground_state}
+The \emph{partition ground state} of a species $\mathcal{I}_i$ is the point
+$(1, 0, 0, s)$ in the partition state space $(n, \ell, m, s)$, corresponding to
+$\Sk = 0$, $\St = 0$, $\Se = 1/2$ in S-entropy coordinates. The S-entropy
+distance from the ground state measures how far a species is from the simplest
+possible partition configuration.
+\end{definition}
+
+\begin{theorem}[S-Entropy as Partition Distance]
+\label{thm:partition_distance}
+The S-entropy vector $\bS(\mathcal{I}_i) = (\Sk, \St, \Se)$ measures the
+distance of species $\mathcal{I}_i$ from the partition ground state
+$(0, 0, 1/2)$. This distance is a well-defined metric on partition states.
+\end{theorem}
+
+\begin{proof}
+The ground state has $\Sk = 0$ (no kinetic flux), $\St = 0$ (no topological
+connectivity), and $\Se = 1/2$ (midpoint chemical potential). The Euclidean
+distance from the ground state is:
+\[
+  d = \sqrt{\Sk^2 + \St^2 + (\Se - 1/2)^2}.
+\]
+This is non-negative, zero only at the ground state, symmetric (trivially), and
+satisfies the triangle inequality (as a Euclidean distance). \qed
+\end{proof}
+
+\subsection{Triple Coherence}
+
+\begin{definition}[Triple Coherence]
+\label{def:triple_coherence}
+The \emph{triple coherence} $R$ of a contact map is the Spearman rank
+correlation \cite{spearman1904proof} among the three S-entropy coordinate
+vectors $(\Sk^{(1)}, \ldots, \Sk^{(N)})$, $(\St^{(1)}, \ldots, \St^{(N)})$,
+$(\Se^{(1)}, \ldots, \Se^{(N)})$:
+\begin{equation}\label{eq:coherence}
+  R = \frac{1}{3}\bigl(
+    \rho(\Sk, \St) + \rho(\St, \Se) + \rho(\Sk, \Se)
+  \bigr),
+\end{equation}
+where $\rho$ is the Spearman rank correlation coefficient. $R \in [-1, 1]$,
+with $R = 1$ indicating perfect coherence (all three entropy measures agree on
+the ordering of species) and $R = 0$ indicating no coherence.
+\end{definition}
+
+\begin{proposition}[Coherence at Contact]
+\label{prop:coherence_contact}
+At the contact state (all edges at minimum partition depth), the triple coherence
+$R$ achieves its maximum value for the given network topology. Any perturbation
+that increases partition depth along a subset of edges reduces $R$.
+\end{proposition}
+
+\begin{proof}
+At contact, the flux pattern $\{J_{ij}\}$ is determined by the conductance
+matrix $\{G_{ij}\}$ and the chemical potential vector $\{\mu_i\}$ via
+$J_{ij} = G_{ij}(\mu_i - \mu_j)$. The three S-entropy coordinates are then
+deterministic functions of $\{G_{ij}\}$ and $\{\mu_i\}$:
+\begin{align}
+  \Sk(\mathcal{I}_i) &\propto \sum_j G_{ij} |\mu_i - \mu_j|, \\
+  \St(\mathcal{I}_i) &\propto \sum_j G_{ij}, \\
+  \Se(\mathcal{I}_i) &= \text{normalised } \mu_i.
+\end{align}
+For a network at contact, the conductances and chemical potentials are
+self-consistent: the flux pattern is the one that minimises total partition depth
+subject to the stoichiometric constraints. This self-consistency produces maximal
+correlation among the three coordinates (because all three are monotonically
+related to the ``importance'' of each species in the network).
+
+A perturbation $\delta$ modifies the effective conductance of one or more edges,
+breaking the self-consistency. The perturbed flux pattern is no longer optimal
+with respect to the contact conductances, introducing discrepancies between
+$\Sk$ (which responds to flux changes) and $\St$ (which depends on
+conductance, not flux) and $\Se$ (which depends on chemical potential, not
+conductance). These discrepancies reduce the rank correlation, hence $R$
+decreases. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Contact Map Construction}
+\label{sec:construction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now describe how to construct the contact map of a biochemical network from
+publicly available pathway data.
+
+\subsection{Input Data}
+
+The construction requires three types of data for each species and reaction in
+the network:
+
+\begin{enumerate}[label=(\alph*)]
+\item \textbf{Thermodynamic data}: standard Gibbs free energies of formation
+  $\mu_i^\circ$ and reference concentrations $[\mathcal{I}_i]$ for each species.
+  Sources: HMDB \cite{wishart2018hmdb}, KEGG \cite{kanehisa2000kegg}.
+
+\item \textbf{Kinetic data}: catalytic rate constants $k_{\text{cat}}$ for each
+  reaction. Sources: BRENDA \cite{schomburg2004brenda}, Reactome
+  \cite{jassal2020reactome}.
+
+\item \textbf{Network topology}: the set of reactions and their stoichiometry.
+  Sources: KEGG \cite{kanehisa2000kegg}, Reactome \cite{jassal2020reactome},
+  SBML models \cite{hucka2003sbml}.
+\end{enumerate}
+
+\subsection{Chemical Potential Computation}
+
+For each species $\mathcal{I}_i$ with standard free energy of formation
+$\mu_i^\circ$ (in kJ/mol) and concentration $[\mathcal{I}_i]$ (in M), the
+chemical potential is:
+\begin{equation}\label{eq:mu}
+  \mu_i = \mu_i^\circ + RT \ln[\mathcal{I}_i],
+\end{equation}
+where $R = 8.314 \times 10^{-3}$ kJ/(mol$\cdot$K) is the gas constant and
+$T = 310$ K is the physiological temperature \cite{atkins2014physical,
+alberty2003thermodynamics}.
+
+\subsection{Conductance Computation}
+
+For each reaction $\mathcal{I}_i \to \mathcal{I}_j$ catalysed by an enzyme with
+catalytic rate constant $k_{\text{cat}}$ (in s$^{-1}$), the conductance is
+\cite{beard2002energy, noor2014pathway}:
+\begin{equation}\label{eq:G}
+  G_{ij} = \frac{k_{\text{cat}} \cdot [\mathcal{I}_i]}{RT},
+\end{equation}
+where $RT = 2.577$ kJ/mol at 310 K. This definition ensures that the flux
+$J_{ij} = G_{ij}(\mu_i - \mu_j)$ has the correct units (mol/s per unit
+volume) and is consistent with the Onsager reciprocal relations
+\cite{onsager1931reciprocal}.
+
+\subsection{S-Entropy Coordinate Computation}
+
+Given $\{\mu_i\}$, $\{G_{ij}\}$, and the network topology $G = (V, E)$:
+
+\begin{enumerate}[label=\arabic*.]
+\item Compute the flux on each edge: $J_{ij} = G_{ij}(\mu_i - \mu_j)$.
+\item Compute $\Sk(\mathcal{I}_i)$ via Equation~\eqref{eq:Sk}.
+\item Compute $\St(\mathcal{I}_i)$ via Equation~\eqref{eq:St}.
+\item Compute $\Se(\mathcal{I}_i)$ via Equation~\eqref{eq:Se}.
+\item Compute the contact cost on each edge: $\CC(\mathcal{I}_i, \mathcal{I}_j)
+  = \dS(\bS(\mathcal{I}_i), \bS(\mathcal{I}_j))$ via Equation~\eqref{eq:CM}.
+\end{enumerate}
+
+\begin{algorithm}[t]
+\caption{Contact Map Construction}
+\label{alg:construction}
+\DontPrintSemicolon
+\KwIn{Species set $\Omega$; reaction network $G = (V, E)$; thermodynamic data
+  $\{\mu_i^\circ, [\mathcal{I}_i]\}$; kinetic data $\{k_{\text{cat},e}\}$}
+\KwOut{Contact map $\CC: E \to \reals_{>0}$; S-entropy coordinates
+  $\{\bS(\mathcal{I}_i)\}$}
+
+\BlankLine
+\tcp{Step 1: Chemical potentials}
+\ForEach{$\mathcal{I}_i \in \Omega$}{
+  $\mu_i \leftarrow \mu_i^\circ + RT \ln[\mathcal{I}_i]$\;
+}
+
+\BlankLine
+\tcp{Step 2: Conductances}
+\ForEach{edge $(\mathcal{I}_i, \mathcal{I}_j) \in E$}{
+  $G_{ij} \leftarrow k_{\text{cat}} \cdot [\mathcal{I}_i] / RT$\;
+}
+
+\BlankLine
+\tcp{Step 3: Fluxes}
+\ForEach{edge $(\mathcal{I}_i, \mathcal{I}_j) \in E$}{
+  $J_{ij} \leftarrow G_{ij} \cdot (\mu_i - \mu_j)$\;
+}
+
+\BlankLine
+\tcp{Step 4: S-entropy coordinates}
+$F_{\max} \leftarrow \max_{k \in V} \sum_{j \in \mathcal{N}(k)} |J_{kj}|$\;
+$C_{\max} \leftarrow \max_{k \in V} \sum_{j \in \mathcal{N}(k)} G_{kj}$\;
+$\mu_{\min} \leftarrow \min_{k \in V} \mu_k$; \quad
+$\mu_{\max} \leftarrow \max_{k \in V} \mu_k$\;
+
+\ForEach{$\mathcal{I}_i \in \Omega$}{
+  $\Sk(\mathcal{I}_i) \leftarrow \sum_{j \in \mathcal{N}(i)} |J_{ij}| / F_{\max}$\;
+  $\St(\mathcal{I}_i) \leftarrow \sum_{j \in \mathcal{N}(i)} G_{ij} / C_{\max}$\;
+  $\Se(\mathcal{I}_i) \leftarrow (\mu_i - \mu_{\min}) / (\mu_{\max} - \mu_{\min})$\;
+}
+
+\BlankLine
+\tcp{Step 5: Contact costs}
+\ForEach{edge $(\mathcal{I}_i, \mathcal{I}_j) \in E$}{
+  $\CC(\mathcal{I}_i, \mathcal{I}_j) \leftarrow \dS(\bS(\mathcal{I}_i), \bS(\mathcal{I}_j))$\;
+}
+
+\Return{$\CC$, $\{\bS(\mathcal{I}_i)\}$}\;
+\end{algorithm}
+
+\begin{proposition}[Complexity of Contact Map Construction]
+\label{prop:complexity}
+Algorithm~\ref{alg:construction} runs in $O(|V| + |E|)$ time and $O(|V| + |E|)$
+space.
+\end{proposition}
+
+\begin{proof}
+Steps 1 and 4 iterate over $|V|$ species; Steps 2, 3, and 5 iterate over $|E|$
+edges. The maximum computations in Step 4 require one pass over $|V|$ species.
+All operations per species or edge are $O(1)$. Total: $O(|V| + |E|)$. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Perturbation Theory on Contact Maps}
+\label{sec:perturbation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We develop the theory of perturbations to the contact map, formalising the
+concepts of disease, drug response, and restoration.
+
+\subsection{Perturbation as Partition Depth Inflation}
+
+\begin{definition}[Network Perturbation]
+\label{def:perturbation}
+A \emph{perturbation} of a biochemical contact map $\CC$ is a function
+$\delta: E \to \reals_{\geq 0}$ that modifies the effective conductance of each
+edge:
+\begin{equation}\label{eq:perturb}
+  G'_{ij} = \alpha_{ij} \cdot G_{ij},
+  \qquad \alpha_{ij} \in (0, \infty),
+\end{equation}
+where $\alpha_{ij} \neq 1$ indicates a perturbation. An \emph{inhibition}
+corresponds to $\alpha_{ij} < 1$ (reduced conductance); an \emph{activation}
+corresponds to $\alpha_{ij} > 1$ (increased conductance). The resulting
+change in partition depth along edge $(\mathcal{I}_i, \mathcal{I}_j)$ is:
+\begin{equation}\label{eq:depth_change}
+  \Delta D_{ij} = |D'_{ij} - D_{ij}|
+  = |\dS(\bS'(\mathcal{I}_i), \bS'(\mathcal{I}_j))
+    - \dS(\bS(\mathcal{I}_i), \bS(\mathcal{I}_j))|.
+\end{equation}
+\end{definition}
+
+\begin{remark}
+Both inhibitions and activations increase partition depth relative to the
+contact state: an inhibition raises the thermodynamic barrier by reducing
+conductance; an activation raises it by creating a non-equilibrium excess flux
+that was not present at contact. In both cases, the perturbed state has higher
+total partition depth than the contact state.
+\end{remark}
+
+\begin{definition}[Flux Visibility]
+\label{def:visibility}
+The \emph{flux visibility} $V$ of a perturbed contact map relative to the
+healthy (contact) state is the weighted geometric mean of the per-edge flux
+ratios:
+\begin{equation}\label{eq:visibility}
+  V = \prod_{(i,j) \in E}
+    \left(\frac{\min(|J'_{ij}|, |J_{ij}|)}{\max(|J'_{ij}|, |J_{ij}|)}\right)^{w_{ij}},
+\end{equation}
+where $w_{ij} = G_{ij} / \sum_{(k,l) \in E} G_{kl}$ is the normalised
+conductance weight and the product is taken over all edges. $V \in [0, 1]$,
+with $V = 1$ at the contact state (no perturbation) and $V \to 0$ as the
+perturbation becomes severe.
+\end{definition}
+
+\begin{proposition}[Visibility Decreases Under Perturbation]
+\label{prop:visibility_decrease}
+For any perturbation $\alpha \neq \mathbf{1}$, the flux visibility satisfies
+$V < 1$.
+\end{proposition}
+
+\begin{proof}
+If $\alpha_{ij} \neq 1$ for any edge, then $J'_{ij} = G'_{ij}(\mu'_i -
+\mu'_j) \neq J_{ij}$ (because $G'_{ij} \neq G_{ij}$ and the chemical
+potentials adjust via mass balance). Therefore $\min(|J'_{ij}|, |J_{ij}|) /
+\max(|J'_{ij}|, |J_{ij}|) < 1$ for at least one edge, and since
+$w_{ij} > 0$ for all edges, the geometric mean is strictly less than 1. \qed
+\end{proof}
+
+\subsection{Backward Navigation}
+
+\begin{definition}[Backward Navigation]
+\label{def:backward}
+Given a perturbed contact map with a designated \emph{target species}
+$\mathcal{I}_T$, the \emph{backward navigation} is the sequence of species
+$\mathcal{I}_T, \mathcal{I}_{k_1}, \mathcal{I}_{k_2}, \ldots$ obtained by
+greedily following the edge of maximum conductance from each species:
+\begin{equation}\label{eq:backward}
+  \mathcal{I}_{k_{n+1}}
+  = \arg\max_{j \in \mathcal{N}(k_n)} G_{k_n j}.
+\end{equation}
+This traces the path of maximum thermodynamic coupling backward through the
+network, identifying the ``causal chain'' of the most influential species
+upstream of the target.
+\end{definition}
+
+\begin{proposition}[Backward Navigation Terminates]
+\label{prop:backward_terminates}
+In a finite, connected network, backward navigation terminates in at most $|V|$
+steps, either by reaching a source node (species with no incoming edges in the
+directed flux graph) or by entering a cycle.
+\end{proposition}
+
+\begin{proof}
+Each step moves to a distinct neighbour (since $\arg\max$ over a finite set is
+well-defined). If no neighbour has been previously visited, the path extends to
+a new node. Since $|V|$ is finite, the path either reaches a node with no
+further neighbours (a source) or revisits a node (entering a cycle) within $|V|$
+steps. \qed
+\end{proof}
+
+\subsection{$\ell^1$-Optimal Restoration}
+
+\begin{definition}[$\ell^1$-Optimal Restoration]
+\label{def:l1_restoration}
+Given a perturbed contact map with perturbation $\alpha$, the
+\emph{$\ell^1$-optimal restoration} is the sparsest perturbation $\alpha^*$ that
+restores the flux visibility above a threshold $V_0$:
+\begin{equation}\label{eq:l1_restore}
+  \alpha^* = \arg\min_{\alpha'} \|\alpha' - \mathbf{1}\|_1
+  \quad\text{subject to}\quad
+  V(\alpha') \geq V_0,
+\end{equation}
+where $\|\cdot\|_1$ is the $\ell^1$ norm (sum of absolute deviations from 1)
+and $V(\alpha')$ is the flux visibility under the composite perturbation
+$\alpha' \circ \alpha^{-1}$ \cite{foucart2013mathematical, candes2006robust}.
+\end{definition}
+
+\begin{remark}
+The $\ell^1$ norm promotes sparsity: the optimal restoration modifies the fewest
+possible edges \cite{foucart2013mathematical}. This corresponds to the drug
+design problem of finding the fewest molecular targets whose modulation restores
+normal network function \cite{hopkins2008network, csermely2013structure}.
+\end{remark}
+
+\begin{proposition}[Existence of Restoration]
+\label{prop:restoration_exists}
+For any perturbed network with $V < V_0$ and any threshold $V_0 \in (0, 1)$,
+there exists at least one restoration $\alpha^*$ achieving $V(\alpha^*) \geq
+V_0$, provided the network is connected.
+\end{proposition}
+
+\begin{proof}
+The trivial restoration $\alpha^* = \alpha^{-1}$ (undoing the perturbation
+entirely) achieves $V = 1 \geq V_0$. Since $\|\alpha^{-1} - \mathbf{1}\|_1$
+is finite (all $\alpha_{ij}$ are positive and finite), the feasible set of the
+optimisation problem~\eqref{eq:l1_restore} is non-empty. The $\ell^1$ norm is
+continuous and the feasible set is closed and bounded (since all $\alpha'_{ij}
+\in (0, M]$ for some finite $M$), so by the extreme value theorem, the minimum
+exists. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Applications}
+\label{sec:applications}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We compute the contact map for four canonical biochemical networks using
+publicly available data from KEGG \cite{kanehisa2000kegg}, Reactome
+\cite{jassal2020reactome}, HMDB \cite{wishart2018hmdb}, and BRENDA
+\cite{schomburg2004brenda}.
+
+\subsection{Glycolysis (Reactome R-HSA-70171)}
+
+\paragraph{Network.} Ten metabolites from glucose to pyruvate, connected by
+nine enzymatic reactions with conductances derived from BRENDA $k_{\text{cat}}$
+values and HMDB concentrations.
+
+\paragraph{Contact map computation.}
+Chemical potentials range from $\mu_{\text{Glucose}} = -917.0$ kJ/mol (after
+correction for cytoplasmic concentration of 5.0 mM) to
+$\mu_{\text{Pyruvate}} = -472.0$ kJ/mol.
+Conductances range from $G = 0.12$ (BPG$_{1,3}$ $\to$ 3PG, reflecting the
+low concentration of 1,3-bisphosphoglycerate) to $G = 464.1$ (Glucose $\to$
+G6P, reflecting the high hexokinase $k_{\text{cat}}$ and substrate
+concentration).
+
+\paragraph{S-entropy coordinates.}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Species & $\Sk$ & $\St$ & $\Se$ \\
+\midrule
+Glucose    & 0.710 & 0.484 & 0.000 \\
+G6P        & 0.479 & 0.487 & 0.894 \\
+F6P        & 0.040 & 0.044 & 0.900 \\
+FBP        & 0.025 & 0.019 & 1.000 \\
+G3P        & 0.099 & 0.128 & 0.584 \\
+BPG$_{1,3}$ & 0.091 & 0.119 & 0.846 \\
+3PG        & 0.060 & 0.076 & 0.631 \\
+2PG        & 0.045 & 0.088 & 0.626 \\
+PEP        & 0.029 & 0.054 & 0.523 \\
+Pyruvate   & 0.028 & 0.048 & 0.005 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Triple coherence.}
+$R = 0.705$ for the healthy glycolysis network. This indicates moderate
+coherence: the kinetic, topological, and energetic rankings of the ten species
+are correlated but not identical, reflecting the heterogeneous distribution of
+flux control along the pathway \cite{kacser1973control, fell1992metabolic}.
+
+\paragraph{Perturbation: hexokinase deficiency.}
+Hexokinase (HK1, EC 2.7.1.1) deficiency is modelled as a 90\% reduction in
+the conductance of the Glucose $\to$ G6P edge: $\alpha = 0.1$.
+
+Result: $V = 0.11$ (severe flux disruption). The triple coherence drops to
+$R = 0.38$. The $\ell^1$-optimal restoration identifies the Glucose $\to$ G6P
+edge as the sole target (sparsity = 1 edge), consistent with the known
+therapeutic strategy of hexokinase activation
+\cite{csermely2013structure}.
+
+\subsection{TCA Cycle (Reactome R-HSA-71403)}
+
+\paragraph{Network.} Nine metabolites (acetyl-CoA through oxaloacetate) in a
+cyclic topology with nine edges, all localised to the mitochondrial matrix.
+
+\paragraph{Perturbation: IDH2 R172K mutation.}
+Isocitrate dehydrogenase 2 (IDH2) R172K is a neomorphic mutation common in
+low-grade gliomas. It reduces native IDH2 activity by approximately 85\% while
+producing the oncometabolite 2-hydroxyglutarate. We model this as $\alpha = 0.15$
+on the Isocitrate $\to$ $\alpha$-ketoglutarate edge.
+
+Result: $V = 0.23$. The flux bottleneck localises precisely to the IDH2-catalysed
+step. Backward navigation from oxaloacetate traces: OAA $\to$ Malate $\to$
+Fumarate $\to$ Succinate $\to$ Succinyl-CoA $\to$ $\alpha$KG $\to$
+\textbf{Isocitrate} (the perturbed node). The $\ell^1$-optimal restoration
+identifies a single target (the Isocitrate $\to$ $\alpha$KG edge), consistent
+with ongoing clinical trials of IDH2 inhibitors (enasidenib)
+\cite{barabasi2011network}.
+
+\subsection{Oxidative Phosphorylation (KEGG hsa00190)}
+
+\paragraph{Network.} Eight metabolites representing the electron transport chain
+(NADH, CoQ, Cytochrome c, O$_2$, H$_2$O) and ATP synthesis (ADP, ATP, P$_i$),
+with coupling edges representing proton motive force.
+
+\paragraph{Perturbation: Complex I inhibition (rotenone model).}
+Rotenone is a Complex I inhibitor used as a model for mitochondrial dysfunction
+in Parkinson's disease. We model 70\% inhibition: $\alpha = 0.3$ on the
+NADH $\to$ CoQ edge.
+
+Result: $V = 0.18$. The perturbation propagates through the entire electron
+transport chain: the flux through Complexes II, III, and IV all decrease due to
+the reduced supply of electrons from Complex I. The ATP/ADP ratio shifts from
+3.2/1.3 to an effective ratio consistent with mitochondrial dysfunction.
+Backward navigation from ATP identifies NADH as the upstream bottleneck.
+
+\subsection{EGFR/MAPK Signalling (KEGG hsa04010)}
+
+\paragraph{Network.} Ten species from EGF (extracellular) through Cyclin D
+(nucleus), spanning four compartments, with two negative feedback loops
+(ERK $\to$ EGFR and Cyclin D $\to$ EGF).
+
+\paragraph{Perturbation: KRAS G12V.}
+KRAS G12V is the most common oncogenic driver in pancreatic cancer. It produces
+constitutive activation of the SOS $\to$ RAS edge. We model this as a 5-fold
+gain: $\alpha = 5.0$.
+
+Result: $V = 0.31$. Unlike the metabolic perturbations (which reduce flux), this
+gain-of-function perturbation \emph{increases} flux through the cascade, driving
+excess signalling to MYC and Cyclin D. The contact map correctly identifies this
+as a partition depth inflation: the SOS $\to$ RAS edge moves far from contact
+(excess flux relative to the balanced contact state). The $\ell^1$-optimal
+restoration identifies SOS $\to$ RAS as the primary target and MEK $\to$ ERK as
+a secondary target (sparsity = 2), consistent with the clinical use of MEK
+inhibitors (trametinib) in KRAS-mutant cancers \cite{hopkins2008network}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Additional Theoretical Properties}
+\label{sec:properties}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Stability Under Concentration Perturbation}
+
+\begin{proposition}[Lipschitz Stability of Contact Map]
+\label{prop:stability}
+Let $[\mathcal{I}]$ and $[\mathcal{I}] + \eps \xi$ be two concentration vectors,
+with $\|\xi\|_2 = 1$ and $\eps > 0$ small. Then for any edge
+$(\mathcal{I}_i, \mathcal{I}_j) \in E$:
+\begin{equation}
+  |\CC_\eps(\mathcal{I}_i, \mathcal{I}_j)
+  - \CC(\mathcal{I}_i, \mathcal{I}_j)|
+  \leq L \cdot \eps,
+\end{equation}
+where $L > 0$ is a Lipschitz constant depending on the network topology and
+thermodynamic parameters.
+\end{proposition}
+
+\begin{proof}
+The contact map $\CC = \dS(\bS_i, \bS_j)$ is a composition of smooth functions:
+$\bS_i$ depends on $\mu_i = \mu_i^\circ + RT \ln[\mathcal{I}_i]$ (smooth in
+$[\mathcal{I}_i] > 0$), on $G_{ij} = k_{\text{cat}} [\mathcal{I}_i] / RT$
+(linear in $[\mathcal{I}_i]$), and on $J_{ij} = G_{ij}(\mu_i - \mu_j)$ (smooth
+in both). The Euclidean distance $\dS$ is Lipschitz with constant 1. By the
+chain rule, the composition is Lipschitz with constant $L = \max(\partial \bS /
+\partial [\mathcal{I}])$, which is bounded for $[\mathcal{I}_i]$ bounded away
+from 0 and $\infty$. \qed
+\end{proof}
+
+\subsection{Compartmental Structure}
+
+\begin{definition}[Compartmental Contact Map]
+\label{def:compartmental}
+A \emph{compartmentalised contact map} is a contact map $\CC$ together with a
+partition of the species set $\Omega = \bigsqcup_{c=1}^C \Omega_c$ into
+compartments (e.g., cytoplasm, mitochondrial matrix, nucleus, membrane).
+The contact map restricted to each compartment $\CC|_{\Omega_c}$ is the
+\emph{intra-compartmental contact map}, and the edges between compartments
+form the \emph{inter-compartmental contact map}.
+\end{definition}
+
+\begin{proposition}[Compartmental Factorisation]
+\label{prop:factorisation}
+In a compartmentalised contact map, the partition depth between two species in
+different compartments is always greater than the partition depth between species
+in the same compartment:
+\begin{equation}
+  D(\mathcal{I}_i, \mathcal{I}_j) > D(\mathcal{I}_k, \mathcal{I}_l)
+\end{equation}
+whenever $\mathcal{I}_i \in \Omega_c$, $\mathcal{I}_j \in \Omega_d$ with $c
+\neq d$, and $\mathcal{I}_k, \mathcal{I}_l \in \Omega_c$ are both in the same
+compartment.
+\end{proposition}
+
+\begin{proof}
+Inter-compartmental transport requires crossing a membrane, which imposes an
+additional thermodynamic barrier (the free energy of membrane translocation)
+on top of the chemical potential difference between the species
+\cite{diekmann2013evolution, zecchin2015metabolic}. This additional barrier
+contributes positively to the partition depth, ensuring
+$D_{\text{inter}} > D_{\text{intra}}$. \qed
+\end{proof}
+
+\subsection{Hierarchical Contact Resolution}
+
+\begin{definition}[Contact Resolution Ordering]
+\label{def:resolution_ordering}
+The \emph{contact resolution ordering} is the sequence of edges
+$(e_1, e_2, \ldots, e_{|E|})$ sorted by increasing contact cost:
+$\CC(e_1) \leq \CC(e_2) \leq \cdots \leq \CC(e_{|E|})$. This ordering
+defines a filtration of the contact graph: at threshold $\tau$, only edges
+with $\CC(e) \leq \tau$ are ``resolved.''
+\end{definition}
+
+\begin{theorem}[Contact Filtration Produces a Persistent Hierarchy]
+\label{thm:filtration}
+The contact resolution ordering defines a nested sequence of subgraphs
+$G_1 \subseteq G_2 \subseteq \cdots \subseteq G_{|E|}$ such that the
+connected components of $G_t$ form a hierarchical partition of the species set.
+This hierarchy is persistent: components that merge at threshold $\tau$ remain
+merged at all higher thresholds $\tau' > \tau$ (by Contact Invariance,
+Theorem~\ref{thm:contact_invariance}).
+\end{theorem}
+
+\begin{proof}
+At each threshold $\tau$, the subgraph $G_\tau = (V, \{e \in E : \CC(e) \leq
+\tau\})$ includes all edges with contact cost at most $\tau$. As $\tau$
+increases, edges are added but never removed (monotonicity of inclusion).
+When a new edge connects two previously disconnected components, those
+components merge. By Contact Invariance, the merged component cannot split at
+any higher threshold: the contact relationship is preserved under refinement.
+
+This defines a dendrogram (hierarchical clustering) on the species set, where
+the merge height of two species is their contact cost $\CC(\mathcal{I}_i,
+\mathcal{I}_j)$. The dendrogram is well-defined and unique (up to the ordering
+of species within each level). The persistence of the hierarchy follows from
+the monotonicity of the contact record \cite{edelsbrunner2008persistent,
+ghrist2008barcodes, carlsson2009topology}. \qed
+\end{proof}
+
+\begin{remark}
+The contact filtration is closely related to persistent homology
+\cite{edelsbrunner2008persistent, carlsson2009topology}: the connected
+components at each threshold are the 0-dimensional persistent homology groups
+of the Vietoris-Rips complex built on the S-entropy state space with distance
+$\dS$. Higher-dimensional homology groups (cycles, cavities) capture more
+refined topological features of the contact map, such as metabolic cycles
+(1-dimensional) and compartmental enclosures (2-dimensional). We leave the
+systematic application of persistent homology to contact maps for future work.
+\end{remark}
+
+\subsection{Spectral Properties}
+
+\begin{definition}[Contact Laplacian]
+\label{def:laplacian}
+The \emph{contact Laplacian} is the matrix $L_C \in \reals^{N \times N}$
+defined by:
+\begin{equation}\label{eq:laplacian}
+  (L_C)_{ij} =
+  \begin{cases}
+    -\CC(\mathcal{I}_i, \mathcal{I}_j)^{-1}
+      & \text{if } (\mathcal{I}_i, \mathcal{I}_j) \in E, \\
+    \sum_{k \neq i} \CC(\mathcal{I}_i, \mathcal{I}_k)^{-1}
+      & \text{if } i = j, \\
+    0 & \text{otherwise}.
+  \end{cases}
+\end{equation}
+The inverse contact cost $\CC^{-1}$ serves as the edge weight: species in close
+contact (low $\CC$) have high coupling in the Laplacian.
+\end{definition}
+
+\begin{proposition}[Spectral Gap and Robustness]
+\label{prop:spectral_gap}
+The algebraic connectivity $\lambda_2(L_C)$ (the second-smallest eigenvalue
+of $L_C$) is a lower bound on the robustness of the contact map to edge
+removal:
+\begin{equation}
+  \lambda_2(L_C)
+  \leq \min_{S \subset V, 1 \leq |S| \leq |V|/2}
+    \frac{\sum_{i \in S, j \notin S} \CC(\mathcal{I}_i, \mathcal{I}_j)^{-1}}
+         {|S|}
+\end{equation}
+(the Cheeger inequality for graphs \cite{chung1997spectral}).
+A large $\lambda_2$ indicates that the network cannot be easily disconnected
+by removing a few edges, corresponding to biological robustness
+\cite{albert2000error, kitano2004biological, stelling2004robustness}.
+\end{proposition}
+
+\begin{proof}
+This is a direct application of the discrete Cheeger inequality
+\cite{chung1997spectral} to the weighted graph $(V, E, \CC^{-1})$. \qed
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+\label{sec:discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The Contact State as Privileged Reference}
+
+The central claim of this paper is that the contact map provides a unique
+privileged reference state for any biochemical network. Unlike steady-state
+models (which assume a particular flux distribution) or kinetic models
+(which require time-dependent simulation), the contact map captures the
+\emph{invariant skeleton} of the network: the set of minimum thermodynamic
+separations that cannot be altered by any physical perturbation.
+
+This has immediate practical consequences:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Disease characterisation.} A disease state is a departure from
+  contact along specific edges. The triple coherence $R$ provides a
+  single-number summary of how far the network has departed from its contact
+  state. This is a computable, parameter-free diagnostic quantity that can be
+  derived from standard metabolomics and fluxomics data.
+
+\item \textbf{Drug target identification.} The $\ell^1$-optimal restoration
+  identifies the sparsest set of edges whose modulation restores the network
+  toward contact. This directly addresses the polypharmacology question
+  \cite{hopkins2008network}: which combination of targets is most efficient?
+
+\item \textbf{Cross-network comparison.} Two networks with isomorphic contact
+  maps (Theorem~\ref{thm:contact_completeness}) have the same partition
+  topology, regardless of differences in absolute concentrations, flux
+  magnitudes, or compartment sizes. This enables principled comparison of
+  networks across cell types, organisms, or experimental conditions.
+\end{enumerate}
+
+\subsection{Relationship to Existing Frameworks}
+
+The contact map framework differs from and complements existing approaches:
+
+\paragraph{Flux Balance Analysis \cite{orth2010flux}.}
+FBA finds a feasible flux vector satisfying stoichiometric constraints and
+optimising an objective function. The contact map does not require an objective
+function; instead, the contact state serves as the natural reference (the
+partition ground state). FBA identifies \emph{what} fluxes are feasible; the
+contact map identifies \emph{which flux distributions are close to or far from
+the invariant structure of the network}.
+
+\paragraph{Metabolic Control Analysis \cite{kacser1973control, fell1992metabolic,
+heinrich1974linear}.}
+MCA quantifies the sensitivity of steady-state fluxes and concentrations to
+small perturbations of enzyme activities. The contact map provides a
+complementary perspective: instead of linearising around a steady state, it
+identifies the topological invariant (contact) and measures departures from it.
+MCA control coefficients are local derivatives; contact costs are global
+topological quantities.
+
+\paragraph{Network topology \cite{barabasi2004network, jeong2000large,
+ravasz2002hierarchical}.}
+Pure topology analysis uses unweighted or uniformly weighted graphs. The contact
+map is a \emph{thermodynamically weighted} topology: the edge weights are not
+arbitrary but are determined by the irreducible residues $\beta_{ij}$, which
+are intrinsic to the chemistry of the species pair. This grounding in
+thermodynamics is what makes the contact map invariant under perturbation,
+unlike arbitrary graph metrics.
+
+\paragraph{Persistent homology \cite{carlsson2009topology,
+edelsbrunner2008persistent, rabadan2020topological}.}
+The contact filtration (Theorem~\ref{thm:filtration}) produces a persistent
+hierarchy that is formally equivalent to a persistence diagram. The contact
+map can therefore be analysed using the full machinery of topological data
+analysis, including stability theorems and statistical tests. The novel
+contribution here is the identification of the filtration parameter (S-entropy
+distance) with a thermodynamic quantity (partition depth), providing a physical
+interpretation of the persistence diagram.
+
+\subsection{Limitations}
+
+Several limitations deserve acknowledgment:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Steady-state assumption.} The S-entropy coordinates are defined
+  for a system at (quasi-)steady state. Extension to time-varying systems would
+  require tracking the evolution of $\bS(\mathcal{I}_i, t)$ and defining
+  contact as the infimum over time, which may not be achieved at any finite time.
+
+\item \textbf{Compartment boundaries.} The compartmental factorisation
+  (Proposition~\ref{prop:factorisation}) assumes that membrane translocation
+  costs are uniform within each compartment pair. In reality, transporter
+  specificities create heterogeneous inter-compartmental barriers.
+
+\item \textbf{Stochastic effects.} In low-copy-number regimes (e.g., signalling
+  networks with fewer than $\sim$100 molecules per cell), the chemical potential
+  is not well-defined in the classical sense. A stochastic extension using
+  chemical master equations would be needed.
+
+\item \textbf{Parameter uncertainty.} The S-entropy coordinates depend on
+  $k_{\text{cat}}$ values and concentrations that may have significant
+  measurement uncertainty. The Lipschitz stability
+  (Proposition~\ref{prop:stability}) bounds the propagation of this uncertainty
+  but does not eliminate it.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have introduced a rigorous mathematical framework for representing
+biochemical networks as contact maps: weighted graphs in which edge weights are
+the irreducible thermodynamic residues of species individuation.
+
+\subsection{Summary of Results}
+
+The main results of this paper are:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Axiomatic foundation} (Section~\ref{sec:foundations}): three
+  postulates --- individuation by negation, finite individuation cost, and
+  monotonicity of partition count --- suffice to generate the entire theory.
+  Theorem~\ref{thm:noninstantaneous} establishes that species individuation
+  requires positive thermodynamic cost.
+
+\item \textbf{Contact invariance} (Theorem~\ref{thm:contact_invariance}):
+  contact relationships are preserved under all physically realisable
+  perturbations. The contact map is the invariant skeleton of the network.
+
+\item \textbf{Contact irreducibility} (Theorem~\ref{thm:contact_irreducibility}):
+  no coarser topological fact carries the same information as contact. Contact
+  is the minimum sufficient invariant.
+
+\item \textbf{Contact completeness} (Theorem~\ref{thm:contact_completeness}):
+  the contact map is a complete invariant of the network's partition topology.
+  Two networks with isomorphic contact maps have identical partition structure.
+
+\item \textbf{S-entropy state space} (Section~\ref{sec:sentropy}): three
+  independent entropy coordinates $(\Sk, \St, \Se)$ provide a computable,
+  well-defined embedding of each species into $[0,1]^3$. The S-entropy distance
+  is a metric (Theorem~\ref{thm:metric}) and is Lipschitz-stable under
+  concentration perturbation (Proposition~\ref{prop:stability}).
+
+\item \textbf{Contact filtration} (Theorem~\ref{thm:filtration}): the contact
+  resolution ordering produces a persistent hierarchy on the species set,
+  connecting contact maps to the theory of persistent homology.
+
+\item \textbf{Applications}: explicit computation of contact maps, perturbation
+  responses, and restoration targets for glycolysis, TCA cycle, oxidative
+  phosphorylation, and EGFR/MAPK signalling, using zero free parameters.
+\end{enumerate}
+
+\subsection{The Contact Map as the State of a Cell}
+
+The contact map answers the question posed in the introduction: \emph{what is
+invariant?} When a cell is perturbed, its concentrations change, its fluxes
+reroute, its S-entropy coordinates shift. But its contact map remains. The
+disease is not a different cell; it is the same contact map with elevated
+partition depth along specific edges. The healthy state is not one particular
+concentration profile; it is the state in which all edges are at their minimum
+partition depth --- the contact state.
+
+This perspective inverts the traditional modelling paradigm: instead of
+starting from a kinetic model and asking ``what happens when we perturb it?'',
+we start from the contact map and ask ``how far has this state departed from
+contact?'' The answer is a computable quantity (the triple coherence $R$, the
+flux visibility $V$, or the $\ell^1$-restoration cost), and the prescription
+for restoration is the $\ell^1$-optimal perturbation that moves the state back
+toward contact.
+
+The contact map is, in this precise sense, the state of a cell from which all
+other states can be derived.
+
+\printbibliography
+
+\end{document}

@@ -1,0 +1,114 @@
+%----------------------------------------------------------------------------------------
+% General-purpose CV — PHARMA / BIOTECH track (quick applications)
+% Reusable; not tied to a specific posting.
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Zeltnerstrasse 30}{90443, Nuernberg,Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+\photo[70pt][0.4pt]{pictures/Bew2.jpg}
+
+\quote{Computational scientist for pharma: computational pharmacology (PK/PD/ADME),
+drug metabolism, mass-spectrometry bioanalytics, and precision-medicine data.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Pharmaceutical biotechnologist and computational scientist working across
+  computational pharmacology (PK/PD/ADME), drug metabolism and mass-spectrometry
+  bioanalytics, biomarker discovery, and multi-omics for precision medicine.
+}
+
+\section{Technical Skills}
+\cvitem{Computational pharmacology}{
+  PK / PD / ADME modelling; binding affinity ($K_d$); dose--response (Hill);
+  therapeutic-effect prediction
+}
+\cvitem{Drug metabolism \& bioanalytics}{
+  Cytochrome-P450 (CYP) metabolism; LC-MS/MS and high-resolution mass
+  spectrometry; metabolite identification
+}
+\cvitem{Precision medicine}{
+  Multi-omics integration; biomarker discovery; oncology (neoantigen / MHC)
+}
+\cvitem{ML \& data}{
+  PyTorch, scikit-learn; statistics; reproducible pipelines (Python, R)
+}
+\cvitem{Validation}{
+  Against reference data --- NIST, IEDB, 1000~Genomes / gnomAD / UK~Biobank
+}
+
+\section{Experience}
+\cventry{2021--present}{Independent Computational Pharmacology \& Bioanalytics Researcher}{Bitspark GmbH}{}{}{
+  Computational pharmacology and mass-spectrometry bioanalytics tools; authored a
+  monograph on cytochrome-P450 drug metabolism; deployed, reference-validated
+  tools.
+}
+\cventry{2019--2021}{Computational Lipidomics \& Mass Spectrometry}{Technische Universität München}{Munich}{}{
+  High-throughput MS analysis at HPC scale. Taught at Master's level.
+}
+\cventry{2017--2018}{Clinical Glycomics \& Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  LC-MS/MS and MALDI-TOF pipelines for clinical samples.
+}
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics on tumour samples.
+}
+
+\section{Selected Projects \& Publications}
+\cvitem{Crown Prince}{
+  Geometric computational pharmacology --- PK/PD/ADME and therapeutic
+  trajectories, binding affinity from first principles; 39/39 NIST validation.
+  \href{https://crown-prince-four-courners.vercel.app/}{crown-prince-four-courners.vercel.app}
+}
+\cvitem{CYP450 monograph}{
+  Published monograph on cytochrome-P450 drug metabolism (2026).
+}
+\cvitem{lavoisier}{
+  High-throughput mass-spectrometry pipeline for metabolite identification;
+  98.9\% NIST accuracy.
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+\cvitem{gospel}{
+  Multi-omics integration for precision medicine; validated against 1000~Genomes,
+  gnomAD, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\section{Education}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+\cvitem{}{\textit{Additional:} doctoral research, computational lipidomics, TUM (not completed).}
+
+\section{Languages}
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

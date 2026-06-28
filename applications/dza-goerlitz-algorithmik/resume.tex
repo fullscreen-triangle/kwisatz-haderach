@@ -1,0 +1,160 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Research Scientist: Real-Time Data Processing & Algorithm Development
+% Deutsches Zentrum für Astrophysik (DZA), Department Algorithmik, Görlitz
+% Job-ID D03-26-04
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.78]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+
+\quote{Real-time data-reduction algorithms and scalable high-performance
+pipelines for extremely large data streams.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\cventry{2021--present}{Independent Researcher --- Algorithms \& High-Performance Data Processing}{Bitspark GmbH}{}{}{
+  Full-time design and implementation of real-time and large-scale data-processing
+  algorithms and distributed pipelines. Built and publicly deployed validated
+  systems for streaming analysis of multi-gigabyte datasets, GPU-accelerated
+  computation, and high-throughput signal extraction.
+}
+
+\cventry{2019--2021}{Computational Lipidomics --- HPC Data Processing}{TUM / Bayerisches Forschungsinstitut}{Munich}{}{
+  Mass-spectrometry data processing at HPC scale: peak detection and signal
+  annotation over $>$100\,GB mzML data streams, memory-mapped I/O, multi-omics
+  statistical modelling, and federated processing distributed across clinical
+  sites.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics --- Automated Pipelines}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF data-processing workflows; standardised
+  acquisition and processing protocols for high-throughput instrument data.
+}
+
+\cventry{2013}{Biomarker Discovery --- MS Data Analysis}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun data; signal normalisation and statistical analysis of
+  large feature sets.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{Doctoral research, Computational Lipidomics}{Technische Universität München / Bayerisches Forschungsinstitut}{}{}{
+  HPC mass-spectrometry pipelines, multi-omics statistical modelling, federated
+  analysis across distributed sites. Departed to pursue independent computational
+  research.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Algorithm development, large-scale data analysis, statistical modelling,
+  pipeline engineering.
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED SYSTEMS
+%----------------------------------------------------------------------------------------
+
+\section{Selected Systems}
+
+\cvitem{lavoisier}{
+  \textbf{Distributed High-Performance Data-Stream Pipeline.}
+  Dual-pipeline analysis (numerical processing + CNN classification, PyTorch);
+  memory-mapped I/O for data streams of arbitrary size; Ray-distributed execution
+  across HPC nodes; HDF5 structured output; 98.9\,\% NIST extraction accuracy on
+  $>$100\,GB streams. A working model of scalable, real-time-capable stream
+  processing.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{gospel}{
+  \textbf{High-Throughput Signal / Variant Processing.}
+  $10^6$ records/second streaming throughput; Bayesian-network inference and
+  Gaussian mixture models for signal classification; validated against
+  1000~Genomes, gnomAD, and UK~Biobank reference data.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{four-sided-triangle}{
+  \textbf{Distributed Multi-Stage Processing Engine.}
+  8-stage pipeline with a Rust core (10--50$\times$ speedup over reference
+  implementation); FastAPI service interface; Docker / Kubernetes deployment;
+  designed for parallel execution and horizontal scaling.
+  \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{HPC / Parallel}{
+  Ray, Dask, SLURM-compatible pipeline design; Docker, Kubernetes;
+  memory-mapped I/O; HDF5, Parquet; parallel filesystem and streaming patterns
+}
+
+\cvitem{Languages}{
+  Python (primary), Rust, R, Bash, SQL, TypeScript
+}
+
+\cvitem{Algorithms / Data}{
+  Real-time stream processing and data reduction; high-throughput signal
+  extraction, detection, and classification; large-scale statistical analysis;
+  GPU computation (WebGPU, CUDA-style kernels)
+}
+
+\cvitem{ML / Statistics}{
+  PyTorch (CNNs, sequence models); scikit-learn, XGBoost;
+  Bayesian-network and mixture modelling; high-dimensional inference
+}
+
+\cvitem{Large datasets}{
+  $>$100\,GB streaming pipelines; 1000~Genomes, gnomAD, UK~Biobank, NIST
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent}{working language of the position}
+\cvitemwithcomment{German}{Conversational}{living in Germany since 2011}
+
+%----------------------------------------------------------------------------------------
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

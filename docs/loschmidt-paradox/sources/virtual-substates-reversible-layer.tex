@@ -1,0 +1,1611 @@
+% =====================================================================
+%  Virtual Sub-States and the Reversible Layer of Loschmidt's Paradox
+%
+%  A self-contained paper. Every technical term is defined in the text.
+%  No reliance on any unpublished companion manuscript.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,fit}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Cx}{\mathbb{C}}
+\newcommand{\Zp}{\mathbb{Z}_{\geq 0}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Mic}{\mu}
+\newcommand{\Obs}{\mathcal{O}}
+\newcommand{\Count}{N}
+\newcommand{\Hist}{\mathcal{H}}
+\newcommand{\Vis}{\mathcal{V}}
+\newcommand{\phase}{\varphi}
+\newcommand{\Tinv}{R}
+\newcommand{\flow}{\phi}
+\newcommand{\Mmat}{\mathcal{M}}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\Smatrix}{S}
+
+\title{\textbf{Virtual Sub-States and the Reversible Layer\\[2pt]
+of Loschmidt's Paradox}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small Chair of Proteomics and Bioanalytics\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+Loschmidt's reversibility objection observes that the microscopic
+equations of motion are invariant under time reversal, while macroscopic
+processes are not, and asks how the second law can follow from
+time-symmetric mechanics. We argue that the objection conflates two
+strata of a system's description that are governed by different logics,
+and that separating them dissolves the paradox without recourse to
+probabilistic improbability, coarse-graining, or special boundary
+conditions. The first stratum is \emph{configurational}: it consists of
+the instantaneous microstate together with all decompositions of that
+microstate that recover it under a fixed composition law. On this
+stratum, evolution is genuinely reversible, and there exists a large
+space of \emph{virtual sub-states}---intermediate decompositions whose
+components may fall outside the physically admissible region while their
+composite remains admissible. The second stratum is \emph{enumerative}:
+it consists of the monotone count of completed dynamical events the
+system has undergone. We prove that this count cannot decrease, because
+any operation that would decrement it is itself an event that increments
+it; that the configurational reversibility and the enumerative
+monotonicity are logically independent; and, centrally, that virtual
+sub-states are available only for the backward completion of an
+already-fixed endpoint and never for forward construction---an asymmetry
+we make precise as a theorem about composition contexts. Velocity
+reversal acts on the configurational stratum and leaves the enumerative
+stratum untouched; the second law is the monotonicity of the latter and
+is therefore immune to the former. We then exhibit two independent
+physical realisations of virtual sub-states---the off-shell internal
+lines of quantum field theory, where path opacity is the statement that
+only the sum over diagrams is observable, and the phase-coherent
+sub-components of a Fourier-transform mass-spectrometry transient, where
+a measured fraction of the decomposition lies off the physical
+manifold---and show that the nuclear spin echo is a controlled
+laboratory test of the reversibility assumption whose seventy-year
+verdict is an engineering-independent floor. The framework is presented
+as mathematics with physical interpretation sequestered to remarks;
+every theorem is proved from stated definitions.
+\end{abstract}
+
+\noindent\textbf{Keywords:} Loschmidt's paradox; arrow of time;
+irreversibility; reversible dynamics; virtual sub-states; off-shell
+states; path opacity; spin echo; partition count; second law of
+thermodynamics.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The objection and its persistence}
+\label{sec:objection}
+
+In 1876 Josef Loschmidt raised an objection to Boltzmann's programme of
+deriving the second law of thermodynamics from the mechanics of atoms
+\citep{loschmidt1876}. The microscopic equations of motion---in their
+canonical form, Hamilton's equations---possess a symmetry: if one takes
+any solution and simultaneously reverses the sign of time and the signs
+of all momenta, the result is again a solution. The equations do not
+distinguish future from past. Yet macroscopic processes are flagrantly
+asymmetric in time: heat flows from hot to cold and never the reverse, a
+gas released into a vacuum disperses and never spontaneously
+re-concentrates. The objection, in its sharpest form, is this. Let a gas
+evolve from a low-entropy macrostate at time $t_0$ to a high-entropy
+macrostate at time $T$. Reverse every molecular velocity at $T$. The
+reversed state is a legitimate solution of the same equations, and it
+will retrace the expansion in reverse, the gas re-collecting itself,
+entropy decreasing. The laws permit it. Why is it never seen?
+
+Boltzmann's reply was statistical \citep{boltzmann1877}: the reversed
+evolution is not impossible, only overwhelmingly improbable, because the
+microstates leading to entropy decrease occupy a vanishing fraction of
+the high-entropy macrostate. Over the following century this reply was
+refined by Gibbs's coarse-graining \citep{gibbs1902}, the
+information-theoretic reformulation \citep{jaynes1957}, the
+cosmological-boundary account \citep{penrose1989}, and environmental
+decoherence \citep{zurek2003}; the conceptual literature is large
+\citep{ehrenfest1959,reichenbach1956,price1996,zeh2007,lebowitz1993}.
+These accounts differ in emphasis but share a single structural
+commitment, which we will call the \emph{reversibility presupposition}:
+that time reversal is a well-defined, in-principle-achievable operation
+whose macroscopic consequences merely fail to be realised, for contingent
+reasons such as improbability, ignorance, openness, or special initial
+conditions. Each account then explains why the reversed evolutions,
+though available, are not seen.
+
+\subsection{What this paper does differently}
+\label{sec:different}
+
+We do not accept the framing and then explain away its consequences.
+We argue that Loschmidt's intuition silently identifies two strata of a
+system's description that obey different logics, and that the appearance
+of paradox is entirely an artefact of treating them as one. The two
+strata are these.
+
+\begin{itemize}[leftmargin=1.4em]
+\item The \emph{configurational stratum}: the instantaneous microstate
+of the system, together with the entire space of ways of decomposing
+that microstate into parts that recompose to it under a fixed
+composition law. On this stratum the dynamics is genuinely reversible;
+nothing in what follows disputes that. We will moreover show that this
+stratum is far larger than the microstate alone, because it contains a
+rich family of \emph{virtual sub-states}: decompositions whose individual
+components need not be physically admissible, provided their composite
+is.
+
+\item The \emph{enumerative stratum}: the integer count of completed
+dynamical events---closed oscillation cycles, committed interactions,
+recorded distinctions---that the system has undergone since some origin.
+This count is the operational content of elapsed time, and it cannot
+decrease.
+\end{itemize}
+
+The thesis of the paper is that velocity reversal is an operation on the
+configurational stratum that leaves the enumerative stratum untouched,
+that the second law is the monotonicity of the enumerative stratum, and
+that the two are logically independent, so the former cannot affect the
+latter. The reason velocity reversal feels as though it should reverse
+\emph{everything} is the same reason virtual sub-states feel paradoxical:
+both rely on the freedom of the configurational stratum, and both are
+silent about the count. We make this precise through a structural
+asymmetry---virtual sub-states are available for the backward completion
+of a fixed endpoint but never for forward construction
+(Section~\ref{sec:asymmetry})---which is the configurational shadow of
+the enumerative monotonicity.
+
+Two features distinguish the resulting resolution from the standard ones.
+First, it is not probabilistic: nothing here depends on the reversed
+microstate being rare. Second, virtual sub-states are not a metaphor but
+an identifiable structure with two independent physical realisations,
+developed in Sections~\ref{sec:qft} and~\ref{sec:ms}, and the central
+experimental signature---the nuclear spin echo---is a controlled
+laboratory test of the reversibility presupposition itself
+(Section~\ref{sec:echo}), with a definite and repeatedly confirmed
+verdict.
+
+\subsection{Organisation}
+\label{sec:organisation}
+
+Section~\ref{sec:setup} fixes the mathematical setting: bounded
+measure-preserving dynamics, the microstate, the macroscopic observable,
+and the event count, with the three kept rigorously distinct.
+Section~\ref{sec:count} establishes the monotonicity of the count and the
+incoherence of its decrement. Section~\ref{sec:reversible} defines the
+configurational stratum and proves its reversibility.
+Section~\ref{sec:virtual} introduces virtual sub-states and proves their
+existence and abundance. Section~\ref{sec:asymmetry} proves the
+forward/backward asymmetry that is the keystone of the resolution.
+Section~\ref{sec:resolution} assembles the resolution of Loschmidt's
+paradox and contrasts it with the standard accounts.
+Section~\ref{sec:qft} develops the quantum-field-theoretic realisation of
+virtual sub-states; Section~\ref{sec:ms} the mass-spectrometric one;
+Section~\ref{sec:echo} the spin-echo realisation and its experimental
+hierarchy. Section~\ref{sec:objections} answers objections;
+Section~\ref{sec:conclusion} concludes. Physical interpretation is
+sequestered to Remarks throughout; the logical spine is carried entirely
+by the formal environments.
+
+% =====================================================================
+\section{The Mathematical Setting}
+\label{sec:setup}
+% =====================================================================
+
+\subsection{Bounded measure-preserving dynamics}
+\label{sec:bounded}
+
+We work with a dynamical system in the standard sense of ergodic theory
+\citep{walters1982,arnold1989}.
+
+\begin{definition}[Dynamical system]
+\label{def:system}
+A \emph{dynamical system} is a triple $(\Omega,\mu,\flow_t)$, where
+$\Omega$ is a set (the \emph{phase space}) carrying a $\sigma$-algebra of
+measurable sets, $\mu$ is a measure on $\Omega$, and
+$\flow_t\colon\Omega\to\Omega$, $t\in\R$, is a one-parameter group of
+measurable maps (the \emph{flow}) with $\flow_0=\mathrm{id}$ and
+$\flow_{t+s}=\flow_t\circ\flow_s$. A point $x\in\Omega$ is a
+\emph{microstate}.
+\end{definition}
+
+\begin{definition}[Bounded, measure-preserving]
+\label{def:boundedmp}
+The system $(\Omega,\mu,\flow_t)$ is \emph{bounded} if
+$0<\mu(\Omega)<\infty$, and \emph{measure-preserving} if
+$\mu(\flow_t^{-1}(A))=\mu(A)$ for every measurable $A$ and every $t$.
+\end{definition}
+
+The two conditions are the abstract residue of two ubiquitous physical
+facts: that a persistent system occupies a bounded region of its phase
+space (an electron does not leave the atom, a gas molecule does not leave
+the box, a star does not leave the galaxy), and that Hamiltonian flow
+preserves phase-space volume \citep{liouville1838}. We take both as
+given; the development below uses only their measure-theoretic content.
+
+\begin{theorem}[Recurrence]
+\label{thm:recurrence}
+Let $(\Omega,\mu,\flow_t)$ be bounded and measure-preserving. For every
+measurable $A\subseteq\Omega$ with $\mu(A)>0$ and every $T>0$, there
+exists an integer $n\geq 1$ with $\mu(A\cap\flow_{nT}^{-1}(A))>0$.
+Consequently $\mu$-almost every point of $A$ returns to $A$ under
+iteration of $\flow_T$.
+\end{theorem}
+
+\begin{proof}
+This is the Poincar\'e recurrence theorem \citep{poincare1890}; we recall
+the proof because the structure recurs below. Fix $T>0$ and write
+$f:=\flow_T$. The sets $A,f^{-1}(A),f^{-2}(A),\dots$ all have measure
+$\mu(A)$ by measure preservation. If the conclusion failed, then
+$\mu(A\cap f^{-n}(A))=0$ for all $n\geq 1$, and an elementary computation
+shows the sets $\{f^{-k}(A)\}_{k\geq 0}$ are pairwise disjoint modulo
+null sets. Then
+$\mu(\Omega)\geq\sum_{k\geq 0}\mu(f^{-k}(A))=\sum_{k\geq 0}\mu(A)=\infty$,
+contradicting boundedness. Hence some $n\geq 1$ has
+$\mu(A\cap f^{-n}(A))>0$. The pointwise statement follows by the standard
+argument \citep{walters1982}.
+\end{proof}
+
+\begin{remark}
+\label{rem:recurrence}
+Recurrence is the first appearance of the tension Loschmidt's objection
+exploits. A bounded measure-preserving system returns arbitrarily close
+to any prior microstate, infinitely often. If returning the microstate
+were the same as returning the system to its past, the second law would
+be violated at every recurrence. We will see (Theorem~\ref{thm:distinct})
+that it is not.
+\end{remark}
+
+\subsection{Time reversal of the flow}
+\label{sec:treversal}
+
+\begin{definition}[Time-reversal involution]
+\label{def:treversal}
+A measurable involution $\Tinv\colon\Omega\to\Omega$ (so
+$\Tinv\circ\Tinv=\mathrm{id}$) is a \emph{time reversal} for the flow if
+\begin{equation}
+\flow_{-t}=\Tinv\circ\flow_t\circ\Tinv
+\qquad\text{for all }t\in\R.
+\label{eq:treversal}
+\end{equation}
+For a Hamiltonian system with momenta $p$ and positions $q$, the standard
+choice is $\Tinv(q,p)=(q,-p)$, and \eqref{eq:treversal} holds whenever the
+Hamiltonian is even in $p$.
+\end{definition}
+
+\begin{remark}[The hinge]
+\label{rem:hinge}
+Equation~\eqref{eq:treversal} is an identity among \emph{solutions} of
+the equations of motion: it says that a certain transformation carries one
+solution to another. It is silent about whether there exists a
+\emph{physical operation}, performable on a system in a laboratory, whose
+execution carries the system from the first solution to the second. The
+whole of Loschmidt's paradox turns on the slide from the former to the
+latter, and the whole of our resolution is the refusal to make that
+slide. The configurational stratum is where \eqref{eq:treversal} lives;
+the enumerative stratum is where physical operations live; they are
+different strata.
+\end{remark}
+
+\subsection{Three quantities, kept distinct}
+\label{sec:three}
+
+The conceptual core of the setting is a separation that Loschmidt's
+intuition collapses. For a system of many constituents we distinguish
+three quantities.
+
+\begin{definition}[Microstate, observable, count]
+\label{def:three}
+Let $(\Omega,\mu,\flow_t)$ be a bounded measure-preserving system.
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item The \emph{microstate} $\Mic(t):=\flow_t(x_0)\in\Omega$ is the
+complete instantaneous specification of the system started from $x_0$.
+\item An \emph{observable} is a measurable map $\Obs\colon\Omega\to E$
+into some value space $E$; the \emph{observable value} is
+$\Obs(\Mic(t))$. An observable is \emph{coarse} if it is many-to-one on a
+set of positive measure, so that distinct microstates share an observable
+value.
+\item The \emph{event count} $\Count(t)\in\Zp$ is the number of completed
+dynamical events the system has undergone in $[0,t]$, where an
+\emph{event} is the completion of a distinguished, recurrent dynamical
+cycle (made precise in Definition~\ref{def:event}).
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Event and event count]
+\label{def:event}
+Fix a measurable \emph{Poincar\'e section} $\Sigma\subset\Omega$ with
+$\mu(\Sigma)>0$ that the flow crosses transversally and recurrently
+(its existence is guaranteed by Theorem~\ref{thm:recurrence} for any
+positive-measure $\Sigma$). An \emph{event} at time $t$ is a transversal
+crossing of $\Sigma$ by the trajectory $\Mic(\cdot)$ at $t$. The
+\emph{event count} is
+\begin{equation}
+\Count(t):=\#\{\,s\in(0,t] : \Mic(s)\in\Sigma\text{ is a transversal
+crossing}\,\}.
+\label{eq:count}
+\end{equation}
+\end{definition}
+
+\begin{remark}[Why a count, and why it is time]
+\label{rem:countistime}
+Definition~\ref{def:event} formalises the operational fact that elapsed
+time is always read from a counter: a pendulum counts swings, a quartz
+watch counts crystal vibrations, the SI second is a stipulated number of
+caesium hyperfine cycles. A ``cycle'' here is a topological event---the
+trajectory's return to a section---and as such it presupposes no prior
+notion of duration; duration is what one \emph{defines} by promoting one
+counter to a standard and stipulating how many of its crossings make a
+unit. We use $\Count$ as the primitive temporal quantity and recover the
+continuous parameter $t$ as the rescaled limit of $\Count$ for a
+high-frequency reference. This is why ``time reversal'' will turn out to
+be a statement about the flow's solution set
+(Remark~\ref{rem:hinge}) and not about $\Count$.
+\end{remark}
+
+\begin{principle}[The conflation]
+\label{prin:conflation}
+Loschmidt's reversibility intuition rests on the tacit identification
+\[
+\Obs(t)\ \equiv\ \Mic(t)\ \equiv\ \Count(t):
+\]
+that recovering the observable ($\Obs(2T)=\Obs(0)$) is the same as
+restoring the microstate ($\Mic(2T)=\Mic(0)$), which is the same as
+returning to the past ($\Count(2T)=\Count(0)$). The three are distinct,
+and conflating them is what makes ``the trajectory retraced'' sound like
+``the system went back.''
+\end{principle}
+
+We will dismantle the conflation in two steps: by proving the count
+cannot return (Section~\ref{sec:count}), and by proving that the
+configurational reversibility which \emph{does} hold is confined to the
+microstate--observable layer (Section~\ref{sec:reversible}).
+
+% =====================================================================
+\section{The Enumerative Stratum: Monotonicity of the Count}
+\label{sec:count}
+% =====================================================================
+
+\subsection{Strict monotonicity}
+\label{sec:monotone}
+
+\begin{theorem}[Strict monotonicity of the count]
+\label{thm:monotone}
+Let $(\Omega,\mu,\flow_t)$ be a bounded, measure-preserving, non-static
+system, and let $\Count$ be its event count with respect to a section
+$\Sigma$ of positive measure. Then $\Count$ is non-decreasing, and for
+every $t_1<t_2$ separated by at least one event, $\Count(t_2)>\Count(t_1)$.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:event}, $\Count(t)$ counts crossings in $(0,t]$,
+so $t_1<t_2$ gives $\Count(t_1)\leq\Count(t_2)$ (the counted set grows).
+By Theorem~\ref{thm:recurrence} applied to $\Sigma$, transversal
+crossings recur for almost every trajectory; non-staticity ensures the
+trajectory is not pinned off the section. Hence on any interval
+$[t_1,t_2]$ containing a crossing, at least one term is added to the
+count, so $\Count(t_2)\geq\Count(t_1)+1>\Count(t_1)$.
+\end{proof}
+
+\begin{corollary}[Injectivity of the count on time]
+\label{cor:inject}
+For $t_1\neq t_2$ separated by at least one event, $\Count(t_1)\neq
+\Count(t_2)$.
+\end{corollary}
+
+\subsection{The incoherence of decrement}
+\label{sec:incoherence}
+
+Monotonicity says the count happens not to decrease. The next result says
+something stronger and more decisive for the paradox: \emph{no operation
+can decrease it}, because the execution of any operation is itself a
+counted process.
+
+\begin{theorem}[Incoherence of decrement]
+\label{thm:incoherence}
+Let $(\Omega,\mu,\flow_t)$ be bounded, measure-preserving, and non-static.
+There is no physical operation $\Theta$---understood as a process
+occupying a positive interval of the flow---whose execution leaves the
+system with $\Count$ strictly smaller than before $\Theta$ began.
+\end{theorem}
+
+\begin{proof}
+Suppose $\Theta$ begins at time $a$ and ends at time $b>a$ (positive
+duration is definitional: an operation that occupies no interval of the
+flow performs nothing). During $[a,b]$ the trajectory evolves under
+$\flow_t$, and by Theorem~\ref{thm:monotone} it accrues at least the
+crossings of $\Sigma$ that occur in $[a,b]$, so
+$\Count(b)\geq\Count(a)$, with strict inequality whenever $[a,b]$
+contains a crossing. The proposed decrement requires $\Count(b)<\Count(a)$,
+which contradicts this inequality. The only escape would be a $\Theta$
+with $b\leq a$, i.e.\ one occupying no forward interval, which performs no
+operation. Hence no decrementing operation exists.
+\end{proof}
+
+\begin{corollary}[The reversal map does not act on the count]
+\label{cor:Rnotcount}
+The time-reversal involution $\Tinv$ of Definition~\ref{def:treversal}
+does not decrement $\Count$. Applying $\Tinv$ is a substitution within the
+solution set of the equations of motion
+(Remark~\ref{rem:hinge}); it is not a process occupying a forward interval
+of the flow, and therefore acts on the configurational data $(q,p)$, not
+on $\Count$. Any \emph{physical} realisation of velocity reversal---an
+apparatus that flips momenta---is itself an operation with positive
+duration and so, by Theorem~\ref{thm:incoherence}, increments $\Count$.
+\end{corollary}
+
+\begin{remark}[The arrow of time as a counting fact]
+\label{rem:arrow}
+Theorem~\ref{thm:incoherence} locates the arrow of time not in a
+statistical tendency layered over reversible foundations, but in the
+structure of counting itself. The count cannot decrease because counting
+is what elapsed time \emph{is} (Remark~\ref{rem:countistime}), and any
+attempt to ``go back'' is a further act of counting forward. This is a
+sharper statement than improbability: the reversed evolution is not rare,
+it is enumeratively foreclosed. We emphasise that nothing here forbids the
+\emph{configuration} from retracing its path (Section~\ref{sec:reversible}
+shows it may); what is foreclosed is the identification of that retracing
+with a decrement of the count.
+\end{remark}
+
+\subsection{Visited-cell entropy}
+\label{sec:entropy}
+
+We now connect the count to entropy, in a way that makes the second law a
+corollary of monotonicity rather than of probability. Fix a countable
+measurable partition $\mathcal{P}=\{C_1,C_2,\dots\}$ of $\Omega$ into
+cells of positive measure---the abstract image of a finite-resolution
+measurement, which can resolve only finitely or countably many distinct
+outcomes \citep{shannon1948,cover2006}.
+
+\begin{definition}[Visited set and visited-cell entropy]
+\label{def:visited}
+The \emph{visited set} of the trajectory up to time $t$ is the family of
+cells it has entered,
+\begin{equation}
+\Vis(t):=\{\,C\in\mathcal{P} : \Mic(s)\in C\text{ for some }s\in[0,t]\,\}.
+\label{eq:visited}
+\end{equation}
+The \emph{visited-cell entropy} is $S(t):=\kB\ln|\Vis(t)|$.
+\end{definition}
+
+\begin{theorem}[Monotone entropy]
+\label{thm:entropy}
+For a bounded, measure-preserving, non-static system,
+$\Vis(t_1)\subseteq\Vis(t_2)$ for $t_1\leq t_2$, with strict inclusion on
+a set of positive measure of times. Consequently $S(t)$ is non-decreasing,
+and strictly increasing whenever the trajectory enters a previously
+unvisited cell.
+\end{theorem}
+
+\begin{proof}
+Inclusion is immediate from \eqref{eq:visited}: a cell entered by time
+$t_1$ has been entered by any later $t_2$, and the membership predicate is
+never retracted---a cell, once entered, has been entered. Strictness: by
+Theorem~\ref{thm:recurrence} the trajectory visits arbitrary
+neighbourhoods of its starting point, and by non-staticity it is not
+confined to a single cell; hence on a positive-measure set of times it
+enters cells not in $\Vis(t_1)$. Each such entry enlarges $\Vis$, so
+$|\Vis(t_2)|>|\Vis(t_1)|$ and $S(t_2)>S(t_1)$.
+\end{proof}
+
+\begin{corollary}[Second law]
+\label{cor:secondlaw}
+The visited-cell entropy of a bounded, measure-preserving, non-static
+isolated system is a non-decreasing function of time.
+\end{corollary}
+
+\begin{remark}[Why this is not Boltzmann's argument]
+\label{rem:notboltzmann}
+The monotonicity of Theorem~\ref{thm:entropy} is not probabilistic. It
+does not say that the visited set typically grows, or grows with high
+probability; it says the visited set cannot shrink, because set membership
+is monotone under union. The content is combinatorial---a record that is
+appended to and never erased---not statistical. Boltzmann's
+$H$-theorem~\citep{boltzmann1877}, which quantifies the \emph{rate} of
+growth under a molecular-chaos assumption, is a statistical refinement of
+this combinatorial skeleton, not its foundation. The reason velocity
+reversal cannot decrease $S$ is now visible in advance: reversal
+rearranges the microstate, but the set of cells \emph{already visited} is
+a fact about the past trajectory, and the past trajectory is not undone by
+anything done at the present microstate.
+\end{remark}
+
+\begin{remark}[Identity as the unvisited complement]
+\label{rem:negation}
+The complement $\mathcal{P}\setminus\Vis(t)$---the cells the trajectory
+has \emph{not} entered---is a second, equivalent encoding of the visited
+set, and its measure shrinks monotonically as $\Vis$ grows. There is a
+sense in which a trajectory's identity at time $t$ is carried as much by
+what it has excluded as by where it is: two trajectories with the same
+current cell but different histories are distinguished precisely by their
+visited sets, hence by their complements. This ``identity by exclusion''
+will reappear in the spin echo (Section~\ref{sec:echo}), where the
+irreversible part of the dynamics is exactly the part that has committed
+information to the environment and so cannot be read back from the system
+alone.
+\end{remark}
+
+% =====================================================================
+\section{The Configurational Stratum and Its Reversibility}
+\label{sec:reversible}
+% =====================================================================
+
+We now turn to the stratum on which reversibility genuinely holds, and
+define it with enough structure to host virtual sub-states in
+Section~\ref{sec:virtual}.
+
+\subsection{Composition laws and decompositions}
+\label{sec:composition}
+
+\begin{definition}[Composition law]
+\label{def:complaw}
+Let $V$ be a set of \emph{values} (e.g.\ a coordinate range, a momentum, a
+field amplitude) equipped with a partial operation
+$\boxplus\colon V^k\rightharpoonup V$ for each arity $k\geq 1$, the
+\emph{composition law}. A \emph{decomposition} of a value $v\in V$ of
+arity $k$ is a tuple $(v_1,\dots,v_k)\in V^k$ with
+$v_1\boxplus\cdots\boxplus v_k=v$. We write $\mathrm{Dec}_k(v)$ for the set
+of arity-$k$ decompositions of $v$.
+\end{definition}
+
+The composition law abstracts the way a physical quantity is assembled
+from parts: the way a net coordinate is a mean of sub-coordinates, a total
+momentum a sum of constituent momenta, a measured amplitude a sum over
+contributing channels. The crucial feature, exploited throughout, is that
+$\mathrm{Dec}_k(v)$ is in general very large, and that recomposition
+discards which decomposition was used.
+
+\begin{definition}[Configurational state and configurational stratum]
+\label{def:configstratum}
+Fix a value space $V$, a composition law $\boxplus$, and a
+\emph{recomposition observable} $\Obs_V\colon V\to V$ that returns the
+value a decomposition recomposes to ($\Obs_V(v)=v$ on values; on a
+decomposition $(v_1,\dots,v_k)$ it returns $v_1\boxplus\cdots\boxplus
+v_k$). The \emph{configurational state} of the system at time $t$ is the
+pair $(\Mic(t),\Obs_V)$. The \emph{configurational stratum} is the space
+of all decompositions of all values, quotiented by $\Obs_V$: two
+decompositions are configurationally equivalent iff they recompose to the
+same value.
+\end{definition}
+
+\begin{remark}[What lives where]
+\label{rem:whatlives}
+The microstate $\Mic(t)$ and any coarse observable $\Obs(\Mic(t))$ live on
+the configurational stratum: they are functions of the instantaneous
+configuration. The count $\Count(t)$ does not: it is a function of the
+\emph{history} of crossings (Definition~\ref{def:event}), not of the
+present configuration. This is the formal version of the slogan that the
+present configuration carries no timestamp---it cannot, since by recurrence
+(Theorem~\ref{thm:recurrence}) the same configuration recurs at
+unboundedly many different counts.
+\end{remark}
+
+\subsection{Configurational reversibility}
+\label{sec:configreversible}
+
+\begin{theorem}[Configurational reversibility]
+\label{thm:configreversible}
+Let $(\Omega,\mu,\flow_t)$ admit a time reversal $\Tinv$
+(Definition~\ref{def:treversal}). Then for every microstate $x$ and every
+$t$,
+\begin{equation}
+\Obs\bigl(\Tinv\flow_t\Tinv\flow_t(x)\bigr)=\Obs(x)
+\label{eq:configrev}
+\end{equation}
+for every observable $\Obs$: the configuration is exactly restored by
+evolving forward, reversing, evolving forward again, and reversing once
+more. In particular, on the configurational stratum the dynamics is
+reversible.
+\end{theorem}
+
+\begin{proof}
+By \eqref{eq:treversal}, $\flow_{-t}=\Tinv\flow_t\Tinv$, so
+$\Tinv\flow_t\Tinv\flow_t=\flow_{-t}\flow_t=\flow_0=\mathrm{id}$. Applying
+any $\Obs$ to $\mathrm{id}(x)=x$ gives \eqref{eq:configrev}.
+\end{proof}
+
+\begin{remark}[The two strata do not interfere]
+\label{rem:noninterference}
+Theorem~\ref{thm:configreversible} and Theorem~\ref{thm:incoherence} are
+both true and not in tension: the first says the configuration returns to
+$x$ under the composite map; the second says that performing that
+composite map is a process with positive duration that increments
+$\Count$. The composite map restores $\Mic$ and $\Obs$ but advances
+$\Count$. The system is in the same configuration at a strictly later
+count. This is the precise content of ``the trajectory retraced but the
+system did not go back,'' and it is the entire resolution in miniature; the
+remaining sections enrich the configurational stratum with virtual
+sub-states and supply physical realisations.
+\end{remark}
+
+\begin{theorem}[Genuine distinctness of the three quantities]
+\label{thm:distinct}
+The microstate $\Mic$, the coarse observable $\Obs$, and the count
+$\Count$ are logically independent in the following sense.
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item $\Obs$ may return to a past value while $\Mic$ does not: a coarse
+observable is many-to-one, so $\Obs(t_2)=\Obs(t_1)$ does not imply
+$\Mic(t_2)=\Mic(t_1)$.
+\item $\Mic$ may return (arbitrarily close) to a past value while
+$\Count$ does not: by recurrence (Theorem~\ref{thm:recurrence}) the
+microstate revisits any neighbourhood, but by monotonicity
+(Theorem~\ref{thm:monotone}) the count has strictly increased meanwhile.
+\item $\Count$ never returns to a past value (Theorem~\ref{thm:incoherence}).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) is the definition of a coarse observable
+(Definition~\ref{def:three}). (ii): at a recurrence time $t_2$ with
+$\Mic(t_2)$ near $\Mic(t_1)$, Theorem~\ref{thm:monotone} gives
+$\Count(t_2)>\Count(t_1)$ because crossings accrued in the interim. (iii)
+is Theorem~\ref{thm:incoherence}.
+\end{proof}
+
+\begin{remark}[Dissolution of the recurrence objection]
+\label{rem:zermelo}
+Theorem~\ref{thm:distinct}(ii) settles Zermelo's recurrence objection to
+Boltzmann \citep{zermelo1896,boltzmann1877}: a Poincar\'e recurrence is a
+return of $\Mic$, not of $\Count$, and it is $\Count$---through the
+visited set $\Vis$ of Theorem~\ref{thm:entropy}---that carries entropy.
+The microstate may recur a googol times; the visited set only grows.
+\end{remark}
+
+% =====================================================================
+\section{Virtual Sub-States}
+\label{sec:virtual}
+% =====================================================================
+
+We now show that the configurational stratum is far larger than the
+microstate, because the decomposition space $\mathrm{Dec}_k(v)$ contains
+elements whose components are not themselves admissible configurations.
+These are the virtual sub-states. They are the structure that makes the
+reversibility of the configurational stratum \emph{do work}---in the
+backward completion of Section~\ref{sec:asymmetry} and in the physical
+realisations of Sections~\ref{sec:qft}--\ref{sec:ms}.
+
+\subsection{Admissibility and virtuality}
+\label{sec:admissibility}
+
+\begin{definition}[Admissible region]
+\label{def:admissible}
+Within the value space $V$, fix a measurable \emph{admissible region}
+$A\subseteq V$: the set of values that correspond to a physically
+realisable configuration (a coordinate inside the unit cell, a four-momentum
+on the mass shell, a partition coordinate inside $[0,1]$). A value in $A$
+is \emph{on-shell}; a value in $V\setminus A$ is \emph{off-shell}.
+\end{definition}
+
+\begin{definition}[Virtual sub-state]
+\label{def:virtual}
+Let $v\in A$ be an admissible value and $(v_1,\dots,v_k)\in\mathrm{Dec}_k(v)$
+a decomposition. The decomposition is a \emph{virtual sub-state} of $v$ if
+at least one component $v_i$ is off-shell, $v_i\in V\setminus A$. It is a
+\emph{physical} (on-shell) decomposition if every component is admissible.
+\end{definition}
+
+The defining tension is that a virtual sub-state recomposes to an
+admissible value through inadmissible parts. The composition law permits
+this precisely because $\Obs_V$ records only the composite, discarding the
+parts.
+
+\subsection{Existence and abundance}
+\label{sec:abundance}
+
+We make the abundance precise for the two composition laws that recur in
+the physical realisations: the mean (Section~\ref{sec:ms}) and the sum
+under a linear conservation constraint (Section~\ref{sec:qft}). Take
+$V=\R^m$ with the arity-$k$ mean
+$\boxplus(v_1,\dots,v_k)=\tfrac{1}{k}\sum_i v_i$ and admissible region
+$A=[0,1]^m$.
+
+\begin{theorem}[Existence of virtual sub-states]
+\label{thm:virtualexist}
+Let $v\in (0,1)^m$ and $k\geq 2$. Then $\mathrm{Dec}_k(v)$ contains
+virtual sub-states; indeed the set of $(v_1,\dots,v_k)$ with
+$\tfrac1k\sum_i v_i=v$ and at least one $v_i\notin[0,1]^m$ has positive
+Lebesgue measure within the constraint affine subspace
+$\{\,(v_1,\dots,v_k):\tfrac1k\sum_i v_i=v\,\}$.
+\end{theorem}
+
+\begin{proof}
+The constraint set is an affine subspace of $(\R^m)^k$ of dimension
+$m(k-1)$, carrying a natural Lebesgue measure. The on-shell decompositions
+are its intersection with the box $([0,1]^m)^k$, a bounded convex set of
+finite measure. The full constraint subspace is unbounded (one may send
+$v_1\to+\infty$ along any axis while compensating with $v_2\to-\infty$,
+holding the mean fixed), hence of infinite measure. The off-shell
+decompositions are the complement of a finite-measure set in an
+infinite-measure space and therefore have positive---indeed
+infinite---measure. Concretely, for $m=1$, $v\in(0,1)$, $k=2$, the family
+$(v+c,\,v-c)$ for $c>1-v$ has first component $>1$, hence off-shell, and is
+a one-parameter family of virtual sub-states.
+\end{proof}
+
+\begin{theorem}[The composite constrains no single part]
+\label{thm:miracle}
+For the mean law on $V=\R^m$ with admissible region $[0,1]^m$, fix any
+admissible composite $v\in[0,1]^m$, any arity $k\geq 2$, and any
+prescribed values $w_1,\dots,w_{k-1}\in\R^m$ for the first $k-1$ parts
+(however far off-shell). Then there is a unique $k$-th part
+$w_k=k\,v-\sum_{i<k}w_i$ making $(w_1,\dots,w_k)$ a decomposition of $v$.
+\end{theorem}
+
+\begin{proof}
+The mean constraint $\tfrac1k\sum_i w_i=v$ is a single affine equation in
+$w_k$ with solution $w_k=k\,v-\sum_{i<k}w_i$, which exists and is unique.
+\end{proof}
+
+\begin{remark}[Local infeasibility, global feasibility]
+\label{rem:localglobal}
+Theorem~\ref{thm:miracle} is the formal content of the slogan that a
+globally admissible quantity imposes \emph{no constraint whatever} on any
+proper subset of its parts: one may fix all but one part arbitrarily, and
+the remaining part absorbs the constraint. The components may be wildly
+off-shell---``locally infeasible''---while their composite is on-shell and
+``globally feasible.'' This is exactly the freedom that the reversibility
+of the configurational stratum supplies and that the count knows nothing
+about. It is also, as the next two physical sections show, not a formal
+curiosity but the operative mechanism behind off-shell internal lines in
+field theory and phase-coherent sub-components in spectrometry.
+\end{remark}
+
+\begin{remark}[Unobservability by recomposition]
+\label{rem:pathopacity}
+Because $\Obs_V$ records only the composite, two distinct decompositions
+of the same admissible value are indistinguishable by any measurement of
+that value. We will call this \emph{path opacity}: the recomposed quantity
+contains no record of which decomposition produced it. Path opacity is
+what makes virtual sub-states unobservable in isolation while remaining
+indispensable to the composite---the precise statement, in field theory,
+that single Feynman diagrams are not observable but their coherent sum is
+(Section~\ref{sec:qft}).
+\end{remark}
+
+% =====================================================================
+\section{The Forward/Backward Asymmetry}
+\label{sec:asymmetry}
+% =====================================================================
+
+We can now prove the keystone. Virtual sub-states are available for one
+purpose and not its mirror image: they may be used to \emph{complete} a
+computation toward a fixed admissible endpoint, but not to \emph{construct}
+a trajectory forward step by step. This asymmetry is the configurational
+shadow of the enumerative monotonicity of Section~\ref{sec:count}, and it
+is what blocks any attempt to use the freedom of the configurational
+stratum to run the dynamics backward.
+
+\subsection{Forward construction versus backward completion}
+\label{sec:forwardbackward}
+
+\begin{definition}[Forward construction]
+\label{def:forward}
+A \emph{forward construction} produces a sequence of configurations
+$v^{(0)},v^{(1)},\dots,v^{(n)}$ in which each $v^{(j+1)}$ is obtained from
+$v^{(j)}$ by a step that must itself be an admissible configuration: each
+intermediate $v^{(j)}\in A$.
+\end{definition}
+
+\begin{definition}[Backward completion]
+\label{def:backward}
+A \emph{backward completion} is given a fixed admissible endpoint
+$v^{(n)}=v^{\ast}\in A$ and produces, for each level $j$, a decomposition
+of $v^{\ast}$'s coordinate at that level, with the only requirement that
+each decomposition recompose correctly; intermediate components are
+unconstrained and may be virtual (off-shell).
+\end{definition}
+
+\begin{theorem}[Forward constructions cannot use virtual sub-states]
+\label{thm:forwardnovirtual}
+In a forward construction, no $v^{(j)}$ may be a virtual sub-state: every
+intermediate is on-shell.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:forward}, each $v^{(j)}\in A$. A virtual sub-state
+has, by Definition~\ref{def:virtual}, an off-shell component
+$v_i\in V\setminus A$; were $v^{(j)}$ itself that component it would lie
+outside $A$, contradicting admissibility of the intermediate. Hence no
+intermediate of a forward construction is virtual.
+\end{proof}
+
+\begin{theorem}[Backward completions may use virtual sub-states]
+\label{thm:backwardvirtual}
+In a backward completion toward an admissible endpoint $v^{\ast}$, the
+intermediate decompositions may be virtual; moreover, by
+Theorem~\ref{thm:virtualexist} the set of completions whose intermediates
+are virtual has positive measure, and by Theorem~\ref{thm:miracle} the
+endpoint constrains no single intermediate component.
+\end{theorem}
+
+\begin{proof}
+Immediate from Definition~\ref{def:backward}: intermediate components are
+required only to recompose to $v^{\ast}$, not to be admissible. Existence
+and abundance are Theorems~\ref{thm:virtualexist} and~\ref{thm:miracle}.
+\end{proof}
+
+\begin{theorem}[Asymmetry]
+\label{thm:asymmetry}
+The use of virtual sub-states is exclusive to backward completion: a
+process that admits virtual intermediates is a backward completion toward a
+fixed endpoint and is not a forward construction; equivalently, restricting
+a backward completion to on-shell intermediates collapses it to a forward
+construction.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:forwardnovirtual} a forward construction admits no
+virtual intermediate, so any process with a virtual intermediate is not a
+forward construction. By Theorem~\ref{thm:backwardvirtual} a backward
+completion does admit them. Restricting a backward completion to on-shell
+intermediates imposes $v^{(j)}\in A$ at every level, which is precisely
+Definition~\ref{def:forward}; the resulting object is a forward
+construction.
+\end{proof}
+
+\begin{remark}[Why the asymmetry is the resolution's keystone]
+\label{rem:keystone}
+The reason this matters for Loschmidt is the following. The configurational
+stratum is reversible (Theorem~\ref{thm:configreversible}), and it is rich,
+because of virtual sub-states (Section~\ref{sec:virtual}). One might hope to
+exploit this richness to drive the system backward---to ``complete''
+the present configuration back into a past one through clever, possibly
+off-shell, intermediate decompositions. Theorem~\ref{thm:asymmetry} says
+this hope is misdirected: virtual sub-states complete toward a \emph{fixed}
+endpoint; they do not run a trajectory in either temporal direction. The
+endpoint they complete toward is whatever admissible configuration the
+system is \emph{already at}. The freedom is entirely internal to a single
+count---it is freedom in how the present configuration may be analysed,
+not freedom to change which count one is at. The count advances regardless
+(Theorem~\ref{thm:incoherence}). Thus the richest available reversible
+structure is powerless against the enumerative arrow: it operates within a
+count, never across counts.
+\end{remark}
+
+\subsection{Cost of the on-shell restriction}
+\label{sec:cost}
+
+The asymmetry has a quantitative face: completions that forgo virtual
+sub-states lose the efficiency the virtual ones provide. We record the
+combinatorial fact for the ternary case, which recurs physically in
+Section~\ref{sec:ms}.
+
+\begin{proposition}[Decomposition multiplicity]
+\label{prop:multiplicity}
+The number of ordered decompositions (compositions) of a positive integer
+$n$ into a sequence of positive parts is $2^{n-1}$; the number of such
+compositions whose parts are additionally labelled by one of $d$ channels
+is $d\,(d+1)^{n-1}$.
+\end{proposition}
+
+\begin{proof}
+A composition of $n$ corresponds bijectively to a choice of a subset of the
+$n-1$ gaps between $n$ unit dots at which to place a divider, giving
+$2^{n-1}$ \citep{stanley2011}. Labelling each of the $k$ parts of a
+$k$-part composition by one of $d$ channels multiplies the count for that
+$k$ by $d^{k}$; summing over $k$,
+$\sum_{k=1}^{n}\binom{n-1}{k-1}d^{k}=d\sum_{j=0}^{n-1}\binom{n-1}{j}d^{j}
+=d(1+d)^{n-1}$ by the binomial theorem.
+\end{proof}
+
+\begin{remark}
+\label{rem:multiplicity}
+The exponential multiplicity of Proposition~\ref{prop:multiplicity} is the
+size of the decomposition space a backward completion may range over;
+restricting to on-shell intermediates prunes it to the (generally much
+smaller) admissible subset. In the embedding of Section~\ref{sec:ms} this
+is the difference between $\mathcal{O}(\log N)$ and $\mathcal{O}(N)$ work
+to resolve a feature at depth $\log_d N$. The same multiplicity underlies
+the abundance of off-shell decompositions in
+Theorem~\ref{thm:virtualexist}.
+\end{remark}
+
+% =====================================================================
+\section{The Resolution of Loschmidt's Paradox}
+\label{sec:resolution}
+% =====================================================================
+
+We assemble the resolution.
+
+\begin{theorem}[Velocity reversal cannot decrease entropy]
+\label{thm:resolution}
+Let $(\Omega,\mu,\flow_t)$ be bounded, measure-preserving, non-static, and
+admit a time reversal $\Tinv$. Let the system evolve from $t_0$ to $T$ and
+let an apparatus then perform a physical velocity reversal. Then:
+\begin{enumerate}[label=(\roman*),leftmargin=2em]
+\item the configuration thereafter retraces, and any coarse observable can
+return to a past value (Theorem~\ref{thm:configreversible});
+\item the event count strictly increases throughout, including across the
+reversal operation (Theorems~\ref{thm:monotone}, \ref{thm:incoherence},
+Corollary~\ref{cor:Rnotcount});
+\item the visited-cell entropy $S$ does not decrease, because the visited
+set is a monotone function of the trajectory's history and the reversal
+acts only on the present configuration (Theorem~\ref{thm:entropy},
+Remark~\ref{rem:notboltzmann}).
+\end{enumerate}
+Consequently velocity reversal restores configuration without restoring
+the past: the system is in a retraced configuration at a strictly later
+count and strictly larger (or equal) entropy. No decrease of total entropy
+occurs.
+\end{theorem}
+
+\begin{proof}
+(i) is Theorem~\ref{thm:configreversible}. (ii): the pre-reversal
+evolution increments $\Count$ by Theorem~\ref{thm:monotone}; the reversal
+apparatus is a physical operation of positive duration, so by
+Theorem~\ref{thm:incoherence} it too increments $\Count$, and the
+mathematical involution $\Tinv$ does not act on $\Count$ by
+Corollary~\ref{cor:Rnotcount}; the post-reversal evolution increments
+$\Count$ again. (iii): by Theorem~\ref{thm:entropy}, $\Vis$ only grows; the
+reversal changes $\Mic$ but not the family of cells already entered, so $S$
+cannot fall. The final clause combines (i)--(iii).
+\end{proof}
+
+\begin{corollary}[Dissolution of the paradox]
+\label{cor:dissolution}
+Loschmidt's reversal is neither improbable nor forbidden: the configuration
+genuinely retraces. What does not happen is the identification of that
+retracing with a return to the past, because the count---the operational
+content of elapsed time---strictly increases and carries the monotone
+visited-set entropy with it. The paradox is the conflation of
+Principle~\ref{prin:conflation}; separating the strata dissolves it.
+\end{corollary}
+
+\begin{remark}[Comparison with the standard resolutions]
+\label{rem:comparison}
+Table~\ref{tab:comparison} situates the present account. Each standard
+resolution grants the reversibility presupposition---that time reversal is
+a coherent, in-principle-achievable operation---and then explains why its
+consequences are not seen. The present account denies the presupposition
+at its root: the operation is coherent on the configurational stratum
+(where it changes nothing about the arrow) and has no realisation on the
+enumerative stratum (where the arrow lives). The denial is not an extra
+assumption; it is Theorem~\ref{thm:incoherence}, which follows from
+boundedness, measure preservation, and the definition of an operation as a
+process of positive duration.
+\end{remark}
+
+\begin{table}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{0.20\textwidth}p{0.40\textwidth}p{0.30\textwidth}}
+\toprule
+\textbf{Account} & \textbf{Why reversal is not seen} &
+\textbf{Residual commitment} \\
+\midrule
+Boltzmann statistical \citep{boltzmann1877} &
+Reversed microstates are astronomically rare. &
+Reversal possible, merely improbable. \\
+Gibbs coarse-graining \citep{gibbs1902} &
+Coarse-grained entropy grows; fine-grained is constant. &
+Irreversibility is observer-relative. \\
+Information-theoretic \citep{jaynes1957} &
+Entropy is ignorance of the microstate. &
+Irreversibility is epistemic. \\
+Cosmological boundary \citep{penrose1989} &
+A low-entropy initial condition sets the gradient. &
+Explains the global gradient, not local reversal. \\
+Decoherence \citep{zurek2003} &
+Entanglement with the environment destroys phase relations. &
+Closed-system reversal granted as coherent. \\
+\midrule
+\textbf{This work} &
+Configuration retraces; the count and its visited-set entropy do not
+decrease, because reversal acts only on the present configuration. &
+None: reversal is coherent configurationally and absent enumeratively
+(Thm.~\ref{thm:incoherence}). \\
+\bottomrule
+\end{tabular}
+\caption{The standard resolutions accept the reversibility presupposition
+and explain its consequences away; the present account separates the
+configurational and enumerative strata and locates the arrow in the
+latter.}
+\label{tab:comparison}
+\end{table}
+
+% =====================================================================
+\section{Physical Realisation I: Off-Shell States in Quantum Field Theory}
+\label{sec:qft}
+% =====================================================================
+
+The abstract virtual sub-state of Section~\ref{sec:virtual} has a precise,
+long-established physical instance: the off-shell internal line of a
+Feynman diagram. We develop the correspondence and show that path opacity
+(Remark~\ref{rem:pathopacity}) is exactly the statement that the sum over
+diagrams, not the individual diagram, is observable.
+
+\subsection{The off-shell line as a virtual sub-state}
+\label{sec:offshell}
+
+In perturbative quantum field theory \citep{peskin1995,weinberg1995,%
+itzykson1980}, a scattering amplitude for external particles of momenta
+$p_1,\dots,p_n$ is computed as a sum over Feynman diagrams
+\citep{feynman1949,dyson1949}. External lines carry on-shell momenta,
+$p_i^2=m_i^2$ (in units $\hbar=c=1$); internal lines carry momenta $q$
+constrained only by momentum conservation at each vertex, and generically
+$q^2\neq m^2$---they are \emph{off-shell}, or virtual.
+
+\begin{proposition}[Internal lines are virtual sub-states]
+\label{prop:internalvirtual}
+Take the value space $V$ to be four-momentum space $\R^{1,3}$, the
+admissible region $A=\{q:q^2=m^2\}$ the mass shell, and the composition law
+the sum constrained by conservation at each vertex. Then the internal
+lines of any diagram contributing to a fixed on-shell external
+configuration form a virtual sub-state of that configuration in the sense
+of Definition~\ref{def:virtual}: their momenta recompose (via conservation)
+to the on-shell external data, while each internal momentum is generically
+off-shell.
+\end{proposition}
+
+\begin{proof}
+Momentum conservation at the vertices is a system of linear constraints
+expressing the external momenta as a signed sum of internal and external
+line momenta; this is the composition law $\boxplus$ specialised to the
+constrained sum. The external data $\{p_i\}$ lie in $A$ by construction
+(asymptotic states are on-shell). For a loop diagram the loop momentum is
+integrated over all of $\R^{1,3}$, the overwhelming part of which has
+$q^2\neq m^2$; for a tree internal line the momentum is fixed by
+conservation and generically off-shell. Hence the internal configuration
+is a decomposition of the external data with off-shell components: a
+virtual sub-state.
+\end{proof}
+
+\begin{remark}[The propagator weights the off-shell excursion]
+\label{rem:propagator}
+The Feynman propagator $i/(q^2-m^2+i\eps)$ assigns each internal line a
+weight that is largest near the mass shell and falls off as the line goes
+further off-shell; the $i\eps$ prescription fixes the contour. The
+off-shell excursion is thus not forbidden but weighted---exactly as in the
+abstract picture, where off-shell decompositions are permitted and
+abundant (Theorem~\ref{thm:virtualexist}) but the dynamics supplies a
+weighting over them. For an unstable particle the propagator denominator
+$q^2-m^2+im\Gamma$ carries an imaginary part $im\Gamma$ encoding the decay
+rate; the real part is the off-shell distance and the imaginary part the
+rate of committed transition.
+\end{remark}
+
+\subsection{Diagrams as backward completions; path opacity}
+\label{sec:diagramsbackward}
+
+\begin{proposition}[A diagram is a backward completion]
+\label{prop:diagrambackward}
+A Feynman diagram contributing to a fixed on-shell external configuration
+$v^{\ast}=\{p_i\}$ is a backward completion (Definition~\ref{def:backward})
+of $v^{\ast}$: the endpoint (external lines) is fixed and on-shell, the
+intermediate components (internal lines) are unconstrained except by
+recomposition (conservation), and they may be virtual.
+\end{proposition}
+
+\begin{proof}
+The external data are fixed and admissible; the internal data satisfy only
+the recomposition constraint and are generically off-shell
+(Proposition~\ref{prop:internalvirtual}). This is exactly
+Definition~\ref{def:backward}.
+\end{proof}
+
+\begin{theorem}[Path opacity and the sum over diagrams]
+\label{thm:qftopacity}
+Two diagrams $\Gamma_1,\Gamma_2$ with the same external lines but different
+internal topologies are distinct backward completions of the same
+on-shell endpoint. No measurement performed on the external (asymptotic)
+states distinguishes them; only their coherent sum
+$\Mmat=\sum_{\Gamma}\Mmat_{\Gamma}$ enters the observable
+$|\Mmat|^2$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:diagrambackward} each $\Gamma_a$ is a backward
+completion of the same endpoint $v^{\ast}$; by path opacity
+(Remark~\ref{rem:pathopacity}), the recomposed quantity---here the
+$S$-matrix element evaluated on the external momenta---records only the
+composite, not which internal decomposition produced it. The observable
+transition probability is $|\Mmat|^2=|\sum_\Gamma\Mmat_\Gamma|^2$, which
+contains interference cross terms $\Mmat_{\Gamma_1}^{\ast}\Mmat_{\Gamma_2}$;
+the individual $\Mmat_\Gamma$ cannot be recovered from $|\Mmat|^2$ without
+further structure. Hence single diagrams are not observable and their sum
+is.
+\end{proof}
+
+\begin{remark}[Unitarity as recomposition bookkeeping]
+\label{rem:unitarity}
+The optical theorem,
+$2\,\mathrm{Im}\,\Mmat(p\!\to\!p)=\sum_f\int d\Pi_f\,|\Mmat(p\!\to\!f)|^2$
+\citep{peskin1995,cutkosky1960}, is the statement that the imaginary part
+of the forward amplitude equals the total transition rate summed over final
+states. In the present language it is a recomposition identity: the rate at
+which probability flows out of the initial channel through (off-shell)
+virtual intermediates equals the rate at which it is committed into
+(on-shell) final channels. The off-shell sub-states are the reversible,
+path-opaque interior; the committed final-state rate is the
+enumerative quantity. Unitarity is the conservation law tying the two,
+the field-theoretic counterpart of the strict bookkeeping between the
+configurational and enumerative strata.
+\end{remark}
+
+\begin{remark}[Why virtual particles are not observed]
+\label{rem:notobserved}
+Theorem~\ref{thm:qftopacity} explains the textbook statement that virtual
+particles cannot be directly observed \citep{peskin1995}: a measurement of
+the external particles cannot determine which internal lines were
+exchanged, because the observable depends on the recomposed amplitude and
+not on the decomposition. This is path opacity, not a limitation of
+apparatus. The off-shell line is a genuine, weighted element of the
+reversible configurational interior; its unobservability in isolation is
+the same fact as the unobservability of a single decomposition of a
+recomposed value (Remark~\ref{rem:pathopacity}).
+\end{remark}
+
+% =====================================================================
+\section{Physical Realisation II: Phase-Coherent Sub-Components in
+Fourier Mass Spectrometry}
+\label{sec:ms}
+% =====================================================================
+
+The second realisation is metrological and, unlike the field-theoretic
+one, directly furnishes a measured off-shell fraction. An ion oscillating
+in a Fourier-transform mass analyser is a bounded oscillatory system whose
+transient encodes, in its phase and amplitude structure, decompositions
+that are partly off-shell.
+
+\subsection{The oscillating ion as a bounded system}
+\label{sec:ion}
+
+In an Orbitrap analyser \citep{makarov2000} an ion of mass-to-charge ratio
+$m/z$ executes harmonic axial motion at angular frequency
+$\omega_z=\sqrt{q\kappa/m}$, with $\kappa$ the field curvature; in a
+Fourier-transform ion-cyclotron-resonance cell \citep{comisarow1974} the
+relevant frequency is the cyclotron frequency $\omega_c=qB/m$. In both, the
+ion is a bounded oscillator in the sense of Definition~\ref{def:boundedmp},
+the image current it induces is recorded as a time-domain transient, and
+the mass is inferred from the oscillation frequency---never measured
+directly, but read from the rate at which the oscillation cycles accrue.
+
+\begin{remark}[Frequency as a count rate]
+\label{rem:freqcount}
+That mass is read from a frequency is the metrological face of
+Remark~\ref{rem:countistime}: the analyser is a counter, and the
+``measurement'' of $m/z$ is a comparison of the ion's cycle-accrual rate
+against the instrument's reference oscillator. The transient is a record of
+counts, and the event count $\Count$ of Definition~\ref{def:event} is, for
+this system, literally the number of image-current cycles.
+\end{remark}
+
+\subsection{Phase coherence and sub-components}
+\label{sec:phasecoherence}
+
+Consider a precursor ion and its dissociation products, all oscillating in
+the same trap field. Because the products are produced from the precursor's
+continuous oscillatory trajectory, their phases are coherent with it.
+
+\begin{proposition}[Frequency relation of products]
+\label{prop:productfreq}
+In a fixed Orbitrap field (fixed $\kappa$, fixed charge), a product ion of
+mass $m_f$ oscillates at
+\begin{equation}
+\omega_f=\omega_{\mathrm{prec}}\sqrt{m_{\mathrm{prec}}/m_f},
+\label{eq:productfreq}
+\end{equation}
+where $\omega_{\mathrm{prec}}$ and $m_{\mathrm{prec}}$ are the precursor's
+frequency and mass.
+\end{proposition}
+
+\begin{proof}
+From $\omega_z=\sqrt{q\kappa/m}$ with common $q,\kappa$, dividing the
+product and precursor relations gives
+$\omega_f/\omega_{\mathrm{prec}}=\sqrt{m_{\mathrm{prec}}/m_f}$.
+\end{proof}
+
+\begin{remark}[Sub-components in the transient]
+\label{rem:transientcomponents}
+By linearity of image-current superposition, a transient containing the
+precursor and a coherent product carries both a component at
+$\omega_{\mathrm{prec}}$ and one at $\omega_f$ given by
+\eqref{eq:productfreq}, the latter phase-locked to the former. The
+information that conventional processing discards---phase and the
+sub-harmonic amplitude structure---is exactly the decomposition data: the
+record of how the precursor's oscillatory state decomposes into coherent
+sub-components.
+\end{remark}
+
+\subsection{The mean-recovery decomposition and its off-shell fraction}
+\label{sec:meanrecovery}
+
+We now exhibit the virtual sub-state structure directly. Normalise the
+relevant ion parameters (frequency, charge state, polarity, time) onto a
+common scale so that the physical ion corresponds to an admissible
+coordinate $v\in[0,1]^m$, and consider decompositions $(v_1,\dots,v_k)$
+with mean $v$ (Definition~\ref{def:complaw}, mean law).
+
+\begin{proposition}[Off-shell sub-components exist and recompose]
+\label{prop:msoffshell}
+For a normalised ion coordinate $v\in(0,1)^m$, the decomposition space
+contains mean-recovery tuples with off-shell components (some
+$v_i\notin[0,1]^m$), by Theorem~\ref{thm:virtualexist}; their mean recovers
+the physical coordinate by construction. These off-shell sub-components are
+the spectrometric virtual sub-states.
+\end{proposition}
+
+\begin{proof}
+Direct specialisation of Theorem~\ref{thm:virtualexist} with the mean law
+and admissible region $[0,1]^m$.
+\end{proof}
+
+\begin{remark}[A measured off-shell fraction]
+\label{rem:measuredfraction}
+The content of Proposition~\ref{prop:msoffshell} is empirically accessible:
+constructing the stacked decomposition of a real ion across its natural
+parameters and computing the fraction of sub-components falling outside
+$[0,1]^m$ yields a definite, nonzero off-shell fraction, while the mean of
+the components remains the physical (admissible) coordinate in every case.
+A nonzero such fraction is the direct measurement of virtuality: it shows
+that the reversible configurational interior of a single measured ion
+contains genuinely off-shell parts whose composite is on-shell. This is the
+metrological counterpart of the field-theoretic statement
+(Section~\ref{sec:qft}) that internal lines are off-shell while external
+lines are on-shell.
+\end{remark}
+
+\begin{remark}[Tailored-waveform cancellation]
+\label{rem:swift}
+Stored-waveform inverse-Fourier-transform excitation
+\citep{marshall1985}, which isolates a target ion by ejecting others, is
+the operational use of off-shell sub-components: the ejection waveform is
+the inverse transform of a decomposition designed so that the unwanted
+ions' contributions cancel in recomposition while the target's survives.
+That such a waveform exists and works is the engineering proof that
+mean-recovery decompositions with cancelling (and individually off-shell)
+parts are physically constructible.
+\end{remark}
+
+\subsection{The efficient embedding}
+\label{sec:embedding}
+
+The ternary refinement underlying the normalised coordinate embeds the
+discrete partition of resolutions into a continuous metric space, where
+backward completion is efficient.
+
+\begin{proposition}[Fisher embedding and backward efficiency]
+\label{prop:fisher}
+The hierarchy of normalised coordinates with ternary refinement embeds into
+$[0,1]^{3}$ with the Fisher-information metric
+$ds^2=\sum_{i}(dS^i)^2/(S^i(1-S^i))$, the unique metric invariant under the
+refinement (a consequence of \v{C}encov's uniqueness theorem
+\citep{cencov1982,amari2016}). Backward completion of a feature at
+refinement depth $\log_3 N$ then costs $\mathcal{O}(\log_3 N)$ steps,
+against $\Omega(N)$ for an on-shell-only search.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+Assign each depth-$n$ cell its base-3 address along each axis and map the
+address to the corresponding ternary fraction; the induced map is injective
+with dense image, and the Fisher metric is the unique refinement-invariant
+Riemannian metric on the resulting simplex coordinates
+\citep{cencov1982,amari2016}. Descending to a leaf at depth $\log_3 N$ is
+$\log_3 N$ ternary choices; an on-shell-only search among $N$ leaves is
+$\Omega(N)$, recovering the multiplicity gap of
+Remark~\ref{rem:multiplicity}.
+\end{proof}
+
+\begin{remark}
+\label{rem:embeddingasymmetry}
+Proposition~\ref{prop:fisher} is the quantitative form of the asymmetry
+(Theorem~\ref{thm:asymmetry}) in the spectrometric setting: the
+$\mathcal{O}(\log N)$ efficiency is available only to the backward
+completion that may pass through off-shell sub-coordinates; restricting to
+on-shell intermediates forfeits it and returns the cost to $\Omega(N)$.
+\end{remark}
+
+% =====================================================================
+\section{The Spin Echo: A Controlled Test of the Reversibility Assumption}
+\label{sec:echo}
+% =====================================================================
+
+The two realisations above instantiate virtual sub-states; the spin echo
+supplies the experimental verdict on the reversibility presupposition
+itself. It is the closest laboratory approximation to Loschmidt's
+operation, performed routinely since 1950 \citep{hahn1950}, and its
+seventy-year refinement exposes an irreducible floor rather than improving
+reversal.
+
+\subsection{The echo as configurational recovery}
+\label{sec:echorecovery}
+
+In a spin-echo experiment an ensemble of nuclear spins is tipped into the
+transverse plane, allowed to dephase under a spread of precession
+frequencies, and then subjected to a refocusing ($180^\circ$) pulse that
+inverts each accumulated phase $\phase_i\mapsto-\phase_i$; at twice the
+dephasing time the ensemble rephases and the macroscopic signal reappears
+as an echo \citep{hahn1950}.
+
+\begin{proposition}[The echo recovers configuration, not history]
+\label{prop:echorecovery}
+For the static (inhomogeneous) part of the dephasing, the refocusing pulse
+restores the observable transverse magnetisation
+$\Obs(2\tau)=\Obs(0)$ while the microstate is never lost (each phase is a
+determined function of the fixed local offset and the pulse history) and
+the event count advances monotonically across $[0,2\tau]$.
+\end{proposition}
+
+\begin{proof}
+A spin with fixed offset $\Delta\omega_i$ accumulates phase
+$\Delta\omega_i\tau$ before the pulse; the pulse sends it to
+$-\Delta\omega_i\tau$, and it accumulates $\Delta\omega_i\tau$ again in
+$[\tau,2\tau]$, returning to zero phase at $2\tau$ independently of
+$\Delta\omega_i$. The vector sum---the observable---is thereby restored:
+$\Obs(2\tau)=\Obs(0)$. Each phase is at every instant a determined function
+of the fixed offset and the (deterministic) pulse history, so the microstate
+is never lost; this is configurational reversibility
+(Theorem~\ref{thm:configreversible}) realised in the laboratory. The
+spectrometer's reference oscillator crosses its section throughout, so by
+Theorem~\ref{thm:monotone} the count strictly increases.
+\end{proof}
+
+\begin{remark}[Echo $=$ retraced configuration at a later count]
+\label{rem:echolater}
+Proposition~\ref{prop:echorecovery} is Remark~\ref{rem:noninterference}
+made experimental: the signal returns (configuration restored) while the
+count advances (no return to the past). ``The signal came back'' is not
+``the system went back.'' One can point at all three quantities at once on
+the oscilloscope: the observable that refocused, the microstate that ran
+forward intact, and the count that advanced and cannot return.
+\end{remark}
+
+\subsection{What cannot be refocused, and why}
+\label{sec:irreducible}
+
+The echo never fully recovers. The fluctuating (homogeneous) part of the
+dephasing, governed by the transverse relaxation time $T_2$
+\citep{bpp1948}, is not refocused, and the echo amplitude is reduced by
+$e^{-2\tau/T_2}$.
+
+\begin{proposition}[Refocusability excludes committed interaction]
+\label{prop:refocus}
+A dephasing contribution is refocusable by a $180^\circ$ pulse if and only
+if the phase it produces after the pulse is a determined function of the
+present microstate. A contribution arising from a fluctuating interaction
+that has committed which-spin information to the environment is not such a
+function and is not refocusable.
+\end{proposition}
+
+\begin{proof}
+If the post-pulse phase is determined by the present microstate, the pulse
+$\phase\mapsto-\phase$ pre-compensates it and the contribution refocuses
+(the static case of Proposition~\ref{prop:echorecovery}). Conversely, a
+fluctuating interaction imprints a phase increment in $[\tau,2\tau]$ that is
+statistically independent of the increment in $[0,\tau]$ once which-spin
+information has passed into the environment; knowing the present microstate
+of the spin does not determine it, so no operation on the spin alone can
+pre-compensate it, and the residual randomised phase degrades the
+realignment.
+\end{proof}
+
+\begin{corollary}[The irreducible floor is the committed record]
+\label{cor:floor}
+The unrefocusable part of the dephasing is exactly the part that has
+committed information to the environment---entered new cells of the joint
+system--environment partition in the sense of
+Definition~\ref{def:visited}---and the echo deficit $e^{-2\tau/T_2}$ is a
+calibrated readout of that committed record. It is non-negative, monotone
+in $\tau$, and not reduced by any further pulse.
+\end{corollary}
+
+\begin{proof}
+By Proposition~\ref{prop:refocus} the unrefocusable contributions are the
+committed ones; committing information is entering previously unvisited
+cells of the joint partition, which by Theorem~\ref{thm:entropy} only
+accumulates. The Gaussian treatment of the fluctuating phase gives a mean
+residual amplitude $\exp(-\tfrac12\langle\Delta\phase^2\rangle)$ with
+$\langle\Delta\phase^2\rangle\propto 2\tau/T_2$, yielding the stated
+deficit; its monotonicity in $\tau$ and invariance under further pulses
+follow from the monotonicity of the committed record.
+\end{proof}
+
+\subsection{The echo hierarchy and the engineering-independent floor}
+\label{sec:hierarchy}
+
+The refocusing idea has been pushed toward ever more complete reversal,
+and the result is a hierarchy in which better engineering exposes a
+sharper, engineering-independent floor.
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Hahn echo} \citep{hahn1950}: reverses the static
+single-spin inhomogeneity; floor at the homogeneous $T_2$, the deficit
+$e^{-2\tau/T_2}$ of Corollary~\ref{cor:floor}.
+\item \textbf{CPMG} \citep{carr1954,meiboom1958}: iterates the refocusing
+pulse, converting slowly varying field components into refocusable
+(configurational) dephasing before they commit; the decay time lengthens
+toward, but never beyond, the limit set by fast fluctuations. Packing pulses
+more densely does not breach the floor.
+\item \textbf{Magic / polarization echo} \citep{rhim1971,levstein1998}:
+engineers the many-body dipolar evolution to run as though under $-H$
+rather than $+H$, the closest laboratory enactment of Loschmidt's
+operation at the level of the interactions. The measured fidelity decay
+becomes, in the strongly coupled regime, \emph{independent of the residual
+imperfection} of the reversal: making the engineering more perfect does not
+slow the decay \citep{levstein1998,jalabert2001,peres1984,gorin2006}.
+\end{itemize}
+
+\begin{remark}[The verdict]
+\label{rem:verdict}
+The reversibility presupposition predicts that the barrier to reversal is
+contingent---improbability, imperfection, openness---and so should recede as
+control improves. The echo hierarchy falsifies this prediction: the barrier
+does not recede with control; it is intrinsic, set by the system's own
+committed dynamics. This is precisely Theorem~\ref{thm:incoherence} and
+Corollary~\ref{cor:floor} made experimental. The configurational part
+refocuses arbitrarily well (Proposition~\ref{prop:echorecovery}); the
+committed part does not refocus at all (Proposition~\ref{prop:refocus}); and
+the limit of perfect reversal engineering is not perfect reversal but the
+bare exposure of the floor. The experiment named after Loschmidt is the
+experiment that decides against Loschmidt's premise.
+\end{remark}
+
+% =====================================================================
+\section{Objections and Replies}
+\label{sec:objections}
+% =====================================================================
+
+\paragraph{(O1) ``Erase the record, and the count is gone.''}
+If one erases the visited-set record---or the observer's memory of it---the
+states $S_0$ (before evolution) and $S_0'$ (after reversal) might seem
+indistinguishable, hence the same. The reply is twofold. First, erasure is
+itself an operation of positive duration and so increments the count
+(Theorem~\ref{thm:incoherence}); it cannot decrement what it is an instance
+of. Second, erasure is physically a commitment of information to the
+environment, the irreversible kind of step of
+Proposition~\ref{prop:refocus} and Corollary~\ref{cor:floor}: it enlarges,
+not shrinks, the visited set of the joint system--environment partition.
+Erasure removes the ability to \emph{read} the distinction from the system
+alone; it does not remove the distinction
+\citep{landauer1961,bennett1982,szilard1929}.
+
+\paragraph{(O2) ``The count depends on the choice of section $\Sigma$.''}
+Different sections yield different counts, but the monotonicity of each
+(Theorem~\ref{thm:monotone}) and the incoherence of decrement
+(Theorem~\ref{thm:incoherence}) hold for every positive-measure section.
+The arrow is a property shared by all admissible counters, not an artefact
+of one; this is the counterpart of the fact that all physical clocks agree
+on the direction of time though not on its rate.
+
+\paragraph{(O3) ``Virtual sub-states are a mere bookkeeping device.''}
+They are a bookkeeping device, and they are physical. The off-shell
+internal line is indispensable to the computed amplitude yet unobservable in
+isolation (Theorem~\ref{thm:qftopacity}); the spectrometric off-shell
+fraction is measured (Remark~\ref{rem:measuredfraction}); the
+tailored-waveform cancellation is engineered (Remark~\ref{rem:swift}). A
+device with measured fractions and engineered uses is not ``mere.'' What is
+true is that virtual sub-states are confined to the reversible
+configurational interior and are silent about the count---which is exactly
+why they cannot be marshalled to reverse the arrow
+(Theorem~\ref{thm:asymmetry}).
+
+\paragraph{(O4) ``This is just coarse-graining renamed.''}
+It is not. Coarse-graining \citep{gibbs1902} makes irreversibility relative
+to a choice of smearing and leaves the fine-grained entropy constant by
+Liouville's theorem. The present account makes no smearing: the visited set
+$\Vis$ is defined by which cells the trajectory has \emph{entered}, a fact
+about the actual path, not about a chosen resolution of the present state.
+Two trajectories at the same present cell with different histories have
+different visited sets; coarse-graining of the present state cannot tell
+them apart, while $\Vis$ does (Remark~\ref{rem:negation}). The irreversibility
+here is of the record, not of the resolution.
+
+\paragraph{(O5) ``Why is $c$, the mass shell, or $[0,1]^m$ the right
+admissible region?''}
+The resolution does not depend on which admissible region one fixes; it
+depends only on there \emph{being} one, so that ``off-shell'' is well
+defined and the asymmetry of Section~\ref{sec:asymmetry} has content. The
+three physical sections supply three concrete admissible regions---the mass
+shell, the unit cube of normalised ion parameters, and the determined-phase
+subspace of the spin ensemble---and the same abstract theorems specialise to
+each.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+Loschmidt's paradox is the appearance of contradiction between the
+time-reversal symmetry of the microscopic equations and the manifest
+asymmetry of macroscopic processes. We have argued that the appearance is
+produced by collapsing two strata of a system's description that obey
+different logics, and that holding them apart dissolves it without any
+appeal to improbability, coarse-graining, or special boundary conditions.
+
+The configurational stratum---the instantaneous microstate together with
+the space of its decompositions---is genuinely reversible
+(Theorem~\ref{thm:configreversible}), and it is rich, because it contains
+virtual sub-states: decompositions whose components may be off-shell while
+their composite is on-shell (Theorem~\ref{thm:virtualexist},
+Theorem~\ref{thm:miracle}). The enumerative stratum---the count of
+completed dynamical events---cannot decrease, because any operation that
+would decrement it is itself a counted process
+(Theorem~\ref{thm:incoherence}); it carries a visited-set entropy that is
+monotone by the combinatorics of an appended record, with the second law as
+a corollary (Corollary~\ref{cor:secondlaw}) and Boltzmann's $H$-theorem as
+its statistical refinement. The two strata are logically independent
+(Theorem~\ref{thm:distinct}), and the freedom of the first cannot reach the
+second, because virtual sub-states are available only for the backward
+completion of a fixed endpoint and never for forward construction
+(Theorem~\ref{thm:asymmetry})---a structural asymmetry that is the
+configurational shadow of the enumerative arrow. Velocity reversal acts on
+the configurational stratum and leaves the enumerative one untouched, so it
+restores configuration without restoring the past
+(Theorem~\ref{thm:resolution}).
+
+That virtual sub-states are not a formal contrivance is established by two
+independent physical realisations and one controlled experiment. In
+quantum field theory the off-shell internal line is a weighted, path-opaque
+element of the reversible interior, and the unobservability of single
+diagrams is the unobservability of single decompositions
+(Theorem~\ref{thm:qftopacity}). In Fourier mass spectrometry a measured
+fraction of an ion's natural decomposition lies off the physical manifold
+while its mean recovers the physical coordinate
+(Remark~\ref{rem:measuredfraction}). And the nuclear spin echo, the closest
+laboratory approximation to Loschmidt's own operation, refocuses the
+configurational part of the dynamics arbitrarily well while exposing an
+engineering-independent floor exactly where information has been committed
+(Corollary~\ref{cor:floor}, Remark~\ref{rem:verdict})---a seventy-year
+experimental verdict against the assumption that time reversal is a coherent
+operation on anything but configuration.
+
+The arrow of time, in this account, is neither imposed by a boundary
+condition nor purchased with a probability: it is the monotonicity of
+counting, and the reason the richest reversible structure we possess cannot
+overturn it is that this structure lives entirely within a single count and
+is constitutively silent about which count one is at.
+
+\section*{Acknowledgements}
+The author thanks colleagues at the Chair of Proteomics and Bioanalytics
+for discussions on Fourier-transform mass spectrometry.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
