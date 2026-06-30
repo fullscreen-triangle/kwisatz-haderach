@@ -1,0 +1,19 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+httpx>=0.27.0
+pydantic>=2.7.0
+
+# Health
+garminconnect>=0.3.3
+
+# Grocery scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.2.0
+
+# Amazon PA API (optional — only needed if AMAZON_ACCESS_KEY is set)
+paapi5-python-sdk>=1.0.0
+
+# Bank CSV parsing — no extra deps (stdlib csv only)
+
+# Chat / Ollama — httpx already covers this

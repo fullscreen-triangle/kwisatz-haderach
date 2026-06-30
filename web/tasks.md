@@ -155,15 +155,246 @@ COROS_CLIENT_SECRET=
 
 ---
 
+---
+
+## Backend Infrastructure — Distributed Server Setup
+
+### Architecture overview
+
+```
+Vercel (Next.js)
+    │
+    ▼ NEXT_PUBLIC_BACKEND_URL
+Railway Router (always-on, free)        ← single stable URL, never changes
+    │
+    ├─▶ Chromebook :8000  (primary — Ollama + Garmin + bank CSV)
+    ├─▶ Codespaces :8000  (overflow — spin up manually when needed)
+    └─▶ Render/Fly :8000  (cold-start fallback for stateless routes)
+```
+
+Router picks the first backend that responds to `/ping`. Vercel never needs reconfiguring.
+
+---
+
+### Step 1 — Set up Chromebook backend (primary)
+
+On Chromebook Linux terminal:
+
+```bash
+# Clone repo
+git clone git@github.com:fullscreen-triangle/kwisatz-haderach.git
+cd kwisatz-haderach
+
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull the chat model (one-time, ~2 GB)
+ollama pull llama3.2:3b
+
+# Copy your .env.local into the repo root so backend can read Garmin creds
+cp /path/to/.env.local .env.local
+
+# Start everything (FastAPI + Ollama + Cloudflare tunnel)
+bash backend/start.sh
+```
+
+The start script handles: venv creation, pip install, Ollama startup, tunnel, and FastAPI.
+
+---
+
+### Step 2 — Cloudflare Tunnel (makes Chromebook reachable from Vercel)
+
+```bash
+# Install cloudflared on Chromebook
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+
+# Create a free tunnel (no account needed for quick test):
+cloudflared tunnel --url http://localhost:8000
+# Prints: https://random-name.trycloudflare.com  ← copy this URL
+
+# For a permanent named tunnel (requires free Cloudflare account):
+# 1. cloudflared login
+# 2. cloudflared tunnel create desk-chromebook
+# 3. cloudflared tunnel route dns desk-chromebook desk.yourdomain.com
+# 4. cloudflared tunnel run desk-chromebook
+```
+
+Set `CLOUDFLARE_TUNNEL_TOKEN` in your shell and `backend/start.sh` handles it automatically.
+
+---
+
+### Step 3 — Deploy Railway Router (one-time, permanent)
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Deploy router from repo root
+cd router/
+railway init          # creates new project called "desk-router"
+railway up            # deploys using router/Dockerfile
+
+# Set env vars on Railway dashboard (railway.app):
+#   BACKEND_CHROMEBOOK = https://xxx.trycloudflare.com   (from Step 2)
+#   BACKEND_CODESPACES = https://xxx-8000.app.github.dev  (fill when needed)
+#   BACKEND_RENDER     = https://desk-backend.onrender.com (fill after Step 5)
+
+# Get your Railway URL:
+railway domain        # e.g. desk-router-production.up.railway.app
+```
+
+Paste that Railway URL into `web/.env.local`:
+```
+NEXT_PUBLIC_BACKEND_URL=https://desk-router-production.up.railway.app
+```
+Then redeploy Vercel.
+
+---
+
+### Step 4 — Codespaces as overflow backend
+
+When Chromebook is off or struggling:
+
+1. Open GitHub → your repo → Code → Codespaces → New codespace
+2. In the Codespaces terminal:
+```bash
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
+```
+3. Codespaces auto-creates a public port URL — copy it from the Ports tab
+4. Update `BACKEND_CODESPACES` on Railway dashboard
+5. Railway router automatically detects Chromebook is offline and switches
+
+When done: stop the Codespace (don't delete, just stop — preserves state, stops billing hours).
+
+---
+
+### Step 5 — Render as stateless fallback (cold-start OK)
+
+Render free tier sleeps after 15 min idle but restarts in ~30s on next request.
+Good for: grocery search, weather proxy, anything that doesn't need Garmin/bank files.
+
+```bash
+# Push repo to GitHub (already done)
+# Go to render.com → New → Web Service → connect your repo
+# Settings:
+#   Root directory: . (repo root)
+#   Build command:  pip install -r backend/requirements.txt
+#   Start command:  uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+#   Plan: Free
+
+# Add env vars in Render dashboard:
+#   PYTHONPATH = /opt/render/project/src
+
+# Your Render URL: https://desk-backend.onrender.com
+# Update BACKEND_RENDER on Railway
+```
+
+Alternatively use the `backend/render.yaml` — Render can auto-deploy from it.
+
+---
+
+### Step 6 — Wire Vercel frontend to the backend
+
+In `web/pages/api/desk/chat.js` (create this file):
+
+```js
+export default async function handler(req, res) {
+  const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!BACKEND) return res.status(503).json({ error: 'Backend not configured' });
+
+  const resp = await fetch(`${BACKEND}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body),
+  });
+  const data = await resp.json();
+  return res.status(resp.status).json(data);
+}
+```
+
+Same pattern for `/api/desk/bank`, `/api/desk/jobcenter` — all proxy to `BACKEND_URL/*`.
+
+---
+
+### Step 7 — Install Ollama models (Chromebook)
+
+```bash
+# Recommended — fast, fits in 4 GB RAM
+ollama pull llama3.2:3b
+
+# Better reasoning — needs 8 GB RAM
+ollama pull mistral:7b
+
+# Multilingual (good for German) — needs 8 GB RAM
+ollama pull qwen2.5:7b
+
+# List installed models
+ollama list
+
+# Test from terminal
+ollama run llama3.2:3b "What's the cheapest Rewe item for protein?"
+```
+
+---
+
+### Backend env vars (set on Chromebook in .env.local, also set on Render/Fly)
+
+```bash
+# Already in web/.env.local — copy relevant ones to repo root .env.local
+GARMIN_EMAIL=
+GARMIN_PASSWORD=
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2:3b
+```
+
+---
+
+### Files created
+
+| File | Purpose |
+|------|---------|
+| `backend/main.py` | FastAPI app entry point |
+| `backend/routes/health.py` | Garmin data endpoints |
+| `backend/routes/grocery.py` | Price search + batch |
+| `backend/routes/chat.py` | Ollama chat proxy |
+| `backend/routes/bank.py` | CSV bank export parser |
+| `backend/routes/jobcenter.py` | Manual Jobcenter tracker |
+| `backend/requirements.txt` | Python deps |
+| `backend/Dockerfile` | Container for Render/Fly |
+| `backend/fly.toml` | Fly.io config (Frankfurt) |
+| `backend/render.yaml` | Render auto-deploy config |
+| `backend/start.sh` | Chromebook one-command launcher |
+| `router/main.py` | Railway smart proxy |
+| `router/requirements.txt` | Router deps (minimal) |
+| `router/Dockerfile` | Router container |
+| `router/railway.json` | Railway deploy config |
+
+---
+
 ## Priority order for today
 
-1. [ ] Add `GARMIN_EMAIL` + `GARMIN_PASSWORD` → health panel starts working immediately
-2. [ ] Activate Google Maps key in Cloud Console → map shows on landing page
-3. [ ] Complete Gmail OAuth flow in browser → inbox unlocks
-4. [ ] Get `GITHUB_TOKEN` (5 min) → mentions feed becomes reliable
-5. [ ] Recover Jobcenter account (phone/in-person)
-6. [ ] Amazon Associates registration (async, takes 1–2 days for approval)
-7. [ ] Rewe market ID (15 min with DevTools)
+**Backend (do in order — each unlocks the next):**
+1. [ ] `bash backend/start.sh` on Chromebook → FastAPI running on :8000
+2. [ ] Run `cloudflared tunnel --url http://localhost:8000` → get public URL
+3. [ ] Deploy Railway router (`cd router && railway up`) → get stable URL
+4. [ ] Set `NEXT_PUBLIC_BACKEND_URL` in `web/.env.local` → redeploy Vercel
+5. [ ] Set `BACKEND_CHROMEBOOK` on Railway dashboard → router finds Chromebook
+6. [ ] Deploy Render fallback (connect repo on render.com, use `backend/render.yaml`)
+7. [ ] Set `BACKEND_RENDER` on Railway dashboard → full failover working
+
+**Keys (parallel with backend setup):**
+8. [ ] Add `GARMIN_EMAIL` + `GARMIN_PASSWORD` → health panel works
+9. [ ] Activate Google Maps key in Cloud Console → map shows on landing page
+10. [ ] Complete Gmail OAuth flow in browser → inbox unlocks
+11. [ ] Get `GITHUB_TOKEN` (5 min) → mentions feed becomes reliable
+12. [ ] Recover Jobcenter account (call 0800 4 5555 00)
+13. [ ] Amazon Associates registration (async, 1–2 days)
+14. [ ] Rewe market ID (15 min with DevTools)
 
 ---
 
