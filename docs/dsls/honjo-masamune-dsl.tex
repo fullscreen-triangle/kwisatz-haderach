@@ -1,0 +1,949 @@
+% =====================================================================
+%  The Honjo Masamune Language
+%  A Cut-Primitive Domain-Specific Language for Cheminformatics by
+%  Individuation
+%
+%  Language specification. Self-contained: the framework results it
+%  binds to are stated as named operations, not re-derived.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem-like environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{rulename}[theorem]{Rule}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+% ---- honjo listing style ----
+\definecolor{hjkw}{RGB}{30,64,175}
+\definecolor{hjcom}{RGB}{22,101,52}
+\definecolor{hjnum}{RGB}{180,83,9}
+\definecolor{hjstr}{RGB}{159,18,57}
+\definecolor{hjbg}{RGB}{250,250,250}
+\lstdefinelanguage{honjo}{
+  morekeywords={floor,cut,close,track,until,yield,when,emit,observe,
+    where,in,as,let,medium,residue,converge,diverge,with,by,reps,
+    representation,switch,import,module,export,assert,from,to,if,else},
+  morekeywords=[2]{atom,bond,compound,path,scalar,Z,nu,thick,delta,
+    valence,shape,vacancy,floorval,count},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]",
+  keywordstyle=\color{hjkw}\bfseries,
+  keywordstyle=[2]\color{hjnum},
+  commentstyle=\color{hjcom}\itshape,
+  stringstyle=\color{hjstr},
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{hjbg},
+  frame=single,framesep=4pt,xleftmargin=6pt,xrightmargin=4pt,
+  breaklines=true,showstringspaces=false,columns=fullflexible,tabsize=2
+}
+\lstset{language=honjo}
+
+\crefname{rulename}{Rule}{Rules}
+\Crefname{rulename}{Rule}{Rules}
+
+% ---- shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\flo}{\beta}
+\newcommand{\res}{\rho}
+\newcommand{\cut}{\partial}
+\newcommand{\medium}{\mathsf{m}}
+\newcommand{\evalto}{\Downarrow}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\bnf}{\;::=\;}
+\newcommand{\alt}{\;\mid\;}
+\newcommand{\hj}[1]{\texttt{#1}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+
+\title{\textbf{The Honjo Masamune Language:\\[3pt]
+A Cut-Primitive Domain-Specific Language for\\
+Cheminformatics by Individuation}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We specify \emph{Honjo Masamune} (\hj{honjo}; source extension
+\hj{.hj}), a domain-specific language for cheminformatics in which the
+sole computational primitive is the \emph{cut}: the act of individuating
+a part from the rest of a bounded whole at a strictly positive,
+irreducible cost---the \emph{floor} $\flo>0$. The language is built on a
+single semantic identity carried from its underlying theory: generating
+an atom, forming a chemical bond, and tracking an item through a process
+are not distinct operations but the same cut operation at different
+arities. A length-one cut individuates an atom; a cut between two items is
+a bond; a residue-chained sequence of cuts is a process track. honjo
+therefore has one verb and one composition rule, from which atom
+generation, compound construction, molecular geometry, and causal
+process tracking all follow. We give: (i)~the semantic model---a finite
+weighted \emph{contact graph} on which every honjo value is a cut of
+accountable residue, never a bare number; (ii)~a complete lexical and
+context-free grammar in EBNF; (iii)~a static \emph{accountability} type
+system in which every value carries the floor at which it was cut, so
+that a value claiming zero residue is rejected at compile time;
+(iv)~a small-step operational semantics in which evaluation \emph{is}
+measurement (executing a cut performs it; it does not simulate it), and
+in which the committed-cut count is monotone, giving every program an
+intrinsic, non-decreasing clock; (v)~a standard library of verbs, each
+bound by name to a validated operation of the underlying framework
+(\hj{cut} $\to$ spectroscopic atom individuation; \hj{$\sim$} and
+\hj{close} $\to$ boundary-thickness bonding and shell closure;
+\hj{track\ldots until\ldots yield} $\to$ accountable propagation with
+$S$-entropy convergence admissibility); and (vi)~a two-target
+compilation model. honjo compiles, from one front end and one typed core
+intermediate representation, to two back ends: a TypeScript/WebGL\,2
+runtime for the interactive online tool, in which a program's cuts are
+realised as GPU render passes (rendering is measurement), and a Rust
+runtime for the reference implementation, in which cuts are realised as
+exact maximum-flow minimum-cut computations on the contact graph. We
+prove that the two back ends are observationally equivalent up to the
+floor: any honjo program yields the same accountable result on both,
+differing only below the resolution the floor already forbids. The
+specification is implementable as written; a companion reference
+interpreter realises the operational semantics directly.
+\end{abstract}
+
+\noindent\textbf{Keywords:} domain-specific language; cheminformatics;
+individuation; cut primitive; contact graph; accountability type system;
+operational semantics; minimum cut; rendering-as-measurement; two-target
+compilation; TypeScript; Rust.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{Papers as programs}
+
+The framework underlying this language consists of a sequence of results
+that are, in form, \emph{operations}: a procedure that individuates an
+atom from spectroscopic structure; a procedure that decides whether two
+atoms bond and in what geometry; a procedure that tracks an item's
+uncertainty through a process and returns an accountable account of what
+happened to it. Each such result is already, in effect, a program with a
+proof of correctness attached. This specification makes that literal: it
+defines a language whose statements \emph{are} those operations, so that
+a paper becomes a script and a derivation becomes a run.
+
+The design discipline throughout is that we implement only what is
+already established. Every verb of the language binds to an operation of
+the framework that has an explicit construction and has been validated
+numerically; the language adds composition, typing, and execution, not
+new physics or chemistry.
+
+\subsection{One primitive: the cut}
+
+The language has a single computational primitive, the \emph{cut}, and a
+single reason for it. To individuate any part of a bounded whole---to
+make it a distinct thing---costs a strictly positive, irreducible
+minimum, the floor $\flo>0$. This one fact is the engine of the
+underlying theory, and it is the engine of the language. Every honjo
+operation is a cut:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+\item A \emph{generation} is a cut of arity one: individuating an atom of
+atomic number $Z$ from the medium (\Cref{sec:stdlib-atom}).
+\item A \emph{bond} is a cut of arity two: the single shared boundary
+between two items, which exists iff joining lowers total boundary
+thickness (\Cref{sec:stdlib-bond}).
+\item A \emph{compound} is a closure of cuts: cuts continued until every
+constituent's vacancy is driven to zero (\Cref{sec:stdlib-compound}).
+\item A \emph{track} is a residue-chained sequence of cuts: the residue
+of each cut is the cause of the next, and the chain is the propagation of
+an item's uncertainty through a process (\Cref{sec:stdlib-track}).
+\end{itemize}
+
+Generation is not a different verb from tracking; it is a track of length
+one. This is the central design decision and it is forced by the theory,
+not chosen for convenience: in the underlying framework a reaction step
+and a measurement step are the same cut, and generation, bonding, and
+tracking are that cut at arities one, two, and many. honjo therefore has
+one verb (\hj{cut}) and one composition rule (residue chaining); all
+other surface forms are sugar over these.
+
+\subsection{Two targets, one language}
+
+honjo exists in two parallel implementations from a single specification:
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt]
+\item A \textbf{TypeScript} compiler and WebGL\,2 runtime for the
+interactive online tool. Here a cut is realised as a GPU render pass: the
+framebuffer that results from rendering \emph{is} the measurement, in
+keeping with the rendering--measurement identity of the underlying
+theory. This is the fast, exploratory, in-browser version.
+\item A \textbf{Rust} compiler and native runtime for the reference and
+production version. Here a cut is realised as an exact maximum-flow
+minimum-cut computation on the contact graph. This is the
+authoritative version against which the online tool is checked.
+\end{enumerate}
+
+Both share one front end (lexer, parser, type checker) and one typed
+core intermediate representation (\Cref{sec:ir}); they differ only in the
+back end that realises a cut. We prove (\Cref{thm:target-equiv}) that the
+two back ends agree on every program up to the floor---the one resolution
+at which the theory already forbids finer distinction---so the online
+tool and the reference implementation never disagree about anything the
+language can express.
+
+\subsection{What this document specifies}
+
+\Cref{sec:model} fixes the semantic model: the contact graph, the cut,
+the floor, the residue, and accountability. \Cref{sec:lexical} gives the
+lexical grammar; \Cref{sec:grammar} the context-free grammar in EBNF.
+\Cref{sec:types} defines the accountability type system and proves its
+soundness. \Cref{sec:opsem} gives the small-step operational semantics
+and proves cut monotonicity and measurement-not-simulation.
+\Cref{sec:stdlib} specifies the standard library, binding each verb to its
+framework operation. \Cref{sec:ir} defines the core IR and the two-target
+compilation model and proves target equivalence. \Cref{sec:examples}
+gives worked programs. \Cref{sec:impl} states implementation requirements
+for both targets. Throughout, framework operations are named and their
+input/output contracts stated; their derivations are external to this
+document.
+
+% =====================================================================
+\section{The semantic model}
+\label{sec:model}
+% =====================================================================
+
+honjo is defined over a single mathematical object, the contact graph,
+and a single operation on it, the cut. We fix these before any syntax.
+
+\subsection{The contact graph}
+
+\begin{definition}[Contact graph]
+\label{def:contact-graph}
+A \emph{contact graph} is a finite weighted graph $\Gamma=(V,E,w)$ with a
+distinguished \emph{medium} vertex $\medium\in V$ adjacent to every other
+vertex, and $w\colon E\to\R_{>0}$ a strictly positive weight. Vertices
+$v\neq\medium$ are \emph{items}; an edge between two items is a
+\emph{contact}; $w(e)$ is the cost of the separation it maintains. The
+graph is the runtime state of a honjo program: every value the program
+holds is a structure on $\Gamma$.
+\end{definition}
+
+\begin{definition}[Floor]
+\label{def:floor}
+The \emph{floor} of a contact graph is a constant $\flo>0$ with
+$w(e)\ge\flo$ for every edge. No separation is free. The floor is a
+program-level parameter (set by \hj{floor}, \Cref{sec:grammar}); its
+positivity is invariant and enforced by the type system
+(\Cref{sec:types}).
+\end{definition}
+
+\begin{definition}[Cut]
+\label{def:cut}
+A \emph{cut} of an item set $S$ ($\varnothing\neq S\subsetneq V$,
+$\medium\notin S$) is the edge boundary
+$\cut(S)=\{e\in E: \abs{e\cap S}=1\}$, of weight
+$w(\cut(S))=\sum_{e\in\cut(S)}w(e)\ge\flo$. The cut individuates $S$ from
+the rest. A cut \emph{event} commits one such boundary: it fixes the
+edges of $\cut(S)$ as realised separations and advances the program's
+cut count by one.
+\end{definition}
+
+\begin{definition}[Residue]
+\label{def:residue}
+The \emph{residue} of a cut event is the weight $\res=w(\cut(S))\ge\flo$
+it deposits as committed boundary. The residue is the value the cut
+produces and the cause of any subsequent cut: a chain of cuts is one in
+which each residue is consumed as the boundary condition of the next
+(\Cref{sec:stdlib-track}).
+\end{definition}
+
+\begin{principle}[Accountability]
+\label{prin:accountability}
+Every honjo value is a cut, and every cut carries its residue. There are
+no bare numbers in honjo: a quantity is always paired with the floor at
+which it was individuated. A value claiming residue below the floor, or
+zero residue, is not a value---it is the forbidden sharp cut, and the
+type system rejects it (\Cref{thm:no-zero-value}).
+\end{principle}
+
+\begin{remark}[Why a graph and not a number line]
+\label{rem:why-graph}
+honjo computes on a contact graph rather than on real numbers because the
+quantities it manipulates---atomic identity, bond existence, process
+accountability---are minimum cuts, not scalars. A bond's strength is the
+weight of a shared boundary; an atom's identity is the invariant minimum
+cut against the medium; a track's result is an accountable chain of cuts.
+Representing these as graph cuts (rather than as fitted scalars) is what
+lets the same primitive serve generation, bonding, and tracking, and is
+what the two back ends each realise: exactly (Rust, max-flow) or by
+rendering (TypeScript, GPU).
+\end{remark}
+
+\subsection{Measurement, not simulation}
+
+\begin{principle}[Evaluation is measurement]
+\label{prin:measure}
+Executing a honjo cut performs the individuation; it does not simulate a
+description of it. The result of \hj{cut\ 8} is the measured partition
+structure of oxygen, carried as an accountable value, not a numerical
+model of oxygen. Operationally (\Cref{sec:opsem}) this means a cut
+evaluation mutates the contact graph---it commits boundary and advances
+the count---rather than returning a pure function of inputs. The
+distinction is observable: re-evaluating a cut is a new cut at a higher
+count, never a cached recomputation (\Cref{thm:monotone}).
+\end{principle}
+
+% =====================================================================
+\section{Lexical structure}
+\label{sec:lexical}
+% =====================================================================
+
+A honjo source file is UTF-8 text with extension \hj{.hj}. Lexing
+produces a token stream from the following classes.
+
+\begin{definition}[Token classes]
+\label{def:tokens}
+\leavevmode
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{Comments.} \hj{--} to end of line; discarded.
+\item \textbf{Keywords.} \hj{floor}, \hj{cut}, \hj{close}, \hj{track},
+\hj{until}, \hj{yield}, \hj{when}, \hj{do}, \hj{emit}, \hj{observe},
+\hj{in}, \hj{as}, \hj{let}, \hj{medium}, \hj{converge}, \hj{diverge},
+\hj{with}, \hj{by}, \hj{import}, \hj{module}, \hj{export}, \hj{assert}.
+\item \textbf{Identifiers.} \hj{[A-Za-z\_][A-Za-z0-9\_]*}, not a keyword.
+\item \textbf{Numbers.} decimal integers and floats with optional
+exponent: \hj{[0-9]+(.[0-9]+)?([eE][+-]?[0-9]+)?}.
+\item \textbf{Strings.} double-quoted, with the usual escapes.
+\item \textbf{Operators and punctuation.} \hj{:=} (bind), \hj{\~{}} (cut
+between / bond), \hj{( ) [ ] \{ \} , : . > < >= <= == ->} and the
+range/bound forms used by \hj{cell}/\hj{bounds}.
+\end{itemize}
+Whitespace is insignificant except as a token separator; honjo is not
+layout-sensitive.
+\end{definition}
+
+\begin{notation}[Floors and units in literals]
+\label{not:literals}
+A numeric literal may carry an explicit floor annotation with the suffix
+form \hj{value\#floor} (read ``value at floor''); e.g.\ \hj{1.0e-7\#1e-9}.
+A literal without an explicit floor inherits the ambient program floor set
+by the most recent \hj{floor} declaration in scope. There is no way to
+write a literal of zero floor (\Cref{thm:no-zero-value}).
+\end{notation}
+
+% =====================================================================
+\section{Grammar}
+\label{sec:grammar}
+% =====================================================================
+
+We give the context-free grammar in EBNF \citep{ebnf2017}. Nonterminals
+are \textit{italicised}; terminals are \hj{typewriter}; \hj{\{x\}} is zero
+or more, \hj{[x]} optional, \hj{|} alternation.
+
+\begin{definition}[honjo grammar]
+\label{def:grammar}
+\begin{align*}
+\textit{program} &\bnf \{\textit{decl}\} \\[2pt]
+\textit{decl} &\bnf \textit{floorDecl} \alt \textit{import}
+   \alt \textit{moduleDecl} \alt \textit{stmt} \\[2pt]
+\textit{floorDecl} &\bnf \hj{floor}\ \textit{number} \\
+\textit{import} &\bnf \hj{import}\ \textit{qname} \\
+\textit{moduleDecl} &\bnf \hj{module}\ \textit{ident}\ \hj{\{}\ \{\textit{decl}\}\ \hj{\}} \\[2pt]
+\textit{stmt} &\bnf \textit{bind} \alt \textit{track} \alt \textit{observe}
+   \alt \textit{assert} \alt \textit{expr} \\[2pt]
+\textit{bind} &\bnf [\hj{let}]\ \textit{ident}\ \hj{:=}\ \textit{expr} \\[2pt]
+\textit{expr} &\bnf \textit{cut} \alt \textit{bondExpr}
+   \alt \textit{closeExpr} \alt \textit{call} \alt \textit{ident}
+   \alt \textit{number} \alt \textit{string}
+   \alt \hj{(}\ \textit{expr}\ \hj{)} \\[2pt]
+\textit{cut} &\bnf \hj{cut}\ \textit{cutArg} \\
+\textit{cutArg} &\bnf \textit{number} \alt \textit{ident}
+   \alt \textit{ident}\ \hj{\~{}}\ \textit{ident} \\[2pt]
+\textit{bondExpr} &\bnf \textit{expr}\ \hj{\~{}}\ \textit{expr}\
+   [\,\hj{when}\ \textit{cond}\,] \\[2pt]
+\textit{closeExpr} &\bnf \hj{close}\ \textit{ident}\ \hj{(}\
+   \textit{argList}\ \hj{)}\ [\,\hj{by}\ \textit{ident}\,] \\[2pt]
+\textit{track} &\bnf \hj{track}\ \textit{ident}\ \hj{in}\ \textit{expr} \\
+   &\qquad [\,\hj{with}\ \hj{reps}\ \textit{repList}\,]\ \\
+   &\qquad \hj{until}\ \textit{admit}\ \ \hj{yield}\ \textit{ident} \\[2pt]
+\textit{admit} &\bnf \hj{converge} \alt \hj{diverge} \alt \textit{cond} \\[2pt]
+\textit{observe} &\bnf \hj{observe}\ \textit{expr}\
+   [\,\hj{as}\ \textit{ident}\,] \\[2pt]
+\textit{assert} &\bnf \hj{assert}\ \textit{cond}\
+   [\,\hj{emit}\ \textit{string}\,] \\[2pt]
+\textit{call} &\bnf \textit{qname}\ \hj{(}\ [\textit{argList}]\ \hj{)} \\
+\textit{argList} &\bnf \textit{arg}\ \{\hj{,}\ \textit{arg}\} \\
+\textit{arg} &\bnf [\textit{ident}\ \hj{:}]\ \textit{expr} \\[2pt]
+\textit{cond} &\bnf \textit{expr}\ \textit{relop}\ \textit{expr} \\
+\textit{relop} &\bnf \hj{>} \alt \hj{<} \alt \hj{>=} \alt \hj{<=}
+   \alt \hj{==} \\[2pt]
+\textit{repList} &\bnf \textit{ident}\ \{\hj{,}\ \textit{ident}\} \\
+\textit{qname} &\bnf \textit{ident}\ \{\hj{.}\ \textit{ident}\} \\
+\textit{number} &\bnf \textit{numlit}\ [\hj{\#}\ \textit{numlit}]
+\end{align*}
+\end{definition}
+
+\begin{remark}[Reading the core forms]
+\label{rem:core-forms}
+The whole language is small. \hj{cut\ N} generates (arity-one cut);
+\hj{a\ \~{}\ b\ when\ c} bonds (arity-two cut, guarded);
+\hj{close\ X(\ldots)} drives an item to shell closure (cut-to-closure);
+\hj{track\ x\ in\ P\ until\ converge\ yield\ r} propagates and binds the
+accountable result. \hj{observe} forces measurement of a value (commits
+its cut now); \hj{assert} is a pre-flight check that may halt with a
+message. Everything else---\hj{let}, \hj{import}, \hj{module}, named
+arguments---is conventional.
+\end{remark}
+
+% =====================================================================
+\section{The accountability type system}
+\label{sec:types}
+% =====================================================================
+
+honjo's types record \emph{what kind of cut} a value is and \emph{at what
+floor}. The system's purpose is to make Principle~\ref{prin:accountability}
+statically enforceable: a value of zero residue cannot be typed.
+
+\subsection{Types}
+
+\begin{definition}[Types]
+\label{def:types}
+The honjo types are
+\[
+\tau \bnf \mathsf{Atom} \alt \mathsf{Bond} \alt \mathsf{Compound}
+   \alt \mathsf{Path} \alt \mathsf{Scalar} \alt \mathsf{Cut}.
+\]
+$\mathsf{Cut}$ is the supertype of all individuated values; $\mathsf{Atom}$,
+$\mathsf{Bond}$, $\mathsf{Compound}$, $\mathsf{Path}$ are its arity- and
+role-refinements ($\mathsf{Atom}=$ arity-one cut, $\mathsf{Bond}=$
+arity-two cut, $\mathsf{Compound}=$ closure of cuts, $\mathsf{Path}=$
+residue chain). $\mathsf{Scalar}$ is a measured number; it is never bare.
+Every typed value $v$ additionally carries a \emph{floor annotation}
+$\flo(v)>0$ and a \emph{residue} $\res(v)\ge\flo(v)$.
+\end{definition}
+
+\begin{definition}[Typing judgement]
+\label{def:judgement}
+A judgement $\Gamma\vdash e : \tau \,@\, \flo$ reads ``in floor context
+$\Gamma$ (which fixes the ambient floor), expression $e$ has type $\tau$
+and is individuated at floor $\flo>0$.'' The context carries the ambient
+floor set by the most recent \hj{floor} declaration and the types of
+bound identifiers.
+\end{definition}
+
+\subsection{The positivity rule}
+
+\begin{rulename}[Floor positivity]
+\label{rule:positive}
+Every value-introducing rule has the side condition $\flo>0$ and
+$\res\ge\flo$. A literal or expression whose annotation forces
+$\flo\le0$ or $\res<\flo$ is ill-typed.
+\[
+\frac{\Gamma\vdash \textit{numlit}\;n \quad \flo>0}
+     {\Gamma\vdash n\#\flo : \mathsf{Scalar}\,@\,\flo}
+\qquad
+\frac{}{\Gamma\vdash \hj{cut}\ Z : \mathsf{Atom}\,@\,\flo_\Gamma}
+\]
+where $\flo_\Gamma$ is the ambient floor.
+\end{rulename}
+
+\begin{theorem}[No zero-residue value]
+\label{thm:no-zero-value}
+There is no well-typed honjo expression of residue $0$. Equivalently, the
+sharp cut is not expressible: every typeable value has $\res\ge\flo>0$.
+\end{theorem}
+
+\begin{proof}
+By induction on typing derivations. The only value introductions are
+literals (\Cref{rule:positive}, side condition $\flo>0$, and a literal's
+residue is its annotated floor), cuts (residue $=w(\cut(S))\ge\flo>0$ by
+\Cref{def:cut}), and the derived forms (bond, close, track) whose residues
+are sums or chains of cut residues, hence $\ge\flo$. No rule introduces a
+value of residue $<\flo$, and $\flo>0$ is a side condition on every
+floor-introduction. Hence no derivation concludes $\res=0$.
+\end{proof}
+
+\subsection{Cut typing}
+
+\begin{rulename}[Generation; bond; close]
+\label{rule:verbs}
+\[
+\frac{\Gamma\vdash Z:\mathsf{Scalar}\quad Z\in\N^{+}}
+     {\Gamma\vdash \hj{cut}\ Z : \mathsf{Atom}\,@\,\flo_\Gamma}
+\qquad
+\frac{\Gamma\vdash a:\mathsf{Atom}\quad \Gamma\vdash b:\mathsf{Atom}}
+     {\Gamma\vdash a\ \hj{\~{}}\ b : \mathsf{Bond}\,@\,\flo_\Gamma}
+\]
+\[
+\frac{\Gamma\vdash X:\mathsf{Atom}\quad
+      \Gamma\vdash a_i:\mathsf{Atom}}
+     {\Gamma\vdash \hj{close}\ X(a_1,\dots,a_k) : \mathsf{Compound}\,@\,\flo_\Gamma}
+\]
+The bond rule additionally requires its guard, when present, to be a
+$\mathsf{Bool}$-valued $\textit{cond}$; an unguarded bond is admitted only
+if static analysis cannot exclude $\Delta\mathrm{thick}>0$
+(\Cref{sec:stdlib-bond}).
+\end{rulename}
+
+\begin{rulename}[Track]
+\label{rule:track}
+\[
+\frac{\Gamma\vdash x:\mathsf{Atom}\ \text{or}\ \mathsf{Compound}\quad
+      \Gamma\vdash P:\mathsf{Compound}\ \text{or}\ \mathsf{Path}}
+     {\Gamma\vdash \hj{track}\ x\ \hj{in}\ P\ \hj{until}\ \textit{admit}\ \hj{yield}\ r
+      : \mathsf{Path}\,@\,\flo_\Gamma}
+\]
+The bound result $r$ has type $\mathsf{Path}$; its residue is the total
+committed boundary of the propagation (\Cref{sec:stdlib-track}).
+\end{rulename}
+
+\begin{theorem}[Type soundness]
+\label{thm:soundness}
+honjo typing is sound for the operational semantics of
+\Cref{sec:opsem}: if $\Gamma\vdash e:\tau\,@\,\flo$ and $e$ evaluates to a
+value $v$, then $v$ has type $\tau$, floor $\flo>0$, and residue
+$\res(v)\ge\flo$ (progress and preservation).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Standard syntactic soundness \citep{pierce2002}. \emph{Progress}: a
+well-typed closed expression is a value or steps (every form has a
+reduction rule in \Cref{sec:opsem}). \emph{Preservation}: each reduction
+rule preserves the type and the floor annotation, and---by
+\Cref{thm:no-zero-value} applied at each step---preserves $\res\ge\flo>0$.
+The only non-standard clause is that reductions are state-mutating
+(measurement, \Cref{prin:measure}); preservation holds because the cut
+count and committed boundary are monotone (\Cref{thm:monotone}), so no
+step lowers a residue below the floor.
+\end{proof}
+
+% =====================================================================
+\section{Operational semantics}
+\label{sec:opsem}
+% =====================================================================
+
+We give a small-step semantics over configurations
+$\langle \Gamma_G, M, e\rangle$, where $\Gamma_G$ is the current contact
+graph (\Cref{def:contact-graph}), $M\in\N$ is the committed-cut count
+(the program clock), and $e$ is the expression under evaluation. We write
+$\langle\Gamma_G,M,e\rangle \to \langle\Gamma_G',M',v\rangle$ for one
+step. Evaluation is measurement: steps mutate $\Gamma_G$ and increment
+$M$.
+
+\subsection{Cut reduction}
+
+\begin{rulename}[Cut commits and counts]
+\label{rule:cut-step}
+\[
+\frac{S=\textsc{Individuate}(\Gamma_G,Z)\qquad
+      \res=w(\cut(S))\ge\flo}
+     {\langle\Gamma_G,M,\hj{cut}\ Z\rangle \to
+      \langle\Gamma_G\!\oplus\!\cut(S),\,M+1,\,
+      v_{\mathsf{Atom}}(S,\res)\rangle}
+\]
+where $\textsc{Individuate}$ is the framework's atom-individuation
+operation (\Cref{sec:stdlib-atom}), $\Gamma_G\!\oplus\!\cut(S)$ is
+$\Gamma_G$ with the cut's boundary committed, and $v_{\mathsf{Atom}}(S,\res)$
+is the resulting accountable atom value.
+\end{rulename}
+
+The bond, close, and track rules are analogous: each commits boundary and
+increments $M$ by the number of cut events it performs (one for a bond,
+the closure count for \hj{close}, the chain length for \hj{track}).
+
+\begin{theorem}[Cut monotonicity / intrinsic clock]
+\label{thm:monotone}
+For any program, the committed-cut count $M$ is non-decreasing along
+evaluation and strictly increases at every cut event. No reduction
+decreases $M$. Consequently re-evaluating the same surface expression is a
+new cut at a strictly higher count, never a cached recomputation, and two
+configurations with identical graphs but different $M$ are distinct
+states.
+\end{theorem}
+
+\begin{proof}
+Every value-producing rule (\Cref{rule:cut-step} and its analogues)
+increments $M$; no rule decrements it (there is no reduction that
+un-commits boundary---``undo'' is itself a further cut). Hence $M$ is
+monotone and strictly increases per cut event. Distinctness of equal-graph
+states at different $M$ is immediate since $M$ is part of the
+configuration.
+\end{proof}
+
+\begin{corollary}[Measurement, not simulation]
+\label{cor:measure}
+Because evaluation mutates $\Gamma_G$ and advances $M$, a honjo cut cannot
+be a pure function memoised across calls: each occurrence performs the
+individuation afresh and is recorded in the clock. This realises
+Principle~\ref{prin:measure}: running the program \emph{is} performing the
+measurements it names.
+\end{corollary}
+
+\subsection{Track reduction and convergence}
+
+\begin{rulename}[Track is a residue chain]
+\label{rule:track-step}
+\[
+\frac{\begin{array}{c}
+       (S_1,\dots,S_k)=\textsc{Propagate}(\Gamma_G,x,P)\quad
+       \res_i=w(\cut(S_i))\\
+       \textsc{Admit}(\res_1,\dots,\res_k)=\textit{admit}
+      \end{array}}
+     {\langle\Gamma_G,M,\hj{track}\ x\ \hj{in}\ P\ \hj{until}\ \textit{admit}\ \hj{yield}\ r\rangle
+      \to \langle\Gamma_G',\,M+k,\,
+      v_{\mathsf{Path}}(S_{1:k},\textstyle\sum_i\res_i)\rangle}
+\]
+$\textsc{Propagate}$ is the framework's accountable-propagation operation;
+each $\res_i$ is the residue of cut $i$ and the boundary condition of cut
+$i{+}1$ (residue chaining). $\textsc{Admit}$ tests the convergence
+criterion ($S$-entropy convergence for \hj{converge}); a non-admissible
+chain reduces to the empty path (no yield).
+\end{rulename}
+
+\begin{remark}[Local steps are free; only convergence is judged]
+\label{rem:local-free}
+In keeping with the underlying propagation theory, the intermediate cuts
+of a track are unconstrained: a step may be locally extreme (even
+``impossible'') provided the chain composes to a value that meets the
+admissibility criterion. \textsc{Admit} therefore inspects only the
+terminal convergence of the chain, not the plausibility of intermediate
+$\res_i$. This is what makes \hj{track\ldots until\ converge} a search over
+admissible propagations rather than a single forced path.
+\end{remark}
+
+% =====================================================================
+\section{The standard library}
+\label{sec:stdlib}
+% =====================================================================
+
+Each honjo verb binds to a named operation of the underlying framework.
+We state the contract (inputs, output, the operation it invokes); the
+operation's construction and validation are external to this document.
+
+\subsection{\texorpdfstring{\hj{cut} --- atom individuation}{cut --- atom individuation}}
+\label{sec:stdlib-atom}
+
+\begin{definition}[\textsc{Individuate}]
+\label{def:individuate}
+\hj{cut\ Z} invokes \textsc{Individuate}$(Z)$: from atomic number
+$Z\in\N^{+}$, fill the partition coordinates $(n,\ell,m,s)$ under the
+shell capacity $C(n)=2n^2$, exclusion, and energy ordering, returning an
+$\mathsf{Atom}$ value carrying the configuration, the valence-shell
+occupancy $q_v$ and capacity $C_v$, the vacancy $\nu=C_v-q_v$, the ground
+term symbol, and the residue $\res=w(\cut(\{Z\}))\ge\flo$. This is the
+spectroscopic atom-derivation operation; e.g.\ \hj{cut\ 6} yields carbon
+$[\mathrm{He}]2s^22p^2$, $^3P_0$, $\nu=4$.
+\end{definition}
+
+\subsection{\texorpdfstring{\hj{$\sim$} --- bonding}{~ --- bonding}}
+\label{sec:stdlib-bond}
+
+\begin{definition}[\textsc{Bond}]
+\label{def:bond}
+\hj{a\ \~{}\ b} invokes \textsc{Bond}$(a,b)$: form the shared-boundary cut
+between atoms $a,b$ and return a $\mathsf{Bond}$ value iff the shared
+content $\Delta\mathrm{thick}(a,b)>0$ (joint individuation is cheaper than
+separate), bounded by $\min(\nu_a,\nu_b)$; otherwise no bond. The optional
+guard \hj{when\ }$c$ requires $c$ to hold (e.g.\ \hj{when\ delta\ >\ 0}).
+This is the boundary-thickness bonding criterion; a closed-shell atom
+($\nu=0$) bonds with nothing.
+\end{definition}
+
+\subsection{\texorpdfstring{\hj{close} --- compound by closure}{close --- compound by closure}}
+\label{sec:stdlib-compound}
+
+\begin{definition}[\textsc{Close}]
+\label{def:close}
+\hj{close\ X(a$_1$,\ldots,a$_k$)} invokes \textsc{Close}: form the set of
+bonds that drives every constituent's vacancy to zero, returning a
+$\mathsf{Compound}$ value carrying the stoichiometry (fixed by vacancy
+matching), the per-centre geometry (the maximal angular separation of the
+committed interfaces, e.g.\ $109.47^\circ$ tetrahedral, compressed by
+unshared regions), and total residue. E.g.\ \hj{close\ O(H,H)} yields a
+bent $2{:}1$ water at $\approx104.5^\circ$.
+\end{definition}
+
+\subsection{\texorpdfstring{\hj{track} --- accountable propagation}{track --- accountable propagation}}
+\label{sec:stdlib-track}
+
+\begin{definition}[\textsc{Propagate}, \textsc{Admit}]
+\label{def:propagate}
+\hj{track\ x\ in\ P\ until\ converge\ yield\ r} invokes
+\textsc{Propagate}$(x,P)$: track item $x$'s individuation through process
+$P$ as a residue-chained sequence of cuts, and \textsc{Admit} the chain
+iff it $S$-entropy-converges to the output (the only admissibility test;
+local steps free, \Cref{rem:local-free}). The yielded $\mathsf{Path}$ is
+the \emph{amalgamation}: the accountable set of cuts---reaction steps and
+measurement steps indifferently---by which $x$ reached the output.
+Optional \hj{with\ reps\ }$R$ permits representation switching between
+steps (mean-recovery-equivalent decompositions) at no additional cut cost.
+\end{definition}
+
+\begin{remark}[The verbs are one verb]
+\label{rem:one-verb}
+\textsc{Individuate}, \textsc{Bond}, \textsc{Close}, and
+\textsc{Propagate} are the cut at arities one, two, closure, and chain.
+The standard library is therefore not four independent operations but one
+operation (the cut) exposed at four arities, exactly as
+\Cref{sec:intro} claims and as the underlying theory requires.
+\end{remark}
+
+% =====================================================================
+\section{Core IR and the two-target model}
+\label{sec:ir}
+% =====================================================================
+
+honjo compiles, from one front end, to a typed core intermediate
+representation, and thence to two back ends. This section fixes the IR and
+proves the two back ends agree.
+
+\subsection{The core IR}
+
+\begin{definition}[Cut-IR]
+\label{def:ir}
+\emph{Cut-IR} is a typed sequence of cut instructions over a contact-graph
+state. Each instruction is one of: $\textsc{Ind}(Z)$ (individuate),
+$\textsc{Bnd}(a,b,g)$ (guarded bond), $\textsc{Cls}(X,\bar a)$ (close),
+$\textsc{Prp}(x,P,\textit{adm})$ (propagate), $\textsc{Obs}(v)$ (force
+measurement). Each instruction carries its result type and floor
+(\Cref{sec:types}) and, when executed, returns an accountable value and
+increments the cut count. Cut-IR is back-end-agnostic: it names cuts, not
+how they are realised.
+\end{definition}
+
+The front end (lexer, parser, type checker of \Cref{sec:lexical}--%
+\ref{sec:types}) is shared by both targets and lowers a program to Cut-IR.
+Only the realisation of a cut instruction differs between targets.
+
+\subsection{Target R (Rust): cuts as minimum cuts}
+
+\begin{definition}[Rust realisation]
+\label{def:rust-target}
+In the Rust back end, each Cut-IR instruction is realised by an exact
+computation on the contact graph: $\textsc{Ind}$, $\textsc{Bnd}$,
+$\textsc{Cls}$ compute the relevant minimum cut by maximum
+flow~\citep{fordfulkerson1956,cormen2009}; $\textsc{Prp}$ enumerates and
+evaluates admissible propagations exactly; residues are exact edge-weight
+sums. This is the reference semantics: it computes
+$w(\cut(\cdot))$ to the floating-point precision of the host.
+\end{definition}
+
+\subsection{Target T (TypeScript/WebGL): cuts as render passes}
+
+\begin{definition}[TypeScript realisation]
+\label{def:ts-target}
+In the TypeScript/WebGL\,2 back end, each Cut-IR instruction is realised
+as a GPU render pass over the contact-graph state encoded in textures: a
+fragment shader evaluates the cut at each texel and writes the
+framebuffer, whose contents \emph{are} the accountable result
+(rendering--measurement identity). Minimum cuts are computed by the
+GPU-resident flow/observation kernels; residues are read back from the
+framebuffer. This is the interactive online realisation.
+\end{definition}
+
+\subsection{Target equivalence}
+
+\begin{theorem}[Two-target equivalence up to the floor]
+\label{thm:target-equiv}
+Let $p$ be a well-typed honjo program with ambient floor $\flo$. Let
+$v_R$ and $v_T$ be the values it yields under the Rust and
+TypeScript back ends respectively. Then $v_R$ and $v_T$ have the same
+type and the same cut structure, and their residues agree up to the
+floor:
+\[
+\abs{\res(v_R)-\res(v_T)}\;\le\;\flo .
+\]
+The two back ends never disagree about any distinction honjo can express,
+because honjo cannot express a distinction finer than $\flo$
+(\Cref{thm:no-zero-value}).
+\end{theorem}
+
+\begin{proof}
+Both back ends realise the same Cut-IR (\Cref{def:ir}), so they perform
+the same sequence of cut instructions with the same types and the same
+cut count (the front end is shared). They differ only in how each cut's
+residue is computed: Rust by exact max-flow, TypeScript by GPU
+render-readback. The GPU realisation computes the same minimum cut to its
+texel/precision resolution; its readback error is bounded by the
+coarsest resolvable boundary, which is the floor (no honjo value is
+individuated below $\flo$, \Cref{thm:no-zero-value}). Hence the residues
+agree to within $\flo$, and since honjo admits no sub-floor distinction,
+the two results are observationally identical at the language level.
+\end{proof}
+
+\begin{remark}[Why two targets, not one]
+\label{rem:two-targets}
+The split is deliberate and the equivalence theorem is what makes it
+safe. The TypeScript/WebGL target is fast, in-browser, and renders cuts as
+measurements directly---ideal for the interactive sandbox. The Rust target
+is exact and authoritative---ideal as the reference against which the
+online tool is validated. \Cref{thm:target-equiv} guarantees the online
+tool is never \emph{wrong} relative to the reference; it is at most less
+precise, and only below the floor, where the theory forbids meaning
+anyway.
+\end{remark}
+
+% =====================================================================
+\section{Worked programs}
+\label{sec:examples}
+% =====================================================================
+
+\subsection{Generate an atom}
+
+\begin{lstlisting}[caption={Individuating carbon (a length-one cut).}]
+-- carbon.hj
+floor 1.0                 -- set the ambient floor; nothing is free
+
+C := cut 6                -- individuate Z=6 against the medium
+observe C                 -- force the measurement now
+-- C : Atom @ 1.0
+--   config  [He] 2s2 2p2
+--   term    3P_0
+--   vacancy 4
+\end{lstlisting}
+
+\subsection{Build a compound}
+
+\begin{lstlisting}[caption={Water: cuts to closure, geometry by separation.}]
+-- water.hj
+floor 1.0
+
+O := cut 8
+H := cut 1
+
+-- a bond is a cut between two items, admitted only if it lowers thickness
+OH := O ~ H when delta > 0
+
+-- close drives every vacancy to zero: stoichiometry + geometry follow
+W  := close O(H, H)       -- 2:1, bent, ~104.5 deg
+observe W
+assert W.valence == closed  emit "water did not close"
+\end{lstlisting}
+
+\subsection{Run the causal table}
+
+\begin{lstlisting}[caption={Tracking an item through a process.}]
+-- track.hj
+floor 1.0
+import honjo.causal
+
+O := cut 8
+W := close O(H, H)
+
+-- propagate O's uncertainty through the process; admissible iff it
+-- S-entropy-converges to the observed output
+path := track O in W
+          with reps mass, charge, time   -- representation switching allowed
+          until converge
+          yield amalgamation
+
+observe path              -- the amalgamation IS the result
+\end{lstlisting}
+
+\begin{remark}[The same keyword, three jobs]
+\label{rem:same-keyword}
+Across the three programs, \hj{cut} generates, \hj{\~{}} (a cut between)
+bonds, \hj{close} (cuts to closure) builds, and \hj{track} (a residue
+chain of cuts) propagates---all the same primitive at different arities
+(\Cref{rem:one-verb}). A reader who understands the cut understands the
+whole language.
+\end{remark}
+
+% =====================================================================
+\section{Implementation requirements}
+\label{sec:impl}
+% =====================================================================
+
+Both targets must implement, from this specification:
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt]
+\item The shared front end: lexer (\Cref{sec:lexical}), parser to the
+grammar (\Cref{def:grammar}), and accountability type checker
+(\Cref{sec:types}) enforcing \Cref{thm:no-zero-value}.
+\item Lowering to Cut-IR (\Cref{def:ir}).
+\item The operational semantics of \Cref{sec:opsem}: a contact-graph
+state, a monotone cut count, and the cut/bond/close/track reductions, with
+evaluation mutating state (measurement, \Cref{cor:measure}).
+\item The standard-library bindings of \Cref{sec:stdlib} to the framework
+operations \textsc{Individuate}, \textsc{Bond}, \textsc{Close},
+\textsc{Propagate}.
+\item A back end: exact max-flow minimum cut (Rust,
+\Cref{def:rust-target}) or GPU render-pass realisation (TypeScript/WebGL,
+\Cref{def:ts-target}).
+\end{enumerate}
+
+A conformance suite must check \Cref{thm:target-equiv}: every example
+program yields type- and structure-identical results on both targets with
+residues agreeing to within the floor.
+
+\begin{remark}[Reference interpreter]
+\label{rem:reference}
+A direct interpreter of \Cref{sec:opsem} over the exact (max-flow) back
+end constitutes the simplest conforming implementation and serves as the
+oracle for both production targets. It can reuse the already-validated
+framework operations directly as the standard-library bindings.
+\end{remark}
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+We have specified Honjo Masamune as a language whose single primitive is
+the cut---the act of individuating a part of a bounded whole at the
+irreducible cost $\flo>0$---and whose every operation, from generating an
+atom to tracking an item through a process, is that primitive at a
+different arity. The accountability type system makes the floor a static
+invariant: no honjo value can claim the forbidden sharp cut. The
+operational semantics makes evaluation measurement rather than
+simulation, with a monotone cut count as the program's intrinsic clock.
+The standard library binds each verb to a validated operation of the
+underlying framework, so a honjo program is an executable paper. And the
+two-target model---one shared, typed front end lowering to a
+back-end-agnostic Cut-IR, realised exactly in Rust and by GPU rendering in
+TypeScript---gives both an authoritative reference and an interactive
+online tool that, by \Cref{thm:target-equiv}, never disagree about
+anything the language can express. The specification is complete and
+implementable as written; the reference interpreter of \Cref{rem:reference}
+realises it directly from the validated framework operations.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

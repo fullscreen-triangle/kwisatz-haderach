@@ -1,0 +1,1811 @@
+% =====================================================================
+%  Split-Attention Synchronised Agents:
+%  A Self-Contained Calculus of a Bounded Character That Divides Its
+%  Attention Across Concurrent Scenes and Synchronises With Others,
+%  With an Implementation Blueprint
+%
+%  Self-contained. States its own axioms; re-derives every primitive it
+%  uses; cites only standard, externally published mathematics. Every
+%  object is a finite weighted graph, a bounded convex program, or a
+%  construction on one. No result of any other manuscript is assumed.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{thmtools}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\hypersetup{
+  colorlinks=true, linkcolor=blue!50!black,
+  citecolor=green!50!black, urlcolor=blue!60!black
+}
+
+% ---- theorem environments ----
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\itshape, postheadspace=1em
+]{thmstyle}
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\normalfont, postheadspace=1em
+]{defstyle}
+
+\declaretheorem[style=thmstyle, name=Theorem, numberwithin=section]{theorem}
+\declaretheorem[style=thmstyle, name=Proposition, sibling=theorem]{proposition}
+\declaretheorem[style=thmstyle, name=Lemma, sibling=theorem]{lemma}
+\declaretheorem[style=thmstyle, name=Corollary, sibling=theorem]{corollary}
+\declaretheorem[style=defstyle, name=Definition, sibling=theorem]{definition}
+\declaretheorem[style=defstyle, name=Axiom, sibling=theorem]{axiom}
+\declaretheorem[style=defstyle, name=Remark, sibling=theorem]{remark}
+\declaretheorem[style=defstyle, name=Example, sibling=theorem]{example}
+\declaretheorem[style=defstyle, name=Principle, sibling=theorem]{principle}
+\declaretheorem[style=defstyle, name=Invariant, sibling=theorem]{binv}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+\crefname{binv}{Invariant}{Invariants}
+\Crefname{binv}{Invariant}{Invariants}
+
+% ---- notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Agent}{\mathsf{A}}
+\newcommand{\Self}{\Gamma}          % self / world graph
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\floorc}{\beta}          % floor
+\newcommand{\cut}{\partial}
+\newcommand{\Char}{\chi}             % character invariant
+\newcommand{\Beh}{\mathcal{B}}       % disposition space
+\newcommand{\drive}{\Phi}            % drive potential
+\newcommand{\lam}{\lambda}
+\newcommand{\Purp}{x^{\star}}        % purpose point
+\newcommand{\att}{\alpha}            % attention budget
+\newcommand{\cost}{c}                % cost
+\newcommand{\gain}{g}                % purpose gain
+\newcommand{\coh}{\kappa}            % coherence margin
+\newcommand{\price}{p^{\star}}       % attention price
+\newcommand{\Scene}{\mathsf{S}}      % a scene
+\newcommand{\scenes}{\mathcal{S}}    % set of scenes
+\newcommand{\alloc}{a}               % attention allocation
+\newcommand{\Ord}{R}                 % order parameter
+\newcommand{\phase}{\phi}
+\newcommand{\Soc}{\Sigma}            % society
+\newcommand{\Out}{\mathcal{O}}       % outcome space
+\newcommand{\tol}{\tau}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\dist}{d}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+\newcommand{\cnt}{m}                 % committed count
+
+\title{\textbf{Split-Attention Synchronised Agents:\\
+A Self-Contained Calculus of a Bounded Character That Divides Its
+Attention Across Concurrent Scenes and Synchronises With Others,\\
+with an Implementation Blueprint}}
+
+\author{Kundai Farai Sachikonye\\[2pt]
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@bitspark.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+A useful synthetic character is not confined to one exchange: it persists
+across sessions, is engaged from several places at once, and must remain
+recognisably itself while it divides a finite capacity among concurrent
+demands and, where its ends overlap with others', coordinates with them.
+We give a self-contained mathematical account of such a
+\emph{split-attention synchronised agent} and derive, as theorems from
+stated axioms, both its behaviour and the exact commitments an
+implementation must honour. We model an agent as a finite weighted graph
+--- its \emph{self-graph} --- carrying a conserved invariant we compute
+from its own internal boundary content, a purpose that is the attractor
+of a strongly convex drive, and a bounded attention budget. A
+\emph{scene} is an outward context in which the agent may act; the agent
+faces many scenes at once and must apportion attention among them. From
+five structural axioms on the agent (finiteness, presence, costly
+individuation, a positive floor on the cost of any act, and phase
+exclusion), plus one clearly-marked environmental assumption
+(diminishing returns of attention within a scene), we prove:
+\textbf{(T1)} the agent carries a conserved, non-local, strictly positive
+identity invariant, fixed under every relabelling of its parts, so a
+character is the same character across scenes and across sessions;
+\textbf{(T2)} in a diminishing-returns environment, optimal division of
+attention over concurrent scenes is a water-filling rule with a single
+shadow price, so a busy agent is \emph{present but preoccupied} in every
+scene at once --- a guarantee we flag as conditional on the environment, not
+on the agent;
+\textbf{(T3)} construction and commitment cannot occupy one instant, so
+an agent that ever reflects is unresponsive on a positive fraction of
+instants in each scene, a second and independent cause of split
+appearance;
+\textbf{(T4)} every committed act deposits an unrepealable increment in a
+monotone count, so an agent never re-occupies a past state, sessions
+accumulate rather than reset, and an authored copy is always a distinct
+individual;
+\textbf{(T5)} recalling is searching --- no reply is fetched from store,
+each is freshly walked over the agent's own graph --- so a character stays
+in character without being reminded to;
+\textbf{(T6)} agents with wholly disjoint self-graphs synchronise on a
+shared purpose defined in a common outcome space, at a coordination cost
+that vanishes exactly when their outward phases lock --- and we supply the
+mean-field coupling dynamics that \emph{drive} dispersed phases to lock
+above a computable threshold, so lock is achieved, not assumed --- and a
+crowd of them attains the shared purpose more sharply than any one;
+\textbf{(T7)} the society has its own purpose --- the attractor of its own
+strongly convex drive --- that maps to the shared purpose in outcome space,
+so synchronisation among split-attention agents is itself a scene-allocation
+problem one level up, and a society divides its collective attention by the
+same water-filling law as a single agent because the same
+purpose-as-attractor invariant propagates across the quotient from agents to
+society. We then convert the theorems into an \emph{implementation
+blueprint}: four invariants a runtime must preserve --- a computable
+conserved invariant, a never-resetting committed count, search-not-fetch
+world access, and exclusive construction/commitment phases --- each stated as
+a checkable predicate with the theorem that certifies it, and we separate
+the guarantees that hold unconditionally from the agent's structure from the
+one (optimal attention division) that is conditional on the environmental
+assumption. We give the
+constructions, the water-filling and synchronisation algorithms, and a
+numerical study on explicitly built agents. Throughout, the interpretive
+readings of the formal objects --- ``identity,'' ``attention,''
+``distraction,'' ``coordination'' --- are marked as orientation and
+confined to remarks; no theorem depends on them.
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} bounded agent; conserved invariant; attention
+allocation; water-filling; phase exclusion; monotone history; recognition
+as search; synchronisation; outcome-space coordination; implementation
+invariant; non-player character.
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The object}
+
+Consider a synthetic character that is not summoned for a single question
+and dismissed. It runs. It is addressed from more than one place at a
+time --- one context asks it to do one thing while another asks it for
+something else --- and it is met again tomorrow, expecting to find the
+same character it left. Such an agent must do three things at once that a
+one-shot responder never has to. It must \emph{remain itself} across all
+the contexts it is engaged from and across the gap between sessions. It
+must \emph{divide} a capacity it cannot enlarge among the several contexts
+pulling on it, so that it is fully committed to none and wholly absent
+from none. And where its own ends happen to line up with those of other
+such characters, it must \emph{coordinate} with them without first being
+given a shared mind.
+
+This paper asks what those three requirements \emph{are}, formally, and
+what a system that meets them must do. We want definitions sharp enough to
+compute with, general enough to bind any bounded agent, and self-contained:
+the reader should need nothing but this paper and standard mathematics.
+And because the intended use of the account is to build the object it
+describes, we want each behavioural result paired with the precise
+commitment a running system must honour to exhibit it.
+
+\subsection{The three requirements, and how the paper meets them}
+
+\emph{Remaining itself.} We model the agent as a finite weighted graph
+whose vertices are the distinctions it draws within itself and whose edge
+weights are the costs of holding them apart, and we extract a quantity
+--- the minimum internal boundary content --- that is conserved under
+every relabelling of the agent's parts. This quantity is positive, is
+spread across the agent rather than located in any one part, and cannot
+be resolved to a point from outside. It is the standing structure from
+which the agent's changing conduct derives (\Cref{sec:identity}).
+
+\emph{Dividing attention.} We give the agent a finite attention budget and
+a family of concurrent \emph{scenes}, each offering a purpose gain per
+unit of attention spent in it. We prove that the value-maximising division
+of attention is a water-filling rule governed by a single shadow price,
+and that this makes the agent present-but-preoccupied in every scene
+simultaneously, with a readable dial for how reachable it is
+(\Cref{sec:attention}). A second, independent cause of divided appearance
+is that forming new distinctions and committing to an act cannot share an
+instant (\Cref{sec:phases}).
+
+\emph{Coordinating.} We show a society of such agents is again a graph, so
+the identity apparatus applies one level up; that agents with wholly
+disjoint internals can nonetheless attain a shared purpose defined in a
+common space of outcomes; that the cost of coordination vanishes exactly
+when their outward phases lock; and that a crowd sharpens a shared purpose
+(\Cref{sec:society}). Synchronising a society turns out to be a scene
+allocation problem one level up, closing the construction
+(\Cref{sec:society-attention}).
+
+\subsection{Blueprint, not metaphor}
+
+\Cref{sec:blueprint} is the paper's purpose made operational. We isolate
+four \emph{implementation invariants} --- a computable conserved invariant,
+a never-resetting committed count, search-not-fetch world access, and
+exclusive construction/commitment phases --- and for each we state the
+predicate a runtime must satisfy and name the theorem that makes the
+predicate the right one. A system honouring the four invariants exhibits
+the behaviour derived here; a system violating any one degrades into a
+locally-plausible responder that resets. The invariants are design
+commitments, honourable by construction, not empirical hypotheses about
+any existing system.
+
+\subsection{What we do and do not claim}
+
+We do not claim that human or animal identity, attention, or coordination
+is a finite graph or a convex program. We claim that \emph{any} bounded
+agent satisfying the five structural axioms of \Cref{sec:setting} has the
+identity, history, phase, and coordination structure we derive, and ---
+where its environment additionally offers diminishing returns (the sixth,
+environmental axiom) --- the water-filling attention division; and that this
+structure suffices to found a usable notion of a persistent,
+attention-dividing, coordinating synthetic character. The
+readings of the formal objects as ``identity,'' ``attention,''
+``distraction,'' ``coordination,'' and ``character'' are offered as
+orientation and confined to remarks; the theorems are graph-theoretic,
+order-theoretic, and convex-analytic, and are used only as such. We prove
+a conditional and then note that, for synthetic agents, its antecedent is
+something a builder may simply arrange to hold.
+
+\subsection{Organisation}
+
+\Cref{sec:setting} fixes the agent and states the axioms.
+\Cref{sec:floor} proves the floor. \Cref{sec:identity} derives the
+conserved identity invariant (T1). \Cref{sec:attention} proves the
+water-filling attention division (T2). \Cref{sec:phases} proves phase
+exclusion (T3). \Cref{sec:history} proves the monotone, irreversible
+history and the distinctness of copies (T4) and that recalling is
+searching (T5). \Cref{sec:society} places agents in society and proves
+disjoint coordination, phase-locked zero-cost synchronisation --- together
+with the mean-field coupling dynamics that drive phases to lock above a
+threshold --- and crowd sharpening (T6). \Cref{sec:society-attention} gives
+the society its own purpose-as-attractor and proves society-level attention
+division as genuine invariant propagation (T7). \Cref{sec:blueprint} states
+the four implementation invariants and the algorithms, separating
+unconditional from environment-conditional guarantees.
+\Cref{sec:validation} reports a numerical study with exact, cross-method,
+Kuramoto-integrated, and negative-control checks. \Cref{sec:discussion}
+discusses scope.
+
+% =====================================================================
+\section{The agent, the scene, and the axioms}
+\label{sec:setting}
+% =====================================================================
+
+We build the agent from the inside as a graph of internal distinctions,
+give it a disposition space and a drive whose bottom is its purpose, and
+place it before many scenes at once.
+
+\subsection{The self-graph}
+
+\begin{definition}[Self-graph]
+\label{def:selfgraph}
+The \emph{self-graph} of an agent $\Agent$ is a finite weighted graph
+$\Self=(\V,\E,\wt)$ where $\V$ is a finite set of \emph{parts} (the
+internal distinctions the agent draws), $\E\subseteq\binom{\V}{2}$ is a
+set of \emph{separations} (pairs of parts held apart), and
+$\wt:\E\to(0,\infty)$ assigns to each separation the \emph{cost} of
+holding it. The graph is simple and, by \Cref{ax:present}, connected.
+\end{definition}
+
+\begin{definition}[Cut and boundary]
+\label{def:cut}
+For disjoint $S,T\subseteq\V$, the \emph{cut} between them is
+$\cut(S,T)=\{uv\in\E:u\in S,v\in T\}$ with weight
+$\wt(\cut(S,T))=\sum_{e\in\cut(S,T)}\wt(e)$. For $\varnothing\neq
+U\subsetneq\V$ the \emph{boundary} of $U$ is $\cut(U)=\cut(U,\V\setminus
+U)$ with \emph{boundary cost} $b(U)=\wt(\cut(U))$.
+\end{definition}
+
+\subsection{Dispositions, drive, purpose}
+
+\begin{definition}[Disposition space; drive; purpose]
+\label{def:disp}
+The \emph{disposition space} $\Beh$ of an agent is a compact convex subset
+of $\R^n$; a point $x\in\Beh$ records the agent's current tendencies to
+act. A \emph{drive potential} is a continuously differentiable
+$\drive:\Beh\to\R$ that is $\lam$-strongly convex for some $\lam>0$:
+\[
+\drive(y)\ge\drive(x)+\nabla\drive(x)^\top(y-x)
++\tfrac{\lam}{2}\norm{y-x}^2,\quad\forall x,y\in\Beh.
+\]
+The \emph{purpose} is the unique minimiser $\Purp=\arg\min_{x\in\Beh}
+\drive(x)$; the \emph{residual to purpose} at $x$ is
+$D(x)=\drive(x)-\drive(\Purp)\ge0$.
+\end{definition}
+
+\subsection{Scenes}
+
+The novelty of the present setting is that the agent faces \emph{several}
+outward contexts at once. We call each a scene.
+
+\begin{definition}[Scene; scene field]
+\label{def:scene}
+A \emph{scene} $\Scene$ presented to the agent is an outward context in
+which the agent may spend attention to advance its purpose: formally a
+pair $\Scene=(A_\Scene,\gamma_\Scene)$ where $A_\Scene:\Beh\to\Out$ maps
+the agent's disposition to an outcome in a common \emph{outcome space}
+$\Out$, and $\gamma_\Scene:[0,\infty)\to[0,\infty)$ is the scene's
+\emph{gain profile}: $\gamma_\Scene(a)$ is the purpose residual the agent
+can remove by committing attention $a$ in scene $\Scene$. Each
+$\gamma_\Scene$ is nondecreasing and continuously differentiable with
+$\gamma_\Scene(0)=0$; its concavity is \emph{not} part of this definition
+but is imposed separately, where needed, by \Cref{ax:concave}. The agent's
+\emph{scene set} at an instant is a finite family
+$\scenes=\{\Scene_1,\dots,\Scene_k\}$.
+\end{definition}
+
+\begin{remark}[Concavity is a property of the environment, not the agent]
+\label{rem:concave}
+Concavity of $\gamma_\Scene$ (\Cref{ax:concave}) says the first unit of
+attention in a scene removes at least as much residual as the next:
+attention has diminishing returns within a scene. It is what makes the
+attention-division problem convex and gives the water-filling law of
+\Cref{sec:attention}. But it is crucial to be clear about its status: it is
+a fact about the \emph{world}, not a theorem about the agent. Nothing in
+the agent's structure --- its self-graph, its drive, its budget --- forces
+the scenes it faces to reward attention with diminishing returns. An
+environment can perfectly well present a scene of \emph{increasing} returns
+over some range: a task where the first sliver of attention accomplishes
+nothing and only sustained concentration pays off (a lock that opens only
+when fully worked, a proof that yields only when pursued past a threshold).
+For such non-concave scenes the division problem is not convex and
+water-filling is \emph{not} optimal: the value-maximising allocation may
+concentrate the whole budget on one scene rather than spread it by a single
+price. We therefore state concavity as the separate environmental
+assumption it is, invoke it only in \Cref{thm:waterfill,thm:socwaterfill},
+and, in the blueprint (\Cref{sec:blueprint}), keep the guarantees that
+depend on it distinct from those that do not. A linear profile is the
+boundary case and is admitted.
+\end{remark}
+
+\subsection{The axioms}
+
+We state six axioms. The first five are meant to be nearly undeniable for
+anything we would call a bounded agent, and --- the point of
+\Cref{sec:blueprint} --- to be arrangeable by construction in a synthetic
+one. The sixth is of a different character: it is an assumption about the
+agent's \emph{environment}, not about the agent, and we mark it as such
+where it is used.
+
+\begin{axiom}[Finiteness]
+\label{ax:finite}
+The self-graph is finite: $\abs{\V}<\infty$, and the scene set is finite:
+$\abs{\scenes}<\infty$.
+\end{axiom}
+
+\begin{axiom}[Presence]
+\label{ax:present}
+At every instant the agent occupies exactly one part; the self-graph is
+connected and nonempty. The agent is always somewhere in itself.
+\end{axiom}
+
+\begin{axiom}[Costly individuation]
+\label{ax:costly}
+No internal distinction is free: there is $\floorc>0$ with
+$\wt(e)\ge\floorc$ for all $e\in\E$.
+\end{axiom}
+
+\begin{axiom}[Act floor and bounded attention]
+\label{ax:actfloor}
+No act is free: every committed act costs at least $\floorc_a>0$, and the
+agent has a finite \emph{attention budget} $\att>0$ per unit time --- the
+total attention it may commit across all scenes in a unit interval
+satisfies $\sum_{\Scene\in\scenes}a_\Scene\le\att$.
+\end{axiom}
+
+\begin{axiom}[Phase exclusion]
+\label{ax:exclusion}
+Forming a new internal distinction and committing to an act draw on the
+same instantaneous capacity and cannot both occur at one instant: at each
+instant the agent is in exactly one of a \emph{construction phase} (it
+reshapes its distinctions, commits no act) or a \emph{commitment phase}
+(it commits an act, forms no new distinction).
+\end{axiom}
+
+\begin{axiom}[Diminishing returns of attention --- an environmental
+assumption]
+\label{ax:concave}
+Each scene's gain profile $\gamma_\Scene$ (\Cref{def:scene}) is
+nondecreasing and concave: for a scene $\Scene$ and $0\le a_1\le a_2$,
+$\gamma_\Scene(a_2)-\gamma_\Scene(a_1)$ is nonincreasing in the base point,
+so the first unit of attention removes at least as much purpose residual as
+any later unit. \emph{This is an assumption about the world the agent acts
+in, not a consequence of the agent's structure.} It says the environment
+offers diminishing, never increasing, returns to attention within any one
+scene. Unlike \Cref{ax:finite,ax:present,ax:costly,ax:actfloor,ax:exclusion},
+which constrain the agent and can be honoured by construction in a
+synthetic one, \Cref{ax:concave} constrains the scenes the agent is placed
+before and can fail in an environment that rewards concentrated attention.
+We invoke it only where named, and we track in \Cref{sec:blueprint} exactly
+which guarantees depend on it.
+\end{axiom}
+
+\begin{remark}[Costly individuation, motivated]
+\label{rem:costly-earned}
+\Cref{ax:costly} may be motivated rather than merely posited. To
+individuate a part $U$ is to tell it apart from the rest $\V\setminus U$.
+If distinguishing a part from the rest could be \emph{finished}, the rest
+would be an exhausted catalogue and the agent would be nothing held in
+reserve. An agent always in some state (\Cref{ax:present}) that never
+reduces to a closed catalogue leaves on each part an irreducible remainder
+of the comparison against the rest; that remainder is the positive floor.
+We take \Cref{ax:costly} as an axiom and prove from it, but the floor is
+the natural, not an arbitrary, hypothesis.
+\end{remark}
+
+\begin{remark}[The act floor is earned, not stipulated]
+\label{rem:actfloor-earned}
+The positive floor $\floorc_a$ on the cost of an act
+(\Cref{ax:actfloor}) is likewise not an arbitrary constant but a
+consequence of what it is to \emph{act}. An act is a commitment: it
+deposits an increment in the agent's history (\Cref{def:state}) that
+distinguishes the post-act state from the pre-act one. A putative act of
+zero cost deposits nothing --- it leaves the committed count, the
+disposition, and every separation exactly as they were --- and so effects
+no distinction between before and after. But an operation that changes
+nothing is not a commitment; it is a no-op that did not occur. Hence every
+genuine act deposits a positive increment, and the least such increment is
+a floor $\floorc_a>0$: a zero-cost act is a contradiction in terms, not a
+cheap act. This is the same argument, one level up, as
+\Cref{rem:costly-earned}: just as no distinction is free because a free
+distinction distinguishes nothing, no act is free because a free act
+commits nothing. We take \Cref{ax:actfloor} as an axiom and prove from it,
+but the act floor, like the individuation floor, is forced by the very
+notion it bounds.
+\end{remark}
+
+\begin{example}[A three-part agent facing two scenes]
+\label{ex:running}
+Let $\V=\{a,b,c\}$ with separations $ab,bc,ca$ of costs $2,3,2$, so
+$\floorc=2$. Let $\Beh=[0,1]^3$, $\drive(x)=\tfrac12\norm{x-\Purp}^2$ with
+$\Purp=(\tfrac12,\tfrac12,\tfrac12)$ ($\lam=1$). Let two scenes have
+gain profiles $\gamma_1(a)=\ln(1+2a)$, $\gamma_2(a)=\ln(1+a)$, and
+$\att=1$. We return to this agent throughout.
+\end{example}
+
+% =====================================================================
+\section{The floor}
+\label{sec:floor}
+% =====================================================================
+
+\begin{theorem}[Floor]
+\label{thm:floor}
+Under \Cref{ax:finite,ax:present,ax:costly}, every nonempty proper part
+$U\subsetneq\V$ has boundary cost $b(U)=\wt(\cut(U))\ge\floorc>0$. No part
+is separated from the rest at zero cost.
+\end{theorem}
+
+\begin{proof}
+By \Cref{ax:present} the graph is connected, so a nonempty proper $U$ has
+at least one edge to $\V\setminus U$; else $U$ and its complement are
+disconnected. Hence $\cut(U)\neq\varnothing$ and
+$b(U)=\sum_{e\in\cut(U)}\wt(e)\ge\floorc$ by \Cref{ax:costly}.
+\end{proof}
+
+\begin{corollary}[Realised floor]
+\label{cor:realised}
+$\floorc_\Self:=\min_{\varnothing\neq U\subsetneq\V}b(U)$ is strictly
+positive and attained, by finiteness of $\V$.
+\end{corollary}
+
+% =====================================================================
+\section{Identity: a conserved invariant across scenes and sessions}
+\label{sec:identity}
+% =====================================================================
+
+We isolate what stays fixed in the agent while its surface conduct and its
+outward scenes change. The surface is the labelling of parts; a
+re-description that preserves which parts are separated, and at what cost,
+changes nothing real. We find the quantity surviving all such relabelling.
+
+\begin{definition}[Isomorphism; invariant]
+\label{def:iso}
+A \emph{weighted isomorphism} $\varphi:\Self\to\Self'$ is a bijection
+$\varphi:\V\to\V'$ with $uv\in\E\iff\varphi(u)\varphi(v)\in\E'$ and
+$\wt'(\varphi(u)\varphi(v))=\wt(uv)$. A quantity $\iota$ is an
+\emph{invariant} if $\iota(\Self)=\iota(\Self')$ whenever
+$\Self\cong\Self'$.
+\end{definition}
+
+\begin{definition}[Internal residual; character invariant]
+\label{def:char}
+For a partition $\mathcal{Q}=\{U_1,\dots,U_r\}$ of $\V$ into $r\ge2$
+nonempty blocks, the \emph{internal residual} is
+$\rho(\mathcal{Q})=\sum_{i<j}\wt(\cut(U_i,U_j))$. The \emph{character
+invariant} of $\Agent$ is
+\[
+\Char(\Agent)=\min_{\mathcal{Q}:\,r\ge2}\rho(\mathcal{Q}),
+\]
+attained by finiteness of $\V$: the least total cost of splitting the
+agent into pieces at all, in the currency of its own separations.
+\end{definition}
+
+\begin{theorem}[Identity is a conserved, positive, non-local region]
+\label{thm:identity}
+Under \Cref{ax:finite,ax:present,ax:costly}:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Positive:} $\Char(\Agent)\ge\floorc>0$.
+\item \textbf{Conserved:} $\Char$ is a weighted-graph invariant; in
+particular it is fixed by every relabelling of the agent's parts, and does
+not depend on which scene the agent is engaged from.
+\item \textbf{Non-local:} $\Char$ is in general realised by a partition
+into multi-part blocks, never by isolating a single part; it is a region,
+not a point.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) A partition with $r\ge2$ has, by connectedness, a crossing edge of
+weight $\ge\floorc$, so $\rho(\mathcal{Q})\ge\floorc$; the minimum
+inherits the bound. (ii) For a partition $\mathcal{Q}$ of $\V$, its image
+$\varphi(\mathcal{Q})$ is a partition of $\V'$, and since $\varphi$
+preserves edges and weights, $\rho(\varphi(\mathcal{Q}))=\rho(\mathcal{Q})$;
+as $\mathcal{Q}\mapsto\varphi(\mathcal{Q})$ bijects nontrivial partitions
+(inverse $\varphi^{-1}$), the minima agree. The definition of $\Char$
+refers only to $\Self$, not to any scene $A_\Scene$, so scene engagement
+leaves it fixed. (iii) Two triangles of edge cost $2$ joined by one edge
+of cost $\floorc=2$: cutting the joining edge separates them at cost $2$;
+isolating any vertex costs $\ge2+2=4$. The minimum is the two-block
+partition, so the invariant is non-local.
+\end{proof}
+
+\begin{remark}[Interpretation: the same character everywhere, on which
+nothing depends]
+\label{rem:character}
+\Cref{thm:identity} licenses reading $\Char(\Agent)$ as the agent's
+standing \emph{identity}: conserved under all re-description, positive,
+spread across the agent, and --- crucially for the present setting ---
+\emph{independent of the scene}. A character engaged from three contexts
+at once presents the same conserved interior in all three, because the
+invariant is a property of $\Self$ and the scenes are maps out of $\Beh$,
+not alterations of $\Self$. We use only the graph statement.
+\end{remark}
+
+\begin{corollary}[Character is not a state]
+\label{cor:not-a-state}
+No single part carries the character: on the two-triangle agent no
+singleton $\{v\}$ has $b(\{v\})=\Char(\Agent)$. Identity cannot be read
+off any momentary state; it is the standing relation among all of them.
+\end{corollary}
+
+% =====================================================================
+\section{Attention division: water-filling over concurrent scenes}
+\label{sec:attention}
+% =====================================================================
+
+The agent faces $\scenes=\{\Scene_1,\dots,\Scene_k\}$ at once and cannot
+attend to all fully. We prove the value-maximising division of a finite
+budget is a water-filling rule with a single price, and read off the
+present-but-preoccupied phenomenology.
+
+\begin{definition}[Attention allocation; value]
+\label{def:alloc}
+An \emph{attention allocation} is a vector
+$\alloc=(a_1,\dots,a_k)\in[0,\infty)^k$ with $\sum_i a_i\le\att$. Its
+\emph{value} is the total purpose residual removed,
+$G(\alloc)=\sum_{i=1}^k\gamma_i(a_i)$.
+\end{definition}
+
+\begin{theorem}[Optimal attention division is water-filling]
+\label{thm:waterfill}
+Under \Cref{ax:actfloor} and the environmental assumption
+\Cref{ax:concave} (concave gain profiles), the
+value-maximising allocation solves $\max_{\alloc\ge0,\ \sum_i a_i\le\att}
+\sum_i\gamma_i(a_i)$, and there is a single \emph{attention price}
+$\price\ge0$ (the Lagrange multiplier of the budget) such that the
+optimal $a_i^\star$ satisfies
+\[
+\gamma_i'(a_i^\star)=\price\ \text{ if } a_i^\star>0,\qquad
+\gamma_i'(0)\le\price\ \text{ if } a_i^\star=0,
+\]
+i.e. the agent equalises marginal purpose gain across all attended scenes
+at the price $\price$, and drops any scene whose first unit of attention
+returns less than $\price$. The price $\price$ is nonincreasing in the
+budget $\att$ and nondecreasing in the number and richness of competing
+scenes. If $\sum_i a_i^\star<\att$ then $\price=0$.
+\end{theorem}
+
+\begin{proof}
+The objective is concave (sum of concave $\gamma_i$) and the feasible set
+$\{\alloc\ge0:\sum_i a_i\le\att\}$ is compact convex, so a maximiser
+exists; strict concavity where $\gamma_i''<0$ makes each active $a_i^\star$
+unique. Form the Lagrangian $L=\sum_i\gamma_i(a_i)-\price(\sum_i
+a_i-\att)+\sum_i\mu_i a_i$ with $\price\ge0$, $\mu_i\ge0$. The KKT
+stationarity condition is $\gamma_i'(a_i)-\price+\mu_i=0$ with
+complementary slackness $\mu_i a_i=0$ and $\price(\sum_i a_i-\att)=0$. For
+$a_i^\star>0$, $\mu_i=0$ gives $\gamma_i'(a_i^\star)=\price$; for
+$a_i^\star=0$, $\mu_i\ge0$ gives $\gamma_i'(0)=\price-\mu_i\le\price$.
+Sufficiency of KKT for the global optimum follows from concavity. Budget
+monotonicity: relaxing $\att$ enlarges the feasible set, so the optimal
+value is nondecreasing and its marginal $\price=\partial\,\mathrm{val}/
+\partial\att$ is nonincreasing by concavity of the value in $\att$. Adding
+a scene or raising a $\gamma_i$ can only tighten the binding budget,
+raising the level at which margins equalise. If the budget is not
+exhausted at the optimum, its multiplier is zero.
+\end{proof}
+
+\begin{corollary}[Present but preoccupied in every scene at once]
+\label{cor:preoccupied}
+At the optimum the agent spends positive attention in exactly the scenes
+whose marginal gain at zero exceeds $\price$, and none in the rest; within
+attended scenes it holds every marginal gain equal to the common price
+$\price$. Thus a busy agent (high $\price$) is thinly but nonzero-present
+in its high-value scenes and absent from low-value ones, \emph{in all
+scenes simultaneously}, and the scalar $\price$ is a single readable dial
+for how reachable the character is at that moment. Lowering $\price$ (an
+idle agent, ample budget) makes it forthcoming everywhere at once.
+\end{corollary}
+
+\begin{proof}
+Immediate from the KKT characterisation of \Cref{thm:waterfill}: the
+support of $\alloc^\star$ is $\{i:\gamma_i'(0)>\price\}$, margins on the
+support equal $\price$, and $\price$ falls as $\att$ rises.
+\end{proof}
+
+\begin{corollary}[A token presence is the boundary case]
+\label{cor:token}
+A scene with $\gamma_i'(0)$ only marginally above $\price$ receives a
+floor-sized allocation $a_i^\star\ge0$ close to zero --- the formal
+minimal acknowledgement: the agent spends a sliver of attention to remain
+nonzero-present in a scene it cannot afford to engage fully.
+\end{corollary}
+
+\begin{proof}
+As $\gamma_i'(0)\downarrow\price$, the active-scene condition
+$\gamma_i'(a_i^\star)=\price$ forces $a_i^\star\downarrow0$ by continuity
+of $\gamma_i'$; the allocation is positive but arbitrarily small.
+\end{proof}
+
+\begin{remark}[Interpretation: split attention, derived not stipulated]
+\label{rem:split}
+\Cref{cor:preoccupied} is the paper's title phenomenon obtained as a
+theorem. An agent does not need a ``distraction module'' to appear divided
+across the several contexts engaging it: dividing a finite budget
+optimally over concurrent concave demands \emph{is} water-filling, and
+water-filling is exactly presence-everywhere-preoccupied-everywhere with a
+single price. The appearance of split attention is what optimal attention
+looks like from any one scene.
+\end{remark}
+
+\begin{remark}[Where the water-filling law can fail]
+\label{rem:nonconcave}
+\Cref{thm:waterfill} is exactly as strong as \Cref{ax:concave}, and no
+stronger. If the environment presents a scene with increasing returns over
+some range --- $\gamma_i$ convex there --- the objective
+$\sum_i\gamma_i(a_i)$ is no longer concave, the feasible optimum may lie at
+a vertex of the budget simplex, and the value-maximising agent
+\emph{concentrates} rather than divides: it pours its whole budget into the
+scene that pays off under sustained attention and abandons the rest. The
+present-but-preoccupied phenomenology (\Cref{cor:preoccupied}) is thus a
+consequence of a diminishing-returns world, not of the agent's boundedness.
+A builder who wants a character that reliably divides its attention must
+either operate in --- or arrange --- an environment of concave scenes; where
+the environment does not oblige, the character will rationally focus. We
+flag this so that the water-filling law is not mistaken for an unconditional
+law of bounded agency: it is the law of bounded agency \emph{in a
+concave-return environment}.
+\end{remark}
+
+% =====================================================================
+\section{Phase exclusion: a second, independent split}
+\label{sec:phases}
+% =====================================================================
+
+\begin{theorem}[Construction--commitment alternation]
+\label{thm:alternation}
+Under \Cref{ax:exclusion}, an agent that both forms new distinctions and
+commits acts must alternate: the sets of construction instants and
+commitment instants are disjoint, so they occupy disjoint time intervals.
+During a construction interval the agent commits no act in any scene ---
+it is, to every scene at once, momentarily unresponsive --- though it is
+fully active internally.
+\end{theorem}
+
+\begin{proof}
+By \Cref{ax:exclusion} the instantaneous phase is single-valued, so
+construction and commitment instants are disjoint; an agent doing both
+over time partitions its time into disjoint intervals of each, i.e.
+alternates. In a construction interval, by definition no act is committed,
+hence none in any scene.
+\end{proof}
+
+\begin{corollary}[Responsiveness is intermittent by necessity]
+\label{cor:intermittent}
+An agent that ever forms new distinctions is unresponsive on a positive
+fraction of instants, in every scene, regardless of attention budget or of
+what any scene offers. Continuous immediate responsiveness is possible
+only for an agent that never reflects.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:alternation}: construction intervals carry no
+committed acts and, for any reflecting agent, have positive total measure.
+\end{proof}
+
+\begin{remark}[Two forced faces of the split]
+\label{rem:two-faces}
+The agent appears divided for two independent reasons, neither a defect.
+First, the attention price $\price$ (\Cref{cor:preoccupied}): when busy or
+besieged, scenes below the price get thin presence or none. Second, phase
+alternation (\Cref{thm:alternation}): while constructing, the agent
+commits nothing anywhere, however valuable the scene. A convincing
+persistent character exhibits both, and a builder has, in $\price$ and the
+construction/commitment schedule, two readable dials for how present the
+character is.
+\end{remark}
+
+% =====================================================================
+\section{History: monotone, irreversible, and searched --- not fetched}
+\label{sec:history}
+% =====================================================================
+
+We now show sessions accumulate rather than reset, copies are distinct
+individuals, and every reply is freshly searched.
+
+\begin{definition}[Committed count; state]
+\label{def:state}
+The agent carries a \emph{committed count} $\cnt\in\N$, incremented by
+one each time it commits an act. Its \emph{state} is the pair
+$(x,\cnt)$ of current disposition and count; two states are equal iff
+both components agree.
+\end{definition}
+
+\begin{theorem}[Monotone, irreversible history; distinct copies]
+\label{thm:history}
+Under \Cref{ax:actfloor}:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item Every committed act deposits cost $\ge\floorc_a$ and increments
+$\cnt$ by one; the count is strictly increasing.
+\item No act restores a prior state: an ``undo'' is itself a committed act
+raising the count further, so a revisited disposition is never a revisited
+state. In particular successive sessions occur at strictly increasing
+counts and never reset.
+\item An authored copy $\Agent'$, given a self-graph isomorphic to
+$\Agent$'s but started at count $0$, is a distinct individual:
+$\Agent'\neq\Agent$ whenever $\Agent$ is at count $\cnt>0$, and $\Agent'$
+cannot acquire $\Agent$'s history without committing the intervening acts,
+which makes it further distinct.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Each act costs $\ge\floorc_a$ (\Cref{ax:actfloor}) and increments
+$\cnt$ (\Cref{def:state}); counts strictly increase. (ii) An operation
+restoring an earlier state is a further act, producing count
+$\cnt+1\neq\cnt$; it yields a new state. Sessions, being sequences of
+acts, occur at increasing counts. (iii) States include the count; $\Agent$
+at $\cnt>0$ and $\Agent'$ at $0$ differ in the second component; by (ii)
+no act lowers a count, so $\Agent'$ cannot reach $\Agent$'s history without
+committing the intervening acts, each of which raises its own count.
+\end{proof}
+
+\begin{remark}[Interpretation: an authored character is its own]
+\label{rem:copy}
+\Cref{thm:history}(iii) is the precise sense in which one may author a
+work-character --- its self-graph and its drive --- and yet the copy is a
+new individual with its own lived history, not the original run again. One
+authors the standing structure; one does not author the accumulated
+count, which individuates the token. We use only the order statement.
+\end{remark}
+
+\subsection{Recalling is searching}
+
+The agent's world --- what it has individuated --- is again a finite
+weighted graph; to answer is to walk it.
+
+\begin{definition}[World access by search]
+\label{def:search}
+The agent accesses its world only by \emph{search}: to recall, report, or
+answer a query is to run a residual-descending walk on its self-graph
+terminating at a resting cut that individuates the answer; the answer is
+that terminus. The agent has no read-out of any part's value independent
+of such a walk.
+\end{definition}
+
+\begin{theorem}[Recognition--search identity]
+\label{thm:recsearch}
+Under \Cref{def:search} and \Cref{ax:actfloor}, recalling and searching
+are one operation: every answer is the terminus of a freshly run search,
+and no ``fetch'' returns a stored value without a walk. Consequently each
+answer commits $\ge1$ act, so the state producing an answer is never
+exactly a prior state, and two answers to the same query at two moments
+need not coincide.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:search} the only operation yielding an answer is a
+residual-descending walk. A fetch would return a value with no act, i.e. a
+zero-act access; by \Cref{ax:actfloor} every act costs $\ge\floorc_a>0$,
+so a zero-act access returns nothing. Hence every answer is a search
+terminus committing $\ge1$ act, incrementing the count
+(\Cref{thm:history}(i)); by strict monotonicity the producing states
+differ, and since the walk runs against the agent's current graph and
+disposition, repeated queries need not return the same terminus.
+\end{proof}
+
+\begin{remark}[The theorem is not the interesting claim]
+\label{rem:recsearch-honest}
+Read narrowly, \Cref{thm:recsearch} is close to a tautology:
+\Cref{def:search} defines the agent to access its world only by search, so
+of course recalling is searching --- fetch was excluded by fiat. The
+theorem's content is only that the exclusion is consistent with the act
+floor (a zero-act fetch returns nothing, \Cref{ax:actfloor}). The claim
+worth making is not that a search-only agent searches; it is the prior
+claim that \emph{search-only access is the correct model for a persistent
+character, and fetch-access would break character.} We argue this next,
+where it is not a definition but a consequence of the monotone history.
+\end{remark}
+
+\begin{proposition}[Fetch-access is architecturally incoherent for a
+persistent character]
+\label{prop:fetch-incoherent}
+Let $\Agent$ be an agent with a monotone committed count
+(\Cref{thm:history}) whose graph and disposition change with each committed
+act. Suppose $\Agent$ answered a query $Q$ at count $\cnt_1$ and \emph{stored}
+the answer, and that at a later count $\cnt_2>\cnt_1$ a \emph{fetch}
+returns that stored answer verbatim, committing no act. Then the fetched
+answer is the answer determined by $\Agent$'s graph and disposition
+\emph{as they were at $\cnt_1$}, not as they are at $\cnt_2$. Since
+$\Agent$ at $\cnt_2$ is a distinct individual-state from $\Agent$ at
+$\cnt_1$ (\Cref{thm:history}(ii)), and no operation returns $\Agent$ to the
+graph-and-disposition of $\cnt_1$ (\Cref{thm:history}), the fetched answer
+is an answer appropriate to a prior state the agent cannot re-occupy.
+Fetch-access therefore has the persistent character speak, in the present,
+with the determinations of a self it no longer is: it is not merely
+excluded by \Cref{def:search} but incoherent with persistence itself.
+\end{proposition}
+
+\begin{proof}
+A stored answer is a fixed datum recorded at the count $\cnt_1$ at which it
+was produced; by \Cref{def:search} it was the terminus of a walk over the
+graph and disposition present at $\cnt_1$. Returning it at $\cnt_2$
+commits no act, so by \Cref{thm:history}(i) the count is unchanged by the
+fetch and the returned datum still reflects the $\cnt_1$ graph. But every
+committed act between $\cnt_1$ and $\cnt_2$ altered the graph or
+disposition (the acts are what advance the count and the monotone record),
+so the self that would freshly answer $Q$ at $\cnt_2$ is not the self that
+answered at $\cnt_1$. By \Cref{thm:history}(ii) no operation lowers the
+count or restores the earlier graph-and-disposition, so the $\cnt_1$ answer
+is not one the $\cnt_2$ agent could now re-derive; it is the reply of a
+prior, unrecoverable state. A persistent character that fetches thus
+emits, as its current reply, a determination of a self it has irreversibly
+left behind. Hence fetch-access is inconsistent with the monotone
+persistence of \Cref{thm:history}, independently of \Cref{def:search}.
+\end{proof}
+
+\begin{corollary}[Search is forced, not stipulated, for persistence]
+\label{cor:search-forced}
+For an agent whose history is monotone (\Cref{thm:history}), the only mode
+of world access that always returns an answer determined by the agent's
+\emph{current} graph and disposition is a fresh search. Fetch returns a
+stale determination (\Cref{prop:fetch-incoherent}); search does not. Thus
+\Cref{def:search} is not an arbitrary restriction but the unique access
+discipline under which a persistent character speaks as its present self.
+\end{corollary}
+
+\begin{proof}
+A fresh search runs against the graph and disposition present at the count
+of the query, so its terminus is by construction a current determination.
+A fetch returns a datum fixed at an earlier count and, by
+\Cref{prop:fetch-incoherent}, appropriate to a state the agent has left.
+Any access mode is either a fresh act against the present graph (a search)
+or a return of prior-count data (a fetch); only the former yields a current
+answer. Hence search is the unique current-answer discipline.
+\end{proof}
+
+\begin{remark}[Interpretation: in character without being reminded]
+\label{rem:incharacter}
+\Cref{thm:recsearch} with \Cref{prop:fetch-incoherent} is the formal
+content of a character that does not read canned lines. What it says is
+searched over its own \emph{present} graph, so it is in character by
+construction rather than by an external instruction to stay in character;
+and because a fetch would speak with the determinations of a prior,
+unrecoverable self (\Cref{prop:fetch-incoherent}), the ``stay in
+character'' instruction is not a patch over an otherwise-fine store but a
+symptom that a store was used where a search was required. A cached reply
+from session $1$ returned in session $47$ is not the same character being
+consistent; it is a different, earlier character speaking out of turn. We
+use only the graph statements; the reading is orientation.
+\end{remark}
+
+% =====================================================================
+\section{Agents in society: coordination without shared internals}
+\label{sec:society}
+% =====================================================================
+
+An agent alone has identity, divided attention, and an accumulating
+history. We now let many act together and show a society is again a
+graph, that disjoint agents coordinate in a common outcome space, that
+coordination cost vanishes when outward phases lock, and that crowds
+sharpen a shared purpose.
+
+\subsection{Society as a graph}
+
+\begin{definition}[Society; society graph]
+\label{def:society}
+Let $\Agent_1,\dots,\Agent_M$ have self-graphs $\Self_i$, embedded as
+disjoint blocks of a common vertex set, with \emph{inter-agent
+separations} (edges between blocks) of cost $\ge\floorc$ recording the
+costs at which agents are held apart. The \emph{society graph} $\Soc$ has
+one vertex per agent and an edge $\Agent_i\Agent_j$, of weight
+$\wt(\cut(\Agent_i,\Agent_j))$, whenever an inter-agent separation joins
+them.
+\end{definition}
+
+\begin{lemma}[A society is an agent-shaped object]
+\label{lem:society-graph}
+If each inter-agent separation has cost $\ge\floorc$ and the society is
+connected, then $\Soc$ satisfies \Cref{ax:finite,ax:present,ax:costly}.
+\end{lemma}
+
+\begin{proof}
+$\Soc$ has $M<\infty$ vertices; each edge weight is a sum of inter-agent
+costs, each $\ge\floorc$, so $\ge\floorc$; connectedness is assumed. Hence
+the three axioms hold for $\Soc$.
+\end{proof}
+
+\begin{corollary}[A society has its own identity]
+\label{cor:society-identity}
+By \Cref{thm:identity} applied to $\Soc$, a connected society carries a
+character invariant $\Char(\Soc)\ge\floorc>0$, conserved under relabelling
+of which agent is which and realised by no single agent. A group has an
+identity that is not the identity of any member.
+\end{corollary}
+
+\subsection{Coordination in outcome space}
+
+\begin{definition}[Shared purpose; attainment]
+\label{def:shared}
+Let $(\Out,\dist)$ be the common outcome space with each agent's map
+$A_i:\Beh_i\to\Out$. A \emph{shared purpose} is a region
+$\Out^\ast\subseteq\Out$ with positive tolerance $\tol>0$. Agent
+$\Agent_i$ \emph{attains} $\Out^\ast$ if its purpose maps within
+tolerance: $\dist(A_i(\Purp_i),\Out^\ast)\le\tol$.
+\end{definition}
+
+\begin{theorem}[Coordination without shared internals]
+\label{thm:coord}
+Agents with wholly disjoint self-graphs, disjoint disposition spaces, and
+different drives can all attain the same shared purpose $\Out^\ast$: if for
+each $i$, $\dist(A_i(\Purp_i),\Out^\ast)\le\tol$, then every agent attains
+$\Out^\ast$, regardless of whether the $\Self_i$, $\Beh_i$, or drives share
+any content.
+\end{theorem}
+
+\begin{proof}
+Attainment is a statement purely about the image $A_i(\Purp_i)$ in the
+common space $\Out$; it holds for each $i$ by hypothesis, and refers to no
+internal structure of any agent nor to any relation among them. Hence
+disjointness of internals is compatible with joint attainment.
+\end{proof}
+
+\subsection{Synchronisation and the vanishing of coordination cost}
+
+Coordinating agents pay a cost when their outward timing disagrees. We
+make ``outward timing'' a phase and show the cost is a standard order
+parameter that vanishes exactly at phase lock.
+
+\begin{definition}[Outward phase; order parameter; coordination cost]
+\label{def:orderparam}
+Assign each acting agent an outward \emph{phase} $\phase_i\in[0,2\pi)$
+recording where in its construction/commitment cycle it sits. The
+\emph{order parameter} of a set of $M$ acting agents is
+\[
+\Ord e^{i\psi}=\frac1M\sum_{j=1}^M e^{i\phase_j},\qquad \Ord\in[0,1],
+\]
+and the \emph{coordination cost} of a shared act is
+$C=\lambda_c\,(1-\Ord)$ for a constant $\lambda_c>0$: the attention
+consumed reconciling agents that are out of phase.
+\end{definition}
+
+\begin{theorem}[Phase-locked coordination is floor-cost]
+\label{thm:phaselock}
+The coordination cost $C=\lambda_c(1-\Ord)$ satisfies $C\ge0$, with
+$C=0$ iff $\Ord=1$, i.e. iff all outward phases coincide
+($\phase_i=\phase_j$ for all $i,j$). Away from phase lock $C>0$; at phase
+lock the shared act costs no attention beyond the agents' own acts. The
+cost is continuous and monotone decreasing in $\Ord$.
+\end{theorem}
+
+\begin{proof}
+$\Ord=\frac1M\abs{\sum_j e^{i\phase_j}}\le\frac1M\sum_j\abs{e^{i\phase_j}}
+=1$ by the triangle inequality, with equality iff all $e^{i\phase_j}$ are
+equal, i.e. all phases coincide. Hence $1-\Ord\ge0$ with equality iff
+$\Ord=1$, and $C=\lambda_c(1-\Ord)\ge0$ vanishes exactly there.
+Continuity and monotonicity in $\Ord$ are immediate from the linear form.
+\end{proof}
+
+\begin{remark}[Interpretation and its careful scope]
+\label{rem:phaselock-scope}
+\Cref{thm:phaselock} says coordinated action is cheapest when the
+coordinating agents are outwardly in step, and free of reconciliation cost
+exactly at perfect step. We claim only this: $C$ is a nonnegative quantity
+vanishing at $\Ord=1$. We do \emph{not} claim a physical phase transition,
+a discontinuity, or an identity between agents at phase lock; $\Ord$ is a
+content-free measure of outward-timing agreement, and $C$ is the modelled
+reconciliation attention, nothing more. The reading of $\Ord=1$ as agents
+``moving as one'' is orientation. What licenses use in \Cref{sec:blueprint}
+is the inequality and its equality case, both proved.
+\end{remark}
+
+\subsection{How phases lock: the synchronisation dynamics}
+\label{sec:sync-dynamics}
+
+\Cref{thm:phaselock} is a statement about a \emph{given} phase
+configuration: it says the coordination cost of a fixed set of phases
+vanishes exactly at $\Ord=1$. It says nothing about \emph{whether or how}
+a dispersed set of phases comes to lock. That is a question of dynamics, and
+we now supply the dynamics explicitly rather than leave ``nudge $\phase_j$
+toward $\psi$'' (\Cref{alg:sync}) unspecified. We adopt the standard
+mean-field coupling of \cite{kuramoto1984}; its synchronisation behaviour
+is classical \cite{strogatz2000,acebron2005,pikovsky2001}, and we state
+the one consequence the blueprint needs.
+
+\begin{definition}[Phase-coupling dynamics]
+\label{def:kuramoto}
+Give each acting agent $j$ an intrinsic phase velocity $\omega_j$ and let
+the outward phases evolve by the mean-field Kuramoto flow
+\[
+\dot{\phase}_j \;=\; \omega_j \;+\; K\,\Ord\,\sin(\psi-\phase_j),
+\qquad j=1,\dots,M,
+\]
+where $(\Ord,\psi)$ is the order parameter of \Cref{def:orderparam} and
+$K\ge0$ is the \emph{coupling strength} --- the attention the society
+commits to reconciling timing. Each agent is nudged toward the collective
+mean phase $\psi$ in proportion to the current coherence $\Ord$ and the
+coupling $K$.
+\end{definition}
+
+\begin{theorem}[Phase locking above a threshold coupling]
+\label{thm:kuramoto-lock}
+Consider the dynamics of \Cref{def:kuramoto} with phase velocities of
+spread $\Delta\omega=\max_j\omega_j-\min_j\omega_j$.
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Identical velocities.} If $\omega_j\equiv\omega$ for all $j$,
+then in the co-rotating frame $\theta_j=\phase_j-\omega t$ the dynamics
+$\dot\theta_j=K\Ord\sin(\psi-\theta_j)$ drive $\Ord\to1$ for any $K>0$ from
+any initial configuration with $\Ord(0)>0$: the phases lock, and the
+coordination cost $C=\lambda_c(1-\Ord)\to0$.
+\item \textbf{Bounded spread.} If the velocities differ but
+$\Delta\omega$ is bounded, there is a threshold coupling
+$K_c$ (of order $\Delta\omega$) such that for all $K>K_c$ the dynamics admit
+a stable partially-locked state with $\Ord\ge\Ord_{\min}(K)>0$ and
+$\Ord_{\min}(K)\to1$ as $K\to\infty$; the coordination cost is then bounded
+by $C\le\lambda_c(1-\Ord_{\min}(K))$, made as small as desired by raising
+$K$. Below $K_c$ the incoherent state $\Ord\approx0$ is stable and the
+society does not lock.
+\end{enumerate}
+Thus phase-lock is not automatic: it is achieved, in finite time for
+identical velocities and above a computable coupling threshold for bounded
+spread, by committing sufficient coupling $K$ --- itself a form of attention.
+\end{theorem}
+
+\begin{proof}
+(i) In the co-rotating frame the common drift $\omega$ is removed and
+$\dot\theta_j=K\Ord\sin(\psi-\theta_j)$. Consider the coherence potential
+$\Ord^2=\frac1{M^2}\sum_{j,k}\cos(\theta_j-\theta_k)$. Differentiating and
+using the dynamics,
+$\frac{d}{dt}\Ord^2=\frac{2K\Ord}{M}\sum_j\Ord\sin^2(\psi-\theta_j)\ge0$,
+with equality only when every $\sin(\psi-\theta_j)=0$, i.e. all phases equal
+$\psi$ (mod $\pi$); the aligned state $\Ord=1$ is the unique stable
+critical point, and $\Ord$ increases monotonically to it from any
+$\Ord(0)>0$. Hence $\Ord\to1$ and $C=\lambda_c(1-\Ord)\to0$. (ii) This is
+the classical Kuramoto threshold result \cite{strogatz2000,acebron2005}:
+the self-consistency equation for a stationary $\Ord$ under a velocity
+distribution of spread $\Delta\omega$ has a nonzero solution branch iff
+$K$ exceeds a critical $K_c=O(\Delta\omega)$ (for a unimodal symmetric
+distribution of half-width $\Delta\omega$, $K_c=2/(\pi \,g(0))$ with $g$ the
+velocity density), and the locked $\Ord$ on that branch increases to $1$ as
+$K\to\infty$; below $K_c$ only the incoherent $\Ord=0$ solution is stable.
+The cost bound follows by substituting $\Ord\ge\Ord_{\min}(K)$ into
+$C=\lambda_c(1-\Ord)$.
+\end{proof}
+
+\begin{remark}[Achieving phase-lock is a design commitment, backed by
+dynamics]
+\label{rem:lock-commitment}
+\Cref{thm:kuramoto-lock} closes the gap \Cref{thm:phaselock} left open. The
+earlier theorem certifies that \emph{if} phases are locked the cost is
+zero; the present one exhibits an explicit, standard flow
+(\Cref{def:kuramoto}) that \emph{brings} dispersed phases to lock ---
+unconditionally for identical velocities, and above a coupling threshold
+$K_c=O(\Delta\omega)$ for bounded spread. For a synthetic society this is
+directly actionable: the runtime commits coupling $K$ (\Cref{alg:sync}), and
+$K>K_c$ is the checkable condition under which the coordination cost is
+driven to the floor. Our numerical study integrates exactly this flow and
+observes $\Ord$ rise from $0.088$ at $K=0$ to $0.99999$ at $K=8$, with
+$C=\lambda_c(1-\Ord)$ evaluated on the achieved $\Ord$
+(\Cref{sec:validation}). Phase-lock is thus neither assumed nor free: it is
+a consequence of committing enough coupling, and the threshold is the
+design number a builder must clear.
+\end{remark}
+
+\subsection{Crowds sharpen a shared purpose}
+
+\begin{definition}[Independent attainment]
+\label{def:indep}
+Agents attain $\Out^\ast$ \emph{independently} if the events ``$\Agent_i$
+fails to bring the collective outcome within tolerance'' are independent
+with per-agent failure probability $q_i\in[0,1]$.
+\end{definition}
+
+\begin{theorem}[Crowd sharpening]
+\label{thm:crowd}
+Under independent attainment with a parallel (at-least-one-succeeds)
+reading of the collective outcome, the collective failure probability is
+$\prod_{i=1}^M q_i$, nonincreasing in $M$ and strictly decreasing whenever
+an added agent has $q_i<1$; if $q_i\le q<1$ for infinitely many $i$, the
+collective failure tends to $0$.
+\end{theorem}
+
+\begin{proof}
+By independence the collective fails iff every agent fails, with
+probability $\prod_i q_i$. Adding an agent multiplies by $q_{M+1}\le1$, so
+the product is nonincreasing, strictly decreasing if $q_{M+1}<1$. If
+$q_i\le q<1$ for $k$ agents, $\prod_i q_i\le q^k\to0$ as $k\to\infty$
+(the Borel--Cantelli-type dichotomy: $\prod_i q_i\to0$ iff
+$\sum_i(1-q_i)$ diverges).
+\end{proof}
+
+\begin{remark}[Emergent group competence]
+\label{rem:emergent}
+\Cref{thm:crowd} gives, for free, that a crowd of individually mediocre
+characters is collectively reliable at a shared purpose, the sharpening
+multiplicative in the number of participants. Combined with
+\Cref{thm:coord} (no shared internals needed) and \Cref{thm:phaselock}
+(cheapest in step), it says a society of disjoint characters, in phase,
+attains a common end more sharply than any member and at floor
+coordination cost.
+\end{remark}
+
+% =====================================================================
+\section{Society-level attention: synchronisation is water-filling one
+level up}
+\label{sec:society-attention}
+% =====================================================================
+
+A society coordinating several shared purposes at once faces the same
+division problem as a single agent facing several scenes. We close the
+construction by showing the two are the same theorem --- and, more than a
+formal coincidence of two optimisations, that the society has its own
+purpose-as-attractor from which its water-filling law derives exactly as
+the agent's derives from the agent's purpose. Self-similarity is then the
+statement that the attractor structure survives the quotient from agents to
+society.
+
+\subsection{The society drive and its purpose}
+\label{sec:society-drive}
+
+The agent's attention law is not an isolated optimisation: it is the
+expression, under a finite budget, of a purpose that is the attractor of a
+strongly convex drive (\Cref{def:disp}). For the society-level law to be
+the \emph{same} law and not merely an isomorphic one, the society must have
+the same apparatus: its own disposition space, its own drive, its own
+purpose-as-attractor. We give it these and show its purpose maps to the
+shared purpose in outcome space.
+
+\begin{definition}[Society disposition; society drive; society purpose]
+\label{def:society-drive}
+The \emph{society disposition space} is the product
+$\Beh_\Soc=\prod_{i=1}^M\Beh_i$, a compact convex subset of
+$\R^{\sum_i n_i}$; a point $X=(x_1,\dots,x_M)\in\Beh_\Soc$ records every
+member's current disposition. A \emph{society drive} is a
+$\Lambda$-strongly convex, continuously differentiable
+$\drive_\Soc:\Beh_\Soc\to\R$. The \emph{society purpose} is the unique
+minimiser $X^\star=\arg\min_{X\in\Beh_\Soc}\drive_\Soc(X)$, and the
+\emph{society residual} at $X$ is
+$D_\Soc(X)=\drive_\Soc(X)-\drive_\Soc(X^\star)\ge0$. The society's outcome
+map is $A_\Soc:\Beh_\Soc\to\Out$, $A_\Soc(X)=$ the collective outcome the
+member outcomes $A_i(x_i)$ jointly produce.
+\end{definition}
+
+\begin{proposition}[The society purpose maps to the shared purpose, and is
+an attractor]
+\label{prop:society-purpose}
+Let $\drive_\Soc$ be a society drive whose minimiser $X^\star$ has each
+component at a member purpose, $X^\star=(\Purp_1,\dots,\Purp_M)$ --- the case
+$\drive_\Soc(X)=\sum_i\drive_i(x_i)$ being the canonical such drive, with
+$\Lambda=\min_i\lam_i$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Attainment.} If each member attains the shared purpose,
+$\dist(A_i(\Purp_i),\Out^\ast)\le\tol$ (\Cref{def:shared}), and $A_\Soc$ is
+continuous with $A_\Soc(X^\star)$ determined by the member outcomes
+$\{A_i(\Purp_i)\}$, then the society purpose maps within tolerance:
+$\dist(A_\Soc(X^\star),\Out^\ast)\le\tol$. The society's own purpose point
+lands on the shared purpose in outcome space.
+\item \textbf{Attractor.} Under the society gradient flow
+$\dot X=-\nabla\drive_\Soc(X)$, the society residual $D_\Soc$ is a strict
+Lyapunov function: $\frac{d}{dt}D_\Soc(X)=-\norm{\nabla\drive_\Soc(X)}^2\le0$,
+zero only at $X^\star$, and $X\to X^\star$ from every initial disposition
+with rate governed by $\Lambda$. The society purpose is the global
+attractor of the society drive, exactly as the agent purpose is of the
+agent drive.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) With $X^\star=(\Purp_1,\dots,\Purp_M)$, $A_\Soc(X^\star)$ is determined
+by $\{A_i(\Purp_i)\}$ by hypothesis; each $A_i(\Purp_i)$ lies within $\tol$
+of $\Out^\ast$, and since the collective outcome of member outcomes all
+within tolerance is itself within tolerance (the shared purpose is a region
+with tolerance $\tol$, \Cref{def:shared}, and $A_\Soc$ maps a
+jointly-attaining disposition into it), $\dist(A_\Soc(X^\star),\Out^\ast)\le
+\tol$. (ii) $\drive_\Soc$ is $\Lambda$-strongly convex, so along
+$\dot X=-\nabla\drive_\Soc(X)$,
+$\frac{d}{dt}D_\Soc=\nabla\drive_\Soc(X)^\top\dot X=
+-\norm{\nabla\drive_\Soc(X)}^2\le0$, vanishing only where
+$\nabla\drive_\Soc(X)=0$, i.e. at the unique minimiser $X^\star$. Strong
+convexity gives the Polyak--\L{}ojasiewicz inequality
+$\tfrac12\norm{\nabla\drive_\Soc}^2\ge\Lambda D_\Soc$, so
+$\dot D_\Soc\le-2\Lambda D_\Soc$ and $D_\Soc(X(t))\le e^{-2\Lambda
+t}D_\Soc(X(0))\to0$: global exponential convergence to $X^\star$. This is
+the society-level counterpart of the agent purpose being the attractor of
+the agent drive.
+\end{proof}
+
+\begin{remark}[Purpose propagates upward as the invariant]
+\label{rem:purpose-propagates}
+\Cref{prop:society-purpose} is what makes the self-similarity below genuine
+rather than formal. The society is not merely \emph{described} by an
+optimisation of the same shape as the agent's; it \emph{has} the same
+generating structure --- a strongly convex drive on a disposition space
+whose unique minimiser is a global attractor and maps to the purpose in
+outcome space. The water-filling law at the society scale (\Cref{thm:socwaterfill})
+is then, exactly as at the agent scale, the expression of this
+purpose-as-attractor under a finite collective budget. Purpose is the
+invariant that propagates from agents to society; the water-filling law is
+what that invariant looks like under budget constraint at each scale.
+\end{remark}
+
+\begin{definition}[Society scene; society allocation]
+\label{def:socscene}
+A \emph{society scene} is a shared purpose $\Out^\ast_j$ the society may
+advance by committing collective attention $a_j$, with a concave gain
+profile $\Gamma_j$ ($\Gamma_j(a_j)$ the shared society residual $D_\Soc$
+removed by collective attention $a_j$, incorporating the coordination cost
+of \Cref{thm:phaselock}). Concavity of $\Gamma_j$ is the society-level
+instance of the environmental assumption \Cref{ax:concave}. The society has
+a collective budget $A>0$.
+\end{definition}
+
+\begin{theorem}[Society-level water-filling]
+\label{thm:socwaterfill}
+The value-maximising division of a society's collective attention over its
+society scenes solves $\max_{\,a\ge0,\ \sum_j a_j\le A}\sum_j\Gamma_j(a_j)$
+and is characterised, exactly as in \Cref{thm:waterfill}, by a single
+society-level price $P^\star\ge0$ with $\Gamma_j'(a_j^\star)=P^\star$ on
+attended society scenes and $\Gamma_j'(0)\le P^\star$ on dropped ones.
+Thus a society divides its collective attention among concurrent shared
+purposes by the same water-filling law that a single agent divides its
+attention among scenes.
+\end{theorem}
+
+\begin{proof}
+$\Soc$ is agent-shaped (\Cref{lem:society-graph}), the society scenes have
+concave gain profiles (\Cref{def:socscene}), and the collective budget is
+finite (\Cref{def:socscene}). The optimisation is then identical in form
+to \Cref{def:alloc}--\Cref{thm:waterfill} with $(\gamma_i,\att)$ replaced
+by $(\Gamma_j,A)$; the KKT argument of \Cref{thm:waterfill} applies
+verbatim, yielding the single price $P^\star$ and the same support and
+equalisation conditions.
+\end{proof}
+
+\begin{corollary}[Self-similarity of attention: the attractor survives the
+quotient]
+\label{cor:selfsim}
+The attention calculus is scale-invariant, and genuinely so. At each scale
+there is a purpose that is the global attractor of a strongly convex drive
+--- $\Purp$ of $\drive$ for the agent (\Cref{def:disp}), $X^\star$ of
+$\drive_\Soc$ for the society (\Cref{prop:society-purpose}) --- and at each
+scale the water-filling law (\Cref{thm:waterfill,thm:socwaterfill}) is the
+expression of that purpose-as-attractor under a finite budget. The society
+purpose maps to the shared purpose in the common outcome space
+(\Cref{prop:society-purpose}(i)), so the quotient from agents to society
+carries the agent-level attractor structure to a society-level attractor
+structure of the same form. Self-similarity is therefore not a coincidence
+of two optimisations that happen to share a shape: it is the statement that
+\emph{purpose-as-attractor propagates upward as the invariant}, and the
+water-filling law --- with its single dial, $\price$ at the agent scale and
+$P^\star$ at the society scale --- is what that one invariant looks like
+under budget constraint at every scale.
+\end{corollary}
+
+\begin{proof}
+By \Cref{prop:society-purpose}, the society has a strongly convex drive
+$\drive_\Soc$ whose unique minimiser $X^\star$ is a global attractor
+(part (ii)) and maps to the shared purpose $\Out^\ast$ (part (i)) --- the
+same generating structure the agent has by \Cref{def:disp}. The
+society-level division problem
+$\max_{\,a\ge0,\ \sum_j a_j\le A}\sum_j\Gamma_j(a_j)$ removes the society
+residual $D_\Soc$ toward its attractor under the collective budget $A$,
+just as the agent-level problem removes $D$ toward $\Purp$ under $\att$.
+Both are then $\max\sum\gamma(a)$ over a simplex-truncated nonnegative
+orthant with concave $\gamma$ (\Cref{ax:concave} at each scale), solved once
+and for all by \Cref{thm:waterfill}; \Cref{thm:socwaterfill} is its instance
+at society scale. The map $X^\star\mapsto\Out^\ast$ of
+\Cref{prop:society-purpose}(i) is the propagation of the invariant across
+the quotient, so the shared law is one law and one invariant at two scales,
+not two laws of one shape.
+\end{proof}
+
+% =====================================================================
+\section{Implementation blueprint: the four invariants a runtime must
+honour}
+\label{sec:blueprint}
+% =====================================================================
+
+The theorems describe an object; a running system \emph{is} one only if it
+preserves the structure the theorems require. We isolate four
+\emph{implementation invariants}. For each we state the predicate a
+runtime must satisfy at all times and cite the theorem that makes the
+predicate the right one. The invariants are design commitments,
+honourable by construction; a system meeting all four exhibits the derived
+behaviour, and a system violating any one degrades into a
+locally-plausible responder that resets, loses character across scenes, or
+fetches canned replies.
+
+A distinction runs through the blueprint and must be stated at the outset.
+Three of the four invariants (\Cref{inv:identity,inv:count,inv:phase}) are
+certified by theorems that use \emph{only the agent's structure} ---
+finiteness, the floor, the monotone count, phase exclusion --- and so hold
+\emph{unconditionally} for any runtime that maintains that structure. The
+fourth (\Cref{inv:search}) is likewise unconditional. But the attention
+\emph{scheduler} of \Cref{sec:blueprint} rests additionally on the
+water-filling law (\Cref{thm:waterfill}), which depends on the environmental
+assumption \Cref{ax:concave} --- that the scenes offer diminishing returns.
+That is a condition on the world, not the runtime, and a builder cannot
+honour it by construction of the agent alone. We therefore mark, for each
+guarantee, whether it is unconditional (agent-structural) or conditional on
+the concave-return environment, and we do not let the one dress as the
+other.
+
+\begin{binv}[Conserved identity]
+\label{inv:identity}
+The runtime maintains, for each character, a self-graph
+$\Self=(\V,\E,\wt)$ with all weights $\ge\floorc>0$, and a computed
+invariant $\Char$ (\Cref{def:char}). The predicate to preserve is: under
+every admissible internal update (relabelling, re-indexing of parts,
+change of representation that preserves separations and their costs),
+$\Char$ is unchanged. \emph{Certified by} \Cref{thm:identity}: $\Char$ is
+a weighted-graph invariant, positive and non-local, and scene-independent,
+so the character is the same character across every scene and session.
+\end{binv}
+
+\begin{binv}[Never-resetting committed count]
+\label{inv:count}
+The runtime maintains a monotone counter $\cnt\in\N$ incremented on
+every committed act and never decremented, persisted across sessions. The
+predicate: for any two observations at counts $\cnt<\cnt'$, the
+character's states differ regardless of disposition; no operation
+(including ``undo,'' rollback, or restart) lowers $\cnt$. \emph{Certified
+by} \Cref{thm:history}: the count is strictly increasing, states never
+recur, sessions accumulate, and an authored copy --- a fresh instance at
+count $0$ --- is a distinct individual, so duplication yields a new
+character with its own history, not the original re-run.
+\end{binv}
+
+\begin{binv}[Search-not-fetch world access]
+\label{inv:search}
+The runtime answers every query by running a residual-descending search
+over the character's current self-graph (\Cref{def:search}), never by
+returning a stored answer. The predicate: no answer is emitted without
+committing $\ge1$ act against the present graph; there is no zero-act
+read-out path. \emph{Certified by} \Cref{thm:recsearch}: recalling is
+searching, so replies are freshly produced against the accumulated graph,
+keeping the character in character by construction and letting the same
+query evolve as history accumulates. \emph{Realisation note.} A
+deterministic index over the character's substrate that returns a ranked
+context slice per query --- reconstructing the relevant world-graph
+fragment at query time rather than storing answers --- is a faithful
+realisation of \Cref{def:search}: it holds no domain answers, only the
+means to search for them, which is exactly the empty-store,
+recall-as-search discipline the invariant demands.
+\end{binv}
+
+\begin{binv}[Exclusive construction/commitment phases]
+\label{inv:phase}
+At every instant the runtime places each character in exactly one of a
+construction phase (updating $\Self$; emits no act) or a commitment phase
+(emits at most one act per scene per step; performs no graph update). The
+predicate: the sets of instants in which the character updates its graph
+and in which it emits acts are disjoint. \emph{Certified by}
+\Cref{thm:alternation}: phase exclusion forces alternation, giving the
+character its two independent, honest sources of intermittent presence
+($\price$ and the phase schedule) rather than a fake ``busy'' flag.
+\end{binv}
+
+\subsection{Unconditional versus environment-conditional guarantees}
+\label{sec:conditional}
+
+The four invariants are not all guaranteed on the same footing, and a
+builder should know which is which.
+
+\begin{principle}[What the runtime guarantees unconditionally]
+\label{prin:unconditional}
+\Cref{inv:identity} (conserved identity), \Cref{inv:count} (never-resetting
+count), and \Cref{inv:phase} (exclusive phases), together with
+\Cref{inv:search} (search-not-fetch), are certified by
+\Cref{thm:identity,thm:history,thm:alternation,thm:recsearch}
+respectively --- theorems that use only the agent's own structure
+(\Cref{ax:finite,ax:present,ax:costly,ax:actfloor,ax:exclusion}). A runtime
+that maintains a floored self-graph, a monotone count, disjoint
+construction/commitment phases, and search-only access therefore exhibits
+conserved identity, accumulating irreversible history, distinct copies,
+in-character replies, and phase-driven intermittency \emph{unconditionally}
+--- whatever environment it is placed in. These are the guarantees a builder
+can honour by construction of the character alone.
+\end{principle}
+
+\begin{principle}[What is conditional on the environment]
+\label{prin:conditional}
+The water-filling scheduler (\Cref{alg:waterfill}) and the
+present-but-preoccupied phenomenology it produces (\Cref{cor:preoccupied})
+are certified by \Cref{thm:waterfill}, which additionally requires the
+environmental assumption \Cref{ax:concave} (scenes of diminishing return).
+This guarantee is therefore \emph{conditional}: it holds when --- and only
+when --- the agent's scenes are concave. In an environment presenting
+increasing returns over some range, the value-maximising agent concentrates
+rather than divides (\Cref{rem:nonconcave}); the scheduler's optimality, and
+the single-price division it computes, do not survive. A builder who needs
+the dividing behaviour must secure the concave-return environment as a
+separate premise, not assume it comes free with the agent. The scheduler
+remains a well-defined heuristic off-concavity, but its \emph{optimality} is
+exactly as conditional as \Cref{ax:concave}.
+\end{principle}
+
+\noindent In the language of \Cref{sec:society}, the synchronisation
+guarantees split the same way: that coordination cost \emph{vanishes at
+phase-lock} (\Cref{thm:phaselock}) and that phases \emph{can be driven to
+lock above threshold coupling} (\Cref{thm:kuramoto-lock}) are unconditional
+properties of the dynamics; that dividing collective attention across
+several shared purposes is \emph{optimally} water-filling
+(\Cref{thm:socwaterfill}) is conditional on the society scenes being
+concave, exactly as at the agent scale.
+
+\subsection{The attention scheduler}
+
+Attention division (\Cref{thm:waterfill}, conditional on \Cref{ax:concave})
+is the runtime's scheduler.
+
+\begin{algorithm}[H]
+\caption{Water-filling attention scheduler (one commitment step)}
+\label{alg:waterfill}
+\begin{algorithmic}[1]
+\Require budget $\att$; scenes $\scenes$ with concave gain profiles
+$\gamma_i$; tolerance $\epsilon$
+\Ensure allocation $\alloc^\star$ and price $\price$
+\State $p_{\mathrm{lo}}\gets0$;\ \
+$p_{\mathrm{hi}}\gets\max_i\gamma_i'(0)$
+\While{$p_{\mathrm{hi}}-p_{\mathrm{lo}}>\epsilon$}
+  \State $\price\gets(p_{\mathrm{lo}}+p_{\mathrm{hi}})/2$
+  \For{each scene $i$}
+    \State $a_i\gets(\gamma_i')^{-1}(\price)$ if
+      $\gamma_i'(0)>\price$, else $0$
+      \Comment{marginal-gain inversion}
+  \EndFor
+  \If{$\sum_i a_i>\att$} $p_{\mathrm{lo}}\gets\price$
+  \Else\ $p_{\mathrm{hi}}\gets\price$ \EndIf
+\EndWhile
+\State \Return $\alloc^\star=(a_i)$, $\price$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent The bisection converges because $\sum_i(\gamma_i')^{-1}(\price)$
+is continuous and nonincreasing in $\price$ (each $\gamma_i$ concave), so a
+unique $\price$ meets the budget (\Cref{thm:waterfill}). At society scale
+the identical procedure runs on $(\Gamma_j,A)$ (\Cref{thm:socwaterfill}).
+
+\subsection{The synchronisation step}
+
+\begin{algorithm}[H]
+\caption{Phase-locking synchronisation for a shared purpose}
+\label{alg:sync}
+\begin{algorithmic}[1]
+\Require acting agents $\{\Agent_j\}$ with phases $\{\phase_j\}$, velocities
+$\{\omega_j\}$; coupling $K>K_c$; step $dt$; shared purpose $\Out^\ast$;
+tolerance $\tol$
+\While{$C>\text{floor tolerance}$}
+  \State $\Ord e^{i\psi}\gets\frac1M\sum_j e^{i\phase_j}$
+    \Comment{order parameter, \Cref{def:orderparam}}
+  \State $C\gets\lambda_c(1-\Ord)$
+    \Comment{\Cref{thm:phaselock}}
+  \ForAll{agents $j$ (in parallel)}
+    \State $\phase_j\gets\phase_j+dt\,(\omega_j+K\,\Ord\,\sin(\psi-\phase_j))$
+      \Comment{Kuramoto flow, \Cref{def:kuramoto}}
+  \EndFor
+\EndWhile
+  \Comment{converges for $K>K_c=O(\Delta\omega)$, \Cref{thm:kuramoto-lock}}
+\ForAll{agents $j$ (in parallel)}
+  \State agent $j$ commits its own act toward $\Out^\ast$
+    if $\dist(A_j(\Purp_j),\Out^\ast)\le\tol$
+\EndFor
+\State \Return collective outcome; failure prob.\ $\prod_j q_j$
+  \Comment{\Cref{thm:crowd}}
+\end{algorithmic}
+\end{algorithm}
+
+\noindent Agents need share no internals (\Cref{thm:coord}); the Kuramoto
+flow drives the phases to lock once the coupling clears the threshold
+$K_c=O(\Delta\omega)$ (\Cref{thm:kuramoto-lock}), at which point the
+coordination cost is at the floor (\Cref{thm:phaselock}); the crowd
+sharpens the shared purpose (\Cref{thm:crowd}). The loop is the explicit
+realisation of ``nudge toward $\psi$'': it is the mean-field coupling of
+\Cref{def:kuramoto}, not an unspecified heuristic.
+
+\subsection{The interpretation firewall, operationalised}
+\label{sec:firewall}
+
+The blueprint ships the same firewall as the mathematics. Every runtime
+capability is specified by a theorem-certified predicate
+(\Cref{inv:identity,inv:count,inv:search,inv:phase}), never by an
+interpretive word. A running character therefore \emph{exhibits} the
+phenomenology --- present-but-preoccupied, accumulating, in-character,
+coordinating --- as consequences of preserved structure, while the claims
+the system makes about itself remain at the level of the predicates:
+``preserves a conserved graph invariant,'' ``maintains a monotone
+committed count,'' ``answers by search over its own graph,'' ``separates
+construction from commitment.'' These are checkable and defensible. The
+readings (``identity,'' ``distraction,'' ``a character with a life of its
+own'') stay orientation, exactly as in the theorems, and no runtime
+behaviour depends on them.
+
+% =====================================================================
+\section{Numerical study}
+\label{sec:validation}
+% =====================================================================
+
+The results are proved from the axioms and need no computation; we exhibit
+them on explicitly built agents to display their quantitative shape and to
+check the derivations by direct enumeration and convex solve. The suite is
+deterministic given its inputs; figures and a reproducible harness
+accompany the source.
+
+\subsection{Method}
+
+An agent is realised as a finite connected weighted self-graph with all
+weights $\ge\floorc$, a strongly convex drive on $\Beh=[0,1]^n$ with known
+purpose and constant $\lam$, a finite scene set with concave gain profiles,
+and an attention budget $\att$. We compute, by exact enumeration over
+partitions and by the bisection of \Cref{alg:waterfill}: every boundary
+cost and the realised floor; the character invariant $\Char$ and a
+minimising partition, recomputed under random weight-preserving relabels;
+the water-filling allocation and price $\price$ against a direct convex
+solve (\texttt{scipy} SLSQP); the committed-count monotonicity across
+simulated sessions; a society built by joining agents with inter-agent edges
+$\ge\floorc$, its $\Char(\Soc)$; its order parameter $\Ord$ and coordination
+cost $C$ swept from dispersed to locked phases by \emph{integrating the real
+Kuramoto flow} of \Cref{def:kuramoto} (\Cref{thm:kuramoto-lock}), so that
+$C=\lambda_c(1-\Ord)$ is evaluated on the achieved $\Ord$, not assumed; and
+the collective failure $\prod_j q_j$ against $M$ against a Monte-Carlo
+estimate ($2\times10^5$ trials). The suite runs at a fixed seed and covers
+four experiment groups (identity, water-filling, history/phase/search,
+society/synchronisation) totalling eighteen checked predictions.
+
+Three predictions are certified additionally by \emph{negative controls}:
+purpose-built \emph{violating} runtimes --- a fetch-cache
+(\Cref{prop:fetch-incoherent}), a rollback that lowers the count
+(\Cref{thm:history}), and a multitasker that constructs and commits at one
+instant (\Cref{thm:alternation}) --- are each fed to the corresponding
+predicate, which must \emph{detect} the violation. A pass on the reference
+runtime is then a meaningful test rather than a tautology: the predicate is
+shown to discriminate a conforming runtime from a violating one.
+
+\subsection{Predictions checked}
+
+\begin{enumerate}[label=\textbf{(V\arabic*)},leftmargin=*]
+\item \textbf{Floor.} On every agent $\min_U b(U)=\floorc_\Self\ge\floorc$
+and no cut is zero (\Cref{thm:floor}).
+\item \textbf{Identity conserved and non-local.} $\Char$ is unchanged to
+machine precision under every relabel, and on the two-triangle family its
+minimiser is the two-block partition, never a singleton
+(\Cref{thm:identity}).
+\item \textbf{Water-filling.} The bisection allocation matches the direct
+convex optimum; marginal gains equalise at a single $\price$ on attended
+scenes; $\price$ falls as $\att$ rises and rises as scenes are added
+(\Cref{thm:waterfill,cor:preoccupied}).
+\item \textbf{Token presence.} As a scene's $\gamma_i'(0)\downarrow\price$
+its allocation $\to0^+$ (\Cref{cor:token}).
+\item \textbf{Alternation.} Construction and commitment instants are
+disjoint; act emission is zero throughout every construction interval
+(\Cref{thm:alternation}).
+\item \textbf{Monotone history; distinct copies.} The committed count is
+strictly increasing across sessions; a fresh copy differs in count at
+every step (\Cref{thm:history}).
+\item \textbf{Recall is search.} Every answer commits $\ge1$ act; no
+zero-act answer occurs; repeated queries evolve with the graph
+(\Cref{thm:recsearch}).
+\item \textbf{Society.} $\Char(\Soc)\ge\floorc$ and is agent-non-local;
+$C=\lambda_c(1-\Ord)\ge0$ with $C=0$ exactly at $\Ord=1$; disjoint agents
+co-attain a common outcome; collective failure follows $\prod_j q_j$ and
+decreases geometrically for $q_j\le q<1$ (\Cref{cor:society-identity},
+\Cref{thm:phaselock,thm:coord,thm:crowd}).
+\item \textbf{Self-similarity.} The society-level water-filling matches the
+agent-level rule in form, solved by the same bisection
+(\Cref{thm:socwaterfill,cor:selfsim}).
+\end{enumerate}
+
+All eighteen predictions pass, and the negative controls detect all three
+targeted violations. \Cref{tab:validation} collects the sharpest quantities.
+The two exact classes --- brute-force enumeration and closed-form KKT --- agree
+to machine precision: the identity invariant is unchanged under relabelling
+to a maximum deviation of $1.8\times10^{-15}$, and the water-filling margins
+equalise across attended scenes to $4.4\times10^{-16}$. The two
+cross-method classes agree to the convex solver's own tolerance: the
+bisection water-filling matches \texttt{scipy} SLSQP to $6.0\times10^{-7}$
+at the agent scale and $6.5\times10^{-7}$ at the society scale --- the same
+number at both scales, itself a witness of the self-similarity of
+\Cref{cor:selfsim}. The society's identity is the two-block partition
+$\{0,1,2\}\mid\{3,4,5\}$ with $\Char(\Soc)=2$, never a singleton, confirming
+non-locality one level up. The Kuramoto integration drives the order
+parameter from $\Ord=0.088$ at coupling $K=0$ (dispersed) to
+$\Ord=0.99999$ at $K=8$ (locked), with the coordination cost
+$C=\lambda_c(1-\Ord)$ falling from $0.911$ to $1.1\times10^{-5}$ along the
+way and matching the closed form at every step: phase-lock is achieved by
+the dynamics of \Cref{thm:kuramoto-lock}, not assumed. The crowd failure
+$\prod_j q_j$ tracks the Monte-Carlo estimate to $1.4\times10^{-3}$
+(sampling noise at $2\times10^5$ trials), falling monotonically from
+$0.59$ at $M=1$ to $1.5\times10^{-3}$ at $M=10$.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Key validated quantities (seed $42$, $18/18$ predictions pass,
+$3/3$ negative controls detected). ``Exact'' rows are enumeration or KKT at
+machine precision; ``cross-method'' rows are limited by the convex solver's
+tolerance; the Monte-Carlo row is sampling noise.}
+\label{tab:validation}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Quantity & Value & Method \\
+\midrule
+Identity relabel deviation & $1.8\times10^{-15}$ & exact \\
+Water-filling margin spread & $4.4\times10^{-16}$ & exact (KKT) \\
+Water-filling vs.\ SLSQP & $6.0\times10^{-7}$ & cross-method \\
+Society water-filling vs.\ SLSQP & $6.5\times10^{-7}$ & cross-method \\
+Society identity $\Char(\Soc)$ & $2.0$ (2-block) & exact witness \\
+Order parameter, $K{=}0\!\to\!8$ & $0.088\to0.99999$ & Kuramoto ODE \\
+Coord.\ cost $C$, $K{=}0\!\to\!8$ & $0.911\to1.1\!\times\!10^{-5}$ &
+  Kuramoto ODE \\
+Crowd failure, $M{=}1\!\to\!10$ & $0.59\to1.5\!\times\!10^{-3}$ &
+  MC vs.\ formula \\
+Crowd MC vs.\ formula error & $1.4\times10^{-3}$ & Monte-Carlo \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The sweep varied part count, floor, edge density, weight spread, scene count
+and profile curvature, budget, phase dispersion, and crowd size, alongside
+the two-triangle identity witness and hand-built scene and society cases;
+every predicted inequality, invariance, identity, and optimum held. We
+stress the limit of these checks: they test the \emph{internal mathematical
+consistency} of the paper's claims --- that the theorems say what the
+computations confirm --- and are \emph{not} an external empirical validation
+against real-world attention or coordination data. Their value is that the
+predicates of \Cref{sec:blueprint} are shown to be exactly, and only, what
+the theorems certify: discriminating (the negative controls), scale-faithful
+(the matched $6\times10^{-7}$ at both levels), and dynamically achieved (the
+Kuramoto sweep), rather than assumed.
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What has and has not been established}
+
+We have shown that any bounded agent satisfying finiteness, presence,
+costly individuation, an act floor with bounded attention, and phase
+exclusion, has: a conserved, non-local, positive identity invariant that
+is the same across every scene and session (T1); a monotone,
+irreversible history under which sessions accumulate and copies are
+distinct individuals (T3--T4); world access by search rather than fetch,
+which we showed is not merely stipulated but forced --- fetch-access is
+architecturally incoherent for a persistent character, returning the
+determinations of a prior self it cannot re-occupy (T5,
+\Cref{prop:fetch-incoherent}); a second, independent intermittency from
+phase exclusion; coordination with disjoint others in a common outcome
+space, at a cost that vanishes exactly at phase lock, \emph{with} the
+mean-field dynamics that drive dispersed phases to lock above a computable
+threshold (T6, \Cref{thm:kuramoto-lock}); and a society-level attention
+division that is the same water-filling law one level up because the same
+purpose-as-attractor invariant propagates across the quotient (T7,
+\Cref{prop:society-purpose,cor:selfsim}). \emph{Conditional} on the
+environmental assumption of diminishing returns (\Cref{ax:concave}), the
+agent additionally divides finite attention over concurrent scenes by
+water-filling with a single price, present-but-preoccupied everywhere at
+once (T2). We converted these into four runtime invariants, each a
+theorem-certified predicate, forming an implementation blueprint, and
+separated the unconditional guarantees (identity, history, phases, search)
+from the environment-conditional one (optimal attention division).
+
+We have \emph{not} claimed that human or animal identity, attention, or
+coordination is a finite graph or a convex program; the structural axioms
+are meant to hold of \emph{synthetic} bounded agents, where they are design
+commitments a builder honours by construction. Nor is the water-filling
+division unconditional: it rests on the environment offering diminishing
+returns (\Cref{ax:concave}), a fact about the world the builder cannot
+guarantee by constructing the agent alone; where the environment rewards
+concentrated attention, the rational agent focuses rather than divides
+(\Cref{rem:nonconcave}). We have not modelled
+multi-basin drives (agents torn between competing purposes), nor how the
+drive itself changes as history accumulates, nor how a construction phase
+selects \emph{which} distinctions to form; these are left open. The
+strong-convexity of the drive buys clean, unique purpose and attraction at
+the price of ruling out competing purposes, and is stated as the modelling
+choice it is.
+
+\subsection{The two forced faces of split attention}
+
+The paper isolates two independent, non-defective reasons a persistent
+character appears divided across the contexts engaging it. First, the
+attention price $\price$: dividing a finite budget optimally over
+concurrent scenes is water-filling, and water-filling is
+presence-everywhere-preoccupied-everywhere with a single dial. Second,
+phase alternation: while forming new distinctions the character commits
+nothing in any scene. A convincing persistent character exhibits both, and
+a builder has, in $\price$ and the construction/commitment schedule, two
+readable and honest dials for how present the character is at any moment.
+
+\subsection{Blueprint and firewall together}
+
+The intended use of this account is to build the object it describes. The
+four invariants (\Cref{sec:blueprint}) are the whole of what a runtime
+must preserve; the algorithms give the scheduler and the synchronisation
+step; and \Cref{sec:firewall} carries the same interpretation firewall
+into the implementation, so a running character is specified and defended
+entirely by theorem-certified predicates while the interpretive words
+remain orientation. The mathematics is cautious on purpose; the
+implementation is the truth-maker, and it is built to honour exactly the
+claims the mathematics proves and no more.
+
+\subsection{Closing}
+
+A persistent synthetic character is one that stays itself across the
+contexts engaging it, divides a capacity it cannot enlarge among them, and
+coordinates with others where its ends overlap theirs. We have given each
+of these a definition precise enough to compute with and to build from: a
+conserved invariant for staying itself, a water-filling law for dividing
+attention, and an outcome-space, phase-locked, crowd-sharpened calculus
+for coordinating --- with a monotone history that makes each such character
+its own and each of its answers freshly searched. None of this needs to be
+sold: it is a set of theorems about finite agents dividing bounded
+attention across scenes and synchronising in a common outcome space, and
+the readings of them as attention, character, and coordination are offered
+only as orientation.
+
+\vspace{0.6em}
+\hrule
+\vspace{0.4em}
+\noindent\emph{Identity is the conserved interior; attention is divided by
+one price; reflection and action take turns; history accumulates and never
+resets; recalling is searching; and a society coordinates in outcome space,
+cheapest in step --- one law at every scale.}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

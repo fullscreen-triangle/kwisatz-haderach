@@ -1,0 +1,212 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Clinical Bioinformatics PhD, CiiM / MHH (Prof. Cheng-Jian Xu)
+%----------------------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+\today
+\end{flushright}
+
+\quote{Clinical bioinformatician: multi-omics integration, disease-state modelling,
+and predictive stratification --- reproducible, validated, and at population scale.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	PROFILE
+%----------------------------------------------------------------------------------------
+
+\section{Profile}
+\cvitem{}{
+  Computational biologist working on integrated multi-omics analysis and formal
+  models of disease state across biological scales. I build reproducible,
+  HPC-scale pipelines validated against authoritative reference data (gnomAD,
+  UK~Biobank, IEDB, NIST), and low-dimensional disease-vector models for
+  multimorbidity, trajectory, and patient stratification. Fully authorised to
+  work in Germany without restriction (permanent residence).
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\cventry{2019--2021}{PhD candidate, Computational Lipidomics}{Technische Universität München}{}{}{
+  Doctoral research in mass spectrometry-based lipidomics, multi-omics statistical
+  modelling, and scientific computing. Departed programme to pursue independent
+  computational research.
+}
+
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{}
+
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{}
+
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH OUTPUT
+%----------------------------------------------------------------------------------------
+
+\section{Research Output}
+
+\cvitem{2025}{
+  \textbf{Syndrome: Categorical Resolution of Disease Trajectories.}
+  \newline
+  Disease state encoded as a vector $\mathbf{D}\in[0,1]^8$ over eight cellular
+  oscillator classes (protein, enzyme, channel, membrane, ATP, genetic expression,
+  calcium, circadian); multimorbidity, trajectory, and stratification become
+  geometry on a shared manifold. Intervention target $\arg\max_i w_i D_i$ as a
+  sparse $\ell_1$ LP with a priori side-effect bound; $\mathcal{O}(N\log N)$
+  trajectory resolution. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On Disease Epistemology in Blind Receiver: Self-Consistency as the
+  Unique Basis of Disease Detection.}
+  \newline
+  Proves template-based diagnosis is epistemologically insufficient; derives
+  loop-holonomy self-consistency as the unique viable criterion
+  ($H_\ell\neq\mathrm{Id}$ signals disease). Detects distributed, circuit-level
+  inconsistency invisible to single-marker panels --- relevant to gradual
+  processes such as immune aging. AUC$=1.00$ vs 0.896 for template comparison;
+  25/25 validation experiments pass. \textit{Manuscript.}
+}
+
+\cvitem{2025}{
+  \textbf{On the Thermodynamic Consequences of Categorical Completion on
+  Biological Systems (adaptive immunity).}
+  \newline
+  MHC binding affinity correlates with parent-protein categorical richness
+  independently of classical sequence features ($r=0.73$, $p<10^{-12}$,
+  $n=2{,}847$ IEDB peptides). Adding the term to NetMHCpan improves AUC
+  0.68~$\to$~0.81 ($p<0.001$, DeLong). \textit{Manuscript.}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH SOFTWARE
+%----------------------------------------------------------------------------------------
+
+\section{Research Software}
+
+\cvitem{gospel}{
+  Multi-omics integration pipeline: whole-genome VCF integrated with RNA-seq
+  expression at $10^6$ variants/second; Bayesian network inference, Gaussian
+  mixture models, variational Bayes. Validated against 1000~Genomes Phase 3,
+  gnomAD v3.1.2, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+
+\cvitem{lavoisier}{
+  Mass-spectrometry metabolomics framework; 98.9\% feature-extraction accuracy
+  against NIST reference libraries; PyTorch models, distributed computing (Ray),
+  $>$100\,GB mzML datasets via memory-mapped I/O.
+  \href{https://github.com/fullscreen-triangle/lavoisier}{github.com/fullscreen-triangle/lavoisier}
+}
+
+\cvitem{syndrome}{
+  Implementation of the disease-vector framework: oscillator coherence
+  computation, immunopeptidomics (MHC prediction, AUC~0.81 on IEDB), trajectory
+  resolution. Python/Rust; browser-deployable tools.
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+
+\cvitem{helicopter}{
+  Multi-modal microscopy image analysis (fluorescence, brightfield, spectral)
+  via sequential exclusion.
+  \href{https://github.com/fullscreen-triangle/helicopter}{github.com/fullscreen-triangle/helicopter}
+}
+
+%----------------------------------------------------------------------------------------
+%	RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+
+\section{Research Experience}
+
+\cventry{2019--2021}{Computational Lipidomics --- Bioinformatics \& HPC}{Technische Universität München}{Munich}{}{
+  High-throughput mass-spectrometry bioinformatics at HPC scale ($>$100\,GB
+  datasets): peak detection, ion database annotation, feature engineering,
+  statistical modelling, multi-omics visualisation. Federated learning
+  architecture for distributed analysis across clinical sites. Taught at
+  Master's level.
+}
+
+\cventry{2017--2018}{Glycomics and Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated container-based pipeline for standardised LC-MS/MS and MALDI-TOF
+  characterisation; high-throughput processing and statistical QC.
+}
+
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS shotgun proteomics protocol optimisation; high-dimensional data
+  analysis for cervical cancer biomarker discovery.
+}
+
+\cventry{2013}{Pharmacokinetics}{Leibniz Lungenzentrum}{Borstel}{}{
+  Quantification of matrix suppression in anti-TB drug efficacy measurement
+  (Selected Reaction Monitoring LC-MS).
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\section{Technical Skills}
+
+\cvitem{Languages}{Python, R, Rust, TypeScript/JavaScript, Java, C, SQL, Bash}
+
+\cvitem{Multi-omics}{
+  Variant calling (VCF), RNA-seq / transcriptome analysis, single-cell RNA-seq,
+  mass-spectrometry metabolomics/proteomics (mzML, mzXML, BAM, FASTA),
+  cross-omics integration, pathway analysis (KEGG, Reactome)
+}
+
+\cvitem{Statistics / ML}{
+  Bayesian networks, Gaussian mixture models, variational Bayes, Gaussian
+  processes, gradient boosting, graph neural networks, Transformers; PyTorch,
+  scikit-learn, NumPy, SciPy, Pandas
+}
+
+\cvitem{Infrastructure}{
+  Docker, distributed computing (Ray, Dask), HPC / SLURM, cloud (AWS, Azure),
+  Git, PostgreSQL, Neo4j, Jupyter
+}
+
+\cvitem{Reference data}{
+  1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+
+\section{Languages}
+
+\cvitemwithcomment{English}{Native / Fluent (C2)}{}
+\cvitemwithcomment{German}{Conversational}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

@@ -1,0 +1,39 @@
+\documentclass[11pt]{letter}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\signature{ Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Experimental Bioinformatics\\
+AIMe Registry for Artificial Intelligence\\
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\address{ Kundai Farai Sachikonye\\
+AIMe Registry for Artificial Intelligence\\
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\begin{document}
+
+\begin{letter}{The Editorial Board\\
+\textit{Mathematics}\\
+Special Issue: Fuzzy Decision-Making and Its Applications}
+
+\opening{Dear Editors,}
+
+I write to submit my manuscript, \textbf{``Portfolio Optimisation as Trajectory Completion in Fuzzy Oscillatory Circuit Networks: A Time-Invariant Framework for Asset Allocation Under Epistemic Uncertainty,''} for consideration in the Special Issue on Fuzzy Decision-Making and Its Applications.
+
+The paper develops a mathematical framework for portfolio optimisation in which the portfolio is modelled as an oscillatory circuit graph with fuzzy node states. Each asset node occupies bounded phase space and therefore exhibits oscillatory dynamics by the Poincaré recurrence theorem; each coupling is a conductance derived from a universal transport formula unifying return correlation, capital flow, and information propagation. Asset valuations are encoded as fuzzy membership functions, and Kirchhoff's current and voltage laws are lifted to fuzzy arithmetic via the Zadeh extension principle, enabling constraint propagation under epistemic uncertainty.
+
+The central contribution is the trajectory completion operator $\mathcal{T} = \mathcal{T}_{\mathrm{Back}} \circ \mathcal{T}_{\mathrm{KVL}} \circ \mathcal{T}_{\mathrm{KCL}}$, which composes fuzzy capital conservation, fuzzy no-arbitrage cycle elimination, and maximum-a-posteriori backward trajectory inference via the Viterbi algorithm. I prove that $\mathcal{T}$ is a contraction mapping on the complete metric space of fuzzy state tuples equipped with the Hausdorff product metric, and that by the Banach fixed-point theorem its iterates converge geometrically to a unique optimal allocation. I further prove that this fixed point is time-invariant: it depends on the current network state and topology, not on the absolute time of observation. Classical Markowitz mean-variance optimisation is recovered as the limiting special case of zero epistemic uncertainty, complete uniform coupling, and vacuous trajectory constraints.
+
+I believe this paper is a strong fit for the Special Issue on several grounds. First, it places fuzzy set theory at the structural core of a decision-theoretic problem---portfolio allocation under epistemic uncertainty---rather than using fuzziness as a post-hoc modification of an existing objective function. Second, the Zadeh extension principle is applied systematically to a pair of conservation laws, yielding fuzzy Kirchhoff equations that propagate uncertainty through an entire network, which may be of independent methodological interest to the readership. Third, the framework produces mathematically sharp results---convergence rates bounded by the Fiedler value of the graph Laplacian, spectral risk bounds, and exponential shock decay---alongside a clear classical limit, making it amenable to rigorous scrutiny.
+
+The manuscript has not been submitted elsewhere and contains no material previously published. I have no conflicts of interest to declare.
+
+I am grateful to the editors for this invitation and for the opportunity to contribute to the Special Issue.
+
+\closing{Sincerely,}
+
+\end{letter}
+\end{document}

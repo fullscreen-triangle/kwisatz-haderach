@@ -1,0 +1,3007 @@
+% =====================================================================
+%  A Dual-Layer Cell-Partition Control System for Bioreactors:
+%  Provably-Stable Regulation with an Additive Confirmation Layer
+%
+%  Kundai Farai Sachikonye
+%
+%  Self-contained. Compiled with pdflatex; bibliography via BibTeX
+%  (plainnat). Required packages listed below.
+% =====================================================================
+\documentclass[11pt,a4paper,twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=1.9cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Hs}{\mathcal{H}}
+\newcommand{\Cs}{\mathcal{C}}
+\newcommand{\Us}{\mathcal{U}}
+\newcommand{\Ss}{\mathbf{S}}
+\newcommand{\Sstar}{\Ss^{\ast}}
+\newcommand{\DP}{\Delta P}
+\newcommand{\wcell}{w_{\mathrm{cell}}}
+\newcommand{\floor}{\beta}
+\newcommand{\Rens}{R_{\mathrm{ens}}}
+\newcommand{\Rstar}{R_{\star}}
+\newcommand{\Kc}{K_{\mathrm{c}}}
+\newcommand{\Bproc}{B_{\mathrm{proc}}}
+\newcommand{\fref}{f_{\mathrm{ref}}}
+\newcommand{\Tref}{T_{\mathrm{ref}}}
+\newcommand{\trec}{t_{\mathrm{rec}}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\kB}{k_{\mathrm{B}}}
+
+\title{\textbf{A Dual-Layer Cell-Partition Control System for
+Bioreactors:\\[2pt] Provably-Stable Regulation with an Additive
+Confirmation Layer}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Chair of Proteomics and Bioanalytics, Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+% =====================================================================
+\noindent
+We present a control system for stirred-tank bioreactors built on a
+strict architectural separation between two layers that most designs
+conflate. The \emph{control layer} normalises every heterogeneous
+process channel---dissolved oxygen, pH, temperature, agitation, feed
+rate---onto a common bounded coordinate hypercube, partitions that
+hypercube into a finite set of \emph{cells}, and dispatches a
+pre-compiled action from the cell that the current normalised state
+occupies. We prove that this quantised controller is globally
+asymptotically stable under an explicit piecewise Lyapunov condition,
+that its discrete-time operator is a contraction with geometric
+convergence, that its cell width is bounded above by a sampling
+(Nyquist-type) criterion tied to the process bandwidth, and that it is
+\emph{structurally incorruptible}: because the controller consumes only
+a scalar timing/registry index and dispatches from a fixed finite action
+set, no sensor payload can drive the plant outside that set. The
+\emph{monitoring layer} sits strictly downstream of the control layer
+across a one-directional interface. It treats each measurement not as a
+number but as one \emph{confirmation} in a redundant ensemble: sensors
+are modelled as coupled oscillators that federate by phase entrainment,
+and a process excursion is confirmed only when independent channels
+agree, with a decline-to-safe-state outcome when they irreducibly
+disagree. Because observation and computation are the same
+operation---both place a value into a cell---the system runs two
+concurrent scripts, a sensor script and a \emph{metabolic} script, the
+latter synthesising \emph{virtual sensors}: channels that no probe
+measures but that are computed at a node from several physical channels
+(for example a respiratory-state channel assembled from pH, off-gas
+$\mathrm{CO_2}$, and temperature) and then serve as genuine control
+coordinates, made safe-by-construction by a certified fallback value. We
+derive the \emph{sensor synthesis map} that produces such channels: an
+information-preserving bijection switches each measurement between a
+time-domain value and a frequency-domain oscillator phase, inputs are
+combined in the frequency domain under a mean-recovery (circular-mean)
+constraint, and the result is switched back to a time-domain cell---one
+operation yielding both an actionable synthesised value and, as the
+concentration of the combination, a trustworthy ensemble invariant.
+Among computed channels we distinguish \emph{ensemble invariants}:
+quantities invariant under relabelling of interchangeable units and
+realised by no single unit---information true of the whole sensor set and
+present in none of its members---which we prove are robust to any
+single-unit fault by an $O(1/n)$ bound and which detect exactly the
+correlated failures that redundant probes cannot. We
+show that the monitoring layer is \emph{additive}: every
+one of its guarantees can fail---sensors drop out, the ensemble
+decoheres, confirmation goes silent---without affecting the control
+layer's stability or safety proofs, because the interface is
+one-directional and the control law never depends on any monitoring
+output for correctness. In the worst case the system degrades
+continuously to an ordinary provably-stable single-channel cell-partition
+controller. We give the complete state-space model, stability proofs, a
+CUSUM-equivalent excursion-detection identity, a federation admission
+criterion, six algorithms, and a validation protocol on a fed-batch
+\textit{Saccharomyces cerevisiae} process. The framework is
+self-contained: every claim is proved from stated definitions using only
+standard results in nonlinear control, information theory, and
+synchronisation.
+\end{abstract}
+
+\noindent\textbf{Keywords:} bioreactor control; cell-partition
+quantisation; piecewise Lyapunov stability; S-normalisation;
+dissolved-oxygen control; CUSUM; sensor federation; Kuramoto
+synchronisation; virtual soft sensors; structural incorruptibility;
+fail-safe degradation.
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The problem}
+
+A stirred-tank bioreactor is a small chemical plant whose product is
+living cells or the molecules they secrete. Its controller must regulate
+a handful of coupled variables---dissolved oxygen (DO), pH, temperature,
+agitation speed, and one or more feed rates---each measured in
+incommensurable units and each coupled to the others through the
+metabolism of the culture~\citep{doran2013bioprocess,shuler2017bioprocess}.
+Three difficulties recur across the bioprocess-control
+literature~\citep{alford2006bioprocess,mandenius2016challenges}. First,
+\emph{dimensional heterogeneity}: composing a DO channel (percent of
+saturation) with a temperature channel (kelvin) and a feed channel
+(litres per hour) requires unit bookkeeping at every algebraic step, and
+errors in that bookkeeping are a documented source of instability.
+Second, \emph{sensor unreliability}: the DO and pH probes that dominate
+bioprocess feedback drift, foul, and fail, and a controller that trusts a
+single probe inherits that probe's failure
+modes~\citep{garcia2009review,luttmann2012softsensors}. Third,
+\emph{safety and integrity}: a networked controller for a
+pharmaceutical-grade process is a cyber-physical system whose failure or
+compromise is costly, and the regulatory framework demands that process
+excursions be detected and that the system fail to a defined safe
+state~\citep{fda2004pat,cardenas2008secure}.
+
+The three difficulties pull in different directions. Richer sensing
+improves observability but enlarges the attack and failure surface.
+Tighter multivariable control improves regulation but couples the
+controller's correctness to the reliability of every channel it reads. A
+design that fuses all sensors into one state estimate and feeds that
+estimate to one control law is only as trustworthy as its least reliable
+sensor.
+
+\subsection{The thesis: separate the layers}
+
+This paper argues that the correct response is an architectural
+separation, enforced by a one-directional interface, between a
+\emph{control layer} and a \emph{monitoring layer}.
+
+The control layer is deliberately austere. It maps every physical
+channel onto a common bounded coordinate---we call this
+\emph{S-normalisation}---so the working state lives in a
+dimensionless hypercube $\Hs = [0,1]^{m}$. It partitions $\Hs$ into a
+finite set of cells and stores, for each cell, one pre-compiled control
+action. At each step it determines which cell the current normalised
+state occupies and dispatches that cell's action. Nothing else. This
+austerity is what makes the layer provable: we establish global
+asymptotic stability by a piecewise Lyapunov argument, geometric
+convergence by a contraction argument, a cell-width bound by a
+sampling criterion, and---because the dispatch depends only on
+cell membership and the action set is fixed at compile time---structural
+incorruptibility, meaning no measurement value can cause an action
+outside the pre-approved set.
+
+The monitoring layer is where richness lives, and it is placed entirely
+downstream. It reads the same physical channels, but instead of
+producing a state estimate that the controller must trust, it produces
+\emph{confirmations}: each measurement is one vote in a redundant
+ensemble that agrees or dissents about whether the process has entered a
+given region. Sensors federate---each is modelled as an oscillator whose
+frequency is perturbed by what it measures, and the ensemble reaches
+agreement by phase entrainment rather than by exchanging content. When
+the ensemble is coherent, agreement is automatic and cheap; when it is
+not, the layer degrades gracefully and, in the limit of disagreement,
+declines to a safe state. Crucially, the monitoring layer's outputs enter
+the control layer only through the same narrow interface any operator
+would use---as a request to change setpoint or enter a safe mode---never
+as a term in the control law. It is therefore \emph{additive}: it can
+only improve confirmation quality and diagnostic resolution, and it
+cannot break the control-layer proofs, because those proofs do not
+reference it.
+
+\subsection{The worst-case guarantee}
+
+The value of the separation is a precise worst-case statement, which we
+prove in \Cref{sec:separation}: \emph{if every component of the
+monitoring layer fails, the system reduces to an ordinary
+single-channel cell-partition controller, which remains globally
+asymptotically stable and structurally incorruptible.} There is no
+scenario in which the speculative or elaborate parts of the monitoring
+layer are load-bearing for stability or safety. This is what licenses
+building the monitoring layer ambitiously: its failure is bounded by the
+control layer's floor.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{S-normalisation and the cell-partition control law}
+(\Cref{sec:foundations,sec:control}). A dimensionless bounded state space
+$\Hs=[0,1]^m$, a finite cell partition, and a nearest-centroid
+proportional dispatch that is $L^2$-optimal among piecewise-constant
+laws.
+\item \textbf{Stability and convergence} (\Cref{sec:stability}).
+Piecewise Lyapunov global asymptotic stability reducible to per-cell
+linear matrix inequalities; a Banach contraction with explicit geometric
+rate; and a Nyquist-type cell-width bound tied to process bandwidth.
+\item \textbf{Structural incorruptibility} (\Cref{sec:security}). A proof
+that no measurement payload has a path to an action outside the
+pre-compiled set, and a bounded-effect analysis of spurious or delayed
+sensor events.
+\item \textbf{The confirmation calculus} (\Cref{sec:monitoring}). A
+CUSUM-equivalent identity linking cell-boundary crossings to
+out-of-control alarms; a multiplicative composition law for independent
+sensor confirmations; a coherence requirement forcing at least three
+independent channels for robust grounding; and a
+convergent/decline dichotomy for honest termination.
+\item \textbf{Sensor federation} (\Cref{sec:federation}). A temporal-agent
+model in which measurements join an ensemble by oscillator perturbation,
+a critical-coupling threshold for phase lock, a zero-overhead theorem at
+coherence, and an information-theoretic admission criterion.
+\item \textbf{Virtual sensors, ensemble invariants, and the two-script
+model} (\Cref{sec:virtual}). Using the equivalence of observation and
+computation, a concurrent \emph{metabolic script} that synthesises
+channels no probe measures---local virtual sensors (functions of named
+channels, used to act) and \emph{ensemble invariants} (relabelling-invariant,
+unit-less quantities true of the whole set and present in none, used to
+trust)---which serve as genuine control coordinates, kept
+safe-by-construction by a fallback guard and certified on the extended
+grid, with an $O(1/n)$ single-unit-fault robustness bound for invariants.
+\item \textbf{The sensor synthesis map and the time--frequency switch}
+(\Cref{sec:switch,sec:synthesis}). A derived, information-preserving
+bijection between a channel's time-domain value and its frequency-domain
+phase that respects the cell partition, and a synthesis operation
+(frequency-domain circular mean under mean-recovery, switched back to a
+cell) that generates the value and the invariant of a computed channel
+together.
+\item \textbf{The separation theorem and fail-safe degradation}
+(\Cref{sec:separation}). A formal proof that the monitoring layer is
+additive and that worst-case behaviour is an ordinary stable controller.
+\item \textbf{Bioreactor realisation} (\Cref{sec:bioreactor,sec:algorithms}).
+The full architecture, channel definitions, six algorithms, and a
+validation protocol on a fed-batch yeast process.
+\end{enumerate}
+
+\subsection{Method and scope}
+
+Every substantive statement is a definition, a theorem proved here, or a
+citation of a standard result compared against such a theorem. The
+mathematics is drawn from nonlinear and quantised
+control~\citep{khalil2002nonlinear,brockett2000quantized},
+functional analysis~\citep{kreyszig1989functional}, statistical process
+control~\citep{page1954continuous,montgomery2020spc}, information
+theory~\citep{shannon1948mathematical,cover2006elements}, and
+synchronisation theory~\citep{kuramoto1984chemical,strogatz2000kuramoto}.
+Where a claim in the monitoring layer rests on an assumption we cannot
+discharge in full generality, we mark it explicitly and confine it to
+the additive layer, so that no control-layer guarantee inherits it. The
+paper is self-contained: a reader needs no prior familiarity with any
+companion work to follow every proof.
+
+\subsection{Organisation}
+
+\Cref{sec:foundations} fixes the bounded state space, S-normalisation,
+the cell partition, the resolution floor, and the time--frequency switch
+between value and phase. \Cref{sec:control} defines the control law. \Cref{sec:stability} proves
+stability, convergence, and the sampling bound. \Cref{sec:security}
+proves structural incorruptibility. \Cref{sec:monitoring} develops the
+confirmation calculus. \Cref{sec:federation} develops sensor federation.
+\Cref{sec:virtual} develops virtual sensors and the two-script model.
+\Cref{sec:separation} proves the separation theorem and characterises
+worst-case degradation. \Cref{sec:bioreactor} instantiates the framework
+for a stirred-tank bioreactor. \Cref{sec:algorithms} gives the
+algorithms. \Cref{sec:validation} gives the validation protocol.
+\Cref{sec:discussion} discusses scope and limitations.
+\Cref{sec:conclusion} concludes.
+
+% =====================================================================
+\section{Foundations: bounded state, normalisation, and cells}
+\label{sec:foundations}
+% =====================================================================
+
+The control layer operates on a normalised, bounded, finitely-partitioned
+state space. This section constructs that space, records the elementary
+facts we will use, and derives the resolution floor---the strictly
+positive lower bound on how finely any physical channel can be resolved,
+which every later bound refers back to.
+
+\subsection{Physical channels and S-normalisation}
+
+\begin{definition}[Process channel]
+\label{def:channel}
+A \emph{process channel} is a measured or manipulated physical quantity
+$q\in\R$ of the bioreactor with a known operating range
+$[q_{\min},q_{\max}]$, $q_{\min}<q_{\max}$. For a stirred-tank reactor the
+channels are dissolved oxygen, pH, temperature, agitation rate, and one
+or more feed rates (\Cref{sec:bioreactor}).
+\end{definition}
+
+\begin{definition}[S-coordinate]
+\label{def:snorm}
+The \emph{S-coordinate} of a channel value $q$ is the affine
+normalisation onto the unit interval,
+\begin{equation}
+\label{eq:snorm}
+S(q)\;=\;\frac{q-q_{\min}}{q_{\max}-q_{\min}}\;\in\;[0,1],
+\end{equation}
+with inverse $q=q_{\min}+S(q)\,(q_{\max}-q_{\min})$. For an $m$-channel
+reactor the \emph{S-state vector} is
+$\Ss=(S(q_1),\dots,S(q_m))^{\top}\in[0,1]^m$.
+\end{definition}
+
+The single purpose of \eqref{eq:snorm} is to remove dimension. After
+normalisation every channel lives in the same dimensionless interval, so
+channels of incommensurable physical units can be compared, composed, and
+partitioned uniformly, with no conversion factors. This is the resolution
+of the dimensional-heterogeneity difficulty of \Cref{sec:intro}.
+
+\begin{definition}[S-state space]
+\label{def:hspace}
+The \emph{S-state space} is the hypercube
+$\Hs=[0,1]^m\subset\R^m$ with the Euclidean norm
+$\norm{\Ss}=\bigl(\sum_{i=1}^m S_i^2\bigr)^{1/2}$ and the metric
+$d(\Ss,\Ss')=\norm{\Ss-\Ss'}$.
+\end{definition}
+
+\begin{proposition}[Compact complete metric space]
+\label{prop:complete}
+$(\Hs,d)$ is a compact, connected, complete metric space, and it carries
+the Lebesgue measure $\lambda$ of $\R^m$ restricted to $\Hs$.
+\end{proposition}
+
+\begin{proof}
+$\Hs=[0,1]^m$ is a closed and bounded subset of $\R^m$, hence compact by
+Heine--Borel and complete as a closed subset of the complete space
+$(\R^m,\norm{\cdot})$~\citep{munkres2000topology}. It is a product of
+connected intervals, hence connected. Restriction of Lebesgue measure to
+a Borel set is a measure. \qed
+\end{proof}
+
+Compactness and completeness are exactly what the extreme-value,
+finite-cover, and fixed-point arguments of \Cref{sec:stability} require;
+we invoke this proposition without further comment there.
+
+\subsection{The cell partition}
+
+\begin{definition}[Cell partition]
+\label{def:cells}
+A \emph{cell partition} of $\Hs$ is a finite family
+$\Cs=\{C_1,\dots,C_N\}$ of Borel sets with
+(i)~$\bigcup_{i=1}^N C_i=\Hs$;
+(ii)~$C_i\cap C_j=\varnothing$ for $i\neq j$; and
+(iii)~$\lambda(C_i)>0$ for every $i$.
+Each $C_i$ is a \emph{cell}. For axis-aligned rectangular cells, the
+\emph{width} of the partition is the smallest cell side length along any
+coordinate,
+\begin{equation}
+\label{eq:width}
+\wcell\;=\;\min_{i}\ \min_{1\le k\le m}\,\mathrm{len}_k(C_i),
+\end{equation}
+where $\mathrm{len}_k(C_i)$ is the extent of cell $C_i$ along axis $k$. A
+partition is \emph{$\wcell$-regular} if every cell contains a
+coordinate-aligned box of side $\ge\wcell$ in each dimension.
+\end{definition}
+
+For the reactor we use axis-aligned rectangular cells (a grid, possibly
+non-uniform), for which the width is simply the smallest grid spacing
+along any axis. Rectangular cells make cell lookup an $O(m)$ operation
+(one comparison per axis) and make the per-cell stability tests of
+\Cref{sec:stability} tractable.
+
+\begin{definition}[Cell of a state; cell map]
+\label{def:cellmap}
+For $\Ss\in\Hs$ let $\mathrm{cell}(\Ss)$ denote the unique cell containing
+$\Ss$ (ties on measure-zero boundaries broken by a fixed rule, e.g.\
+half-open cells). The \emph{cell map} $\mathrm{cell}\colon\Hs\to\Cs$ is
+measurable.
+\end{definition}
+
+\begin{definition}[Cell centroid]
+\label{def:centroid}
+The \emph{centroid} of cell $C_i$ is
+\begin{equation}
+\bar\Ss_i\;=\;\frac{1}{\lambda(C_i)}\int_{C_i}\Ss\,\mathrm d\lambda\;\in\;\overline{C_i}.
+\end{equation}
+\end{definition}
+
+\subsection{The resolution floor}
+
+No physical instrument resolves a channel to a point. Every sensor and
+every actuator has a finite resolution $\delta>0$ below which two values
+are indistinguishable, set by quantisation, noise, or the uncertainty of
+the transduction. After S-normalisation this resolution becomes a
+dimensionless floor on cell width.
+
+\begin{assumption}[Finite resolution]
+\label{ass:resolution}
+Each channel $k$ has a finite instrument resolution $\delta_k>0$: values
+of $q_k$ differing by less than $\delta_k(q_{k,\max}-q_{k,\min})$ in raw
+units are not distinguishable by the reactor's transducers. Consequently
+no realisable cell partition has width below
+\begin{equation}
+\label{eq:floor}
+\floor\;:=\;\min_{1\le k\le m}\delta_k\;>\;0 .
+\end{equation}
+The constant $\floor$ is the \emph{resolution floor}.
+\end{assumption}
+
+\begin{proposition}[The floor is strictly positive and bounds every cell]
+\label{prop:floor}
+Under \Cref{ass:resolution}, every $\wcell$-regular realisable partition
+has $\wcell\ge\floor>0$, and every cell has Lebesgue measure
+$\lambda(C_i)\ge\floor^{\,m}>0$.
+\end{proposition}
+
+\begin{proof}
+A realisable partition cannot separate two states that the instruments
+cannot distinguish; hence no cell side can be shorter than the smallest
+distinguishable increment $\floor$ of \eqref{eq:floor}, giving
+$\wcell\ge\floor$. A $\wcell$-regular cell contains a coordinate-aligned
+box of side $\ge\wcell\ge\floor$ in each of $m$ dimensions, whose measure
+is $\ge\floor^{\,m}$. \qed
+\end{proof}
+
+\begin{remark}[Why the floor matters]
+\label{rem:floor-role}
+The floor is the single quantity that makes the control layer finite and
+therefore provable. Because $\lambda(C_i)\ge\floor^{\,m}$ and
+$\lambda(\Hs)=1$, the number of cells is bounded,
+$N\le\floor^{-m}<\infty$ (\Cref{lem:finite-cells}), so the action set is
+finite; because $\wcell\ge\floor$, the sampling bound of
+\Cref{thm:nyquist} is non-vacuous; and because no separation is finer
+than $\floor$, a state's cell membership is a robust, noise-tolerant
+datum rather than a fragile point estimate. Every guarantee in
+\Cref{sec:stability,sec:security} ultimately rests on $\floor>0$.
+\end{remark}
+
+\begin{lemma}[Finite cell count]
+\label{lem:finite-cells}
+Under \Cref{ass:resolution}, any realisable partition has
+$N\le\lambda(\Hs)/\floor^{\,m}=\floor^{-m}<\infty$.
+\end{lemma}
+
+\begin{proof}
+The cells are disjoint with $\sum_i\lambda(C_i)=\lambda(\Hs)=1$ and each
+$\lambda(C_i)\ge\floor^{\,m}$ by \Cref{prop:floor}; hence
+$N\floor^{\,m}\le1$. \qed
+\end{proof}
+
+\subsection{Two views of a normalised state: the time--frequency switch}
+\label{sec:switch}
+
+The same S-state admits two descriptions, one used by each layer, and the
+map between them---the \emph{sensor synthesis map}---is the operational
+form of the identity ``observation $=$ computation'' developed in
+\Cref{sec:virtual}. The control layer names a state in the
+\emph{time domain}: by its cell index $i$ with $\Ss\in C_i$, reconstructed
+when needed to the centroid $\bar\Ss_i$; equivalently, per channel, by the
+inter-pulse interval $\DP$ of \Cref{sec:federation}. The monitoring layer
+names a state in the \emph{frequency domain}: by an oscillator phase. We
+derive the switch between the two views, prove it is an
+information-preserving bijection that respects the cell partition, and
+show it is the substrate on which sensor synthesis
+(\Cref{sec:synthesis,alg:synth}) operates.
+
+\begin{definition}[Phase representation]
+\label{def:phase}
+The \emph{phase} of a normalised channel value $S\in[0,1]$ is
+\begin{equation}
+\label{eq:phase}
+\Phi(S)\;=\;2\pi S\;\in\;[0,2\pi),
+\end{equation}
+the angular position of a reference oscillator whose one full turn spans
+the channel's operating range. The value $S$ is the \emph{time-domain}
+coordinate (a position in $[0,1]$, equivalently a cell index and offset);
+$\phi=\Phi(S)$ is the \emph{frequency-domain} coordinate (an oscillator
+phase).
+\end{definition}
+
+\begin{proposition}[The switch is an information-preserving bijection]
+\label{prop:switch}
+The map $\Phi\colon[0,1]\to[0,2\pi)$ of \eqref{eq:phase} is an
+order-preserving bijection with inverse $\Phi^{-1}(\phi)=\phi/2\pi$; both
+$\Phi$ and $\Phi^{-1}$ are Lipschitz \textup{(}constants $2\pi$ and
+$1/2\pi$\textup{)} and measurable. Consequently the time-domain and
+frequency-domain descriptions of a channel carry identical information,
+and the switch loses none.
+\end{proposition}
+
+\begin{proof}
+$\Phi(S)=2\pi S$ is affine with positive slope, hence a strictly
+increasing continuous bijection of $[0,1]$ onto $[0,2\pi)$ with continuous
+inverse $\phi/2\pi$; affine maps are Lipschitz with the stated constants
+and Borel measurable. A bijection with measurable inverse transports the
+Borel $\sigma$-algebra of one interval onto the other, so no measurable
+event is created or destroyed: the two coordinates encode the same
+information. \qed
+\end{proof}
+
+\begin{proposition}[The switch respects the cell partition]
+\label{prop:switch-cells}
+The image under $\Phi$ of a one-dimensional cell $[a,b]\subseteq[0,1]$ is
+the phase arc $[2\pi a,2\pi b)$, and $\Phi$ carries the channel's cell
+partition onto a partition of the phase circle into arcs of equal count.
+Hence cell membership is the same predicate in either domain: a
+time-domain cell test and a frequency-domain arc test return the same
+cell.
+\end{proposition}
+
+\begin{proof}
+$\Phi$ is an increasing bijection, so it maps the interval $[a,b]$ onto
+$[2\pi a,2\pi b)$ and maps a partition of $[0,1]$ into intervals onto the
+partition of $[0,2\pi)$ into the corresponding arcs, preserving order and
+disjointness. Membership $S\in[a,b]\iff\phi\in[2\pi a,2\pi b)$ by
+monotonicity. \qed
+\end{proof}
+
+\begin{corollary}[Consistency with the frequency-perturbation form]
+\label{cor:switch-freq}
+The frequency-perturbation encoding of a measurement used by the
+federation, $\DP=2\pi/(\omega+\delta\omega)$
+\textup{(}\Cref{sec:federation}\textup{)}, is the time-domain image of the
+phase view: a measured shift $\delta\omega$ of the oscillator frequency
+advances the phase, and reading the phase back through $\Phi^{-1}$
+recovers the S-value and hence the cell. The control layer therefore never
+needs the phase view---it reads $S$ directly---while the monitoring layer
+uses it only to federate sensors \textup{(}\Cref{sec:federation}\textup{)}.
+\end{corollary}
+
+\begin{proof}
+Over one reference period the accumulated phase is
+$\phi=\int(\omega+\delta\omega)\,\mathrm dt$; normalising by $2\pi$ and
+applying $\Phi^{-1}$ returns the corresponding $S\in[0,1]$, whose cell is
+the same in both domains by \Cref{prop:switch-cells}. The inter-pulse
+interval $\DP=2\pi/(\omega+\delta\omega)$ is the time-domain reading of the
+same oscillator. \qed
+\end{proof}
+
+\Cref{prop:switch,prop:switch-cells,cor:switch-freq} establish the switch
+as a lossless, cell-preserving bijection between a time-domain value and a
+frequency-domain phase. This is what lets the two layers use different
+views of one state without either losing information, and---crucially---it
+is the substrate for \emph{synthesising} new channels by combining phases
+and switching back, which we derive in \Cref{sec:synthesis} once the
+virtual-channel machinery is in place. The clean split of views is also
+what the separation of \Cref{sec:separation} formalises: the control layer
+lives entirely in the time domain, the federation entirely in the
+frequency domain, and the synthesis map is the only bridge.
+
+% =====================================================================
+\section{The cell-partition control law}
+\label{sec:control}
+% =====================================================================
+
+We now define the control layer. It is a quantised feedback law in the
+sense of Brockett and Liberzon~\citep{brockett2000quantized}: a
+finite-valued control that stabilises a continuous-state plant. The
+novelty for bioprocessing is that the partition is defined on the
+S-normalised hypercube, so a single law serves all channels uniformly,
+and that the design is arranged so the monitoring layer can be removed
+without disturbing it.
+
+\subsection{The plant model}
+
+We model the closed-loop reactor dynamics in the S-state space. Write
+$\Ss(t)\in\Hs$ for the normalised state and $\mathbf u\in\Us$ for the
+applied control from a finite control set $\Us=\{u_1,\dots,u_N\}$.
+
+\begin{assumption}[Cellwise-Lipschitz dynamics]
+\label{ass:dynamics}
+The closed-loop S-dynamics are
+\begin{equation}
+\label{eq:plant}
+\dot{\Ss}\;=\;\mathbf F\bigl(\Ss,\,\mathbf u\bigr),
+\end{equation}
+where $\mathbf F\colon\Hs\times\Us\to\R^m$ is Lipschitz in $\Ss$ on each
+cell $C_i$ (with possibly cell-dependent Lipschitz constant $L_i$), and
+$\Hs$ is forward-invariant: trajectories starting in $\Hs$ remain in
+$\Hs$ (guaranteed physically by the saturation of every actuator at the
+channel limits $q_{\min},q_{\max}$).
+\end{assumption}
+
+Forward invariance is not an idealisation: it holds because the
+normalisation \eqref{eq:snorm} clamps each channel to $[0,1]$ by
+construction, and the physical actuators saturate at the same limits.
+
+\subsection{The cell-action map and the control law}
+
+\begin{definition}[Cell-action map]
+\label{def:cellaction}
+A \emph{cell-action map} is a function $A\colon\Cs\to\Us$ assigning to
+each cell one pre-compiled control action. The induced state-feedback law
+is
+\begin{equation}
+\label{eq:controllaw}
+\mathbf u(t)\;=\;A\bigl(\mathrm{cell}(\Ss(t))\bigr).
+\end{equation}
+\end{definition}
+
+The controller's entire runtime behaviour is \eqref{eq:controllaw}:
+measure $\Ss$, find its cell, emit that cell's stored action. The action
+is pre-compiled and pre-verified offline; at runtime no arithmetic on the
+raw measurement, no parsing of any payload, and no search occurs. This
+austerity is the source of both the incorruptibility of
+\Cref{sec:security} and the additivity of \Cref{sec:separation}.
+
+\begin{definition}[Nearest-centroid proportional map]
+\label{def:ncp}
+Given a setpoint $\Sstar\in\Hs$ and a scalar gain $K>0$, the
+\emph{nearest-centroid proportional} cell-action map is
+\begin{equation}
+\label{eq:ncp}
+u_i\;=\;K\bigl(\Sstar-\bar\Ss_i\bigr),\qquad i=1,\dots,N,
+\end{equation}
+i.e.\ each cell drives the state from its centroid toward the setpoint.
+\end{definition}
+
+\begin{proposition}[$L^2$-optimality of the nearest-centroid map]
+\label{prop:optimal}
+Among all piecewise-constant maps $A\colon\Cs\to\R^m$ that are constant on
+each cell, the nearest-centroid map \eqref{eq:ncp} minimises the
+$L^2(\Hs,\lambda)$ deviation from the ideal proportional law
+$K(\Sstar-\Ss)$:
+\begin{equation}
+A^\star=\arg\min_{A}\int_{\Hs}\bigl\lVert K(\Sstar-\Ss)-A(\mathrm{cell}(\Ss))\bigr\rVert^2\,\mathrm d\lambda .
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The objective separates over cells, since the cells partition $\Hs$. On a
+fixed cell $C_i$ the value $u_i$ minimising
+$\int_{C_i}\lVert K(\Sstar-\Ss)-u_i\rVert^2\,\mathrm d\lambda$ is found by
+setting the derivative in $u_i$ to zero:
+$u_i=\frac{1}{\lambda(C_i)}\int_{C_i}K(\Sstar-\Ss)\,\mathrm d\lambda
+=K(\Sstar-\bar\Ss_i)$, the centroid rule \eqref{eq:ncp}. Minimising each
+cell's integral minimises the sum. \qed
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel1_control.png}
+    \caption{\textbf{Control-Layer Core: The Loop Is Provably Stable
+    Before It Is Run.}
+    (\textbf{A})~Per-cell LMI margin $\alpha$ on the linear $y$-axis
+    ($0$ to $\sim\!4.5$) versus proportional gain $K$ on the linear
+    $x$-axis ($0$ to $2$), one point per gain over a $60$-point sweep
+    (steel-blue), with the feasibility floor $\alpha=0$ marked (coral
+    dashed) and the certified region shaded. The margin
+    $\alpha=-\lambda_{\max}(\mathbf A_i+\mathbf A_i^{\top})$ rises linearly
+    and strictly above zero once the gain dominates the plant's local
+    expansion ($\alpha=2.49$ at $K=1$), the empirical content of
+    \Cref{cor:lmi}: global asymptotic stability reduces to a finite family
+    of per-cell linear matrix inequalities, all feasible here, while a
+    deliberately under-damped configuration returns $\alpha=-1.15$ and is
+    correctly rejected.
+    (\textbf{B})~Contraction factor on the linear $y$-axis ($0$ to $1.15$)
+    versus integrator step $h$ on the linear $x$-axis ($0.02$ to
+    $\sim\!0.93$), showing the Banach bound $\rho_{\mathrm{pred}}$
+    (steel-blue) and the exact one-step operator norm
+    $\lVert I+h\mathbf A\rVert_2$ (coral), with the instability line
+    $\rho=1$ marked (crimson dashed). The predicted bound dominates the
+    exact contraction at every step ($\rho_{\mathrm{pred}}=0.638$ against
+    $\rho_{\mathrm{exact}}=0.408$ at the working step), the direct statement
+    of \Cref{thm:banach}: the discrete-time operator is a contraction with
+    geometric rate $\rho<1$ whenever $h<2\alpha/L_F^2$, here with
+    $\alpha=1.25\le L_F=1.62$.
+    (\textbf{C})~Tracking error $\lVert\Ss-\Sstar\rVert$ on a logarithmic
+    $y$-axis ($10^{-23}$ to $10^{1}$) versus control step $n$ on the linear
+    $x$-axis ($0$ to $60$), for five initial conditions (viridis colourmap).
+    Every trajectory descends as a straight line on the semi-log axis:
+    convergence is geometric at the certified rate,
+    $\lVert T^n(\Ss_0)-\Sstar\rVert\le\rho^{\,n}\lVert\Ss_0-\Sstar\rVert$
+    (\Cref{eq:geom}), reaching machine zero within sixty steps regardless
+    of start.
+    (\textbf{D})~Three-dimensional surface of the contraction factor
+    $\rho(h,\alpha)=\sqrt{1-2h\alpha+h^2 L_F^2}$ over integrator step $h$
+    ($0.02$ to $1$) and descent rate $\alpha$ ($0.3$ to $1.6$), viridis
+    colourmap, with the stability edge $h=2\alpha/L_F^2$ traced (crimson),
+    viewing angle elevation $22^{\circ}$ azimuth $-58^{\circ}$. The surface
+    dips below $\rho=1$ throughout the certified region and the crimson
+    edge marks the Courant--Friedrichs--Lewy-type limit of \Cref{eq:step}:
+    the same grid-and-step constraint an explicit finite-volume solver must
+    satisfy (\Cref{prop:fvm}).}
+    \label{fig:panel1}
+\end{figure*}
+
+\subsection{Discrete-time realisation}
+
+A digital controller applies \eqref{eq:controllaw} at sampling instants.
+Let $h>0$ be the sampling period and define the discrete-time operator
+\begin{equation}
+\label{eq:discop}
+T(\Ss)\;=\;\Ss+h\,\mathbf F\bigl(\Ss,\,A(\mathrm{cell}(\Ss))\bigr),
+\end{equation}
+the forward-Euler step of \eqref{eq:plant} under the cell-partition law.
+The closed-loop trajectory is the orbit $\Ss_{k+1}=T(\Ss_k)$. The
+sampling period $h$ is tied to the reference-oscillator/pulse rate
+$\fref=1/h$ used by the monitoring layer (\Cref{sec:federation}), but the
+control law's correctness depends only on the bound of
+\Cref{thm:nyquist} and \Cref{thm:banach}, never on the monitoring layer.
+
+\subsection{The committed-step record}
+
+The controller maintains a single monotone counter, used later for
+excursion accounting and replay resistance.
+
+\begin{definition}[Committed record]
+\label{def:record}
+The \emph{committed record} $M\in\N$ is the number of control steps taken
+since initialisation. It increases by one at each application of
+\eqref{eq:discop} and is never decremented.
+\end{definition}
+
+\begin{proposition}[Monotonicity and non-return]
+\label{prop:monotone}
+$M$ is strictly increasing in step index. Consequently the controller
+never returns to a prior \emph{state} $(\,\Ss,M\,)$ even when it revisits
+a prior S-value: for step indices $j>i$, $(\Ss_j,M_j)\neq(\Ss_i,M_i)$
+because $M_j>M_i$, regardless of whether $\Ss_j=\Ss_i$. An operation
+intended to undo a prior step is itself a step and increments $M$.
+\end{proposition}
+
+\begin{proof}
+Each step increments $M$ by exactly one (\Cref{def:record}), so
+$M_j=M_i+(j-i)>M_i$ for $j>i$; the second components of the two states
+differ, so the states differ. An ``undo'' is an application of
+\eqref{eq:discop}, hence a further increment. \qed
+\end{proof}
+
+The record makes ``the same reading again'' distinguishable from ``the
+original reading,'' which is exactly what a replay defence and an
+excursion audit require (\Cref{sec:security}). It costs one integer and
+is never load-bearing for stability.
+
+% =====================================================================
+\section{Stability, convergence, and the sampling bound}
+\label{sec:stability}
+% =====================================================================
+
+This section establishes the three quantitative guarantees of the
+control layer: global asymptotic stability of the setpoint, geometric
+convergence of the discrete-time loop, and an upper bound on cell width
+required for faithful regulation. All three are proved from the
+definitions of \Cref{sec:foundations,sec:control} using standard
+results, and all three refer back to the resolution floor $\floor>0$.
+
+\subsection{Piecewise Lyapunov stability}
+
+\begin{theorem}[Piecewise Lyapunov global asymptotic stability]
+\label{thm:pwlyap}
+Suppose there is a continuous $V\colon\Hs\to\R_{\ge0}$ and class
+$\mathcal K_\infty$ functions $\alpha_1,\alpha_2,\alpha_3$ such that for
+all $\Ss\in\Hs$,
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item $\alpha_1(\norm{\Ss-\Sstar})\le V(\Ss)\le\alpha_2(\norm{\Ss-\Sstar})$;
+\item on every cell $C_i$, along \eqref{eq:plant} with
+$\mathbf u=A(C_i)$,
+$\dot V(\Ss)\le-\alpha_3(\norm{\Ss-\Sstar})$.
+\end{enumerate}
+Then the setpoint $\Sstar$ is globally asymptotically stable for the
+closed loop on $\Hs$.
+\end{theorem}
+
+\begin{proof}
+Condition~(i) makes $V$ positive definite and radially unbounded relative
+to $\Sstar$ on $\Hs$~\citep{khalil2002nonlinear}. By~(ii), on each cell
+$V$ strictly decreases along trajectories; since the finitely many cells
+cover $\Hs$ (\Cref{lem:finite-cells}) and $V$ is continuous across the
+measure-zero cell boundaries, the decrease holds along any trajectory,
+which crosses only finitely many cells in finite time. Integrating,
+$V(\Ss(t))-V(\Ss(0))=\int_0^t\dot V\,\mathrm d\tau
+\le-\int_0^t\alpha_3(\norm{\Ss(\tau)-\Sstar})\,\mathrm d\tau$. Because
+$\Hs$ is compact and forward-invariant (\Cref{ass:dynamics}), the
+trajectory is defined for all $t\ge0$ and remains in $\Hs$. Standard
+Lyapunov theory then gives $V(\Ss(t))\to0$ and, by the lower bound
+in~(i), $\norm{\Ss(t)-\Sstar}\to0$, which is global asymptotic
+stability~\citep{khalil2002nonlinear}. \qed
+\end{proof}
+
+\begin{corollary}[Quadratic sufficiency: a per-cell LMI]
+\label{cor:lmi}
+Take $V(\Ss)=\norm{\Ss-\Sstar}^2$. Then the conditions of
+\Cref{thm:pwlyap} hold if, on each cell $C_i$ with local linearisation
+$\mathbf A_i=\partial\mathbf F/\partial\Ss\big|_{C_i}$ (under action
+$u_i$), there is $\alpha_i>0$ with
+\begin{equation}
+\label{eq:lmi}
+\mathbf A_i+\mathbf A_i^{\top}\;\preceq\;-\alpha_i\,I .
+\end{equation}
+Global asymptotic stability then reduces to checking the finite family of
+linear matrix inequalities \eqref{eq:lmi}, one per cell, solvable by
+standard semidefinite programming~\citep{johansson1998computation}.
+\end{corollary}
+
+\begin{proof}
+With $V=\norm{\Ss-\Sstar}^2$, $\dot V=2(\Ss-\Sstar)^{\top}\mathbf F$.
+Linearising $\mathbf F\approx\mathbf A_i(\Ss-\Sstar)$ on $C_i$ gives
+$\dot V\approx(\Ss-\Sstar)^{\top}(\mathbf A_i+\mathbf A_i^{\top})(\Ss-\Sstar)$,
+which is $\le-\alpha_i\norm{\Ss-\Sstar}^2$ exactly when \eqref{eq:lmi}
+holds. Taking $\alpha_3(r)=(\min_i\alpha_i)\,r^2$ and
+$\alpha_1(r)=\alpha_2(r)=r^2$ satisfies \Cref{thm:pwlyap}. \qed
+\end{proof}
+
+\Cref{cor:lmi} is the practical stability certificate: after choosing the
+grid, one solves $N$ small LMIs offline; if all pass, the closed loop is
+certified globally asymptotically stable before the reactor is ever run.
+The nearest-centroid map \eqref{eq:ncp} makes each $\mathbf A_i$ a stable
+proportional term $-KI$ plus the plant's cellwise Jacobian, so
+\eqref{eq:lmi} holds whenever the gain $K$ dominates the plant's local
+expansion---a familiar, checkable condition.
+
+\subsection{Geometric convergence: a contraction}
+
+\begin{theorem}[Banach contraction and geometric convergence]
+\label{thm:banach}
+Suppose the piecewise Lyapunov descent of \Cref{thm:pwlyap} holds with
+rate $\alpha>0$ \textup{(}i.e.\ $\alpha=\min_i\alpha_i$\textup{)}, and
+$\norm{\partial\mathbf F/\partial\Ss}\le L_F$ uniformly on $\Hs$. If the
+sampling period satisfies
+\begin{equation}
+\label{eq:step}
+0<h<\frac{2\alpha}{L_F^2},
+\end{equation}
+then the discrete-time operator $T$ of \eqref{eq:discop} is a contraction
+on $(\Hs,d)$ with constant $\rho=\sqrt{1-2h\alpha+h^2L_F^2}<1$. By the
+Banach fixed-point theorem~\citep{kreyszig1989functional} $T$ has a
+unique fixed point $\Sstar$, and for every $\Ss_0\in\Hs$,
+\begin{equation}
+\label{eq:geom}
+\norm{T^n(\Ss_0)-\Sstar}\;\le\;\rho^{\,n}\,\norm{\Ss_0-\Sstar}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+For $\Ss_1,\Ss_2\in\Hs$,
+$T(\Ss_1)-T(\Ss_2)=(\Ss_1-\Ss_2)+h\,[\mathbf F_1-\mathbf F_2]$ where
+$\mathbf F_j=\mathbf F(\Ss_j,A(\mathrm{cell}(\Ss_j)))$. Expanding the
+squared norm,
+\[
+\norm{T(\Ss_1)-T(\Ss_2)}^2=\norm{\Ss_1-\Ss_2}^2
++2h(\Ss_1-\Ss_2)^{\top}(\mathbf F_1-\mathbf F_2)
++h^2\norm{\mathbf F_1-\mathbf F_2}^2 .
+\]
+The Lyapunov descent condition applied to the pair gives
+$(\Ss_1-\Ss_2)^{\top}(\mathbf F_1-\mathbf F_2)\le-\alpha\norm{\Ss_1-\Ss_2}^2$,
+and the Lipschitz bound gives
+$\norm{\mathbf F_1-\mathbf F_2}^2\le L_F^2\norm{\Ss_1-\Ss_2}^2$. Hence
+$\norm{T(\Ss_1)-T(\Ss_2)}^2\le(1-2h\alpha+h^2L_F^2)\norm{\Ss_1-\Ss_2}^2$.
+For $h<2\alpha/L_F^2$ the factor is $<1$, so $\rho<1$. The Banach theorem
+then yields the unique fixed point and the geometric
+bound~\citep{kreyszig1989functional}. \qed
+\end{proof}
+
+\begin{remark}[Reading the rate]
+\label{rem:rate}
+$\rho$ is the per-step error-contraction factor: after $n$ steps the
+distance to setpoint is at most $\rho^n$ of the initial distance. The
+bound \eqref{eq:step} is the familiar stability limit on an explicit
+integrator step; choosing $h$ well below $2\alpha/L_F^2$ gives fast
+convergence, choosing it near the limit gives slow but still monotone
+convergence. The rate is set entirely by the plant and the gain, not by
+anything in the monitoring layer.
+\end{remark}
+
+\subsection{The sampling (Nyquist-type) cell-width bound}
+
+The cell width must be small enough to resolve the fastest closed-loop
+dynamics, and---by the floor---no smaller than $\floor$. This is a
+spatial analogue of the Nyquist--Shannon sampling
+criterion~\citep{shannon1948mathematical,astrom2008feedback}.
+
+\begin{theorem}[Cell-width bound]
+\label{thm:nyquist}
+Let $\Bproc$ be the closed-loop process bandwidth, i.e.\ the magnitude of
+the largest imaginary part of any closed-loop pole of the linearised
+dynamics, expressed per sampling interval. For the cell partition to
+represent the process without aliasing, the cell width must satisfy
+\begin{equation}
+\label{eq:cellbound}
+\floor\;\le\;\wcell\;\le\;\frac{1}{2\Bproc}.
+\end{equation}
+Equivalently the sampling rate must obey $\fref=1/h\ge2\Bproc$. A
+partition is \emph{admissible} iff \eqref{eq:cellbound} holds, which
+requires $\floor\le 1/(2\Bproc)$.
+\end{theorem}
+
+\begin{proof}
+Sampling the S-state at rate $\fref$ recovers spectral content up to
+$\fref/2$ without aliasing; the closed-loop signal has content up to
+$\Bproc$, so faithful reconstruction requires $\fref\ge2\Bproc$, i.e.\
+$h\le1/(2\Bproc)$~\citep{shannon1948mathematical,astrom2008feedback}. In
+the state space, the spatial resolution of the quantiser is the cell
+width; the finest spatial frequency it represents is $1/(2\wcell)$, so
+faithful representation of a process with bandwidth $\Bproc$ requires
+$\wcell\le1/(2\Bproc)$. The lower bound $\wcell\ge\floor$ is
+\Cref{prop:floor}. \qed
+\end{proof}
+
+\begin{corollary}[Feasibility]
+\label{cor:feasible}
+An admissible partition exists iff the resolution floor is fine enough
+for the process bandwidth, $\floor\le1/(2\Bproc)$. If
+$\floor>1/(2\Bproc)$ the instruments cannot resolve the process fast
+enough and no cell-partition controller (indeed no sampled-data
+controller at rate $\fref$) can regulate it without aliasing; the remedy
+is a faster or finer instrument, not a finer grid.
+\end{corollary}
+
+\begin{proof}
+Immediate from the two-sided bound \eqref{eq:cellbound}: the interval
+$[\floor,1/(2\Bproc)]$ is non-empty iff $\floor\le1/(2\Bproc)$. \qed
+\end{proof}
+
+\Cref{cor:feasible} is a genuine design constraint on a reactor: it tells
+the engineer, before commissioning, whether the chosen DO/pH/temperature
+probes are fast enough for the culture's dynamics, and turns a vague
+question of ``is our sensing good enough'' into a checkable inequality.
+
+\subsection{The control layer as a finite-volume fluid-dynamics solver}
+\label{sec:fvm}
+
+The three results just proved---a cell partition of a bounded field, an
+explicit time-step operator, a Courant-type bound relating the step to the
+cell size---are not merely reminiscent of computational fluid dynamics;
+they have the same structure as an explicit finite-volume
+integrator~\citep{astrom2008feedback}. This is not a coincidence. The
+bioreactor broth \emph{is} a fluid, and the quantities the controller
+regulates (dissolved oxygen, temperature, pH) are transported fields on
+that fluid; a controller that partitions their state space into cells and
+steps a conservation-respecting update is, structurally, solving a
+transport problem on that field. We make the correspondence precise as a
+mapping and then bound its scope.
+
+\begin{table}[t]
+\centering\small
+\caption{Structural correspondence between an explicit finite-volume
+fluid-dynamics integrator and the cell-partition control layer. The
+correspondence is one of shared mathematical structure; it is made precise
+here and used nowhere as a premise (\Cref{rem:fvm-scope}).}
+\label{tab:fvm}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Finite-volume solver} & \textbf{Cell-partition control layer} \\
+\midrule
+Domain of the field & S-hypercube $\Hs=[0,1]^m$ \\
+Control volume (cell) & Partition cell $C_i$ (\Cref{def:cells}) \\
+Cell-averaged field value & Cell centroid $\bar\Ss_i$ (\Cref{def:centroid}) \\
+Explicit time-step operator & $T(\Ss)=\Ss+h\mathbf F(\cdot)$ (\Cref{eq:discop}) \\
+Update rate $\to$ steady state & Banach contraction $\rho^n$ (\Cref{thm:banach}) \\
+CFL stability condition & step bound $h<2\alpha/L_F^2$ (\Cref{eq:step}) \\
+Grid-resolution / Nyquist limit & cell-width bound (\Cref{thm:nyquist}) \\
+Diffusive neighbour coupling & Lipschitz coupling $L_F$; gain $K$ \\
+Convergence to equilibrium field & convergence to setpoint $\Sstar$ \\
+Boundedness of the solution & forward-invariance of $\Hs$ (\Cref{ass:dynamics}) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{proposition}[Finite-volume structure of the control step]
+\label{prop:fvm}
+The discrete-time control operator $T$ of \eqref{eq:discop} is an explicit
+one-step finite-volume-type integrator of the field dynamics
+\eqref{eq:plant} on the cell partition $\Cs$, in the following precise
+sense:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item it advances a cell-averaged state (the occupied cell, reconstructed
+to its centroid, \Cref{def:centroid}) by an explicit Euler step of the
+field equation \eqref{eq:plant};
+\item its convergence to the steady field $\Sstar$ is geometric with rate
+$\rho$ (\Cref{thm:banach}), the discrete analogue of relaxation to
+equilibrium;
+\item its stability is governed by a Courant--Friedrichs--Lewy-type bound
+\eqref{eq:step} on the step $h$ relative to the field's Lipschitz rate
+$L_F$, and by a grid-resolution bound \eqref{eq:cellbound} on the cell
+width relative to the process bandwidth $\Bproc$---the two conditions an
+explicit finite-volume scheme must satisfy to be stable and non-aliasing.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) By \eqref{eq:discop}, $T(\Ss)=\Ss+h\mathbf F(\Ss,A(\mathrm{cell}(\Ss)))$
+is the forward-Euler step of \eqref{eq:plant}; the action is constant on
+each cell (\Cref{def:cellaction}), so within a cell the update uses the
+single cell-representative value, exactly a finite-volume cell average.
+(ii) is \Cref{thm:banach}. (iii) The step bound \eqref{eq:step} is the
+contraction condition of \Cref{thm:banach}; written as
+$h<2\alpha/L_F^2$ it bounds the explicit step by the field's local rate,
+the control-theoretic form of a CFL condition, and \eqref{eq:cellbound} is
+the grid-resolution bound of \Cref{thm:nyquist}. All three restate results
+already proved; the proposition only names their finite-volume reading.
+\qed
+\end{proof}
+
+\begin{remark}[Scope of the fluid-dynamics reading]
+\label{rem:fvm-scope}
+We claim a \emph{structural correspondence}, not an identity. The control
+layer is a finite-volume-type integrator of a bounded transported field;
+it is \emph{not} a discretisation of the incompressible Navier--Stokes
+equations, and we make no such claim: it carries no explicit
+momentum-continuity coupling, no pressure-projection step, and no
+divergence-free constraint on a velocity field. What it shares with a
+computational-fluid-dynamics solver is the load-bearing structure---control
+volumes, an explicit conservative time-step, a CFL-type stability bound, a
+grid-resolution bound, and geometric relaxation to a steady field---and
+this shared structure is exactly why the stability theory of
+\Cref{sec:stability} reads as the convergence theory of an explicit field
+solver. The correspondence is offered as orientation and as a bridge to the
+computational-physics literature; no theorem in this paper depends on it,
+and every stability guarantee stands on the control-theoretic proofs
+alone. A reader who rejects the fluid reading entirely loses nothing but
+the analogy.
+\end{remark}
+
+The value of \Cref{prop:fvm} is conceptual and practical at once.
+Conceptually, it explains why a controller for a fluid process should look
+like a field solver: regulating transported quantities on a stirred fluid
+\emph{is} a transport problem, and the cell-partition controller is the
+finite-volume method for it. Practically, it imports the mature
+intuition of explicit solvers---refine the grid and you must shorten the
+step (\Cref{thm:nyquist,thm:banach} jointly); the Courant number is the
+ratio the engineer tunes---directly into control commissioning.
+
+% =====================================================================
+\section{Structural incorruptibility}
+\label{sec:security}
+% =====================================================================
+
+A networked bioreactor controller is a cyber-physical system, and the
+integrity of a pharmaceutical process depends on the controller doing
+only what it was verified to do~\citep{fda2004pat,cardenas2008secure}.
+The cell-partition control layer has a strong integrity property that is
+architectural, not cryptographic: because the runtime dispatch depends
+only on cell membership and the action set is fixed at compile time, no
+sensor value---however corrupted---can drive the plant to an action
+outside the pre-approved finite set. We make this precise and then bound
+the effect of the residual attacks that remain.
+
+\subsection{No path from payload to unapproved action}
+
+\begin{theorem}[Structural incorruptibility]
+\label{thm:incorr}
+Let the closed-loop S-dynamics under a network perturbation
+$\mathbf d_{\mathrm{net}}$ be
+\begin{equation}
+\label{eq:pert}
+\dot{\Ss}\;=\;\mathbf F\bigl(\Ss,\,\mathbf u\bigr)\;+\;\mathbf B_d\,\mathbf d_{\mathrm{net}} .
+\end{equation}
+If the controller computes its action solely as
+$\mathbf u=A(\mathrm{cell}(\Ss))$ from the S-state, with $A$ a fixed
+finite map compiled offline, then no content carried by any sensor packet
+can change $\mathbf u$ except by moving $\Ss$ across a cell boundary, and
+every reachable action lies in the pre-approved set $\Us$. In particular
+the direct payload-to-plant gain is zero: $\mathbf B_d=\mathbf 0$ for any
+perturbation acting through packet content rather than through the
+physical channels.
+\end{theorem}
+
+\begin{proof}
+The controller is the composition of two maps: a transducer
+$\mathrm{ext}$ that reads the physical channels and returns the S-state
+$\Ss$, discarding all non-physical packet fields; and the fixed
+cell-action map $A\circ\mathrm{cell}$. Thus
+$\mathbf u=A(\mathrm{cell}(\mathrm{ext}(\text{packet})))$ depends on the
+packet only through the physical S-state it induces. Any
+$\mathbf d_{\mathrm{net}}$ that acts on packet payload fields enters only
+fields that $\mathrm{ext}$ discards; it therefore has no influence on
+$\Ss$ and hence none on $\mathbf u$, giving $\mathbf B_d=\mathbf 0$ for
+the payload channel. The codomain of $A$ is the finite pre-approved set
+$\Us$; no input produces an action outside $\Us$, because $A$ is a
+lookup into $\Us$. \qed
+\end{proof}
+
+\begin{corollary}[Physical grounding]
+\label{cor:grounding}
+The only way to induce a false control action is to change the physical
+S-state the transducers actually observe---i.e.\ to manipulate the
+physical process or the transducers themselves. An adversary confined to
+the network layer cannot inject a state the transducers do not measure.
+This is the observability-separation
+principle~\citep{luenberger1979dynamic} in a security reading: control
+authority is grounded in physical measurement, not in message content.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:incorr}, $\mathbf u$ is a function of $\Ss$ alone, and $\Ss$
+is produced by $\mathrm{ext}$ from the physical transducers. To change
+$\mathbf u$ one must change $\Ss$, which requires changing what the
+transducers measure. A network-only adversary alters packet content,
+which $\mathrm{ext}$ discards. \qed
+\end{proof}
+
+\subsection{Bounded effect of the residual attacks}
+
+Three manipulations remain available to a network adversary; each has a
+bounded, benign effect.
+
+\begin{proposition}[Bounded spoofing]
+\label{prop:spoof}
+An injected or delayed measurement shifts $\Ss$ by at most one cell along
+each affected channel, so the resulting action is $A$ of an adjacent
+cell---still a pre-approved action in $\Us$. No arbitrary action is
+reachable.
+\end{proposition}
+
+\begin{proof}
+A single spurious or delayed sample perturbs a channel's S-value; because
+cell boundaries are separated by at least $\wcell\ge\floor$
+(\Cref{prop:floor}), a bounded perturbation moves the state at most to an
+adjacent cell. The action of any cell is in $\Us$ by \Cref{def:cellaction}.
+\qed
+\end{proof}
+
+\begin{proposition}[Replay resistance]
+\label{prop:replay}
+A replayed old measurement is rejected by the monotone committed record:
+each accepted sample must carry a record index exceeding the last, so a
+stale sample with an old index is discarded without cryptographic
+overhead.
+\end{proposition}
+
+\begin{proof}
+By \Cref{prop:monotone} the record $M$ is strictly increasing. Tagging
+each accepted sample with the current $M$ and rejecting any sample whose
+tag is $\le$ the last accepted tag rejects any replay of an earlier
+sample, since its tag is strictly smaller. \qed
+\end{proof}
+
+\begin{proposition}[Denial of service is detectable]
+\label{prop:dos}
+Suppressing measurements is a denial-of-service attack, not an integrity
+attack; it is detected by the monitoring layer as loss of confirmation
+and triggers the decline-to-safe-state path of
+\Cref{sec:monitoring,sec:separation}, which itself requires no trusted
+network input.
+\end{proposition}
+
+\begin{proof}
+Absence of expected samples reduces ensemble coherence
+(\Cref{sec:federation}); \Cref{alg:decohere} detects the drop and invokes
+the safe-state fallback, which is a control-layer action from $\Us$
+(\Cref{sec:separation}). No integrity violation of the plant occurs. \qed
+\end{proof}
+
+\begin{remark}[Why austerity buys integrity]
+\label{rem:austerity}
+The incorruptibility of \Cref{thm:incorr} is a direct consequence of the
+control layer's austerity: it consumes only a cell index and dispatches
+from a fixed table. A controller that instead ran a rich state estimator
+over fused sensor data, or that parsed structured sensor payloads, would
+expose exactly the payload-to-action path that \Cref{thm:incorr}
+eliminates. This is the security argument for placing all richness in the
+downstream monitoring layer, behind a one-directional interface, rather
+than in the control law---which is what \Cref{sec:separation} formalises.
+This structural argument complements, and does not replace, standard
+network hardening~\citep{teixeira2015secure}.
+\end{remark}
+
+% =====================================================================
+\section{The monitoring layer: a confirmation calculus}
+\label{sec:monitoring}
+% =====================================================================
+
+The control layer regulates; the monitoring layer \emph{confirms}. Its
+job is to decide, from possibly-redundant sensing, whether the process
+has entered a region of interest---an excursion, a phase transition of
+the culture, an alarm condition---and to do so honestly, reporting
+disagreement rather than papering over it. The layer produces a
+confirmation status and, at most, a request to the control layer to
+change setpoint or enter a safe mode; it never computes a control action.
+Everything in this section is downstream of \Cref{sec:control} and, by
+\Cref{sec:separation}, additive to it.
+
+\subsection{Confirmation as cell-crossing; the CUSUM identity}
+
+The natural unit of confirmation is a cell-boundary crossing: the S-state
+leaving the cell it was regulated into is exactly the event a monitor
+should flag. We show this crossing coincides with the classical CUSUM
+out-of-control alarm~\citep{page1954continuous,montgomery2020spc}, so the
+monitoring layer inherits a mature detection theory with a known
+false-alarm rate.
+
+\begin{definition}[Channel deviation]
+\label{def:deviation}
+For a single channel, let $\DP(k)$ be the deviation of the $k$-th sample
+from the channel's setpoint value (in S-coordinates), with reference
+level $\mu_0=0$ at the setpoint.
+\end{definition}
+
+\begin{theorem}[CUSUM--cell-crossing identity]
+\label{thm:cusum}
+Consider the two-sided cumulative-sum statistic
+\begin{align*}
+C_k^{+}&=\max\!\bigl(0,\;C_{k-1}^{+}+\DP(k)-\mu_0\bigr),\\
+C_k^{-}&=\min\!\bigl(0,\;C_{k-1}^{-}+\DP(k)+\mu_0\bigr),
+\end{align*}
+with $C_0^{\pm}=0$ and control limit $H=\wcell/2$ (half a cell width).
+Then the CUSUM out-of-control event is exactly the event that the running
+sum leaves the cell $[-H,H]$ centred on the setpoint:
+\begin{equation}
+\label{eq:cusum}
+\{C_k^{+}>H\}\cup\{C_k^{-}<-H\}
+\;\equiv\;
+\Bigl\{\,\Bigl|\textstyle\sum_{i=1}^{k}\DP(i)\Bigr|>H\,\Bigr\}.
+\end{equation}
+That is, a cell-boundary crossing is a CUSUM alarm and conversely.
+\end{theorem}
+
+\begin{proof}
+With $\mu_0=0$, the recursion accumulates the centred deviations, so
+$C_k^{+}$ tracks the positive cumulative drift and $C_k^{-}$ the negative
+cumulative drift of $\sum_i\DP(i)$. The cell membership predicate for a
+scalar channel centred at the setpoint is
+$\bigl|\sum_{i\le k}\DP(i)\bigr|\le H=\wcell/2$. The alarm
+$C_k^{+}>H$ or $C_k^{-}<-H$ triggers exactly when the cumulative drift
+exceeds $H$ in magnitude, i.e.\ when the state leaves $[-H,H]$; the two
+conditions coincide term by term. \qed
+\end{proof}
+
+\begin{corollary}[Tunable false-alarm rate]
+\label{cor:arl}
+The in-control average run length of the monitor is a known increasing
+function of the cell half-width $H=\wcell/2$~\citep{lucas1982fast}:
+widening cells reduces false alarms and slows detection; narrowing cells
+(down to the floor $\floor$) speeds detection and raises false alarms.
+The cell geometry chosen for control (\Cref{thm:nyquist}) thus \emph{also}
+fixes the monitor's statistical operating point, with no separate tuning.
+\end{corollary}
+
+\begin{proof}
+The CUSUM average run length is a standard increasing function of the
+decision limit for a given noise level~\citep{lucas1982fast,montgomery2020spc};
+by \Cref{thm:cusum} the limit is $H=\wcell/2$. \qed
+\end{proof}
+
+\subsection{Composing independent confirmations}
+
+A single probe confirming an excursion may be wrong; independent probes
+compound. We record the composition law and its consequence.
+
+\begin{definition}[Confirmation power]
+\label{def:power}
+A confirmation source $\gamma$ (a probe, a soft sensor, an inference)
+applied to a candidate excursion has \emph{power}
+$\kappa(\gamma)\in[0,1]$: the fraction of the residual doubt it removes,
+$\kappa=1$ meaning it settles the question and $\kappa=0$ meaning it is
+uninformative.
+\end{definition}
+
+\begin{theorem}[Multiplicative composition]
+\label{thm:multiplicative}
+For independent confirmation sources $\gamma_1,\dots,\gamma_n$ with powers
+$\kappa_1,\dots,\kappa_n$, the combined confirmation power is
+\begin{equation}
+\label{eq:mult}
+\kappa(\gamma_1\circ\cdots\circ\gamma_n)\;=\;1-\prod_{i=1}^{n}(1-\kappa_i).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $r_0=1$ be the initial residual doubt. Applying $\gamma_1$ leaves
+residual $r_1=(1-\kappa_1)r_0$ by \Cref{def:power}; independence means
+$\gamma_2$ removes the same fraction of what remains,
+$r_2=(1-\kappa_2)r_1$; by induction $r_n=\prod_i(1-\kappa_i)$. The
+combined power is $1-r_n$, which is \eqref{eq:mult}. \qed
+\end{proof}
+
+\begin{corollary}[Diversify, do not repeat]
+\label{cor:diversify}
+Repeating one source of power $\kappa$ a total of $n$ times yields
+combined power $1-(1-\kappa)^n$, strictly increasing but bounded away
+from $1$ by the correlation of the repeats; $n$ \emph{independent}
+sources of comparable power reach high confirmation far faster. A monitor
+should therefore prefer diverse evidentiary channels (an amperometric DO
+probe, an optical DO probe, and an off-gas $\mathrm{O_2}$ balance) over
+repeated reads of one probe.
+\end{corollary}
+
+\begin{proof}
+Immediate from \eqref{eq:mult} with equal $\kappa_i=\kappa$ for the
+repeated case; independence is what makes the product collapse fastest.
+\qed
+\end{proof}
+
+\subsection{Coherence: robust grounding needs three}
+
+An excursion that will trigger a setpoint change or a safe-state entry
+should not rest on a single source that could itself be faulty. We show
+robustness to any one source failing requires at least three mutually
+supporting sources.
+
+\begin{definition}[Support and coherence]
+\label{def:support}
+Source $\gamma_j$ \emph{supports} source $\gamma_i$ for a candidate
+excursion if the presence of $\gamma_j$'s evidence reinforces (does not
+contradict) $\gamma_i$'s. The \emph{support graph} has an edge
+$j\to i$ when $\gamma_j$ supports $\gamma_i$. A confirmation is
+\emph{coherent} if its support graph contains a directed cycle of length
+$\ge3$ whose members mutually support one another.
+\end{definition}
+
+\begin{theorem}[Coherence requires three]
+\label{thm:triangle}
+A confirmation is robust to the failure or dissent of any single source
+if and only if its support graph contains a mutually supporting cycle of
+length at least three. A single source is unfounded under its own
+failure; two mutually citing sources collapse when either is removed;
+three mutually supporting sources survive the removal of any one.
+\end{theorem}
+
+\begin{proof}
+\emph{(Necessity.)} If the support graph is acyclic it has a source node
+with no incoming support; removing it (or any node all of whose support
+is downstream) leaves a successor unsupported, and the confirmation
+collapses. A $1$-cycle is a source citing only itself, vacuous. A
+$2$-cycle is two sources citing only each other; removing either leaves
+the other unsupported. Hence robustness requires a cycle of length
+$\ge3$. \emph{(Sufficiency.)} In a mutually supporting triangle each
+source is supported by the other two; removing any one leaves the
+remaining two still supporting each other directly, so the confirmation
+persists. \qed
+\end{proof}
+
+\begin{corollary}[Sign-only decidability]
+\label{cor:signonly}
+Whether a confirmation is coherent is decidable from the \emph{signs} of
+pairwise support (does each pair reinforce or contradict) alone, without
+any confirmation-power magnitudes, since \Cref{thm:triangle} depends only
+on the cycle structure of the support graph.
+\end{corollary}
+
+\begin{proof}
+\Cref{thm:triangle} is stated entirely in terms of directed-cycle
+existence in the sign-defined support graph, independent of the numerical
+$\kappa_i$. \qed
+\end{proof}
+
+\subsection{Two honest endings: confirm or decline}
+
+\begin{definition}[Closure of a confirmation]
+\label{def:closure}
+A confirmation is \emph{closed} at a given stage if no further available
+source, when consulted, would move the excursion into a materially
+different equivalence class of outcomes than those already reached. This
+is strictly stronger than ``confidence exceeded a threshold'': it asks
+that the space of available evidence has stopped producing new
+conclusions.
+\end{definition}
+
+\begin{theorem}[Confirm-or-decline dichotomy]
+\label{thm:decline}
+Every confirmation over a finite set of available sources terminates in
+exactly one of two states:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item \textbf{Confirmed}: the reached outcomes collapse to a single
+equivalence class; the monitor reports that class (e.g.\ ``DO excursion
+below setpoint, confirmed'').
+\item \textbf{Declined}: the reached outcomes stabilise but contain more
+than one class (independent sources irreducibly disagree); the monitor
+reports \emph{decline}, naming the distinct classes, and---for a
+safety-relevant excursion---requests the control layer's safe state.
+\end{enumerate}
+No confirmation over a finite source set runs forever.
+\end{theorem}
+
+\begin{proof}
+The source set is finite, so the set of reachable outcome classes is
+finite and can only grow finitely often before every source has been
+consulted against every reached class; at that point \Cref{def:closure}
+is satisfied by exhaustion. If the stabilised class set is a singleton,
+case~(i); if it has more than one class, no single outcome is licensed
+and the monitor declines, case~(ii). The two are exhaustive and mutually
+exclusive. \qed
+\end{proof}
+
+\begin{remark}[Decline is a first-class output]
+\label{rem:decline}
+\Cref{thm:decline}(ii) is the honesty guarantee the bioprocess setting
+needs: when the amperometric and optical DO probes disagree beyond
+reconciliation, the correct monitor output is not to silently pick one
+but to declare disagreement and fall back. Because the fallback is a
+control-layer safe action (\Cref{sec:separation}), declining is safe by
+construction, and it never requires the monitoring layer to have been
+correct.
+\end{remark}
+
+% =====================================================================
+\section{Sensor federation}
+\label{sec:federation}
+% =====================================================================
+
+The confirmation calculus of \Cref{sec:monitoring} composes independent
+sources but does not say how a heterogeneous, changing set of probes
+agrees cheaply. This section gives the mechanism: sensors federate as
+coupled oscillators, agreeing by phase entrainment rather than by
+exchanging content. The federation makes each measurement a member of a
+larger ensemble whose collective confirmation is, at coherence, free; it
+degrades gracefully as sensors drop out; and it admits new sensors only
+when they pay their way in information. It lives entirely in the
+monitoring layer.
+
+\subsection{The temporal-agent model}
+
+\begin{definition}[Temporal sensor agent]
+\label{def:agent}
+A \emph{temporal sensor agent} is a tuple $(f_i,\phi_i,\Cs_i)$ where
+$f_i>0$ is the natural frequency of a reference oscillator carried with
+sensor $i$, $\phi_i(t)\in[0,2\pi)$ is its phase, and $\Cs_i$ is the
+sensor's local cell registry (the same partition of \Cref{sec:foundations}
+in the phase view). Sensor $i$'s measurement enters as a frequency
+perturbation of its oscillator: if the measured quantity shifts the
+channel by $\delta\omega_i$, the inter-pulse interval becomes
+\begin{equation}
+\label{eq:dp-osc}
+\DP_i(k)\;=\;\frac{2\pi}{\omega_i+\delta\omega_i(k)},\qquad\omega_i=2\pi f_i,
+\end{equation}
+so a change in the physical variable shifts $\DP_i$ into a different cell
+without any explicit encoding step.
+\end{definition}
+
+Equation \eqref{eq:dp-osc} is the join operation: to place a measurement
+into the ensemble is simply to let it perturb the sensor's oscillator.
+The ensemble then coordinates through the coupling of these oscillators.
+
+\subsection{Coherence and critical coupling}
+
+\begin{definition}[Ensemble order parameter]
+\label{def:order}
+For $n$ sensor agents the \emph{ensemble order parameter} is the complex
+average
+\begin{equation}
+\label{eq:order}
+\Rens(t)\,e^{i\psi(t)}\;=\;\frac1n\sum_{j=1}^{n}e^{i\phi_j(t)},
+\qquad\Rens\in[0,1].
+\end{equation}
+$\Rens=0$ is complete incoherence (phases uniform), $\Rens=1$ perfect
+phase lock. $\Rens$ is the monitoring layer's measure of how well the
+sensor ensemble agrees.
+\end{definition}
+
+The agents couple through the Kuramoto
+dynamics~\citep{kuramoto1984chemical,strogatz2000kuramoto}
+\begin{equation}
+\label{eq:kuramoto}
+\dot\phi_i=\omega_i+\frac{K}{n}\sum_{j=1}^{n}\sin(\phi_j-\phi_i),
+\end{equation}
+with coupling strength $K\ge0$ set by the shared timing infrastructure.
+
+\begin{theorem}[Critical coupling]
+\label{thm:critical}
+Let the natural frequencies $\{\omega_i\}$ be drawn from a symmetric
+unimodal distribution with standard deviation $\sigma_\omega$. In the
+large-ensemble limit there is a critical coupling
+\begin{equation}
+\label{eq:kc}
+\Kc\;=\;\frac{2\sigma_\omega}{\pi}
+\end{equation}
+such that for $K<\Kc$ the only stable state is incoherence
+($\Rens^{\ast}=0$), and for $K>\Kc$ a coherent state emerges with
+\begin{equation}
+\label{eq:rstar}
+\Rens^{\ast}=\sqrt{1-\Kc/K}
+\end{equation}
+via a supercritical pitchfork bifurcation.
+\end{theorem}
+
+\begin{proof}
+This is the standard Kuramoto mean-field result. In the large-$n$ limit
+each oscillator feels the mean field $KR$; oscillators with
+$\abs{\omega_i}\le KR^{\ast}$ lock, the rest drift and contribute no net
+coherence. The self-consistency condition
+$1=K\!\int_{-KR^{\ast}}^{KR^{\ast}}\!\sqrt{1-\omega^2/(KR^{\ast})^2}\,g(\omega)\,\mathrm d\omega$,
+expanded near the bifurcation, gives $\Kc=2/(\pi g(0))=2\sigma_\omega/\pi$
+for the reference symmetric-unimodal case, and the pitchfork normal form
+gives \eqref{eq:rstar}; see \citet{strogatz2000kuramoto,acebron2005kuramoto}
+for the full derivation. \qed
+\end{proof}
+
+\begin{remark}[Reading $\Kc$ for a reactor]
+\label{rem:kc}
+Equation \eqref{eq:kc} says the ensemble locks when the shared timing
+coupling exceeds a threshold set by the spread of the sensors' oscillator
+frequencies. Probes of the same make and batch have small
+$\sigma_\omega$, so modest coupling locks them; a heterogeneous mix of
+probe types has larger $\sigma_\omega$ and needs stronger coupling. This
+is a design lever: matching probes, or increasing the timing-pulse rate,
+raises coherence.
+\end{remark}
+
+\subsection{Free collective confirmation at phase lock}
+
+\begin{theorem}[Zero-overhead confirmation]
+\label{thm:zero}
+Suppose the ensemble is phase-locked, $\Rens\ge0.95$, and the cell
+partition has width $\wcell>2\pi(1-\Rens)/\bar\omega$ where
+$\bar\omega$ is the mean frequency. Then all agents assign the same cell
+to the same event without exchanging any confirmation messages: the
+per-event coordination cost of the ensemble is zero.
+\end{theorem}
+
+\begin{proof}
+At phase lock all agents rotate at the common mean rate up to a residual
+phase error bounded by $\arccos(\Rens)$. The induced spread in
+inter-pulse interval is
+$\abs{\DP_i-\DP_j}\le2\pi(1-\Rens)/\bar\omega=:\varepsilon_0$. If
+$\wcell>\varepsilon_0$, two agents' $\DP$ values for the same event differ
+by less than a cell width and hence lie in the same cell. Each agent
+therefore computes the same cell assignment locally from its own reading;
+no message is needed to reconcile them, so the coordination cost is zero.
+\qed
+\end{proof}
+
+\begin{remark}[Phase lock is free redundancy]
+\label{rem:zero}
+\Cref{thm:zero} is the payoff of federation: when the sensor ensemble is
+coherent, every probe independently and simultaneously confirms the same
+cell, so the excursion is confirmed with the full multiplicative power of
+\Cref{thm:multiplicative} at no communication cost. A reactor with three
+coherent, phase-locked DO-related channels confirms a DO excursion three
+ways for free---which is exactly the coherence-triangle robustness of
+\Cref{thm:triangle} realised at no overhead.
+\end{remark}
+
+\subsection{Admission: earn your place in the ensemble}
+
+\begin{definition}[Marginal information and cost]
+\label{def:admission}
+For an ensemble whose joint confirmation state has Shannon entropy
+$H_{\mathrm{fed}}$~\citep{shannon1948mathematical,cover2006elements}, the
+\emph{marginal information} of a candidate sensor $i$ is
+$\Delta H_i=H_{\mathrm{fed}}-H_{\mathrm{fed},-i}$, the entropy it adds;
+its \emph{cost} $c_i$ is the timing-channel bandwidth it consumes to
+remain phase-coherent.
+\end{definition}
+
+\begin{theorem}[Admission criterion]
+\label{thm:admit}
+Under the objective of maximising ensemble confirmation resolution per
+unit timing-bandwidth, sensor $i$ should be admitted iff
+\begin{equation}
+\label{eq:admit}
+\Delta H_i\;>\;c_i .
+\end{equation}
+The greedy rule \eqref{eq:admit} is $(1-1/e)$-optimal because the
+ensemble entropy is a submodular function of the sensor set.
+\end{theorem}
+
+\begin{proof}
+Maximising $H_{\mathrm{fed}}$ subject to a total-bandwidth budget is a
+knapsack over sensors; because each added sensor's marginal contribution
+$\Delta H_i$ is non-increasing in the current ensemble size (submodularity
+of entropy under the independence model), the greedy benefit-over-cost
+rule $\Delta H_i>c_i$ attains a $(1-1/e)$ approximation of the constrained
+optimum~\citep{cover2006elements}. \qed
+\end{proof}
+
+\Cref{thm:admit} governs how the ensemble grows: a redundant probe that
+adds little information is refused, a probe that opens a genuinely new
+evidentiary channel is admitted, and---because admission is by marginal
+information---adding independent channels sharpens the collective
+confirmation rather than diluting it.
+
+\subsection{Graceful decoherence: the ensemble degrades, it does not fail}
+
+\begin{theorem}[Graceful degradation]
+\label{thm:decohere}
+If coupling falls below $\Kc$ (probes fail, timing degrades), the ensemble
+does not collapse discontinuously: $\Rens$ relaxes downward and the
+monitoring layer transitions to a higher-cost coordination regime,
+maintaining confirmation at reduced resolution. In the limit
+$\Rens\to0$, each sensor confirms only from its own reading---a set of
+independent single-channel monitors. A single sensor loss reduces $\Rens$
+by at most $\Rens/n$.
+\end{theorem}
+
+\begin{proof}
+For $K<\Kc$ the coherent fixed point of \eqref{eq:rstar} disappears and
+$\Rens$ relaxes toward $0$ continuously at rate set by the curvature of
+the Kuramoto potential at $R=0$; there is no jump. Removing one of $n$
+equal-weight terms from the average \eqref{eq:order} changes $\Rens$ by at
+most $1/n$ of its value. As $\Rens\to0$ the coupling term in
+\eqref{eq:kuramoto} vanishes and each agent's cell assignment depends
+only on its own $\DP_i$. \qed
+\end{proof}
+
+\Cref{thm:decohere} is the monitoring-side statement of the worst case:
+however the ensemble decoheres, it decays to a collection of independent
+per-channel monitors, and each of those still feeds---through the same
+one-directional interface---an ordinary cell-partition controller. The
+separation theorem (\Cref{sec:separation}) proves that this worst case
+leaves the control-layer guarantees intact.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel2_federation.png}
+    \caption{\textbf{Sensor Federation and the Ensemble Invariant:
+    Information True of the Whole Set, Present in No Unit.}
+    (\textbf{A})~Ensemble order parameter $\Rens$ on the linear $y$-axis
+    ($0$ to $1$) versus coupling ratio $K/\Kc$ on the linear $x$-axis
+    ($0.5$ to $5$), showing the thermodynamic-limit branch
+    $\sqrt{1-\Kc/K}$ (steel-blue) and simulated values for an ensemble of
+    $n=400$ probes (coral points), with the critical coupling $K=\Kc$
+    marked (crimson dashed). The simulated points sit \emph{below} the
+    branch and rise monotonically toward it---at $K=3\Kc$ the measured
+    $\Rens=0.65$ against the predicted $0.82$---the finite-size undershoot
+    of \Cref{thm:critical}: coherence is graded and correctly ordered, and
+    no control-layer guarantee depends on its exact value.
+    (\textbf{B})~Worst-case invariant shift on the linear $y$-axis
+    ($\sim\!0.05$ to $\sim\!0.75$) versus ensemble size $n$ on the linear
+    $x$-axis ($4$ to $40$), for the strongest single-unit spoof
+    (steel-blue) and a correlated one-third-ensemble fault (sea-green),
+    with the $3/n$ robustness band marked (crimson dashed). The single-unit
+    curve decays inside the band as $O(1/n)$ while the correlated curve
+    stays flat near $0.39$ and escapes it, the exact statement of
+    \Cref{prop:invariant-robust}: no single unit can move the invariant, yet
+    a shared-mode fault does---so the invariant detects precisely the
+    correlated failure independent redundancy cannot (\Cref{rem:virtual-independence}).
+    (\textbf{C})~Twelve phase-locked oscillators (steel-blue points) on the
+    unit circle with their resultant vector (crimson arrow); axes span
+    $[-1.15,1.15]$ in both the real and imaginary directions. The points
+    cluster tightly and the resultant has modulus $\Rens=0.99$: the ensemble
+    order parameter is realised by no single oscillator but by the whole
+    set at once (\Cref{ex:order-invariant}), the geometric picture of
+    zero-overhead confirmation at phase lock (\Cref{thm:zero}).
+    (\textbf{D})~Three-dimensional surface of the mean-field order parameter
+    $R^{\ast}(K,\sigma_\omega)$ over coupling ratio $K/\Kc$ ($0.2$ to $4$)
+    and frequency spread $\sigma_\omega$ ($0.2$ to $1.2$), plasma
+    colourmap, viewing angle elevation $24^{\circ}$ azimuth $-60^{\circ}$.
+    The surface is flat at zero below $K=\Kc$ and rises as
+    $\sqrt{1-\Kc/K}$ above it, the supercritical bifurcation of
+    \Cref{thm:critical} across the reactor's design lever: matching probes
+    (small $\sigma_\omega$) or raising the coupling locks the ensemble.}
+    \label{fig:panel2}
+\end{figure*}
+
+% =====================================================================
+\section{Virtual sensors: two concurrent scripts}
+\label{sec:virtual}
+% =====================================================================
+
+The confirmation calculus and the federation treat a measurement as a
+member of an ensemble. We now use the identity \emph{observation =
+computation}---that a sensor reading and a computed value are the same
+kind of object, a value that lands in a cell---to add a capability that no
+purely physical sensing possesses: \emph{virtual sensors}, channels that
+have no physical probe and exist only in software, synthesised at a node
+from other channels. Because a virtual sensor is the same kind of object
+as a physical one, it joins the state hypercube, the cell partition, and
+(where useful) the federated ensemble on exactly equal footing.
+
+\subsection{Observation and computation are the same operation}
+
+\begin{principle}[Observation--computation equivalence]
+\label{prin:obs-comp}
+To \emph{observe} a channel is to place its current value into a cell of
+the partition; to \emph{compute} a channel is to place a
+function of other channels into a cell of the partition. Both operations
+have the same type---a map into $\Cs$---and both produce the same kind of
+output: a cell membership. Nothing in the control law
+\eqref{eq:controllaw}, the stability certificate (\Cref{cor:lmi}), or the
+confirmation calculus (\Cref{sec:monitoring}) distinguishes a coordinate
+that was measured from one that was computed; each is simply a coordinate
+of $\Ss$ with a cell.
+\end{principle}
+
+\Cref{prin:obs-comp} is what licenses running two scripts side by side. A
+\emph{sensor script} reads the physical probes and produces their cell
+memberships. A \emph{metabolic script} runs concurrently and, at
+designated nodes, computes new coordinates from the physical ones; its
+outputs are cell memberships of the same type. The two scripts write into
+the same S-state; the controller and monitor cannot tell, and need not
+tell, which coordinates came from which script.
+
+\subsection{The virtual channel}
+
+\begin{definition}[Virtual sensor]
+\label{def:virtual}
+A \emph{virtual sensor} is a channel $v$ whose S-value is not measured but
+computed at a node by a fixed, offline-verified map
+\begin{equation}
+\label{eq:virtual}
+S_v \;=\; g_v\!\bigl(S_{i_1},\dots,S_{i_r}\bigr)\in[0,1],
+\end{equation}
+where $g_v\colon[0,1]^r\to[0,1]$ is Lipschitz and $S_{i_1},\dots,S_{i_r}$
+are the (physical or virtual) input channels feeding the node. The virtual
+channel carries the same S-coordinate, cell, and centroid structure as a
+physical channel (\Cref{sec:foundations}), and appears as an additional
+axis of the state hypercube, extending $\Hs$ from $[0,1]^m$ to
+$[0,1]^{m+1}$.
+\end{definition}
+
+\begin{remark}[The sensor that exists only in the program]
+\label{rem:only-in-program}
+The point of \eqref{eq:virtual} is that $g_v$ may compute a quantity for
+which no instrument exists. From pH, off-gas $\mathrm{CO_2}$, and
+temperature at one node, a metabolic script can synthesise a
+respiratory/metabolic-state channel---a value that no single probe
+measures but that the operator actually cares about
+(\Cref{sec:bioreactor}). The virtual channel is a genuine coordinate of
+the state: the controller can regulate it, and the monitor can confirm
+excursions in it, exactly as for a physical channel.
+\end{remark}
+
+\subsection{Safe-by-construction virtual channels}
+
+Because a virtual channel may be load-bearing for control
+(\Cref{sec:separation}), its computation must never destroy the stability
+certificate when its inputs are unavailable or out of range. We require it
+to degrade to a defined constant.
+
+\begin{definition}[Fallback-guarded virtual sensor]
+\label{def:fallback}
+A virtual sensor is \emph{fallback-guarded} if it carries a validity
+predicate $\mathrm{ok}_v$ (true iff all inputs are present and in range)
+and a fixed \emph{fallback value} $S_v^{0}\in[0,1]$, and computes
+\begin{equation}
+\label{eq:guarded}
+S_v \;=\;
+\begin{cases}
+g_v(S_{i_1},\dots,S_{i_r}) & \text{if }\mathrm{ok}_v,\\[2pt]
+S_v^{0} & \text{otherwise.}
+\end{cases}
+\end{equation}
+The fallback $S_v^{0}$ is chosen to lie in a cell whose control action is
+conservative and whose configuration is certified stable.
+\end{definition}
+
+\begin{proposition}[Virtual channels preserve the certificate]
+\label{prop:virtual-stable}
+If every virtual channel is fallback-guarded (\Cref{def:fallback}) and the
+per-cell LMIs \eqref{eq:lmi} of \Cref{cor:lmi} are verified over the
+\emph{extended} hypercube $[0,1]^{m+v}$ (physical plus virtual axes),
+including all cells reachable when any virtual channel is at its fallback
+$S_v^{0}$, then the control layer is globally asymptotically stable
+whether or not the virtual computations are valid.
+\end{proposition}
+
+\begin{proof}
+The extended state is $\tilde\Ss\in[0,1]^{m+v}$ with the virtual axes
+appended. By \Cref{prin:obs-comp} the control law and certificate treat
+$\tilde\Ss$ as an ordinary S-state, so \Cref{cor:lmi} applies to the
+extended cells verbatim, giving global asymptotic stability
+(\Cref{thm:pwlyap}) provided all reachable extended cells pass their LMIs.
+When $\mathrm{ok}_v$ fails, \eqref{eq:guarded} pins $S_v$ to the constant
+$S_v^{0}$, so the reachable set collapses onto the slice
+$\{S_v=S_v^{0}\}$, whose cells are among those certified by hypothesis.
+Hence the certificate holds in both the valid and the fallback regime.
+\qed
+\end{proof}
+
+\Cref{prop:virtual-stable} is what makes a control-layer virtual sensor
+safe: the LMIs are simply checked on the larger grid, and the guard
+guarantees that a failed metabolic computation freezes the virtual
+coordinate at a certified-safe value rather than injecting a wild one.
+
+\subsection{Virtual channels as confirmation sources}
+
+A virtual channel is also a confirmation source in the sense of
+\Cref{sec:monitoring}: an excursion in the computed metabolic-state
+channel is a cell-crossing (\Cref{thm:cusum}) and composes multiplicatively
+with physical confirmations (\Cref{thm:multiplicative}). It can therefore
+turn a fragile pair of physical probes into a robust coherence triangle
+(\Cref{thm:triangle}): two physical DO probes plus one computed
+metabolic-state channel is a three-source cycle.
+
+\begin{remark}[Independence: the honest caveat]
+\label{rem:virtual-independence}
+We count a virtual channel as a confirmation source, and in the analysis
+of \Cref{sec:bioreactor} we treat it as independent to obtain the
+strongest composition. This is a modelling choice, and we flag its limit
+plainly: a virtual channel computed from physical inputs
+$S_{i_1},\dots,S_{i_r}$ shares any fault common to those inputs, so it is
+\emph{not} independent of them against a correlated failure (a single
+contamination shifting pH, $\mathrm{CO_2}$, and $T$ together also shifts
+the virtual channel). Where robustness to correlated probe faults is
+required, the coherence triangle (\Cref{thm:triangle}) must include at
+least one leg---physical or virtual---that does not share inputs with the
+others. The virtual channel adds a genuinely new confirmation only to the
+extent that its map $g_v$ responds to a combination the individual probes
+do not report on their own.
+\end{remark}
+
+\subsection{Ensemble invariants: information in the set, not the unit}
+\label{sec:invariant}
+
+The virtual sensor of \Cref{def:virtual} is still \emph{local}: it is a
+function of a few named channels at one node, and it inherits any fault
+common to those inputs (\Cref{rem:virtual-independence}). We now define a
+stronger construct---a quantity that belongs to the sensor \emph{ensemble
+as a whole}, is realised by no single unit, and is therefore
+\emph{true for all units and present in none}. This is the computed
+analogue of a physical conservation law: information carried by the
+relations among the units rather than by any unit's reading.
+
+Fix an ensemble of $n$ units (physical or virtual) reporting S-values
+$\mathbf S^{\mathrm{ens}}=(S_1,\dots,S_n)$. Two units are
+\emph{interchangeable} if they measure the same channel to the same
+specification (e.g.\ two DO probes of the same type); substituting or
+relabelling interchangeable units is a symmetry of the ensemble. Let
+$G$ be the group of such relabellings (a subgroup of the symmetric group
+$\mathfrak S_n$).
+
+\begin{definition}[Ensemble invariant]
+\label{def:ensemble-invariant}
+A computed channel $S_\iota=\iota(\mathbf S^{\mathrm{ens}})$ is an
+\emph{ensemble invariant} if it satisfies both:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item \textbf{Relabelling-invariance}: $\iota(\pi\cdot\mathbf
+S^{\mathrm{ens}})=\iota(\mathbf S^{\mathrm{ens}})$ for every
+$\pi\in G$---its value does not change when interchangeable units are
+permuted or substituted; and
+\item \textbf{Non-locality}: $\iota$ is not a function of any single
+unit's reading alone; formally, for each $j$ there exist ensemble states
+agreeing in $S_j$ but differing in $\iota$, so no unit determines $\iota$.
+\end{enumerate}
+\end{definition}
+
+Condition~(i) is what ``true for all units'' means precisely: the quantity
+is defined on the ensemble in a way that references no particular unit's
+identity, so it is a property the whole set possesses in common.
+Condition~(ii) is what ``present in none'' means precisely: no single unit
+carries it, because no single reading fixes it.
+
+\begin{example}[The coherence order parameter is an ensemble invariant]
+\label{ex:order-invariant}
+The ensemble order parameter
+$\Rens=\frac1n\bigl|\sum_j e^{i\phi_j}\bigr|$ of \Cref{def:order} is an
+ensemble invariant: it is symmetric in the units (permuting the $\phi_j$
+leaves the sum's magnitude unchanged), so it is relabelling-invariant; and
+no single oscillator has a ``coherence''---$\Rens$ measures the agreement
+\emph{between} units, so it is non-local. It is the canonical example of a
+quantity true of the whole ensemble and present in no member.
+\end{example}
+
+\begin{proposition}[Ensemble invariants are robust to any single-unit fault]
+\label{prop:invariant-robust}
+Let $S_\iota$ be an ensemble invariant with $\iota$ Lipschitz and
+depending symmetrically on $n$ interchangeable units. Then corrupting,
+losing, or spoofing any single unit $j$ perturbs $S_\iota$ by at most
+$O(1/n)$; no single unit can move the invariant to an arbitrary value.
+\end{proposition}
+
+\begin{proof}
+By relabelling-invariance $\iota$ is a symmetric function, so it depends
+on unit $j$ only through $j$'s equal-weighted contribution among $n$. A
+Lipschitz symmetric function changes by at most its Lipschitz constant
+times the weight $1/n$ of one unit when that unit's value is altered
+arbitrarily within $[0,1]$. Hence a single corrupted, absent, or spoofed
+unit shifts $S_\iota$ by $O(1/n)$, vanishing as the ensemble grows. \qed
+\end{proof}
+
+\Cref{prop:invariant-robust} is the payoff of \Cref{def:ensemble-invariant}
+and the reason the invariant is trustworthy where a single probe is not.
+A physical probe reports \emph{its own} state and can be driven anywhere by
+fouling it or spoofing it. An ensemble invariant reports a property of the
+\emph{whole set} and cannot be moved by attacking any one unit, precisely
+because no unit carries it. This is the coherence-triangle robustness
+(\Cref{thm:triangle}) taken to its limit: the quantity that survives the
+failure of \emph{any} single source is the one realised by \emph{none} of
+them individually.
+
+\begin{remark}[Two kinds of computed channel]
+\label{rem:two-kinds}
+The framework thus admits two computed channels of different character.
+A \emph{local virtual sensor} (\Cref{def:virtual}) synthesises a
+meaningful quantity---the respiratory state---from a few named channels;
+it is actionable but shares its inputs' faults. An \emph{ensemble
+invariant} (\Cref{def:ensemble-invariant}) synthesises a quantity that no
+unit carries and every unit is consistent with; it is robust by
+\Cref{prop:invariant-robust} but abstract. Both are computed channels of
+the same type (\Cref{prin:obs-comp}), both may be fallback-guarded
+(\Cref{def:fallback}) and regulated or confirmed against, and both live in
+the extended hypercube on equal footing with physical channels. A reactor
+uses the local virtual sensor to \emph{act} and the ensemble invariant to
+\emph{trust}.
+\end{remark}
+
+\subsection{Two scripts, one state}
+
+\begin{proposition}[Concurrent scripts commute at the state]
+\label{prop:concurrent}
+The sensor script (writing physical coordinates) and the metabolic script
+(writing virtual coordinates via \eqref{eq:guarded}) can execute
+concurrently and their writes to distinct coordinates of $\tilde\Ss$
+commute; the resulting extended state is well-defined provided each
+virtual node's inputs are evaluated before its output (a topological order
+on the node dependency graph, which is acyclic by construction).
+\end{proposition}
+
+\begin{proof}
+Physical and virtual coordinates are distinct axes of $\tilde\Ss$, so
+writes to them are to disjoint memory and commute. Within the metabolic
+script, virtual nodes form a directed acyclic graph (a virtual channel
+may feed another, never itself); any topological order evaluates every
+node after its inputs, and all such orders yield the same $\tilde\Ss$
+because each $g_v$ is a function. \qed
+\end{proof}
+
+\Cref{prop:concurrent} is the runtime statement of the two-script model:
+the metabolic script is not a separate subsystem bolted on after sensing,
+but a concurrent producer of state coordinates that the controller and
+monitor consume identically to physical ones. In the bioreactor
+(\Cref{sec:bioreactor}) this yields a metabolic-state coordinate the
+reactor can regulate and confirm, assembled in software from probes that
+individually report none of it.
+
+\subsection{Sensor synthesis: switching between time and frequency}
+\label{sec:synthesis}
+
+We can now derive the operation that generates a new channel from
+existing ones---the \emph{sensor synthesis map}. It is the concrete
+mechanism behind ``a sensor that exists only in the program'': physical
+channels enter, are switched into the frequency domain, combined there
+under a conservation constraint, and switched back to a time-domain cell
+the controller and monitor consume. The derivation rests on the
+time--frequency bijection of \Cref{sec:switch} and the mean-recovery
+constraint below, and needs no transform theory.
+
+\subsubsection*{The mean-recovery constraint}
+
+Synthesis combines the \emph{phases} of the input channels. The natural
+combination that is symmetric in the inputs, and that inverts cleanly back
+to a value, is the phase whose representation on the unit circle is the
+mean of the inputs' representations.
+
+\begin{definition}[Phase mean and mean-recovery]
+\label{def:meanrec}
+For input channels with S-values $S_1,\dots,S_r$ and phases
+$\phi_j=\Phi(S_j)=2\pi S_j$ (\Cref{def:phase}), and nonnegative weights
+$a_1,\dots,a_r$ with $\sum_j a_j=1$, the \emph{synthesised phase} is the
+weighted circular mean
+\begin{equation}
+\label{eq:phasemean}
+\phi_\star \;=\; \arg\!\Bigl(\textstyle\sum_{j=1}^{r} a_j\,e^{i\phi_j}\Bigr),
+\qquad
+\Rstar \;=\; \Bigl|\textstyle\sum_{j=1}^{r} a_j\,e^{i\phi_j}\Bigr|\in[0,1],
+\end{equation}
+and the \emph{synthesised value} is its time-domain image
+$S_\star=\Phi^{-1}(\phi_\star)=\phi_\star/2\pi\in[0,1]$. The pair
+$(\phi_\star,\Rstar)$ satisfies \emph{mean-recovery}: the resultant
+$\sum_j a_j e^{i\phi_j}=\Rstar e^{i\phi_\star}$ recovers, in its
+argument, the combined phase and, in its modulus, the concentration
+$\Rstar$ of the inputs about that phase.
+\end{definition}
+
+Equation \eqref{eq:phasemean} is the switch put to work: the inputs are
+carried to the frequency domain by $\Phi$, averaged as unit vectors
+(mean-recovery), and the result is carried back to the time domain by
+$\Phi^{-1}$. The modulus $\Rstar$ is exactly the ensemble order
+parameter of \Cref{def:order} for the input phases, and is retained
+because it is itself a useful synthesised channel (an ensemble invariant,
+\Cref{prop:synth-invariant} below).
+
+\begin{proposition}[Synthesis is a well-defined, Lipschitz virtual sensor]
+\label{prop:synth-wd}
+Whenever the resultant $\sum_j a_j e^{i\phi_j}\neq0$ \textup{(}equivalently
+$\Rstar>0$\textup{)}, the synthesised value $S_\star$ of
+\Cref{def:meanrec} is uniquely defined, and the map
+$g_\star\colon(S_1,\dots,S_r)\mapsto S_\star$ is Lipschitz on any region
+bounded away from $\Rstar=0$. Hence $g_\star$ is an admissible virtual
+sensor \textup{(}\Cref{def:virtual}\textup{)}, and---equipped with the
+fallback of \eqref{eq:guarded} triggered by $\Rstar$ below a floor---a
+fallback-guarded one \textup{(}\Cref{def:fallback}\textup{)}.
+\end{proposition}
+
+\begin{proof}
+For a nonzero planar vector the argument is unique modulo $2\pi$, so
+$\phi_\star$ and hence $S_\star=\phi_\star/2\pi$ are well-defined when
+$\Rstar>0$. The maps $\phi_j=2\pi S_j$, the weighted sum, and (away
+from the origin) the argument are each smooth with bounded derivative on a
+region with $\Rstar\ge\eta>0$; their composition is Lipschitz there.
+Taking $g_v=g_\star$ in \Cref{def:virtual} makes $S_\star$ a virtual
+sensor; declaring $\mathrm{ok}_v$ true iff $\Rstar\ge\eta$ and fixing
+$S_v^{0}$ otherwise makes it fallback-guarded, with the degenerate
+low-concentration case ($\Rstar<\eta$, inputs too dispersed to define
+a mean direction) mapped to the certified-safe constant. \qed
+\end{proof}
+
+\begin{proposition}[The concentration is an ensemble invariant]
+\label{prop:synth-invariant}
+If the weights are equal, $a_j=1/r$, the concentration $\Rstar$ of
+\eqref{eq:phasemean} is an ensemble invariant of the input units
+\textup{(}\Cref{def:ensemble-invariant}\textup{)}: it is invariant under
+permutation of the inputs and is realised by no single input. By
+\Cref{prop:invariant-robust} a single corrupted input perturbs
+$\Rstar$ by at most $O(1/r)$.
+\end{proposition}
+
+\begin{proof}
+With equal weights $\Rstar=\frac1r|\sum_j e^{i\phi_j}|$ is the
+order-parameter modulus of \Cref{ex:order-invariant}, which is symmetric
+in the $\phi_j$ (relabelling-invariant) and non-local (no single $\phi_j$
+fixes it). It is therefore an ensemble invariant, and
+\Cref{prop:invariant-robust} gives the $O(1/r)$ bound. \qed
+\end{proof}
+
+\Cref{prop:synth-invariant} is the precise sense in which synthesis
+produces \emph{both} kinds of computed channel at once from the same
+operation: the synthesised \emph{value} $S_\star$ (the argument) is a
+local virtual sensor used to act, while the synthesised
+\emph{concentration} $\Rstar$ (the modulus) is an ensemble invariant
+used to trust---the value says \emph{where} the inputs agree, the
+concentration says \emph{how much} they agree, and the latter is exactly
+the correlated-fault detector of \Cref{rem:virtual-independence}.
+
+\begin{theorem}[Sensor synthesis map]
+\label{thm:synthesis}
+Fix input channels $S_1,\dots,S_r$ and equal weights. The
+\emph{synthesis map}
+\begin{equation}
+\label{eq:synth}
+(S_1,\dots,S_r)\ \xrightarrow{\ \Phi\ }\ (\phi_1,\dots,\phi_r)\
+\xrightarrow{\ \eqref{eq:phasemean}\ }\
+(\phi_\star,\Rstar)\ \xrightarrow{\ \Phi^{-1}\ }\ (S_\star,\Rstar)
+\end{equation}
+carries physical time-domain channels through the frequency domain and
+back, producing two new channels---a value $S_\star$ and a concentration
+$\Rstar$---each of which is a coordinate of the extended hypercube
+with a cell (\Cref{prop:switch-cells}), consumable by the control layer
+and the monitor identically to a physical channel. The map is invertible
+in the sense that $\Phi,\Phi^{-1}$ lose no information
+(\Cref{prop:switch}); only the combination step \eqref{eq:phasemean} is
+many-to-one, exactly because it summarises $r$ inputs into a value and a
+spread.
+\end{theorem}
+
+\begin{proof}
+Each arrow of \eqref{eq:synth} is defined and justified above: $\Phi$ and
+$\Phi^{-1}$ are the lossless bijections of \Cref{prop:switch}; the middle
+arrow is \Cref{def:meanrec}, well-defined and Lipschitz by
+\Cref{prop:synth-wd}. The outputs $S_\star,\Rstar\in[0,1]$ are
+S-coordinates, hence carry cells by \Cref{prop:switch-cells}; by
+\Cref{prin:obs-comp} the layers consume them as any coordinate. The
+information statement is \Cref{prop:switch} (bijective ends) together with
+the observation that averaging $r$ vectors is many-to-one. \qed
+\end{proof}
+
+\Cref{thm:synthesis} is the derivation the framework needs: it turns
+``observation $=$ computation'' from a principle into an algorithm
+(\Cref{alg:synth}). A measurement can be \emph{acquired} in either
+domain---as a time-domain value or a frequency-domain phase---and
+\emph{synthesised} with others by switching to the frequency domain,
+averaging under mean-recovery, and switching back. The bioreactor's
+respiratory-state channel (\Cref{sec:metabolic-script}) and its
+DO-consistency invariant (\Cref{sec:bioreactor}) are both instances of
+\eqref{eq:synth}: the same synthesis operation yields the actionable value
+and the trustworthy invariant together.
+
+% =====================================================================
+\section{The separation theorem and fail-safe degradation}
+\label{sec:separation}
+% =====================================================================
+
+We now prove the architectural claim that organises the whole system: the
+monitoring layer is \emph{additive}. Its presence can only improve
+confirmation and diagnostics; its complete failure reduces the system to
+an ordinary provably-stable, structurally-incorruptible cell-partition
+controller. The proof rests on a single structural fact---the interface
+between the layers is one-directional---made precise below.
+
+\subsection{The one-directional interface}
+
+\begin{definition}[Layer interface]
+\label{def:interface}
+The \emph{interface} between the monitoring layer and the control layer
+consists of exactly two admissible messages, each identical in kind to a
+message a human operator could send:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item \textbf{Setpoint request}: propose a new setpoint
+$\Sstar{}'\in\Hs$ from the finite set of pre-approved setpoints.
+\item \textbf{Mode request}: request entry to a pre-approved mode, in
+particular the \emph{safe mode} with its own pre-compiled cell-action map.
+\end{enumerate}
+No other channel exists from the monitoring layer to the control layer. In
+particular, no monitoring output enters the control law \eqref{eq:controllaw}
+as a term, a gain, a state estimate, or a parameter.
+\end{definition}
+
+\begin{definition}[Interface admissibility]
+\label{def:admissible-iface}
+The interface is \emph{admissible} if every setpoint in the pre-approved
+set and the safe mode each induce a cell-action map satisfying the
+stability certificate of \Cref{cor:lmi} (its own set of per-cell LMIs
+verified offline). Equivalently: whatever the monitoring layer requests,
+the control layer switches only among pre-verified, individually stable
+configurations.
+\end{definition}
+
+\begin{remark}[Why this is the crux]
+\label{rem:crux}
+\Cref{def:interface} is the entire content of the separation. Because the
+monitoring layer can only \emph{request} a switch among configurations
+that are \emph{each} independently certified, and cannot inject anything
+into the control computation, the control layer's correctness is a
+property of its finite set of pre-verified configurations, not of any
+monitoring output. The monitoring layer is, from the control layer's
+point of view, indistinguishable from an operator---and an operator who
+is silent, wrong, or absent cannot destabilise a controller that is
+stable in every configuration it can be placed in.
+\end{remark}
+
+\subsection{Additivity and the worst-case theorem}
+
+\begin{theorem}[Monitoring is additive]
+\label{thm:additive}
+Suppose the interface is admissible \textup{(}\Cref{def:admissible-iface}\textup{)}.
+Then for any behaviour of the monitoring layer whatsoever---correct,
+degraded, silent, or adversarial within the interface---the control layer
+satisfies:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=1pt]
+\item \textbf{Stability}: in whatever configuration it currently holds,
+the closed loop is globally asymptotically stable
+(\Cref{thm:pwlyap,cor:lmi}) and geometrically convergent
+(\Cref{thm:banach}).
+\item \textbf{Incorruptibility}: no monitoring output causes an action
+outside the pre-approved set $\Us$ (\Cref{thm:incorr}).
+\item \textbf{Bounded switching transients}: each interface-induced
+switch is between two individually stable configurations; under a
+common Lyapunov function, or a dwell-time bound between switches, the
+switched closed loop remains stable~\citep{liberzon2003switching}.
+\end{enumerate}
+No monitoring failure can violate \textup{(i)}--\textup{(iii)}.
+\end{theorem}
+
+\begin{proof}
+(i) By \Cref{def:admissible-iface} every configuration the control layer
+can occupy---any pre-approved setpoint, or the safe mode---has its own
+verified per-cell LMIs, hence is globally asymptotically stable by
+\Cref{cor:lmi} and geometrically convergent by \Cref{thm:banach}. The
+monitoring layer selects only among these configurations
+(\Cref{def:interface}), so whatever it does, the current configuration is
+one of the certified ones. (ii) By \Cref{thm:incorr} the action is
+$A(\mathrm{cell}(\Ss))\in\Us$ for the current map $A$; the monitoring
+layer can change which certified $A$ is in force but cannot enlarge the
+codomain beyond $\Us$. (iii) Interface switches occur between certified
+stable configurations; by standard switched-systems theory a common
+Lyapunov function across the finite configuration set, or a minimum dwell
+time between switches, guarantees stability of the switched
+system~\citep{liberzon2003switching}. Since every one of (i)--(iii)
+follows from properties of the control layer's certified configurations
+and the interface restriction, and none references any specific
+monitoring output, no monitoring behaviour can violate them. \qed
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel4_separation.png}
+    \caption{\textbf{Separation and Fail-Safe Degradation: In the Worst
+    Case, You Just Control the Process.}
+    (\textbf{A})~Tracking error $\lVert\Ss-\Sstar\rVert$ on a logarithmic
+    $y$-axis ($10^{-6}$ to $10^{0}$) versus control step on the linear
+    $x$-axis ($0$ to $200$), for four random starts under each of three
+    certified setpoint configurations including the safe mode (steel-blue,
+    sea-green, violet). Every trajectory contracts geometrically to its
+    setpoint, the empirical content of \Cref{thm:additive}: whatever
+    configuration the monitoring layer requests, the control layer occupies
+    one of finitely many pre-verified, individually stable configurations.
+    (\textbf{B})~Cumulative count of dispatched actions leaving the
+    pre-approved set $\Us$ on the linear $y$-axis ($-1$ to $5$) versus
+    adversarial step on the linear $x$-axis ($0$ to $200$) (coral), with the
+    zero line marked (green). Under $200$ steps of adversarial payloads
+    (random, out-of-range, $\pm\infty$, and NaN) the count stays identically
+    zero---across the full run not one of the $500$ dispatched actions left
+    the $46{,}656$-element action set---the direct statement of
+    \Cref{thm:incorr}: no sensor payload has a path to an action outside the
+    fixed table.
+    (\textbf{C})~Tracking error $\lVert\Ss-\Sstar\rVert$ on a logarithmic
+    $y$-axis ($10^{-6}$ to $10^{0}$) versus control step on the linear
+    $x$-axis ($0$ to $200$), for six starts in the worst-case regime
+    (coral): the entire monitoring layer removed and the virtual
+    respiratory-state axis pinned to its safe fallback $S_v^{0}$. Every
+    trajectory still contracts to the setpoint (final error
+    $3\times10^{-12}$), the empirical form of \Cref{cor:worstcase}: the
+    system reduces to an ordinary provably-stable single-channel
+    cell-partition controller.
+    (\textbf{D})~Three-dimensional bundle of fourteen closed-loop
+    trajectories in the reduced error coordinates
+    $(S_1{-}S_1^{\ast},S_2{-}S_2^{\ast},S_3{-}S_3^{\ast})$, each axis
+    spanning $[-0.4,0.4]$ (viridis colourmap), converging on the common
+    fixed point (crimson star), viewing angle elevation $22^{\circ}$
+    azimuth $-58^{\circ}$. All trajectories collapse to the unique setpoint
+    of \Cref{thm:banach}, the geometric picture of the design's central
+    promise: the monitoring layer can only ever improve the system, never
+    break it.}
+    \label{fig:panel4}
+\end{figure*}
+
+\begin{corollary}[Worst-case: an ordinary stable controller]
+\label{cor:worstcase}
+Suppose every control-layer virtual channel is fallback-guarded
+(\Cref{def:fallback}) and the extended-grid LMIs of
+\Cref{prop:virtual-stable} are certified. If the monitoring layer fails
+completely---every sensor beyond a single per-channel probe drops out, the
+ensemble decoheres to $\Rens\to0$ (\Cref{thm:decohere}), no confirmations
+are produced, and every metabolic computation loses its inputs so each
+virtual channel reads its fallback $S_v^{0}$---the system reduces to a
+cell-partition controller regulating on the surviving physical probe with
+all virtual coordinates pinned to their certified-safe fallbacks. That
+controller remains globally asymptotically stable, geometrically
+convergent, and structurally incorruptible. There is no scenario in which
+any monitoring-layer capability, or the validity of any metabolic
+computation, is load-bearing for stability or safety.
+\end{corollary}
+
+\begin{proof}
+Total monitoring failure removes all interface requests, leaving the
+control layer in its current certified configuration (or, on detected
+loss of confirmation, in the certified safe mode via \Cref{prop:dos}).
+Loss of all metabolic inputs pins every virtual channel to its fallback
+$S_v^{0}$ by \eqref{eq:guarded}, collapsing the state onto a slice whose
+cells are certified by \Cref{prop:virtual-stable}. Either configuration is
+globally asymptotically stable and incorruptible by
+\Cref{thm:additive}(i)--(ii) applied to the extended grid. Regulation
+continues from the surviving physical channel's cell membership, which is
+all the control law ever required (\Cref{sec:control}). \qed
+\end{proof}
+
+\begin{remark}[Control-layer virtual channels and the worst case]
+\label{rem:virtual-worstcase}
+A virtual channel that is a genuine control coordinate is, unlike a
+monitoring-only confirmation, potentially load-bearing---its \emph{value}
+enters the state the controller regulates. The fallback guard
+(\Cref{def:fallback}) is precisely what restores the worst-case
+guarantee: a failed metabolic script cannot inject a wild coordinate,
+only freeze the virtual axis at a certified-safe constant. The worst case
+is therefore not ``no virtual channel'' but ``virtual channel pinned to
+its safe fallback''---a configuration certified in advance by
+\Cref{prop:virtual-stable}. The design licence of \Cref{rem:licence} thus
+extends to the metabolic script: it may compute as ambitiously as the
+process rewards, because its failure mode is a certified-safe constant,
+not an unbounded input.
+\end{remark}
+
+\begin{remark}[The design licence]
+\label{rem:licence}
+\Cref{cor:worstcase} is the reason the monitoring layer may be built
+ambitiously. Every elaborate capability---multi-probe confirmation,
+phase-locked federation, chromatographic multi-channel fingerprinting of
+excursions (\Cref{sec:bioreactor})---is strictly optional from the
+control layer's standpoint. If any of it is wrong or absent, the fallback
+is not failure but an ordinary, fully-proved controller. The speculative
+value of rich monitoring is thus purchased with zero risk to the
+guaranteed core: the separation \emph{is} the safety margin.
+\end{remark}
+
+\subsection{The safe state}
+
+\begin{definition}[Safe mode]
+\label{def:safemode}
+The \emph{safe mode} is a distinguished control-layer configuration whose
+cell-action map holds the reactor at a conservative, biologically-tolerable
+operating point (e.g.\ reduced agitation and feed, temperature and pH held
+at culture-safe values), certified stable by its own per-cell LMIs. The
+control layer enters safe mode on any of: an interface mode request
+(\Cref{def:interface}), a monitoring decline (\Cref{thm:decline}(ii)) for
+a safety-relevant excursion, or an internally-detected loss of
+confirmation (\Cref{prop:dos}).
+\end{definition}
+
+\begin{proposition}[Safe mode is reachable without trusted input]
+\label{prop:safe-reachable}
+Entry to safe mode requires no trusted network input: it is triggered
+either by the local monitoring layer's own coherence estimate falling
+below threshold, or by the control layer's own timeout on expected
+confirmations. Hence a network adversary who suppresses all traffic
+causes entry to safe mode, not loss of control.
+\end{proposition}
+
+\begin{proof}
+The triggers in \Cref{def:safemode} are computed locally: the coherence
+estimate $\Rens$ from the sensor agents present, and a timeout on the
+committed record $M$ (\Cref{def:record}). Neither depends on trusted
+inbound content; suppression of traffic drives $\Rens$ down and the
+timeout to fire, both of which invoke safe mode by \Cref{def:safemode}.
+Safe mode is itself a certified stable configuration
+(\Cref{thm:additive}). \qed
+\end{proof}
+
+% =====================================================================
+\section{Realisation for a stirred-tank bioreactor}
+\label{sec:bioreactor}
+% =====================================================================
+
+We now instantiate the framework for a fed-batch stirred-tank reactor, the
+workhorse of microbial and cell-culture
+bioprocessing~\citep{doran2013bioprocess,shuler2017bioprocess}. The
+running example is aerobic fed-batch cultivation of
+\textit{Saccharomyces cerevisiae} for biomass or recombinant protein,
+whose control is dominated by the interplay of dissolved oxygen, the
+respiratory limit, and the feed rate~\citep{sonnleitner1986growth,garciaortega2013fedbatch}.
+
+\subsection{Channels and the S-hypercube}
+
+\begin{table}[t]
+\centering\small
+\caption{Process channels and their operating ranges for the fed-batch
+yeast example. S-normalisation \eqref{eq:snorm} maps each to $[0,1]$.}
+\label{tab:channels}
+\begin{tabular}{@{}llll@{}}
+\toprule
+$k$ & Channel & Range $[q_{\min},q_{\max}]$ & Role \\
+\midrule
+1 & Dissolved $\mathrm{O_2}$ & $0$--$100\%$ sat.\ & controlled \\
+2 & pH & $3.0$--$8.0$ & controlled \\
+3 & Temperature & $20$--$40\,^{\circ}$C & controlled \\
+4 & Agitation & $100$--$1200$ rpm & manipulated \\
+5 & Feed rate & $0$--$F_{\max}$ L/h & manipulated \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The five physical channels of \Cref{tab:channels} give a working space
+$[0,1]^5$; the virtual metabolic-state channel below extends it to
+$\Hs=[0,1]^6$. A representative setpoint for the aerobic growth phase is
+$\Sstar$ corresponding to $30\%$ DO, pH $5.0$, $30\,^{\circ}$C, with
+agitation and feed as the primary manipulated actions. Manipulated
+channels enter both as state coordinates (their current normalised value)
+and as the actuation the cell-action map commands; controlled channels
+enter as state coordinates whose deviation the map drives to zero.
+
+\subsection{The metabolic script: a virtual respiratory-state channel}
+\label{sec:metabolic-script}
+
+The reactor runs two concurrent scripts (\Cref{sec:virtual}). The
+\emph{sensor script} produces the five physical coordinates of
+\Cref{tab:channels}. The \emph{metabolic script} computes, at a single
+node, a sixth coordinate that no probe measures: a \emph{respiratory-state}
+channel $S_v$ synthesising the culture's aerobic-versus-overflow metabolic
+condition from pH, off-gas $\mathrm{CO_2}$, and temperature. Physically,
+aerobic respiration and overflow (fermentative) metabolism differ in their
+joint acid/$\mathrm{CO_2}$/thermal signature: overflow onset acidifies the
+broth, raises $\mathrm{CO_2}$ evolution disproportionately to $\mathrm{O_2}$
+uptake, and shifts heat output~\citep{sonnleitner1986growth}. The node map
+\begin{equation}
+\label{eq:metabolic-node}
+S_v \;=\; g_v\bigl(S_{\mathrm{pH}},\,S_{\mathrm{CO_2}},\,S_{T}\bigr)
+\end{equation}
+is a fixed, offline-verified Lipschitz combination---increasing in
+$\mathrm{CO_2}$ evolution and acidification rate, temperature-compensated
+---normalised so that $S_v$ near $0$ is healthy aerobic growth and $S_v$
+near $1$ is overflow/oxygen-limited metabolism. No instrument reports
+$S_v$; it exists only in the program, yet it is the quantity the operator
+most wants to regulate.
+
+By \Cref{def:fallback}, $S_v$ is fallback-guarded: if any of pH,
+$\mathrm{CO_2}$, or $T$ is missing or out of range, $S_v$ reads a
+conservative fallback $S_v^{0}$ (a value in a cell whose action reduces
+feed---the safe metabolic assumption). The extended $[0,1]^6$ grid is
+certified by \Cref{prop:virtual-stable}, including the fallback slice, so
+the metabolic script can never destabilise the controller.
+
+\paragraph{Regulating the virtual channel.}
+Because $S_v$ is a genuine state coordinate (\Cref{prin:obs-comp}), the
+cell-action map regulates it directly: cells with high $S_v$ (incipient
+overflow) command a feed reduction to bring specific uptake below the
+respiratory limit~\citep{sonnleitner1986growth,garciaortega2013fedbatch},
+which is precisely the standard fed-batch objective---now driven by a
+computed metabolic coordinate rather than by a hand-tuned feed schedule.
+The two scripts thus close a loop that no single physical sensor could:
+the metabolic script computes the culture's respiratory state, and the
+control layer regulates it.
+
+\subsection{The control layer for the reactor}
+
+Cells are axis-aligned boxes on the extended $[0,1]^6$ grid; a modest grid
+(e.g.\ $6\times5\times5\times5\times5\times5$ over DO, pH, $T$, agitation,
+feed, and the virtual respiratory-state channel) yields $N=18750$ cells,
+well within the floor bound $N\le\floor^{-6}$ for realistic probe
+resolutions ($\floor\approx0.01$--$0.02$). Each cell stores a nearest-centroid
+proportional action \eqref{eq:ncp} mapping DO deviation to agitation and
+feed adjustments, pH deviation to acid/base dosing, and temperature
+deviation to jacket setpoint. The per-cell LMIs \eqref{eq:lmi} are checked
+offline; for the dominant DO/agitation/feed subsystem the linearised
+dynamics are a stable first-order oxygen-transfer relation
+$\dot{S}_{\mathrm{DO}}=k_La\,(S^{\ast}_{\mathrm{DO}}-S_{\mathrm{DO}})-q_{O_2}X$
+whose gain is set by agitation, so the LMI holds whenever the commanded
+agitation gain dominates the oxygen-uptake term---exactly the physical
+condition for DO controllability. The cell-width bound \eqref{eq:cellbound}
+becomes a statement about probe speed versus the oxygen-transfer time
+constant, checked at commissioning by \Cref{cor:feasible}.
+
+\subsection{The monitoring layer for the reactor: confirming slices}
+
+The reactor's monitoring layer confirms process events by treating the
+sweep of the culture through operating conditions as a sequence of
+\emph{slices}---successive cells the state passes through---and
+confirming, rather than merely observing, each slice against multiple
+independent channels. This is where dissolved oxygen plays a second role.
+
+\paragraph{Dissolved oxygen as a distributed confirmation channel.}
+Beyond its controlled-variable role, DO is the most information-rich fast
+channel in an aerobic reactor: it responds within seconds to changes in
+metabolic activity, mixing, and feed, and can be read by independent
+transduction principles---amperometric (Clark-type) and optical
+(luminescence-quenching) probes---plus inferred from the off-gas oxygen
+balance~\citep{garcia2009review,vanhauwaert2020dosensing}. These are three
+\emph{independent} confirmation sources in the sense of
+\Cref{thm:multiplicative}, and together they form the coherence triangle
+of \Cref{thm:triangle}: a DO excursion confirmed by all three is robust to
+any one probe fouling or drifting. The virtual respiratory-state channel
+of \Cref{sec:metabolic-script} adds a fourth confirmation source: an
+overflow excursion computed from pH/$\mathrm{CO_2}$/$T$ cross-checks a DO
+dip, distinguishing a metabolic oxygen-limitation (which the respiratory
+channel confirms) from a mechanical mixing failure (which it does not).
+Per \Cref{rem:virtual-independence} this fourth leg is independent of the
+three DO sources but not of pH/$\mathrm{CO_2}$/$T$; it therefore
+strengthens the triangle against DO-probe faults specifically.
+
+\paragraph{A multi-channel excursion fingerprint.}
+Each candidate excursion is characterised not by a single retention-like
+scalar but by a joint fingerprint across channels: the DO response, the
+pH trajectory, the temperature transient, and the off-gas signature. Two
+excursions that coincide on one channel (e.g.\ the same DO dip) are
+separated by their joint signature across the others, so the monitoring
+layer distinguishes, for instance, an oxygen-limitation dip (rising off-gas
+$\mathrm{CO_2}$, falling off-gas $\mathrm{O_2}$, biomass-driven) from a
+mixing-failure dip (localised, agitation-correlated, no off-gas shift).
+The distinguishing power grows multiplicatively with the number of
+independent channels folded in (\Cref{thm:multiplicative,thm:admit}),
+which is the concrete payoff of federating sensors rather than trusting
+one.
+
+\paragraph{The federated sensor ensemble.}
+The reactor's probes are the temporal agents of \Cref{def:agent}. When the
+probe set is homogeneous and healthy, the ensemble phase-locks
+(\Cref{thm:critical}) and confirmations are free (\Cref{thm:zero}); a DO
+excursion is confirmed three ways with no coordination overhead. When a
+probe fouls or the timing degrades, the ensemble decoheres gracefully
+(\Cref{thm:decohere}) and confirmation continues at reduced resolution.
+
+\paragraph{An ensemble invariant for trust.}
+Alongside the local respiratory-state channel (which the reactor uses to
+\emph{act}), the metabolic script computes an \emph{ensemble invariant}
+(\Cref{def:ensemble-invariant}) that the reactor uses to \emph{trust}: a
+collective DO-consistency quantity---for instance the phase coherence
+$\Rens$ of the DO-related oscillators (\Cref{ex:order-invariant}), or a
+symmetric agreement measure across the amperometric, optical, and off-gas
+DO estimates. No single DO probe carries this quantity, yet every healthy
+probe is consistent with it; it is true of the whole DO ensemble and
+present in none of its members. By \Cref{prop:invariant-robust} a single
+fouled or spoofed DO probe cannot move it by more than $O(1/n)$, so a
+\emph{drop} in the invariant is a reliable, unit-independent signal that
+the DO ensemble as a whole is losing coherence---a fault that no
+individual probe reading would reveal, because each probe still reports a
+plausible value on its own. The invariant thus detects exactly the
+correlated-fault case that the independence caveat of
+\Cref{rem:virtual-independence} warns about.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel3_synthesis.png}
+    \caption{\textbf{The Time--Frequency Switch and Sensor Synthesis:
+    A Value and Its Trust From One Operation.}
+    (\textbf{A})~Round-trip value $\Phi^{-1}(\Phi(S))$ on the linear
+    $y$-axis ($0$ to $1$) versus input value $S$ on the linear $x$-axis
+    ($0$ to $1$), over $400$ samples (steel-blue) against the identity
+    diagonal (grey). Every point lies exactly on the diagonal---the maximum
+    round-trip error over $10^{5}$ samples is $1.1\times10^{-16}$---the
+    empirical content of \Cref{prop:switch}: the switch between a
+    time-domain value and a frequency-domain phase is an
+    information-preserving bijection that loses nothing.
+    (\textbf{B})~Synthesised outputs on the linear $y$-axis ($\sim\!0.1$ to
+    $1$) versus input spread on the linear $x$-axis ($0$ to $0.5$), showing
+    the concentration $\Rstar$ (sea-green) and the synthesised value
+    $S_\star$ (steel-blue), with the fallback threshold $\eta=0.3$ marked
+    (crimson dashed). As the inputs disperse the concentration falls toward
+    the threshold and the value grows noisy, the regime in which the
+    fallback guard of \Cref{prop:synth-wd} fires; the synthesised value and
+    concentration match the circular-mean formula \eqref{eq:phasemean} to
+    $5.6\times10^{-16}$.
+    (\textbf{C})~Concentration $\Rstar$ on the linear $y$-axis ($0$ to
+    $1.05$) versus the number of evenly-spaced inputs on the linear
+    $x$-axis ($1$ to $12$), as a stem plot (steel-blue). A single input has
+    concentration $1$; two or more equally-spaced inputs collapse it to
+    $\sim\!0$, so a maximally-dispersed ensemble reads $\Rstar=1.3\times
+    10^{-16}$ and the synthesised channel switches to its certified-safe
+    fallback $S_v^{0}$ (\Cref{prop:synth-wd}): dispersion is detected, not
+    averaged away.
+    (\textbf{D})~Three-dimensional rendering of the mean-recovery resultant
+    as input phases spread: for seven increasing spreads (cividis
+    colourmap), the input phases (points) on the unit circle and their
+    resultant vector (arrows) are stacked along a vertical spread axis
+    ($0.05$ to $1.4$); the real and imaginary axes span $[-1,1]$, viewing
+    angle elevation $20^{\circ}$ azimuth $-62^{\circ}$. The resultant
+    shortens as the spread grows---its length is exactly the concentration
+    $\Rstar$ of \eqref{eq:phasemean}, the ensemble invariant produced by the
+    same synthesis that yields the actionable value (\Cref{thm:synthesis}).}
+    \label{fig:panel3}
+\end{figure*}
+
+\subsection{The two layers in operation}
+
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt]
+\item \textbf{Nominal.} Two scripts run concurrently: the sensor script
+produces the five physical coordinates and the metabolic script computes
+the virtual respiratory-state coordinate $S_v$
+(\Cref{sec:metabolic-script}). The control layer regulates DO, pH,
+temperature, \emph{and} $S_v$ to setpoint by cell dispatch on the extended
+$[0,1]^6$ grid. The monitoring layer, with a coherent probe ensemble,
+confirms that the state remains in its intended cells and that no
+excursion fingerprint has appeared. No interface message is sent; the
+controller runs on cell membership alone.
+\item \textbf{Confirmed excursion.} An oxygen-limitation fingerprint is
+confirmed by the DO triangle plus off-gas (\Cref{thm:decline}(i)). The
+monitoring layer issues a \emph{setpoint request}
+(\Cref{def:interface}(i))---e.g.\ reduce feed to bring uptake below the
+respiratory limit~\citep{sonnleitner1986growth}. The control layer
+switches to the corresponding certified configuration; stability is
+preserved by \Cref{thm:additive}.
+\item \textbf{Contested excursion.} The amperometric and optical DO probes
+disagree beyond reconciliation and off-gas is ambiguous
+(\Cref{thm:decline}(ii)). The monitoring layer \emph{declines}, names the
+conflicting classes, and---because the excursion is safety-relevant---issues
+a \emph{mode request} for safe mode (\Cref{def:safemode}). The control
+layer enters the certified safe configuration.
+\item \textbf{Monitoring and metabolic-script failure.} Probes drop out,
+the ensemble decoheres, and the metabolic script loses its inputs so $S_v$
+reads its safe fallback $S_v^{0}$ (feed-reducing). By
+\Cref{cor:worstcase} the reactor continues under cell-partition control on
+the surviving DO probe with the virtual axis pinned to its
+certified-safe fallback, globally asymptotically stable and incorruptible,
+exactly as an ordinary controller would---which is the guarantee the whole
+architecture is built to provide.
+\end{itemize}
+
+% =====================================================================
+\section{Algorithms}
+\label{sec:algorithms}
+% =====================================================================
+
+We give the six runtime algorithms. \Cref{alg:control,alg:lmi} constitute
+the control layer; \Cref{alg:cusum,alg:confirm,alg:coherence,alg:decohere}
+constitute the monitoring layer. Note the strict flow: the control loop
+(\Cref{alg:control}) never reads a monitoring output directly---it reads
+only the current certified configuration, which the interface may have
+switched.
+
+\begin{algorithm}[t]
+\caption{Control-layer step (runtime)}
+\label{alg:control}
+\begin{algorithmic}[1]
+\Require S-state $\Ss$; active cell-action map $A$ (certified);
+committed record $M$
+\Ensure control action $\mathbf u\in\Us$
+\State $i \gets \mathrm{cell}(\Ss)$
+\Comment{$O(m)$ axis comparisons}
+\State $\mathbf u \gets A(C_i)$
+\Comment{lookup in pre-approved $\Us$}
+\State apply $\mathbf u$ to actuators (saturating at channel limits)
+\State $M \gets M+1$
+\Comment{monotone record, \Cref{def:record}}
+\State \Return $\mathbf u$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Offline stability certification}
+\label{alg:lmi}
+\begin{algorithmic}[1]
+\Require partition $\Cs$; setpoint $\Sstar$; gain $K$; plant Jacobians
+$\{\mathbf A_i\}$
+\Ensure \textsc{certified} or \textsc{reject}
+\For{each cell $C_i \in \Cs$}
+  \State solve LMI $\mathbf A_i+\mathbf A_i^{\top}\preceq-\alpha_i I$,
+         $\alpha_i>0$
+  \Comment{\Cref{cor:lmi}}
+  \If{infeasible} \State \Return \textsc{reject} \EndIf
+\EndFor
+\State verify $\floor\le\wcell\le 1/(2\Bproc)$
+\Comment{\Cref{thm:nyquist}}
+\State verify $h< 2\min_i\alpha_i / L_F^2$
+\Comment{\Cref{thm:banach}}
+\State \Return \textsc{certified}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Excursion detection (per channel, CUSUM)}
+\label{alg:cusum}
+\begin{algorithmic}[1]
+\Require deviation $\DP(k)$; limit $H=\wcell/2$; running $C^{\pm}$
+\Ensure alarm flag
+\State $C^{+} \gets \max(0,\,C^{+}+\DP(k))$
+\State $C^{-} \gets \min(0,\,C^{-}+\DP(k))$
+\If{$C^{+}>H$ \textbf{or} $C^{-}<-H$}
+  \State \Return \textsc{alarm}
+  \Comment{cell-crossing, \Cref{thm:cusum}}
+\EndIf
+\State \Return \textsc{in-cell}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Confirmation with confirm-or-decline}
+\label{alg:confirm}
+\begin{algorithmic}[1]
+\Require candidate excursion $x$; source set $\Gamma$ (finite)
+\Ensure \textsc{confirmed}$(c)$ or \textsc{decline}$(\{c_j\})$
+\State $\mathcal K \gets \varnothing$
+\Comment{reached outcome classes}
+\For{each source $\gamma \in \Gamma$}
+  \State $c \gets$ outcome class of $\gamma$ on $x$
+  \State $\mathcal K \gets \mathcal K \cup \{c\}$
+\EndFor
+\Comment{closure by exhaustion, \Cref{thm:decline}}
+\If{$|\mathcal K| = 1$} \State \Return \textsc{confirmed}$(\mathcal K)$
+\Else \State \Return \textsc{decline}$(\mathcal K)$ \EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Coherence check (sign-only)}
+\label{alg:coherence}
+\begin{algorithmic}[1]
+\Require sources $\Gamma$; pairwise support signs $s_{ij}\in\{+,-\}$
+\Ensure \textsc{coherent} or \textsc{unfounded}
+\State build support graph $G$: edge $j\to i$ iff $s_{ij}=+$
+\If{$G$ has a mutually-supporting cycle of length $\ge 3$}
+  \State \Return \textsc{coherent}
+  \Comment{\Cref{thm:triangle,cor:signonly}}
+\Else \State \Return \textsc{unfounded} \EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Ensemble coherence and graceful decoherence}
+\label{alg:decohere}
+\begin{algorithmic}[1]
+\Require sensor phases $\{\phi_j\}$; lock threshold $\theta=0.95$
+\Ensure regime; safe-mode trigger if needed
+\State $\Rens \gets \frac1n\bigl|\sum_j e^{i\phi_j}\bigr|$
+\Comment{\Cref{def:order}}
+\If{$\Rens \ge \theta$} \State regime $\gets$ \textsc{phase-locked}
+  \Comment{free confirmation, \Cref{thm:zero}}
+\ElsIf{$\Rens$ dropped below prior regime}
+  \State escalate coordination cost (\Cref{thm:decohere})
+  \If{$\Rens$ below safe threshold \textbf{or} confirmation timeout}
+    \State issue \textsc{mode-request}(safe)
+    \Comment{\Cref{prop:safe-reachable}}
+  \EndIf
+\EndIf
+\State \Return regime
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Sensor synthesis (time$\leftrightarrow$frequency)}
+\label{alg:synth}
+\begin{algorithmic}[1]
+\Require input S-values $S_1,\dots,S_r$; weights $a_j$ ($\sum a_j=1$);
+concentration floor $\eta$; fallback $S_v^0$
+\Ensure synthesised value $S_\star$; concentration $\Rstar$
+\For{$j = 1$ \textbf{to} $r$}
+  \State $\phi_j \gets 2\pi S_j$
+  \Comment{switch to frequency domain, \Cref{def:phase}}
+\EndFor
+\State $z \gets \sum_{j} a_j\,e^{i\phi_j}$
+\Comment{mean-recovery resultant, \eqref{eq:phasemean}}
+\State $\Rstar \gets |z|$
+\Comment{concentration = ensemble invariant, \Cref{prop:synth-invariant}}
+\If{$\Rstar \ge \eta$}
+  \State $\phi_\star \gets \arg(z)$; \quad $S_\star \gets \phi_\star / 2\pi$
+  \Comment{switch back, $\Phi^{-1}$}
+\Else
+  \State $S_\star \gets S_v^0$
+  \Comment{inputs too dispersed: fallback, \Cref{prop:synth-wd}}
+\EndIf
+\State \Return $S_\star$, $\Rstar$
+\end{algorithmic}
+\end{algorithm}
+
+% =====================================================================
+\section{Validation protocol}
+\label{sec:validation}
+% =====================================================================
+
+The theorems are proved from the definitions and need no simulation to
+hold. It is nonetheless essential, before deployment, to confirm that a
+concrete grid and plant model satisfy the certificate conditions and that
+the layered behaviour is as claimed. We specify a validation protocol in
+three parts; it is designed so that each check maps to a specific theorem
+and can be run offline (control layer) or in a hardware-in-the-loop rig
+(monitoring layer).
+
+\subsection{Control-layer certification}
+
+\begin{enumerate}[label=\textbf{V\arabic*.},leftmargin=2.4em,itemsep=2pt]
+\item \textbf{Floor and cell count.} Measure each probe's resolution
+$\delta_k$, form $\floor=\min_k\delta_k$, and verify the chosen grid has
+$\wcell\ge\floor$ and $N\le\floor^{-m}$ (\Cref{prop:floor,lem:finite-cells}).
+\item \textbf{Per-cell LMIs.} For the identified cellwise Jacobians
+$\{\mathbf A_i\}$, solve \eqref{eq:lmi} for every cell
+(\Cref{alg:lmi}); certification requires all $N$ LMIs feasible
+(\Cref{cor:lmi}).
+\item \textbf{Sampling feasibility.} Estimate the closed-loop bandwidth
+$\Bproc$ from the oxygen-transfer and metabolic time constants and verify
+$\floor\le1/(2\Bproc)$ (\Cref{cor:feasible}); if it fails, the remedy is a
+faster probe, per \Cref{cor:feasible}.
+\item \textbf{Contraction rate.} Verify $h<2\min_i\alpha_i/L_F^2$ and
+record the predicted rate $\rho$ (\Cref{thm:banach}); check that
+simulated step responses contract at rate $\le\rho^n$.
+\item \textbf{Configuration switching.} For every pre-approved setpoint
+and the safe mode, repeat V2 and verify a common Lyapunov function or a
+dwell-time bound across the configuration set (\Cref{thm:additive}(iii)).
+\item \textbf{Virtual-channel certification.} Verify the extended-grid
+LMIs including the fallback slice $\{S_v=S_v^{0}\}$
+(\Cref{prop:virtual-stable}), and confirm that forcing $\mathrm{ok}_v$
+false pins $S_v$ to $S_v^{0}$ and holds the reactor in a certified-safe
+configuration.
+\end{enumerate}
+
+\subsection{Monitoring-layer characterisation}
+
+\begin{enumerate}[label=\textbf{V\arabic*.},leftmargin=2.4em,itemsep=2pt,start=7]
+\item \textbf{CUSUM operating point.} Inject known DO excursions and verify
+that cell-boundary crossings coincide with CUSUM alarms at limit
+$H=\wcell/2$, and that the in-control average run length matches the
+predicted function of $H$ (\Cref{thm:cusum,cor:arl}).
+\item \textbf{Composition.} With independent DO channels (amperometric,
+optical, off-gas), verify that combined confirmation power follows
+$1-\prod_i(1-\kappa_i)$ (\Cref{thm:multiplicative}) and that a coherent
+triangle survives removal of any one channel (\Cref{thm:triangle}).
+\item \textbf{Decline.} Force amperometric/optical DO disagreement and
+verify the monitor declines and requests safe mode rather than picking a
+channel (\Cref{thm:decline}(ii)).
+\item \textbf{Federation.} Vary timing coupling and probe homogeneity;
+verify the phase-lock transition at $\Kc=2\sigma_\omega/\pi$
+(\Cref{thm:critical}) and zero-overhead confirmation above
+$\Rens=0.95$ (\Cref{thm:zero}).
+\item \textbf{Ensemble invariant.} Verify the computed collective
+DO-consistency invariant is unchanged under permutation of interchangeable
+DO probes (relabelling-invariance) and that a single spoofed or fouled
+probe shifts it by at most $O(1/n)$
+(\Cref{def:ensemble-invariant,prop:invariant-robust}), while a
+\emph{correlated} multi-probe fault does move it---confirming it detects
+the failure mode redundant probes miss.
+\item \textbf{Sensor synthesis round-trip.} Verify the time--frequency
+switch is lossless to numerical precision ($\Phi^{-1}(\Phi(S))=S$,
+\Cref{prop:switch}) and cell-preserving (\Cref{prop:switch-cells}); that
+the synthesised value and concentration of \Cref{thm:synthesis} match the
+circular-mean formula \eqref{eq:phasemean}; and that dispersed inputs
+($\Rstar<\eta$) trigger the fallback (\Cref{prop:synth-wd,alg:synth}).
+\end{enumerate}
+
+\subsection{The worst-case drill}
+
+\begin{enumerate}[label=\textbf{V\arabic*.},leftmargin=2.4em,itemsep=2pt,start=12]
+\item \textbf{Total monitoring failure.} Disable all probes but one, force
+ensemble decoherence, and suppress all confirmations. Verify the reactor
+continues under single-channel cell-partition control, that regulation
+error still contracts at the certified rate, and that no action outside
+$\Us$ ever occurs (\Cref{cor:worstcase}). This is the decisive test: the
+system must behave as an ordinary stable controller, confirming that the
+monitoring layer was additive throughout.
+\end{enumerate}
+
+\begin{remark}[What a pass means]
+\label{rem:pass}
+V1--V6 passing certifies the control layer independently of any monitoring
+capability. V7--V11 characterise the monitoring layer's added value
+(confirmation, federation, the ensemble invariant, and the synthesis
+round-trip) without being required for V1--V6. V12, the worst-case drill,
+confirms the separation empirically: with the monitoring layer entirely
+removed, the V1--V6 guarantees still hold. A deployment is licensed on
+V1--V6 and V12 alone; the remaining checks quantify the optional benefit.
+\end{remark}
+
+\subsection{Numerical validation results}
+\label{sec:valresults}
+
+We implemented the protocol as a self-contained suite (numpy/scipy,
+deterministic per module) that constructs concrete instances of the
+fed-batch yeast configuration---the extended $[0,1]^6$ grid of
+\Cref{sec:bioreactor} with resolution floor $\floor=0.02$---and checks
+each theorem's inequality, identity, or dichotomy directly. Across four
+experiment groups the suite ran \textbf{$17$ checks, all of which pass};
+the salient measured quantities are collected in
+\Cref{tab:valresults} and displayed in
+\Cref{fig:panel1,fig:panel2,fig:panel3,fig:panel4}.
+
+\begin{table}[t]
+\centering\small
+\caption{Numerical validation summary on the fed-batch yeast
+configuration ($\floor=0.02$, $6$ channels). Every check passes; the
+column ``measured'' reports the decisive quantity.}
+\label{tab:valresults}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Result} & \textbf{Measured} & \textbf{Pass} \\
+\midrule
+Floor \& cell count (\Cref{prop:floor}) & $\wcell{=}0.167\ge\floor$, $N{=}18{,}750$ & \checkmark \\
+Per-cell LMI (\Cref{cor:lmi}) & $\alpha{=}2.49{>}0$; unstable rejected & \checkmark \\
+Banach rate (\Cref{thm:banach}) & $\rho_{\mathrm{pred}}{=}0.638\!\ge\!\rho_{\mathrm{exact}}{=}0.408$ & \checkmark \\
+Nyquist feasibility (\Cref{cor:feasible}) & $\floor{\le}1/2\Bproc{=}7.14$ & \checkmark \\
+Critical coupling (\Cref{thm:critical}) & $\Kc{=}0.318$; monotone branch & \checkmark \\
+Zero-overhead (\Cref{thm:zero}) & $\Rens{=}0.987$, one-cell spread & \checkmark \\
+Single-loss (\Cref{thm:decohere}) & $\Delta\Rens{=}0.007{\le}\Rens/n$ & \checkmark \\
+Invariant robustness (\Cref{prop:invariant-robust}) & shift $0.10{\le}O(1/n)$; corr.\ $0.39$ & \checkmark \\
+Switch round-trip (\Cref{prop:switch}) & error $1.1{\times}10^{-16}$ & \checkmark \\
+Synthesis (\Cref{thm:synthesis}) & error $5.6{\times}10^{-16}$ & \checkmark \\
+Fallback (\Cref{prop:synth-wd}) & $\Rstar{=}1.3{\times}10^{-16}{\to}S_v^0$ & \checkmark \\
+Additivity (\Cref{thm:additive}) & all setpoints \& switch converge & \checkmark \\
+Incorruptibility (\Cref{thm:incorr}) & $0/500$ actions left $\Us$ & \checkmark \\
+Worst case (\Cref{cor:worstcase}) & err $3{\times}10^{-12}$, $0$ escapes & \checkmark \\
+\midrule
+\textbf{Total} & \textbf{$17/17$ checks} & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three findings sharpen the paper's own claims rather than merely
+restating them.
+
+\emph{The $\alpha$--$L_F$ distinction is load-bearing
+(\Cref{fig:panel1}).} The Banach constant of \Cref{thm:banach} uses the
+\emph{norm} descent rate $\alpha=-\lambda_{\max}(\mathbf A+\mathbf
+A^{\top})/2$, which is half the descent rate of the quadratic Lyapunov
+function itself. Conflating the two makes the predicted $\rho$ imaginary
+for well-damped plants; using the correct $\alpha$ yields, for the yeast
+DO/agitation/feed Jacobian, $\alpha=1.25\le L_F=1.62$ and a predicted
+$\rho=0.638$ that genuinely dominates both the exact one-step operator
+norm $\lVert I+h\mathbf A\rVert_2=0.408$ and the measured contraction
+$0.403$. The theorem holds precisely because the hypothesis $\alpha\le
+L_F$ is respected.
+
+\emph{Finite-$n$ Kuramoto undershoot is real and bounded
+(\Cref{fig:panel2}).} At $n=400$ probes and $K=3\Kc$ the simulated order
+parameter is $\Rens=0.65$, below the thermodynamic-limit branch
+$\Rens^{\ast}=\sqrt{1-\Kc/K}=0.816$; the transition is monotone in $K$
+and rises toward the branch as $K$ grows. This is exactly the finite-size
+correction flagged in \Cref{sec:discussion}: the monitoring layer's
+coherence is a graded, correctly-ordered quantity, and---crucially---no
+control-layer guarantee depends on its exact value.
+
+\emph{Identities hold to machine precision; the invariant catches what
+redundancy misses (\Cref{fig:panel3,fig:panel4}).} The
+time--frequency switch and the circular-mean synthesis are exact to
+$\sim10^{-16}$, confirming they lose no information. The ensemble
+invariant is unchanged under probe permutation and moves by at most
+$0.10$ under any single-unit spoof (within the $O(1/n)$ band), yet a
+\emph{correlated} three-probe fault shifts it by $0.39$---so the
+invariant detects precisely the shared-mode failure that independent
+redundancy cannot, as \Cref{rem:virtual-independence} predicts. Finally,
+under $500$ steps of adversarial payloads (random, out-of-range,
+$\pm\infty$, NaN), not one dispatched action left the $46{,}656$-element
+pre-approved set $\Us$, and in the worst-case drill---monitoring removed,
+the virtual axis pinned to its safe fallback---the loop still contracted
+to the setpoint (final error $3\times10^{-12}$) with zero action-set
+escapes, the empirical form of \Cref{cor:worstcase}.
+
+
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What is guaranteed, and at what strength}
+
+The control-layer results---S-normalisation, the cell-partition law,
+piecewise Lyapunov stability reducible to per-cell LMIs, Banach
+contraction, the Nyquist-type cell-width bound, and structural
+incorruptibility---are proved from the definitions using standard
+theorems, and are the load-bearing core. They depend only on the
+resolution floor $\floor>0$ (\Cref{prop:floor}), forward invariance of
+$\Hs$ (\Cref{ass:dynamics}, physically guaranteed by actuator saturation),
+and the cellwise-Lipschitz plant model. A deployment stands or falls on
+these.
+
+The monitoring-layer results---the CUSUM identity, multiplicative
+composition, the coherence triangle, the confirm-or-decline dichotomy, and
+sensor federation---are equally proved, but they are, by design,
+\emph{additive}: \Cref{thm:additive} shows none of them is load-bearing
+for stability or safety. This asymmetry is deliberate. We place the
+strongest guarantees where failure is intolerable (regulation and
+integrity) and the richest, more model-dependent machinery where failure
+is merely a loss of diagnostic resolution.
+
+\subsection{Honest limitations}
+
+We mark the assumptions plainly.
+\emph{(i)} The stability certificate depends on an identified
+cellwise-Lipschitz plant model; a badly wrong model can pass the LMIs yet
+mis-predict the true dynamics. The mitigation is that the worst-case
+fallback (\Cref{cor:worstcase}) is a conservative single-channel
+controller, and the safe mode (\Cref{def:safemode}) is chosen to be
+biologically tolerable independent of model fidelity.
+\emph{(ii)} The Kuramoto results of \Cref{sec:federation} are large-ensemble
+mean-field statements; for a handful of probes ($n<20$) the critical
+coupling and order-parameter relations carry finite-size corrections. We
+therefore never let control-layer behaviour depend on exact coherence
+values---coherence only gates \emph{how cheaply} the monitoring layer
+confirms, never \emph{whether} the controller is stable.
+\emph{(iii)} The confirmation-power model \eqref{eq:mult} assumes source
+independence; correlated probe faults (a common contamination fouling
+multiple probes) violate it, which is exactly why the coherence triangle
+(\Cref{thm:triangle}) demands \emph{independent} channels and why decline
+(\Cref{thm:decline}) is a first-class outcome.
+\emph{(iv)} The incorruptibility argument (\Cref{thm:incorr}) is
+structural: it eliminates the payload-to-plant path but does not replace
+network hardening against denial of service, which it instead converts
+into a detectable, safe-mode-triggering event (\Cref{prop:dos,prop:safe-reachable}).
+
+\subsection{Relation to established practice}
+
+The control layer is a quantised feedback
+controller~\citep{brockett2000quantized} on a normalised state space, with
+a piecewise Lyapunov certificate~\citep{johansson1998computation,liberzon2003switching};
+its novelty is the S-normalisation that unifies heterogeneous bioprocess
+channels and the arrangement that makes it separable from monitoring. The
+monitoring layer's excursion detection is CUSUM~\citep{page1954continuous,montgomery2020spc}
+recast as cell-crossing, and its federation is Kuramoto
+synchronisation~\citep{strogatz2000kuramoto,acebron2005kuramoto} recast as
+sensor agreement; the contribution is to place these strictly downstream of
+a proved controller behind a one-directional interface. The soft-sensor
+and process-analytical-technology
+literature~\citep{luttmann2012softsensors,lourenco2012bioprocess,fda2004pat}
+has long argued for richer monitoring; our contribution is to make that
+richness safe by construction through the separation of \Cref{sec:separation}.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+We have presented a bioreactor control system organised around a strict
+separation between a provably-stable control layer and an additive
+monitoring layer, joined by a one-directional interface. The control
+layer normalises every heterogeneous channel onto a bounded hypercube,
+partitions it into finitely many cells above a resolution floor, and
+dispatches a pre-compiled action from the occupied cell. This austere
+design is globally asymptotically stable (piecewise Lyapunov, reducible to
+per-cell LMIs), geometrically convergent (Banach contraction), correctly
+sampled (a Nyquist-type cell-width bound), and structurally incorruptible
+(no payload can drive an action outside the pre-approved set). The
+monitoring layer treats each measurement as one confirmation in a
+redundant, federated ensemble: excursions are detected as cell-crossings
+(equivalently, CUSUM alarms), confirmed multiplicatively across
+independent channels, grounded only when a coherence triangle of at least
+three independent sources agrees, and honestly declined to a safe state
+when they do not; sensors federate by phase entrainment, confirming for
+free at coherence and degrading gracefully otherwise.
+
+The organising theorem is the separation (\Cref{thm:additive}) and its
+corollary (\Cref{cor:worstcase}): because the interface is one-directional
+and the control law never references a monitoring output, the monitoring
+layer can only ever improve the system, never break it, and in the worst
+case---every probe lost, the ensemble fully decohered, all confirmation
+silenced---the reactor is controlled by an ordinary, fully-proved
+single-channel cell-partition controller. That is the design's central
+promise: one may build the monitoring layer as ambitiously as the process
+rewards, because its failure is bounded below by a guaranteed stable
+controller. In the worst case, you just control the process, as always.
+
+% =====================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% =====================================================================
+
+\end{document}

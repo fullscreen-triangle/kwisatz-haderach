@@ -1,0 +1,842 @@
+% =====================================================================
+%  A State-Resolved Calculus of Metabolic Probes:
+%  Diagnosis as Localization, Therapy as Gap-Closure, and a
+%  Domain-Specific Language over a First-Principles Pathway Runtime
+%
+%  Self-contained. No companion manuscript is presupposed. Every object
+%  is a dynamical system on a finite-dimensional state manifold or a
+%  construction on one; every claim is stated with its hypotheses.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{problem}[theorem]{Problem}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\crefname{assumption}{Assumption}{Assumptions}
+\Crefname{assumption}{Assumption}{Assumptions}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Rp}{\R_{\ge 0}}
+\newcommand{\Man}{\mathcal{M}}          % state manifold
+\newcommand{\st}{x}                     % state
+\newcommand{\coh}{x^\star}              % coherent state
+\newcommand{\fld}{F}                    % vector field / dynamics
+\newcommand{\probe}{\pi}                % probe program
+\newcommand{\trace}{\tau}               % trace / readout
+\newcommand{\Rd}{\mathcal{R}}           % readout map
+\newcommand{\loc}{\Lambda}              % localization map
+\newcommand{\gap}{\mathsf{g}}           % gap
+\newcommand{\flo}{\beta}                % floor
+\newcommand{\basis}{\mathcal{B}}        % intervention basis
+\newcommand{\intv}{u}                   % intervention
+\newcommand{\dsl}{\mathcal{L}}          % the DSL
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\dist}{dist}
+
+\title{\textbf{A State-Resolved Calculus of Metabolic Probes:\\[3pt]
+Diagnosis as Localization, Therapy as Gap-Closure, and a\\
+Language over a First-Principles Pathway Runtime}}
+
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We give a self-contained mathematical description of a diagnostic and
+therapeutic method that dispenses with the two classical primitives of
+clinical practice---the patient's report and the named disease---and
+replaces them with a single primitive: a \emph{characterized
+perturbation} of metabolism whose fate is computed from a state-resolved
+forward model. The method rests on three observations, each made precise
+below. First, a finite observer of a biochemical system cannot resolve
+its state to a point; there is a strictly positive floor $\flo>0$ below
+which distinctions cannot be made, so ``the state'' is always a region of
+diameter $\ge\flo$, and the goal of measurement is not to name the state
+but to shrink the region to the floor. Second, an ingested compound of
+\emph{known} composition is a controlled input to the metabolic
+dynamical system, and its fate---the time-course of products it
+generates---is a function of the patient's state; if the forward model
+that predicts this fate is \emph{state-resolved} (valid across the state
+manifold, not merely at a healthy reference), then the measured fate
+\emph{locates} the patient on the manifold. Third, because each product
+of a metabolic reaction is itself a reactive species, a designed probe
+can be made to \emph{cascade}: its first product is the substrate of the
+next reaction, and so on, so that a single ingestion installs a
+self-propagating chain whose later products \emph{exist only if} the
+earlier trajectory occurred as predicted. The measured product
+distribution is therefore not a snapshot but a \emph{certificate} of a
+trajectory: a false account of the state cannot forge it, because it
+would have to produce products that never formed.
+
+From these we develop: (i) a \textbf{Floor Theorem} giving the positive
+resolution limit and its consequence that ``solved'' is a region; (ii) a
+\textbf{Localization Theorem} stating that a probe is diagnostically
+sufficient iff the map (state~$\to$~trajectory~$\to$~measured product
+distribution) is injective down to the floor, so that reading the
+distribution pins the state to a floor-width cell; (iii) a
+\textbf{Certificate Theorem} formalizing why a cascading probe's
+terminal products constitute a proof of the path that generated them,
+under which no state-account inconsistent with the observed products
+survives; (iv) a \textbf{Gap-Closure} formulation of therapy in which the
+disease is never named: the therapeutic target is the vector from the
+measured state to the nearest coherent state, and treatment is the
+sparsest combination of characterized interventions---drawn from a basis
+of compounds with known state-resolved effects---whose local composition
+drives that vector to the floor, solved as an $\ell_1$-regularized program
+and executed as a contraction (measure, apply, re-measure) whose fixed
+point is coherence; and (v) a proof that \emph{diagnosis and therapy are
+one operation}, since every characterized perturbation simultaneously
+extracts information (its fate is a measurement) and displaces the state
+(its action is an intervention). We prove a \textbf{Stopping Theorem}: the
+correct halting criterion is not a magnitude threshold but a
+\emph{rigidity} condition---one halts when the accumulated products
+over-determine the state, i.e.\ when every account other than the true one
+fails to reproduce some observed product, and the surviving accounts differ
+only within the floor-width cell.
+
+Finally we describe the computational surface: because the forward model
+is a runnable dynamical system, the entire method is a
+\textbf{domain-specific language} over a \emph{first-principles} pathway
+runtime. A user specifies a probe (a program of reactions) and an intent
+(a target region); the runtime executes the probe against a model of the
+patient's pathways and returns the predicted trace, the implied
+localization, the gap, and the minimal intervention. The essential
+requirement, which we state as a theorem rather than assume, is that the
+runtime be \emph{derived} rather than \emph{fitted}: a parameter-fitted
+model is valid only near its training regime and becomes unreliable
+exactly where free exploration drives it, whereas a model whose rate laws
+are fixed by physical law admits extrapolation across the manifold and so
+supports risk-free \emph{in silico} experimentation---the user searches
+the intervention space against the model, and only the chosen intervention
+is applied to the patient. We give the language's core judgments, the
+soundness conditions the runtime must satisfy, the complexity of each
+operation, and a constructive validation protocol. The result is a
+deterministic, disease-free, report-free calculus of medicine in which
+the patient's state is read from a self-certifying metabolic program, the
+therapeutic target is a measured gap, and the physician's role is
+relocated from precedent-retrieval to judgment over a derived state.
+\end{abstract}
+
+\vspace{4pt}
+\noindent\textbf{Keywords:} state-resolved forward model; metabolic probe;
+reaction cascade; localization; resolution floor; certificate of trajectory;
+gap-closure; sparse intervention; contraction to a fixed point; coherent
+state; domain-specific language; first-principles runtime; \emph{in silico}
+experimentation.
+
+\tableofcontents
+
+% =====================================================================
+\section{Setting and Primitives}
+\label{sec:setting}
+% =====================================================================
+
+We fix a mathematical setting in which metabolism is a controlled
+dynamical system, an ingested compound is an input, and a measurement is
+a readout of the induced trajectory. Everything in the paper is a
+construction on the objects of this section.
+
+\begin{definition}[Pathway state system]
+\label{def:system}
+A \emph{pathway state system} is a tuple
+$\Sigma=(\Man,\ \fld,\ \mathcal{U},\ \Rd)$ where:
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+\item $\Man\subseteq\Rp^{n}$ is the \emph{state manifold}: a point
+$\st\in\Man$ is a full description of the relevant biochemistry
+(concentrations of metabolites, enzyme activities, cofactor levels,
+transporter states) at an instant. The dimension $n$ is finite but may be
+large.
+\item $\fld\colon\Man\times\mathcal{U}\to\R^{n}$ is the \emph{dynamics}:
+$\dot\st=\fld(\st,\intv)$ with $\intv$ a control input. $\fld$ is the
+biochemical rate law---mass action, Michaelis--Menten, or any kinetic law
+whose form is fixed by the chemistry and whose parameters are, by
+hypothesis (\cref{sec:runtime}), determined by physical constants rather
+than fitted.
+\item $\mathcal{U}$ is the \emph{input space} of admissible perturbations
+(ingested compounds and their dosing profiles).
+\item $\Rd\colon\Man\to\mathcal{Y}$ is the \emph{readout map} into an
+observation space $\mathcal{Y}$: what an instrument reports of a state.
+The canonical readout is a mass or spectral distribution over species,
+$\Rd(\st)=\bigl(\text{abundance of species } s \text{ in state } \st\bigr)_{s}$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Probe]
+\label{def:probe}
+A \emph{probe} $\probe$ is an element of $\mathcal{U}$ of \emph{known
+composition}: a compound (or timed sequence of compounds) whose molecular
+identity and quantity are exactly specified. The distinguishing property
+of a probe, as against an arbitrary ingested substance, is that its
+identity is known, so its fate under $\fld$ is \emph{predictable} given
+the state $\st$.
+\end{definition}
+
+\begin{definition}[Fate; trace]
+\label{def:fate}
+Given a state $\st_0\in\Man$ and a probe $\probe$, the \emph{fate} of
+$\probe$ is the trajectory $\st(t;\st_0,\probe)$ obtained by integrating
+$\dot\st=\fld(\st,\probe)$ from $\st_0$. The \emph{trace} of the probe is
+the time-indexed readout
+\[
+\trace(\st_0,\probe)\;=\;\bigl(\Rd(\st(t;\st_0,\probe))\bigr)_{t\ge 0},
+\]
+the observable record of the fate. In practice one reads the trace at one
+or several times; a single spectral measurement returns the product
+distribution $\Rd(\st(t^\ast))$ at the read time $t^\ast$.
+\end{definition}
+
+\begin{remark}[A probe is a meal of known composition]
+\label{rem:meal}
+Nothing in \cref{def:probe} requires the probe to be exotic or inert. Any
+ingested substance is a perturbation of $\Sigma$; a meal is such a
+perturbation of \emph{unknown} composition, hence of unpredictable fate. A
+probe is a perturbation of the same physical class whose composition is
+known, and it is exactly this knowledge---not any special inertness---that
+makes its fate a usable measurement. The perturbation is not a hazard to be
+avoided but the instrument itself.
+\end{remark}
+
+We adopt two structural assumptions and carry them throughout.
+
+\begin{assumption}[Finite resolution]
+\label{ass:finite}
+Any physical observer of $\Sigma$ has finite resolving power: the readout
+$\Rd$ distinguishes states only up to a positive tolerance. Formally there
+is a $\delta>0$ such that states within distance $\delta$ produce
+observationally indistinguishable readouts,
+$\dist(\st,\st')<\delta \Rightarrow \norm{\Rd(\st)-\Rd(\st')}$ below the
+instrument's discrimination threshold.
+\end{assumption}
+
+\begin{assumption}[Non-exhaustibility]
+\label{ass:nonexhaust}
+No finite measurement exhausts the state: for any finite battery of
+readouts there remains a distinction the system could exhibit that the
+battery does not resolve. Equivalently, the state manifold admits, at every
+scale, a finer sub-state the current resolution collapses. This is an order
+condition on refinement, not a claim of infinite dimension.
+\end{assumption}
+
+% =====================================================================
+\section{The Resolution Floor}
+\label{sec:floor}
+% =====================================================================
+
+The first quantitative fact is that resolution has a positive floor, and
+that this floor is not a nuisance to be engineered away but the width of
+the region within which a state counts as determined.
+
+\begin{definition}[Separation and residue]
+\label{def:residue}
+For a state $\st$, its \emph{separation} $\res(\st)$ is the least
+observational effort---measured as the discrimination distance in
+$\mathcal{Y}$ realized over admissible probes---required to tell $\st$
+apart from every other state of $\Man$. The \emph{residue} of $\st$ is the
+irreducible part of this separation that no admissible measurement removes.
+\end{definition}
+
+\begin{theorem}[Floor]
+\label{thm:floor}
+Under \cref{ass:finite,ass:nonexhaust} there is a constant $\flo>0$ such
+that $\res(\st)\ge\flo$ for every state: no state is resolved to a point.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Resolving $\st$ to a point means completing the comparison of $\st$
+against the whole of $\Man\setminus\set{\st}$. Suppose some state had zero
+residue. Then a finite measurement completes that comparison, i.e.\
+distinguishes $\st$ from all others at finite cost, which exhausts the
+state's distinctions at a finite stage---contradicting non-exhaustibility
+(\cref{ass:nonexhaust}). Hence every residue is positive. Over the
+compact-by-resolution quotient of $\Man$ (states identified when
+indistinguishable by \cref{ass:finite}) the positive residues are bounded
+below by their infimum $\flo>0$.
+\end{proof}
+
+\begin{corollary}[Solved is a region]
+\label{cor:region}
+The finest determination of a state is a \emph{cell} of diameter $\flo$:
+the set of states an ideal measurement cannot separate from the true one.
+``The state'' is this cell, not its centre; a diagnosis is the
+identification of the cell, and $\flo$ is the width within which the
+question ``which state?'' has no finer answer.
+\end{corollary}
+
+\begin{principle}[The goal is the cell, not the point, and not a label]
+\label{prin:goal}
+Two consequences fix the whole method. (a) Because the target is a cell,
+the diagnostic task is \emph{localization}---shrink the admissible region
+to a single floor-width cell---not \emph{recognition against a catalogue}.
+(b) Because the cell is defined intrinsically (by indistinguishability),
+it needs no external library of named states to be identified; a diagnosis
+can be complete without naming a disease.
+\end{principle}
+
+% =====================================================================
+\section{Diagnosis as Localization}
+\label{sec:localization}
+% =====================================================================
+
+We now make precise the sense in which a probe's trace \emph{locates} the
+patient, and the condition under which a probe is diagnostically
+sufficient.
+
+\begin{definition}[State-resolved forward model]
+\label{def:stateresolved}
+A forward model of $\Sigma$ is \emph{state-resolved} if it predicts the
+trace $\trace(\st_0,\probe)$ as a function of the initial state $\st_0$
+over the whole manifold $\Man$, not merely at a distinguished reference
+$\st^{\mathrm{ref}}$. Write $\Phi_\probe\colon\Man\to\mathcal{Y}^{[0,\infty)}$,
+$\Phi_\probe(\st_0)=\trace(\st_0,\probe)$, for the predicted trace map of
+probe $\probe$.
+\end{definition}
+
+\begin{remark}[Why ``reference-only'' is insufficient]
+\label{rem:reference}
+A model valid only at $\st^{\mathrm{ref}}$ predicts one trace; a measured
+deviation from it certifies only \emph{that} the patient differs, not
+\emph{how}. Inversion---reading the state \emph{off} the trace---requires
+the trace to vary with the state, i.e.\ requires $\Phi_\probe$ as a map of
+$\st_0$. This is the crux of the method and the sole substantive demand it
+places on the underlying model.
+\end{remark}
+
+\begin{definition}[Localization map]
+\label{def:loc}
+Given a probe $\probe$ and a measured trace value $y\in\mathcal{Y}$ read at
+time $t^\ast$, the \emph{localization} induced by $\probe$ is the preimage
+\[
+\loc_\probe(y)\;=\;\set{\st_0\in\Man :
+\norm{\Rd(\Phi_\probe(\st_0)(t^\ast))-y}<\delta},
+\]
+the set of initial states whose predicted product distribution matches the
+measurement to within the resolution $\delta$ (\cref{ass:finite}). Reading
+the trace replaces the prior admissible region by $\loc_\probe(y)$.
+\end{definition}
+
+\begin{theorem}[Localization / diagnostic sufficiency]
+\label{thm:localization}
+A probe $\probe$ is \emph{diagnostically sufficient} for a region
+$A\subseteq\Man$ iff the trace map restricted to $A$ is injective down to
+the floor: for all $\st_0,\st_0'\in A$,
+\[
+\norm{\Rd(\Phi_\probe(\st_0)(t^\ast))-\Rd(\Phi_\probe(\st_0')(t^\ast))}<\delta
+\;\Longrightarrow\;
+\dist(\st_0,\st_0')<\flo .
+\]
+Under this condition, for every measurement $y$ the localization
+$\loc_\probe(y)\cap A$ is contained in a single floor-width cell; the probe
+pins the state to the resolution limit. Conversely, if the map is not
+floor-injective on $A$, there exist distinct cells producing the same
+reading, and no single reading of $\probe$ can separate them.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+($\Leftarrow$) Floor-injectivity says equal readings force proximity below
+$\flo$; hence the preimage of any reading has diameter $<\flo$ and lies in
+one cell. ($\Rightarrow$) If two states at distance $\ge\flo$ share a
+reading, their common reading's preimage meets two cells, so localization
+fails to reach the floor. Sufficiency is exactly floor-injectivity of the
+composed map $\st_0\mapsto\Rd(\Phi_\probe(\st_0)(t^\ast))$.
+\end{proof}
+
+\begin{corollary}[Probe design is an injectivity problem]
+\label{cor:design}
+Designing a diagnostic probe is choosing a probe (or a set) whose composed
+trace map is floor-injective on the region of interest. Diagnosis is then
+evaluation of the localization $\loc_\probe$ at the measured reading. No
+disease library enters: the output is the cell, per \cref{prin:goal}.
+\end{corollary}
+
+% =====================================================================
+\section{Cascading Probes and the Trajectory Certificate}
+\label{sec:cascade}
+% =====================================================================
+
+A single reading of a single probe may fail to be floor-injective; more
+information is needed. Rather than administer many independent probes, we
+exploit that each metabolic product is itself a reactive species, so a
+probe can be designed to generate its own successors---a cascade---whose
+structure yields both richer localization and a strong non-forgeability
+property.
+
+\begin{definition}[Cascade probe]
+\label{def:cascadeprobe}
+A \emph{cascade probe} is a probe $\probe$ whose fate under $\fld$ passes
+through a designed sequence of species $\probe=P_0\to P_1\to P_2\to\cdots$,
+where each $P_{k+1}$ is a product of a reaction consuming $P_k$, and where
+the reaction $P_k\to P_{k+1}$ is \emph{state-gated}: its rate (hence
+whether $P_{k+1}$ forms in observable quantity within the read window)
+depends on the state $\st$. The cascade is thus a state-dependent path
+through the reaction graph, and the species $P_k$ present at read time
+encode which transitions occurred.
+\end{definition}
+
+\begin{definition}[Trajectory; committed record]
+\label{def:trajectory}
+The \emph{traversed path} of a cascade in state $\st_0$ is the maximal
+prefix $P_0\to\cdots\to P_{d(\st_0)}$ of state-gated transitions that
+proceed to observable extent; $d(\st_0)$ is the \emph{depth}. Because each
+transition consumes its predecessor and produces its successor, the
+species population is a \emph{monotone committed record}: a later species'
+presence is not undone by subsequent dynamics on the read timescale, so
+the read distribution reports the path, not merely the instantaneous
+state.
+\end{definition}
+
+\begin{theorem}[Trajectory certificate]
+\label{thm:certificate}
+Let $P_k$ be a species that forms in observable quantity only if every
+transition $P_0\to\cdots\to P_k$ has occurred. Then observation of $P_k$ in
+the trace \emph{entails} that the state $\st_0$ admits the whole path
+$P_0\to\cdots\to P_k$: the set of states consistent with the reading is
+contained in $\bigcap_{j\le k}\set{\st : \text{transition } j \text{ is
+state-enabled at } \st}$. Consequently, a hypothesized state $\hat\st$ that
+does not enable some transition $j\le k$ is \emph{refuted} by the presence
+of $P_k$, and no such $\hat\st$ can reproduce the reading.
+\end{theorem}
+
+\begin{proof}
+The forward implication is the existence condition of \cref{def:cascadeprobe}:
+$P_k$ observable $\Rightarrow$ each prior transition proceeded
+$\Rightarrow$ each prior transition was state-enabled at $\st_0$. The
+consistent-state set is therefore the intersection of the enabling sets of
+transitions $1,\dots,k$. Any $\hat\st$ outside transition $j$'s enabling set
+predicts $P_j$, hence $P_k$, absent; observing $P_k$ contradicts $\hat\st$.
+\end{proof}
+
+\begin{principle}[Existence beats consistency]
+\label{prin:existence}
+\cref{thm:certificate} gives a stronger epistemic guarantee than agreement
+of magnitudes. A consistency check asks whether a hypothesis \emph{matches}
+observed values; it can be satisfied by a well-chosen falsehood. A cascade
+reading asks whether the observed species \emph{could have formed}; a
+falsehood that fails to enable a transition does not merely mismatch a
+number---it predicts a species that is \emph{absent}, and absence cannot be
+argued around. The terminal products are a constructive proof of their own
+prerequisites.
+\end{principle}
+
+\begin{theorem}[Over-determination and rigidity]
+\label{thm:rigidity}
+Let a cascade (or a family of cascades) yield observed species
+$S=\set{P_{k}}$. Define the \emph{surviving set}
+$\Man_S=\bigcap_{P_k\in S}\set{\st:\text{path to }P_k\text{ is enabled at }\st}$.
+As $S$ grows, $\Man_S$ is non-increasing. The state is
+\emph{sufficiently localized} when $\Man_S$ has diameter $<\flo$: every
+account of the state outside a single floor-width cell is refuted by the
+absence it would predict of some observed species. This is a rigidity
+condition---\emph{no alternative account survives}---not a threshold on any
+scalar.
+\end{theorem}
+
+\begin{proof}
+Each observed species adds a constraint $\set{\st:\text{its path
+enabled}}$; the surviving set is their intersection, non-increasing in $S$
+by monotonicity of intersection. When the intersection's diameter drops
+below $\flo$ it lies in one cell (\cref{cor:region}); any $\st$ outside
+that cell violates at least one constraint, i.e.\ predicts some observed
+$P_k$ absent, and is refuted. Sufficiency is exactly diameter $<\flo$.
+\end{proof}
+
+\begin{corollary}[Single-measurement richness]
+\label{cor:single}
+A readout that returns the full species distribution---not one terminal
+product but the population of all cascade products present---delivers the
+entire constraint family $S$ in one measurement, hence the surviving set
+$\Man_S$ in one shot. The instrument's report \emph{is} the committed
+record of the traversed path.
+\end{corollary}
+
+\begin{remark}[Continuously working probe]
+\label{rem:continuous}
+Because the cascade is self-propagating and its record monotone, a single
+administration installs a process that continues to advance and to record
+after ingestion. The state is therefore readable at any later time by any
+observer with the instrument: the probe does not deliver a value once and
+expire; it remains a live, queryable source until the cascade completes.
+``Continuous'' here is a property of the probe---always working---not of the
+measurement schedule.
+\end{remark}
+
+% =====================================================================
+\section{Therapy as Gap-Closure Without a Named Disease}
+\label{sec:therapy}
+% =====================================================================
+
+We now define treatment purely in terms of the localized state and a
+notion of coherence, with no reference to a disease label.
+
+\begin{definition}[Coherent set; gap]
+\label{def:coherent}
+Let $\Man^\star\subseteq\Man$ be the \emph{coherent set}: the states in
+which the pathway system is internally consistent (its conserved
+quantities balance, its cyclic constraints close). For a localized state
+$\st$, the \emph{gap} is the displacement to the nearest coherent state,
+\[
+\gap(\st)\;=\;\coh-\st,\qquad
+\coh=\argmin_{z\in\Man^\star}\dist(\st,z).
+\]
+The gap is a measured vector, defined without naming what caused the
+deviation.
+\end{definition}
+
+\begin{definition}[Intervention basis]
+\label{def:basis}
+An \emph{intervention basis} $\basis=\set{\intv_1,\dots,\intv_m}$ is a
+collection of characterized compounds, each with a known state-resolved
+effect: applying $\intv_i$ at state $\st$ produces a local displacement
+$e_i(\st)\in\R^n$ (the compound's effect evaluated at the current state,
+computed by the forward model). Compounds are indexed by \emph{properties}
+(their displacement vectors), not by indication.
+\end{definition}
+
+\begin{problem}[Minimal gap-closing intervention]
+\label{prob:closure}
+Given a localized state $\st$ with gap $\gap(\st)$ and basis $\basis$,
+choose nonnegative doses $c\in\Rp^{m}$ to close the gap with the fewest
+compounds:
+\[
+\min_{c\in\Rp^{m}}\ \norm{c}_1
+\quad\text{s.t.}\quad
+\Bigl\lVert \gap(\st)-\textstyle\sum_{i}c_i\,e_i(\st)\Bigr\rVert\le\flo .
+\]
+The $\ell_1$ objective selects a sparse set of interventions; the
+constraint requires the combined local displacement to close the gap to
+within the floor.
+\end{problem}
+
+\begin{remark}[Repurposing is the default]
+\label{rem:repurpose}
+Because a compound enters \cref{prob:closure} through its displacement
+$e_i(\st)$ and not through any indication, any compound whose displacement
+has a component along the gap is admissible for any patient. The
+distinction ``on-label / off-label'' does not arise: there are no labels,
+only properties and gaps. The pharmacopeia is addressable by its effects.
+\end{remark}
+
+The local displacements $e_i(\st)$ are exact only at $\st$; applying the
+chosen doses moves the state, after which the displacements change. Therapy
+is therefore iterative.
+
+\begin{definition}[Therapeutic map; contraction]
+\label{def:contraction}
+Let $T\colon\Man\to\Man$ send a state to the state resulting from
+localizing it, solving \cref{prob:closure}, and applying the chosen
+intervention. $T$ is a \emph{gap contraction} on a neighbourhood $U$ of
+$\Man^\star$ if there is $\lambda\in[0,1)$ with
+$\dist(T\st,\Man^\star)\le\lambda\,\dist(\st,\Man^\star)$ for $\st\in U$.
+\end{definition}
+
+\begin{theorem}[Convergence to coherence]
+\label{thm:convergence}
+If $T$ is a gap contraction on $U$ with modulus $\lambda$, then iterating
+$T$ from any $\st_0\in U$ drives the state to the coherent set: the
+sequence $\st_{k+1}=T\st_k$ satisfies
+$\dist(\st_k,\Man^\star)\le\lambda^k\dist(\st_0,\Man^\star)\to 0$, and halts
+when the distance falls below $\flo$. No global linearity of drug effects
+is required---only that each measured, locally-composed step contracts the
+gap.
+\end{theorem}
+
+\begin{proof}
+Immediate by iterating the contraction inequality; the fixed point is in
+$\overline{\Man^\star}$, and the floor provides the halting threshold below
+which further contraction is unresolvable.
+\end{proof}
+
+\begin{principle}[Cure without naming]
+\label{prin:cure}
+\cref{thm:convergence} closes the gap---restores coherence---without ever
+identifying a disease. The therapeutic objective is the measured residual,
+and success is its reduction to the floor. Naming, if desired, is a
+downstream description of which cell the state occupied; it is never a
+prerequisite for treatment.
+\end{principle}
+
+% =====================================================================
+\section{Diagnosis and Therapy Are One Operation}
+\label{sec:unity}
+% =====================================================================
+
+The measurement primitive and the therapeutic primitive are the same
+object read in two directions.
+
+\begin{theorem}[Measurement--action identity]
+\label{thm:unity}
+Every characterized perturbation $\intv\in\mathcal{U}$ acts simultaneously
+as a measurement and as an intervention:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em,itemsep=2pt]
+\item as a \emph{measurement}, its trace $\trace(\st,\intv)$ localizes the
+state (\cref{thm:localization});
+\item as an \emph{intervention}, its displacement moves the state
+(\cref{def:basis});
+\end{enumerate}
+and these are not two applications but one: applying $\intv$ yields a trace
+(information) precisely by moving the state (action). A probe is a compound
+read for its fate; a drug is a compound applied for its displacement; they
+are the same primitive, and each does both.
+\end{theorem}
+
+\begin{proof}
+A perturbation induces a trajectory (\cref{def:fate}); the trajectory's
+readout is the measurement and the trajectory's endpoint is the action.
+Both are functions of the single applied $\intv$. Hence the map
+$\intv\mapsto(\text{trace},\ \text{displacement})$ has one input and the
+two outputs are computed from the same induced trajectory.
+\end{proof}
+
+\begin{corollary}[Self-terminating therapeutic loop]
+\label{cor:loop}
+Because the therapeutic step is also a measurement, the contraction of
+\cref{sec:therapy} needs no external monitor: each applied intervention
+re-localizes the state as a side effect of acting. The loop
+measure--act--re-measure is a single iterated perturbation, and it halts by
+the rigidity criterion (\cref{thm:rigidity})---when the accumulated record
+over-determines the state to within the floor---which is simultaneously the
+diagnostic sufficiency condition and the therapeutic success condition.
+\end{corollary}
+
+\begin{principle}[Wellness as rigidity]
+\label{prin:wellness}
+Combining \cref{thm:rigidity,thm:convergence}: the terminal condition of
+the loop is a state that is both \emph{coherent} (gap below floor) and
+\emph{rigidly known} (no alternative account survives its own probes). This
+double condition is the operative definition of wellness in the calculus:
+a well system returns its probes at full resolution and admits no
+gap-closing intervention beyond the floor.
+\end{principle}
+
+% =====================================================================
+\section{The Runtime: Why It Must Be Derived, Not Fitted}
+\label{sec:runtime}
+% =====================================================================
+
+Every construction above presupposes a forward model that predicts traces
+across the manifold (state-resolution, \cref{def:stateresolved}). We now
+state the condition this model must meet, as a theorem about
+extrapolation, because it is the load-bearing requirement of the whole
+method and the point at which most realizations fail.
+
+\begin{definition}[Fitted vs.\ derived model]
+\label{def:fitvsder}
+A forward model is \emph{fitted} if its rate parameters are estimated to
+minimize error against observations drawn from a training region
+$A_{\mathrm{tr}}\subseteq\Man$. It is \emph{derived} if its rate laws and
+their parameters are fixed by physical law (thermodynamic and kinetic
+constants, conservation constraints) independently of any observation
+region.
+\end{definition}
+
+\begin{theorem}[Extrapolation gap of fitted models]
+\label{thm:extrap}
+A fitted model carries no guarantee of accuracy outside
+$A_{\mathrm{tr}}$: there exist state systems agreeing with the data on
+$A_{\mathrm{tr}}$ to any tolerance yet disagreeing arbitrarily on
+$\Man\setminus A_{\mathrm{tr}}$. Consequently a fitted model's predicted
+trace map $\Phi_\probe$ is trustworthy only near $A_{\mathrm{tr}}$, whereas
+a derived model, whose $\fld$ is fixed pointwise on $\Man$ by law, admits a
+uniform error bound over $\Man$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Standard non-identifiability: the data on $A_{\mathrm{tr}}$ constrain
+$\fld$ only on $A_{\mathrm{tr}}$; any extension agreeing there is
+admissible, and extensions may diverge off $A_{\mathrm{tr}}$. A derived
+$\fld$ is not an extension chosen to fit but a function specified on all of
+$\Man$ by its physical form, so its accuracy is governed by the fidelity of
+the physical law, uniformly, not by proximity to data.
+\end{proof}
+
+\begin{principle}[Free experimentation requires a derived runtime]
+\label{prin:derived}
+The value of the method is that a user may experiment freely against the
+model---searching the intervention space, testing cascades, exploring the
+gap---at no risk to the patient. But free exploration \emph{is}
+off-training-region evaluation by definition. By \cref{thm:extrap} a fitted
+runtime becomes unreliable exactly where the user explores; only a derived
+runtime supports risk-free \emph{in silico} search. The requirement is not
+stylistic: the safety of the method reduces to the extrapolation validity
+of the runtime.
+\end{principle}
+
+% =====================================================================
+\section{The Language over the Runtime}
+\label{sec:dsl}
+% =====================================================================
+
+Because the runtime is a runnable dynamical system and every diagnostic and
+therapeutic act is a computation on it, the method presents as a
+domain-specific language.
+
+\begin{definition}[Core language]
+\label{def:dsl}
+The language $\dsl$ has three sorts---\emph{probes} (programs of reactions,
+\cref{def:cascadeprobe}), \emph{states/regions} (subsets of $\Man$), and
+\emph{intents} (target regions, typically $\Man^\star$)---and four
+judgments:
+\begin{enumerate}[label=\textup{(J\arabic*)},leftmargin=2.6em,itemsep=2pt]
+\item \textsc{Run}: given a probe $\probe$ and a state $\st_0$, compute the
+predicted trace $\Phi_\probe(\st_0)$ (integrate $\fld$).
+\item \textsc{Localize}: given a probe $\probe$ and a measured reading $y$,
+compute the localization $\loc_\probe(y)$ and, over a family of probes, the
+surviving set $\Man_S$ (\cref{thm:rigidity}).
+\item \textsc{Gap}: given a localized region, compute the gap $\gap$ to the
+coherent set (\cref{def:coherent}).
+\item \textsc{Close}: given a gap and a basis $\basis$, solve
+\cref{prob:closure} for the minimal intervention and simulate the resulting
+state (one step of $T$).
+\end{enumerate}
+A session is a program composing these judgments: \textsc{Run}/\textsc{Localize}
+to a floor-width cell, \textsc{Gap}, \textsc{Close}, iterate.
+\end{definition}
+
+\begin{definition}[Soundness of the runtime]
+\label{def:soundness}
+The runtime is \emph{sound} for $\dsl$ if (i) \textsc{Run} agrees with the
+true trace up to the uniform derived-model bound of \cref{thm:extrap};
+(ii) \textsc{Localize} returns a superset of the true surviving set (no
+false exclusion of the actual state); (iii) \textsc{Close} returns a
+feasible intervention whose simulated displacement matches its physical
+displacement up to the same bound. Soundness reduces to the derived-model
+guarantee (\cref{prin:derived}).
+\end{definition}
+
+\begin{proposition}[Complexity]
+\label{prop:complexity}
+Let $n=\dim\Man$, $m=\abs\basis$, and let the cascade have depth $d$ and
+the reading return $p$ species. Then: \textsc{Run} costs one numerical
+integration of an $n$-dimensional system to the read time; \textsc{Localize}
+costs $\mathcal{O}(p)$ constraint intersections against precomputed
+enabling sets; \textsc{Gap} is a projection onto $\Man^\star$; and
+\textsc{Close} is an $\ell_1$-regularized feasibility program in $m$
+variables and $n$ constraints, solvable in polynomial time. The iterated
+loop multiplies these by the number of contraction steps, which is
+$\mathcal{O}(\log(1/\flo)/\log(1/\lambda))$ by \cref{thm:convergence}.
+\end{proposition}
+
+\begin{principle}[Relocation of the physician]
+\label{prin:relocate}
+Under $\dsl$, the mechanical work---predicting fates, inverting traces to
+localizations, searching the intervention basis, simulating
+compositions---is discharged by the runtime. What the language does
+\emph{not} compute is the \emph{intent}: whether a given gap ought to be
+closed, how far, and at what cost to the particular person. That judgment,
+the selection of the target region among admissible coherent states, is the
+irreducible human input. The physician is relocated from retrieval of
+precedent to specification of intent over a derived, explorable state.
+\end{principle}
+
+% =====================================================================
+\section{Constructive Validation}
+\label{sec:validation}
+% =====================================================================
+
+Because every object is a dynamical system on a finite-dimensional manifold
+and every quantity is an integration, a projection, or a sparse program,
+each theorem is checkable by direct computation on explicit model
+instances. The following protocol validates the calculus without appeal to
+clinical data.
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=3pt]
+\item \textbf{Floor} (\cref{thm:floor}). On a model $\Sigma$ with a fixed
+readout resolution $\delta$, confirm that the induced state-discrimination
+has a positive infimum $\flo$ and that no state is resolved below it.
+\item \textbf{Localization} (\cref{thm:localization}). Sample state pairs;
+confirm that a floor-injective probe never maps distinct cells to the same
+reading within $\delta$, and exhibit a non-injective probe that does,
+demonstrating insufficiency.
+\item \textbf{Certificate} (\cref{thm:certificate}). Construct a state-gated
+cascade; confirm that a species $P_k$ appears in the simulated trace iff
+every prior transition is state-enabled, and that states failing a
+transition produce $P_k$ absent.
+\item \textbf{Rigidity} (\cref{thm:rigidity}). Grow the observed species set
+and confirm the surviving set $\Man_S$ is non-increasing and reaches
+diameter $<\flo$ exactly when no alternative cell survives.
+\item \textbf{Gap-closure} (\cref{prob:closure}, \cref{thm:convergence}).
+On states off the coherent set, solve the sparse program and iterate $T$;
+confirm geometric contraction of $\dist(\cdot,\Man^\star)$ and sparsity of
+the selected intervention set.
+\item \textbf{Unity} (\cref{thm:unity}). Confirm that a single simulated
+perturbation yields both a localizing trace and a state displacement from
+one integration.
+\item \textbf{Derived vs.\ fitted} (\cref{thm:extrap}). Fit a surrogate model
+on a training region, then evaluate both surrogate and derived model off
+that region; confirm the surrogate's trace error grows off-region while the
+derived model's stays within its uniform bound---quantifying why free
+exploration requires the derived runtime.
+\end{enumerate}
+
+Each check is a finite, deterministic computation whose predicted and
+measured outcomes agree exactly for identities and within the stated bound
+for inequalities. The suite validates the calculus on explicit model
+instances; its fidelity to a real organism is inherited entirely from the
+fidelity of the derived forward model, which is the separate, physical
+question the runtime must answer.
+
+% =====================================================================
+\section{Summary}
+\label{sec:summary}
+% =====================================================================
+
+We have described a calculus of medicine built on one primitive---a
+characterized perturbation of metabolism---and one model requirement---that
+the forward model predicting the perturbation's fate be state-resolved and
+derived rather than fitted. From a positive resolution floor we obtained
+that a state is a region, so diagnosis is localization to a floor-width cell
+rather than recognition against a disease catalogue. A probe's trace
+localizes the state when its trace map is floor-injective; a cascading
+probe strengthens this to a trajectory certificate, since its later
+products exist only if the earlier path occurred, so that a false account
+cannot forge the reading and the correct stopping rule is rigidity---halt
+when no alternative account survives. Therapy is the closure of the measured
+gap to the coherent set by a sparse combination of characterized
+interventions selected by property, executed as a contraction to a fixed
+point, with no disease ever named. Diagnosis and therapy coincide, because
+every characterized perturbation both measures and moves. Finally, the
+runnable forward model makes the whole method a domain-specific language: a
+user specifies probes and intents, the runtime returns traces,
+localizations, gaps, and minimal interventions, and---because the runtime
+is derived---the user may search the intervention space freely and safely
+\emph{in silico}, applying to the patient only the intervention the search
+selects. The physician's role moves from precedent-retrieval to the
+specification of intent over a derived, explorable state.
+
+\end{document}

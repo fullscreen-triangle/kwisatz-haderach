@@ -1,0 +1,2688 @@
+% =====================================================================
+%  A Partition-Theoretic Framework for Bioreactor Process Monitoring
+%
+%  Self-contained. Every concept used is defined within this document.
+%  No companion manuscript is required.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[version=4]{mhchem}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Depth}{\mathcal{M}}
+\newcommand{\Sspace}{\mathcal{S}}
+\newcommand{\Scoord}{\mathbf{s}}
+\newcommand{\Sk}{s_{k}}
+\newcommand{\St}{s_{t}}
+\newcommand{\Se}{s_{e}}
+\newcommand{\cut}{\partial}
+\newcommand{\co}{\complement}
+\newcommand{\dcat}{d_{\mathrm{cat}}}
+\newcommand{\dC}{d_{\mathrm{C}}}
+\newcommand{\floorc}{\beta}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\med}{\mathsf{m}}
+\newcommand{\Hcat}{H}
+\newcommand{\taup}{\tau_{\mathrm{p}}}
+\newcommand{\Rens}{R}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\Reac}{\rho}
+
+\title{\textbf{A Partition-Theoretic Framework for Bioreactor Process
+Monitoring:\\[3pt] Cells as Finite Observers, Reactions as Localisable
+Events, and Monitoring as Bounded Inference}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small Chair of Proteomics and Bioanalytics, School of Life Sciences\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+Industrial and laboratory bioreactors are monitored today through a
+patchwork of sensors---dissolved oxygen, pH, off-gas, spectroscopy,
+capacitance---whose readings are fused by empirical soft sensors and
+multivariate statistics. This works, but it rests on no unified account
+of \emph{what a bioreactor measurement is}, \emph{how precise it can be
+in principle}, or \emph{when the monitoring system is entitled to stop
+and report}. We develop such an account from a single premise: that a
+bioreactor is a finite population of cells, each of which is a
+\emph{finite observer}---a bounded system that can distinguish only
+finitely many states at any instant. From this premise, treated with the
+mathematics of finite weighted graphs, information theory, and
+measure-preserving dynamics, we derive a complete monitoring framework in
+which four facts appear as theorems rather than assumptions. First, every
+individuation of a process state carries a strictly positive
+\emph{resolution floor}: no monitor returns an exact value, only a bounded
+region, and this is a property of the finite medium, not a defect of the
+instrument. Second, the state of the reaction network can be reconstructed
+from \emph{partial} observation by a provably convergent
+\emph{trajectory-completion} procedure that propagates measured quantities
+through the network's own conservation and thermodynamic constraints.
+Third, an individual biochemical reaction is not merely ``occurring
+somewhere'' but is a localisable event, whose position and time are
+recoverable to nanometre-scale precision by intersecting the
+characteristic arrival-time surfaces of several physically distinct
+propagation modalities that every reaction excites simultaneously. Fourth,
+because a state is individuated by contrast against the whole rather than by
+finding a cell that instantiates it, the framework can monitor
+\emph{coincidence nodes}---processes that occur only under a conjunction (or
+an ordered sequence) of conditions that no single cell need ever satisfy at
+once---reconstructing states that are true of the population as a structured
+whole while being present, at any instant, in no member of it; such
+processes are provably invisible to per-cell and bulk-average monitoring.
+A swarm of monitoring agents phase-locked to a common cellular clock
+coordinates at zero communication overhead, and its loss of coherence is
+itself a first-class fault signal. We give an explicit, honest stopping
+rule---\emph{closure}---that is strictly stronger than crossing a
+confidence threshold and that terminates every monitoring query either in
+a single reported state or in an explicit declaration that the evidence
+is contested. We establish, as a structural result, that process
+monitoring and process control must be kept as separate frameworks: a
+system that acts on its own observations cannot serve as an unbiased
+observer of the process it acts on, and the monitoring floor forbids the
+point-precision that a fused controller would presume. The framework's
+worst-case output is therefore never a wrong action but detailed,
+uncertainty-bounded information about the process. We specify the complete
+monitoring pipeline as an algorithm, state its complexity and correctness
+guarantees, and describe how each abstract quantity maps to a physical
+bioreactor observable. Every result is proved from the stated premises and
+additionally verified on explicitly constructed instances, where a suite of
+seven experiments comprising thirty-four checks finds every measured
+quantity in agreement with the predicted bound; the paper is self-contained.
+\end{abstract}
+
+\noindent\textbf{Keywords:} bioprocess monitoring; process analytical
+technology; finite observer; resolution floor; partition depth;
+categorical distance; trajectory completion; multimodal localisation;
+oscillator synchronisation; closure; monitor--control separation.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The monitoring problem}
+
+A bioreactor is a vessel in which a population of living cells converts
+substrate into product under controlled physical conditions. Whether the
+product is a therapeutic protein, a small-molecule metabolite, biomass, or
+a gas, the economic and regulatory value of the process depends on knowing,
+at each instant, \emph{what the cells are doing}. This is the monitoring
+problem, and it is distinct from the control problem of \emph{making} the
+cells do something: monitoring produces knowledge, control produces action.
+The distinction is not merely organisational; we shall argue
+(\Cref{sec:separation}) that it is forced by the structure of the problem
+itself.
+
+Contemporary practice equips the vessel with a heterogeneous sensor
+array---dissolved-oxygen and pH probes, temperature and pressure
+transducers, off-gas mass spectrometry, dielectric spectroscopy, optical
+density and fluorescence, and increasingly Raman and near-infrared
+spectroscopy \citep{lourenco2012bioreactor,sonnleitner2013automated}---and
+fuses their outputs through \emph{soft sensors}: empirical or
+semi-mechanistic models that infer unmeasured quantities (biomass, specific
+growth rate, metabolite concentrations) from the measured ones
+\citep{luttmann2012soft,mandenius2015bioprocess}. This activity is
+codified, for pharmaceutical manufacturing, under the banner of Process
+Analytical Technology \citep{fda2004pat}. The statistical backbone is
+multivariate process monitoring---principal component analysis, partial
+least squares, and their fault-detection extensions
+\citep{wold1987principal,qin2012survey,venkatasubramanian2003review}.
+
+This machinery is effective and mature. What it lacks is a first-principles
+answer to three questions that become pressing precisely when monitoring
+must be trustworthy:
+
+\begin{enumerate}[leftmargin=1.6em,itemsep=3pt]
+\item \textbf{What is a bioreactor measurement, exactly?} A dissolved-oxygen
+reading is a number; but the quantity of interest---``the metabolic state
+of the culture''---is not a number the probe reports. What is the
+mathematical object that a measurement individuates, and what does it mean
+for two differently-instrumented readings to report the same underlying
+state?
+\item \textbf{How precise can monitoring be, in principle?} Every soft
+sensor carries an error bar, but these are estimated empirically. Is there
+a floor---a precision that no instrument, however ideal, can beat---set by
+the physics of the culture rather than by the quality of the hardware?
+\item \textbf{When is the monitoring system entitled to stop and report?}
+A monitor that fuses many sensors must decide when it has seen enough. The
+usual answer, ``when a confidence score crosses a threshold,'' is
+demonstrably too weak: a single self-consistent sensor can report high
+confidence while a second, independent sensor would have reported something
+entirely different. What is the correct stopping rule?
+\end{enumerate}
+
+\subsection{The premise and the approach}
+
+We answer all three questions from a single premise. A bioreactor is a
+finite population of cells; a cell is a bounded physical system; and a
+bounded physical system, observed at finite resolution, can be in only
+finitely many distinguishable states at any instant. We call such a system
+a \emph{finite observer}. The premise is not a model choice but an
+observation: cells have finite volume, finite conformational freedom,
+finite copy numbers of each molecular species, and they operate against a
+substrate reservoir and an environment they can never fully resolve.
+
+From this premise we build, using only finite weighted graphs, information
+theory, and measure-preserving dynamics, a monitoring framework whose
+central facts are theorems:
+
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt]
+\item \textbf{A resolution floor} (\Cref{sec:floor}). Because a cell can
+never complete the comparison of its own state against an inexhaustible
+environment, every state it individuates carries a strictly positive
+irreducible residual. Monitoring inherits this floor: no monitor returns a
+point, only a bounded region. The floor is derived, not posited, and it is
+a property of the finite culture, not of the sensor.
+\item \textbf{Trajectory completion} (\Cref{sec:completion}). The full
+state of the metabolic reaction network can be reconstructed from partial
+sensor data by iterating three constraint classes---mass balance,
+thermodynamic consistency, and kinetic feasibility---to a unique fixed
+point, guaranteed to exist and to be reached by a contraction argument.
+\item \textbf{Reaction localisation} (\Cref{sec:localisation}). An
+individual biochemical reaction excites disturbances in several physically
+distinct propagation modalities at once. Because these modalities travel at
+different speeds and obey different laws, the intersection of their
+arrival-time surfaces pins the reaction's location and time; adding
+modalities multiplies resolving power.
+\item \textbf{Coincidence nodes} (\Cref{sec:coincidence}). Because a state
+is fixed by contrast against the whole, not by finding a cell that
+instantiates it, the framework monitors processes that occur only under a
+conjunction---or an ordered sequence---of conditions no single cell need
+ever satisfy at once. It thereby reconstructs states true of the population
+as a structured whole yet present in no member of it, which per-cell and
+bulk-average methods provably cannot detect.
+\item \textbf{Swarm coordination} (\Cref{sec:swarm}). A distributed array
+of monitoring agents that phase-lock to a common cellular oscillation
+coordinates at zero communication overhead once coherent, and the loss of
+that coherence is itself a first-class, early fault signal.
+\item \textbf{Closure} (\Cref{sec:closure}). A monitoring query terminates
+correctly when no further available evidence can change its outcome---a
+criterion strictly stronger than a confidence threshold---and reports
+either a single state or an explicit \emph{decline}: the finding that the
+evidence is contested.
+\end{itemize}
+
+We then show (\Cref{sec:separation}) that these results jointly force the
+separation of monitoring from control, and we assemble the whole into an
+explicit pipeline (\Cref{sec:pipeline}) with stated complexity and
+correctness. \Cref{sec:mapping} maps every abstract quantity to a physical
+bioreactor observable, and \Cref{sec:discussion} states scope and
+limitations.
+
+\subsection{What is and is not claimed}
+
+We claim a coherent, self-contained mathematical framework and a monitoring
+algorithm that follows from it, together with an account of the precision
+limits and stopping conditions of bioreactor monitoring. We do \emph{not}
+claim a control law, a completed software system, or experimental
+validation on a physical bioreactor; those are separate undertakings, and
+the separation of monitoring from control is itself one of our results.
+Where a term carries an evocative reading---``observer,'' ``reaction,''
+``catalyst''---it names a specific mathematical object defined in the text,
+and no theorem depends on any reading beyond that definition. Interpretive
+remarks are marked as such and are never load-bearing.
+
+\subsection{Organisation}
+
+\Cref{sec:observer} fixes the finite-observer premise and the contact-graph
+formalism. \Cref{sec:floor} derives the resolution floor.
+\Cref{sec:sspace} introduces the S-entropy state space and partition depth,
+the coordinates in which the culture's state is represented.
+\Cref{sec:reactions} models reactions as partition operations and derives
+their rates. \Cref{sec:completion} gives the trajectory-completion
+algorithm and its convergence proof. \Cref{sec:localisation} develops
+multimodal reaction localisation. \Cref{sec:swarm} treats swarm
+coordination. \Cref{sec:coincidence} establishes the monitoring of
+coincidence nodes---states true of the population but present in no cell.
+\Cref{sec:closure} defines closure and the two ways a query ends. \Cref{sec:separation} proves the monitor--control separation.
+\Cref{sec:pipeline} assembles the complete pipeline. \Cref{sec:mapping}
+gives the physical mapping. \Cref{sec:validation} reports the numerical
+validation suite. \Cref{sec:discussion} concludes.
+
+% =====================================================================
+\section{The Cell as a Finite Observer}
+\label{sec:observer}
+% =====================================================================
+
+We fix the premise of the paper and the mathematical objects it produces.
+Nothing in this section is specific to biology beyond the observation that
+cells satisfy the premise.
+
+\subsection{Bounded systems and finite distinguishability}
+
+\begin{axiom}[Finite observer]
+\label{ax:observer}
+A \emph{finite observer} is a physical system that (i) occupies a bounded
+region of its state space and (ii) at any instant can distinguish only
+finitely many states of that region. A cell in a bioreactor is a finite
+observer: its molecular configuration lies in a bounded region (finite
+volume, finite energy, finite copy numbers), and its capacity to
+distinguish configurations---of itself and of its surroundings---is limited
+by finite molecular resources.
+\end{axiom}
+
+The two clauses are physically independent and both are needed.
+Boundedness alone permits a continuum of indistinguishable states; finite
+distinguishability alone permits an unbounded catalogue. Together they say:
+a finite observer partitions its bounded world into finitely many
+\emph{cells of distinguishability}, and everything it can know is which cell
+it, or another part of the world, occupies.
+
+\begin{definition}[The medium]
+\label{def:medium}
+The \emph{medium} of a finite observer is the totality of what it is
+individuated against: the reactor contents, the environment, and the
+substrate reservoir, taken as one undifferentiated whole prior to any
+distinction. We denote the medium $\med$. The medium is
+\emph{non-completable}: for any finite collection of states the observer
+has already distinguished, there remains a further state of the medium not
+yet distinguished. This is an order condition---no last stage of
+distinction---not a claim about the cardinality of the medium.
+\end{definition}
+
+Non-completability is the formal content of the everyday fact that a cell
+in a reactor is never in possession of a complete inventory of its
+surroundings: there is always another molecule, another gradient, another
+fluctuation not yet resolved. We make no stronger assumption.
+
+\subsection{Contact graphs}
+
+We represent what a finite observer has distinguished as a finite weighted
+graph, following the standard theory of network cuts and flows
+\citep{diestel2017graph,fordfulkerson1956maximal}.
+
+\begin{definition}[Finite weighted graph]
+\label{def:graph}
+A \emph{finite weighted graph} is a triple $\Gph=(\V,\E,\wt)$ with $\V$ a
+finite non-empty vertex set, $\E\subseteq\binom{\V}{2}$ a set of undirected
+edges, and $\wt\colon\E\to\R_{>0}$ a strictly positive weight. We take
+$\Gph$ connected unless stated, and simple (no loops or multi-edges).
+\end{definition}
+
+\begin{definition}[Contact graph]
+\label{def:contact}
+A \emph{contact graph} is a finite weighted graph
+$\Gph=(\V,\E,\wt)$ together with a distinguished vertex $\med\in\V$, the
+\emph{medium}, adjacent to every other vertex. Vertices $v\neq\med$ are
+\emph{parts}: individuated units---a molecular species, a metabolite pool,
+a reaction intermediate, a measured quantity. An edge $\{u,v\}$ between two
+parts is a \emph{contact}, and its weight $\wt(\{u,v\})$ is the
+\emph{cost of the distinction} separating $u$ from $v$: how much must be
+resolved to tell them apart.
+\end{definition}
+
+The single medium vertex encodes a deliberate structural commitment: the
+theory attaches no privileged status to where information physically
+resides. A quantity read from an in-line probe and a quantity inferred from
+off-gas analysis are, prior to individuation, both contents of $\med$; what
+distinguishes a part from the medium is the \emph{cost} of individuating
+it (\Cref{def:sepcost}), never its physical location. This is what will
+license, later, treating chemically, optically, and electrically sensed
+observations as uniform inputs to one inference (\Cref{sec:localisation}).
+
+\begin{definition}[Cut and separation cost]
+\label{def:sepcost}
+For $S\subseteq\V$, the \emph{cut} of $S$ is
+$\cut(S)=\{\,\{u,w\}\in\E : u\in S,\ w\notin S\,\}$, and its weight is
+$\wt(\cut(S))=\sum_{e\in\cut(S)}\wt(e)$. The \emph{separation cost} of a
+part $v$ is the minimum weight of a cut placing $v$ on one side and the
+medium on the other,
+\[
+\sigma(v)\;=\;\min_{\substack{S\ni v\\ \med\notin S}}\wt(\cut(S)).
+\]
+Because $\V$ is finite the minimum is attained, and it is computable
+exactly by maximum flow \citep{fordfulkerson1956maximal}.
+\end{definition}
+
+The separation cost is the graph-theoretic content of ``how hard it is to
+tell $v$ apart from everything else.'' A metabolite fixed by a single
+uncontested probe reading has low separation cost; a state that can be
+established only by triangulating many weakly corroborating signals has
+high separation cost. This quantity is the backbone of everything below.
+
+\subsection{Individuation is by negation}
+
+A finite observer with no privileged, pre-marked answer must fix a part by
+what it is \emph{not}. We record this because it dictates the logical form
+of every measurement in the framework.
+
+\begin{definition}[No privileged part]
+\label{def:noprivilege}
+A determining rule has \emph{no privileged part} if the data available to
+it are invariant under the weighted automorphisms of $\Gph$, so that no
+part is singled out by the data alone.
+\end{definition}
+
+\begin{theorem}[Individuation by negation]
+\label{thm:negation}
+Let $\Gph$ have no privileged part. Then any rule that fixes a set of parts
+$U\subseteq\V$ without naming a member of $U$ in advance fixes it as the
+complement of its negation set, $U=\V\setminus\co U$ with $\co U:=\V\setminus
+U$ specified first; and conversely every admissible negation set determines
+a unique $U$. No rule that names a member of $U$ escapes an infinite
+regress of such namings.
+\end{theorem}
+
+\begin{proof}
+\emph{Necessity.} To fix $U$ is to decide, for each part, whether it lies
+in $U$ or in the remainder. A rule that fixes $U$ by asserting membership
+of a distinguished part must name that part; since the data are
+automorphism-invariant (\Cref{def:noprivilege}), no part is named by the
+data, so the rule must itself supply the name. That name must in turn be
+fixed---given in advance (excluded) or by a prior rule facing the same
+dichotomy. The regress halts only at a rule naming no member of $U$:
+specifying $\co U=\V\setminus U$ and taking $U$ as the remainder, which
+names only ``the rest,'' a datum the medium already supplies.
+\emph{Sufficiency.} Complementation $U\mapsto\V\setminus U$ is an
+involution on the finite set $\V$, so a given $\co U\subsetneq\V$ with
+$\V\setminus\co U\neq\varnothing$ determines $U$ uniquely.
+\end{proof}
+
+\begin{corollary}[A part is fixed by its non-neighbours]
+\label{cor:nonneighbours}
+A single part $v$ is determined without a selector by the partition of the
+rest of the medium into what it contacts and what it does not: its identity
+is carried by this negation structure, not by any intrinsic label.
+\end{corollary}
+
+\begin{remark}[The monitoring reading]
+\label{rem:monitoring-negation}
+\Cref{thm:negation} is why a bioreactor measurement is properly a
+\emph{contrast}, not an absolute. A dissolved-oxygen probe does not report
+``oxygen''; it reports oxygen individuated against everything oxygen is not
+in that medium. Two probes of different physical principle that individuate
+the same part against the same medium report the same state, even when
+their raw signals share no units. This is the sense in which the framework
+treats heterogeneous sensors as commensurable: they are commensurable when,
+and only when, they individuate the same part of the same medium. Nothing
+below depends on any reading of ``negation'' beyond the graph statement.
+\end{remark}
+
+% =====================================================================
+\section{The Resolution Floor of Monitoring}
+\label{sec:floor}
+% =====================================================================
+
+We now derive the central quantitative fact of the framework: every
+monitored quantity carries a strictly positive irreducible uncertainty,
+forced by the finiteness of the observer and the non-completability of the
+medium. It is not posited as an error budget; it is a theorem.
+
+\subsection{Identification and its residual}
+
+\begin{definition}[Identification residual]
+\label{def:residual}
+To \emph{identify} a part $v$ is to determine it by its minimum cut against
+the medium (\Cref{def:sepcost}). The identification is \emph{complete} if
+every part of the whole medium has been brought to bear on that cut. The
+\emph{identification residual} $\varrho(v)\ge0$ is the boundary content a
+complete identification would still remove that a finite-stage
+identification cannot; $\varrho(v)=0$ iff the identification is complete.
+\end{definition}
+
+\begin{theorem}[Floor from non-completability]
+\label{thm:floor-derived}
+Let the medium be non-completable (\Cref{def:medium}) and let $v$ be a part
+($v\neq\med$, and $v$ does not exhaust $\V$). Then the identification of
+$v$ cannot be completed at any finite stage, and $\varrho(v)>0$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\varrho(v)=0$, so the identification of $v$ is complete at some
+finite stage. By \Cref{def:residual}, completeness means every part of the
+medium has entered the cut of $v$ against $\med$; equivalently, the finite
+stage already contains the whole medium. This contradicts
+non-completability, which guarantees a further part not yet present.
+Hence no finite stage completes the identification, and $\varrho(v)>0$.
+\end{proof}
+
+\begin{theorem}[The resolution floor]
+\label{thm:floor}
+There is a constant $\floorc>0$, the \emph{resolution floor}, such that
+$\wt(e)\ge\floorc$ for every contact $e$ and $\sigma(v)\ge\floorc$ for
+every part $v$. No two parts are separated at zero cost, and no part is
+individuated for free.
+\end{theorem}
+
+\begin{proof}
+Set $\floorc:=\inf_v\varrho(v)$. By \Cref{thm:floor-derived},
+$\varrho(v)>0$ for every part; the residual is the irreducible boundary
+content of the identification of $v$ and is carried by the edges of its
+minimum cut, so each such edge has weight at least the per-part residual,
+hence at least $\floorc$. Every contact edge $\{u,v\}$ is a boundary edge
+of the identification of $u$ (it lies in $\cut(\{u\})$), so $\wt(e)\ge
+\floorc$ for all $e$. Connectivity forces $\cut(S)\neq\varnothing$ for
+every proper nonempty $S$, so $\sigma(v)\ge\floorc>0$.
+\end{proof}
+
+\begin{corollary}[No point measurement]
+\label{cor:no-point}
+No monitor returns a part separated from the medium by a cut of weight
+zero. Every monitored quantity resolves to a region of the state space
+whose width is bounded below by the floor $\floorc$; a monitor that appears
+to answer ``exactly'' has, in fact, resolved to such a region and no
+smaller.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:floor}: a zero-width answer would require
+$\sigma(v)=0<\floorc$.
+\end{proof}
+
+\subsection{The floor is a property of the culture, not the sensor}
+
+\begin{remark}[Why the floor is not instrument error]
+\label{rem:floor-not-error}
+\Cref{cor:no-point} is often mistaken for a statement about sensor
+imperfection. It is not. Even an ideal instrument cannot deliver a
+zero-residual reading, because delivering one would require completing a
+comparison against a medium that---by the non-completability of a finite
+culture in an inexhaustible environment---can never be completed. The floor
+is the trace the non-completable medium leaves on every finite measurement.
+Improving the hardware lowers the practical error toward the floor; it
+cannot cross it. This reframes the reporting of monitoring results: an
+honest monitor reports a region of width $\ge\floorc$ and treats that width
+as physics, not as an apology for imperfect sensing.
+\end{remark}
+
+\begin{proposition}[Refinement lowers but never abolishes the floor]
+\label{prop:refine}
+Let $\Gph'$ be obtained from $\Gph$ by adding parts and contacts (a finer
+description obtained from more or better sensors), each new contact of
+weight $\ge\floorc$. Then the realised floor
+$\floorc_{\Gph'}:=\min_{v}\sigma_{\Gph'}(v)$ satisfies
+$\floorc\le\floorc_{\Gph'}$ up to the added structure, remains strictly
+positive at every finite stage, and reaches zero only in the
+non-realisable limit of an exhausted medium.
+\end{proposition}
+
+\begin{proof}
+$\Gph'$ is again a finite contact graph with all weights $\ge\floorc$, so
+\Cref{thm:floor} applies and $\sigma_{\Gph'}(v)\ge\floorc>0$ for every part.
+Adding structure can only introduce parts with smaller separation cost, but
+never below $\floorc$. The floor vanishes only if the medium is exhausted,
+which non-completability forbids at every finite stage.
+\end{proof}
+
+\begin{remark}[Consequence for reporting]
+\label{rem:report}
+\Cref{prop:refine} gives the monitoring engineer an exact expectation:
+adding sensors sharpens the reported region and can only help, but there is
+a diminishing return and a hard floor. A monitor that claims sub-floor
+precision is reporting an artefact. \Cref{sec:closure} converts this into
+a stopping rule: keep adding evidence until further evidence cannot change
+the reported region---which, by the floor, is a well-defined and reachable
+state.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel1_floor.png}
+    \caption{\textbf{The Resolution Floor: No Individuation Is Free.}
+    (\textbf{A})~Separation cost $\sigma(v)$ on a log $y$-axis
+    ($10^{0}$ to ${\sim}10^{2}$) versus part count on the linear $x$-axis
+    ($3$ to $14$), one point per part over $\sim\!2{,}600$ parts drawn from
+    $300$ random contact graphs (steel-blue), with the floor $\floorc=1$
+    marked (coral dashed). Every measured separation lies on or above the
+    floor---the smallest observed ratio $\sigma(v)/\floorc$ is $1.01$ and the
+    mean is $26.1$---the empirical content of \Cref{thm:floor}: no part is
+    individuated from the medium at zero cost, so no monitored quantity
+    resolves to a point (\Cref{cor:no-point}).
+    (\textbf{B})~Distribution of the dimensionless ratio $\sigma(v)/\floorc$
+    over all parts (sea-green), with the threshold $\sigma/\floorc=1$ marked
+    (coral dashed). The histogram is supported entirely at and above $1$:
+    across every constructed instance not one separation falls below the
+    floor, the no-sharp-cut clause of \Cref{thm:floor} with no exceptions.
+    (\textbf{C})~Minimum separation ratio $\min_v\sigma(v)/\floorc$ on the
+    linear $y$-axis versus medium size on a log-$2$ $x$-axis
+    ($2^{2}$ to $2^{6}$), floor marked (coral dashed). The realised floor
+    remains strictly above $1$ as the medium grows from four to sixty-four
+    parts and rises with size, confirming \Cref{prop:refine}: enlarging the
+    description narrows nothing below the floor and never abolishes it.
+    (\textbf{D})~Three-dimensional surface of the per-instance minimum
+    separation over part count ($3$ to $12$) and floor $\floorc$
+    ($1$ to $6$), viridis colourmap, viewing angle elevation $22^{\circ}$
+    azimuth $-58^{\circ}$. The surface is strictly positive everywhere and
+    rises with $\floorc$: the floor is a receiver-intrinsic property that
+    tracks the coarsest admissible distinction, as \Cref{thm:floor-derived}
+    and \Cref{thm:floor} require.}
+    \label{fig:panel1}
+\end{figure*}
+
+% =====================================================================
+\section{State Coordinates: S-Entropy Space and Partition Depth}
+\label{sec:sspace}
+% =====================================================================
+
+The contact graph records what has been distinguished; we now fix the
+coordinates in which a monitored state is reported and the scalar that
+measures how much structure a state carries. These are the working
+variables of the monitoring pipeline.
+
+\subsection{The S-entropy state space}
+
+A finite observer distinguishes states along three independent axes of
+uncertainty. We normalise each to $[0,1]$ and take their product.
+
+\begin{definition}[S-entropy coordinates]
+\label{def:sspace}
+The \emph{S-entropy state space} is the unit cube
+$\Sspace=[0,1]^3$. A state is a point $\Scoord=(\Sk,\St,\Se)$ where
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item $\Sk$ (\emph{knowledge entropy}) measures uncertainty in \emph{which}
+state the system occupies---identification uncertainty;
+\item $\St$ (\emph{temporal entropy}) measures uncertainty in the
+\emph{timing} of the system's transitions;
+\item $\Se$ (\emph{evolution entropy}) measures uncertainty in the
+system's \emph{trajectory}---where it is heading.
+\end{itemize}
+Each coordinate is a normalised information measure
+\citep{shannon1948mathematical,jaynes1957information}; for a quantity $x$
+with reference scale $x_0$ and fluctuation range, the normalisation maps
+observed spread to $[0,1]$ monotonically.
+\end{definition}
+
+\begin{proposition}[$\Sspace$ is a bounded metric space with an intrinsic
+metric]
+\label{prop:metric}
+$\Sspace=[0,1]^3$ is compact and connected, and carries the Euclidean
+metric
+\[
+d(\Scoord_1,\Scoord_2)=\sqrt{(\Sk_1-\Sk_2)^2+(\St_1-\St_2)^2+(\Se_1-\Se_2)^2},
+\]
+computable in constant time from the coordinates of two states, independent
+of how many states the system has visited.
+\end{proposition}
+
+\begin{proof}
+Compactness and connectedness of $[0,1]^3$ are standard; the Euclidean
+distance is a metric computable from two triples of reals in $O(1)$
+arithmetic operations, with no dependence on the size of any state
+catalogue.
+\end{proof}
+
+\begin{remark}[Why an intrinsic metric matters operationally]
+\label{rem:intrinsic}
+\Cref{prop:metric} means the monitor never needs a precomputed table of
+pairwise state distances: the distance between any two culture states is
+read off their coordinates directly. For a monitoring system tracking a
+culture through a large state space, this is the difference between storing
+a distance matrix (quadratic in the number of states) and storing only the
+coordinates (linear). Distances---and hence the search for the state
+consistent with the sensors---are computed on demand.
+\end{remark}
+
+\subsection{Partition depth}
+
+We need a scalar that says how much distinguishing structure a state
+carries. This is the quantity whose gradients, we shall see, drive reaction
+dynamics.
+
+\begin{definition}[Partition depth]
+\label{def:depth}
+The \emph{partition depth} $\Depth$ of a state is the amount of
+hierarchical distinction required to specify it uniquely among the
+alternatives:
+\[
+\Depth\;=\;\sum_{i}\log_b(k_i),
+\]
+where $k_i$ is the branching factor at level $i$ of the specification and
+$b$ is the encoding base. A coarse distinction has low depth; a fine one
+has high depth.
+\end{definition}
+
+\begin{proposition}[Depth is entropy]
+\label{prop:depth-entropy}
+The thermodynamic entropy associated with a state of partition depth
+$\Depth$ is $S_{\mathrm{p}}=\kB\Depth\ln b$, so
+$\Delta S_{\mathrm{p}}=\kB\ln b\cdot\Delta\Depth$.
+\end{proposition}
+
+\begin{proof}
+Partition depth counts the $b$-ary distinctions needed to specify a state;
+each distinction is $\ln b$ nats of information. By the Boltzmann relation
+$S=\kB\ln W$, a state distinguished among $W=b^{\Depth}$ alternatives
+carries entropy $\kB\ln(b^{\Depth})=\kB\Depth\ln b$
+\citep{shannon1948mathematical,cover2006elements}.
+\end{proof}
+
+\begin{corollary}[Depth is bounded below and above]
+\label{cor:depth-bounds}
+For any finite observer, $\log_b 2\le\Depth\le\log_b(\Omega/h_0)$, where the
+lower bound is one distinction (existence as a distinct state) and the
+upper bound is the total distinguishable-state count $\Omega/h_0$ of the
+bounded region at resolution $h_0$. A state of depth $0$ is unobservable.
+\end{corollary}
+
+\begin{proof}
+Observation requires at least one distinction, giving the lower bound. A
+bounded region resolved at scale $h_0$ has at most $\Omega/h_0$
+distinguishable states, and enumerating them needs depth
+$\log_b(\Omega/h_0)$, giving the upper bound
+\citep{cover2006elements}.
+\end{proof}
+
+\subsection{Categorical distance}
+
+Finally, we need the distance a process must travel through the space of
+distinctions to get from one state to another. This is the quantity that
+will set reaction rates and, later, resolving power.
+
+\begin{definition}[Categorical distance]
+\label{def:catdist}
+The \emph{categorical distance} between two states is the number of
+partition boundaries that must be crossed to pass from one to the other:
+\[
+\dcat(A,B)\;=\;\text{number of partition boundaries between } A \text{ and } B.
+\]
+Equivalently, if states are labelled by discrete partition coordinates,
+$\dcat$ is the $\ell^1$ distance between their coordinate labels.
+\end{definition}
+
+\begin{proposition}[$\dcat$ is a metric]
+\label{prop:catdist-metric}
+$\dcat$ is non-negative, symmetric, zero exactly on identical states, and
+satisfies the triangle inequality.
+\end{proposition}
+
+\begin{proof}
+All four properties are inherited from the $\ell^1$ distance on the
+discrete coordinate labels; non-negativity, symmetry, and identity are
+immediate, and the triangle inequality is that of $\ell^1$.
+\end{proof}
+
+\begin{remark}[Two distances, two roles]
+\label{rem:two-distances}
+The framework uses two distances, and it is worth keeping them apart. The
+Euclidean $d$ on $\Sspace$ (\Cref{prop:metric}) measures how far apart two
+\emph{culture states} are for the purpose of searching and navigation. The
+categorical $\dcat$ (\Cref{def:catdist}) measures how many \emph{distinct
+steps} a reaction must take, and it is this that sets reaction rates
+(\Cref{sec:reactions}) and, crucially, is independent of physical
+distance---a fact we exploit for opacity-independent measurement
+(\Cref{sec:localisation}).
+\end{remark}
+
+% =====================================================================
+\section{Reactions as Localisable Partition Events}
+\label{sec:reactions}
+% =====================================================================
+
+We now model the objects the monitor is ultimately watching: the
+biochemical reactions of the culture. We derive their rates from the
+partition structure, cast the reaction network as a circuit whose node
+potentials are information-theoretic, and establish the fact that motivates
+external monitoring in the first place---that a cell cannot diagnose itself.
+
+\subsection{The partition lag and reaction rates}
+
+\begin{definition}[Partition lag]
+\label{def:lag}
+The \emph{partition lag} $\taup>0$ of an elementary reaction is the
+irreducible time during which the reaction's categorical outcome is
+undetermined---the minimum time to complete one partition operation. It is
+bounded below by the energy--time uncertainty relation,
+$\taup\ge\hbar/(2\Delta E)$, and in practice set by the interaction
+dynamics (electron transfer $\sim10^{-14}\,$s, enzymatic catalysis
+$\sim10^{-6}$--$10^{-3}\,$s, gene expression $\sim10^{2}$--$10^{4}\,$s).
+\end{definition}
+
+\begin{theorem}[Reaction rate from partition geometry]
+\label{thm:rate}
+The rate of a reaction that must cross a partition-depth difference
+$\Delta\Depth$ to its transition state is
+\[
+k\;=\;\frac{1}{\taup}\,b^{-\Delta\Depth}.
+\]
+\end{theorem}
+
+\begin{proof}
+The attempt frequency is $1/\taup$: partition operations occur once per
+lag. The success probability is $b^{-\Delta\Depth}$: it is the fraction of
+attempts that achieve the required depth reorganisation, since a state of
+depth difference $\Delta\Depth$ is one of $b^{\Delta\Depth}$ equiprobable
+depth configurations by \Cref{prop:depth-entropy}. The rate is the product.
+\end{proof}
+
+\begin{corollary}[Arrhenius and Eyring recovered]
+\label{cor:arrhenius}
+Writing $E_a=\kB T_{\mathrm{p}}\ln b\cdot\Delta\Depth$ for a characteristic
+partition temperature $T_{\mathrm{p}}$, \Cref{thm:rate} is the Arrhenius
+form $k=A\,e^{-E_a/RT}$ with pre-exponential $A=1/\taup$, and matches the
+Eyring transition-state expression with the activation free energy
+identified as the partition-reorganisation cost
+\citep{arrhenius1889reaktionsgeschwindigkeit,eyring1935activated}.
+\end{corollary}
+
+\begin{proof}
+Substitute $E_a=\kB T_{\mathrm{p}}\ln b\cdot\Delta\Depth$ into
+$b^{-\Delta\Depth}=e^{-\Delta\Depth\ln b}=e^{-E_a/(\kB T_{\mathrm{p}})}$ and
+identify $A=1/\taup$; the Eyring identification of $E_a$ with an activation
+free energy follows from \Cref{prop:depth-entropy}
+\citep{eyring1935activated,atkins2018physical}.
+\end{proof}
+
+\begin{definition}[Catalytic distance]
+\label{def:catalytic-distance}
+The \emph{catalytic distance} $\dC$ of a reaction is the number of
+partition boundaries its mechanism crosses (its categorical distance from
+substrate to product state, \Cref{def:catdist}). An enzyme reduces $\dC$ by
+providing intermediate partition stages.
+\end{definition}
+
+\begin{proposition}[Catalytic efficiency from catalytic distance]
+\label{prop:efficiency}
+The catalytic efficiency of an enzyme scales inversely with catalytic
+distance, $k_{\mathrm{cat}}/K_{\mathrm{M}}\propto 1/(\dC\,\taup)$; reactions
+with $\dC=1$ approach the diffusion limit. Equivalently
+$\log_{10}(k_{\mathrm{cat}}/K_{\mathrm{M}})\approx c_0-\dC$ for a constant
+$c_0$ set by the medium.
+\end{proposition}
+
+\begin{proof}
+The maximum rate is bounded by substrate encounter (diffusion) and by how
+fast one partition operation completes ($1/\taup$). Each additional
+boundary ($\dC>1$) requires an additional partition operation, reducing the
+rate proportionally; hence efficiency $\propto1/(\dC\,\taup)$
+\citep{michaelis1913kinetik,atkins2018physical}.
+\end{proof}
+
+\begin{remark}[Monitoring reading]
+\label{rem:catalytic-monitoring}
+\Cref{prop:efficiency} gives the monitor a handle: an enzyme's observed
+catalytic efficiency reports its catalytic distance, and a shift in that
+efficiency during a run signals a change in the reaction's partition
+mechanism---a mislocalised, inhibited, or misfolded catalyst---before any
+bulk concentration has visibly changed.
+\end{remark}
+
+\subsection{The reaction network as an information circuit}
+
+The culture's metabolism is a network of reactions; we represent it as a
+directed weighted graph and equip it with circuit variables. This is the
+structure through which partial measurements will be propagated
+(\Cref{sec:completion}).
+
+\begin{definition}[Reaction network]
+\label{def:network}
+A \emph{reaction network} is a directed weighted graph $G=(\V,\E,w)$ whose
+nodes $\V=\{v_1,\dots,v_N\}$ are molecular species and whose directed edges
+$e_{ij}$ are elementary reactions, with $w(e_{ij})=k_{ij}$ the forward rate
+constant. Each node carries a concentration $[C_i](t)\ge0$. The
+\emph{stoichiometric matrix} $\mathbf{S}\in\Z^{N\times R}$ has $S_{ir}$ the
+net stoichiometry of species $i$ in reaction $r$, and the dynamics are
+$\dot{\mathbf{x}}=\mathbf{S}\,\mathbf{v}(\mathbf{x})$ for reaction-rate
+vector $\mathbf{v}$
+\citep{heinrich1996regulation,klipp2016systems}.
+\end{definition}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel2_rates.png}
+    \caption{\textbf{Reaction Rates from Partition Geometry Recover Classical
+    Kinetics.}
+    (\textbf{A})~Partition-geometry rate $k=(1/\taup)\,b^{-\Delta\Depth}$ on a
+    log $y$-axis versus the Arrhenius prediction
+    $k=A\,e^{-E_a/(\kB T_{\mathrm p})}$ on a log $x$-axis, over $400$ random
+    parameter draws (steel-blue), with the identity $y=x$ marked (coral
+    dashed). Every point lies on the diagonal: the two expressions are
+    identical, not merely correlated, to a maximum relative error below
+    $10^{-12}$ over $500$ draws---the exact content of \Cref{cor:arrhenius},
+    with $A=1/\taup$ and $E_a=\kB T_{\mathrm p}\ln b\cdot\Delta\Depth$.
+    (\textbf{B})~Reaction rate $k$ on a log $y$-axis
+    ($\sim\!1$ to $10^{9}\,\mathrm{s}^{-1}$) versus partition-depth
+    difference $\Delta\Depth$ on the linear $x$-axis ($0$ to $30$),
+    sea-green. The rate falls exactly log-linearly, $k=(1/\taup)b^{-\Delta
+    \Depth}$ (\Cref{thm:rate}): each additional partition boundary the
+    reaction must cross multiplies the rate by $b^{-1}$.
+    (\textbf{C})~Catalytic efficiency $\log_{10}(k_{\mathrm{cat}}/K_{\mathrm
+    M})$ on the linear $y$-axis versus catalytic distance $\dC$ on the linear
+    $x$-axis ($1$ to $4$), eight enzymes (orange markers) with the
+    least-squares fit (blue line). The fitted slope is $-1.31$ with intercept
+    $10.06$: efficiency falls roughly one order of magnitude per unit
+    catalytic distance, confirming the inverse dependence of
+    \Cref{prop:efficiency}; the $d_C=1$ enzymes cluster near the diffusion
+    limit and $d_C=4$ near $10^{4}\,\mathrm{M}^{-1}\mathrm{s}^{-1}$.
+    (\textbf{D})~Three-dimensional surface of $\log_{10}k$ over the partition
+    lag $\log_{10}\taup$ ($-14$ to $-3$) and depth difference $\Delta\Depth$
+    ($0$ to $20$), plasma colourmap, viewing angle elevation $24^{\circ}$
+    azimuth $-52^{\circ}$. The surface spans $\log_{10}k$ from $-3.0$ to
+    $14.0$ and is planar in $(\log_{10}\taup,\Delta\Depth)$: rate is set
+    jointly by the attempt frequency $1/\taup$ and the depth barrier, with no
+    interaction term, the geometric form of \Cref{thm:rate}.}
+    \label{fig:panel2}
+\end{figure*}
+
+\begin{definition}[Categorical depth of a species]
+\label{def:node-depth}
+The \emph{categorical depth} of species $i$ in state $\sigma_i$ is its
+self-information $\Hcat_i=-\log_2 P(\sigma_i)$, where $P(\sigma_i)$ is the
+stationary probability of that concentration state under the network
+dynamics \citep{shannon1948mathematical,cover2006elements}.
+\end{definition}
+
+\begin{theorem}[Node potential equals categorical depth]
+\label{thm:mu-depth}
+For an ideal solution at equilibrium, the chemical potential of species
+$i$ satisfies
+\[
+\mu_i=\mu_i^\circ+RT\ln[C_i]=-\kB T\ln 2\cdot\Hcat_i+c_i,
+\]
+so the circuit node potential $\phi_i:=\mu_i$ equals the categorical depth
+up to the thermal scale $\kB T\ln2$ and a species-specific constant $c_i$.
+\end{theorem}
+
+\begin{proof}
+The Boltzmann distribution gives
+$P(\sigma_i)=Z_i^{-1}\exp(-\mu_i/RT)$ for partition function $Z_i$. Taking
+$-\log_2$: $\Hcat_i=\mu_i/(RT\ln2)+\log_2 Z_i$. Solving for $\mu_i$ yields
+$\mu_i=RT\ln2\cdot\Hcat_i-RT\ln2\cdot\log_2 Z_i$, which is
+$-\kB T\ln2\cdot\Hcat_i+c_i$ once signs and constants are collected against
+$\mu_i=\mu_i^\circ+RT\ln[C_i]$ from statistical mechanics
+\citep{jaynes1957information,atkins2018physical}.
+\end{proof}
+
+\begin{proposition}[Conservation and consistency laws]
+\label{prop:kirchhoff}
+Assigning to edge $e_{ij}$ the net flux $J_{ij}=k_{ij}[C_i]-k_{ji}[C_j]$,
+the network obeys, at steady state, a current law (mass balance) at every
+node,
+\[
+\sum_{j:(j,i)\in\E}J_{ji}-\sum_{j:(i,j)\in\E}J_{ij}=0,
+\]
+and, around every directed cycle, a voltage law (thermodynamic cycle
+consistency),
+\[
+\sum_{(i,j)\in\mathcal{C}}(\phi_j-\phi_i)=0.
+\]
+\end{proposition}
+
+\begin{proof}
+The current law is $d[C_i]/dt=0$ expanded through
+$\sum_r S_{ir}v_r=0$ and regrouped by edge. The voltage law telescopes:
+$\sum_{(i,j)\in\mathcal{C}}(\phi_j-\phi_i)=0$ around a closed cycle, and the
+concentration-dependent part is $RT\ln\prod_{(i,j)}[C_j]/[C_i]=RT\ln1=0$;
+the standard-state part vanishes by thermodynamic consistency of the cycle
+\citep{heinrich1996regulation,klipp2016systems}.
+\end{proof}
+
+These two laws---mass balance at nodes, thermodynamic consistency around
+cycles---are the constraints the monitor propagates measured quantities
+through. They hold whatever the sensors report; they are properties of the
+network, not of the measurement.
+
+\subsection{Epistemic blindness: why a culture cannot monitor itself}
+
+We close this section with the structural fact that makes external
+monitoring necessary. It will reappear, decisively, in the
+monitor--control separation of \Cref{sec:separation}.
+
+\begin{definition}[Epistemic blindness]
+\label{def:blindness}
+A dynamical system $(\V,\mathbf{v})$ is \emph{epistemically blind} to a
+partition $\{A,B\}$ of its state space if its flow $\mathbf{v}(\mathbf{x})$
+carries no function that correctly classifies $\mathbf{x}$ as belonging to
+$A$ or $B$: there is no $f$ with $f(\mathbf{v}(\mathbf{x}))$ deciding
+membership for all $\mathbf{x}$.
+\end{definition}
+
+\begin{theorem}[A culture is blind to its own state class]
+\label{thm:blindness}
+Under generic kinetics (mass-action, Michaelis--Menten), a culture running
+only forward reaction dynamics is epistemically blind to the partition
+\{nominal, aberrant\} of its own states: no function of its instantaneous
+flux reliably classifies the culture as nominal or aberrant.
+\end{theorem}
+
+\begin{proof}
+The rate law $v_{ij}([C_i],[C_j],k_{ij})$ at each edge depends only on
+current concentrations and rate constants; it contains no reference to a
+stored nominal state. At an aberrant state $\mathbf{x}_D$, the flux
+$\mathbf{v}(\mathbf{x}_D)$ encodes only the direction of the next
+transition, not the distance $\norm{\mathbf{x}_D-\mathbf{x}_H}$ to a nominal
+state $\mathbf{x}_H$---the more so when the aberration lies in altered
+parameters (regulation, modification) rather than in concentrations
+directly, so that the current flux is indistinguishable from that of a
+nominal culture elsewhere in the nominal basin. Hence no function of
+$\mathbf{v}(\mathbf{x}_D)$ alone separates aberrant from nominal
+\citep{gillespie1977exact,vankampen2007stochastic}.
+\end{proof}
+
+\begin{remark}[The necessity of an external observer]
+\label{rem:external}
+\Cref{thm:blindness} is the reason a bioreactor needs a monitor at all. The
+culture propagates whatever state it is in without classifying it; a
+faithful \emph{simulation} of the culture inherits exactly this blindness
+and so adds no diagnostic information. Detecting that a culture has departed
+from its nominal regime requires an observer \emph{outside} the culture's
+own dynamics, holding the network topology and a nominal reference against
+which the observed state is individuated. The monitoring framework of this
+paper \emph{is} that external observer. This is also the first of the three
+reasons (\Cref{sec:separation}) that monitoring must be kept separate from
+control: a system that acts on the culture is inside the loop it would have
+to judge.
+\end{remark}
+
+% =====================================================================
+\section{Trajectory Completion: Full State from Partial Observation}
+\label{sec:completion}
+% =====================================================================
+
+A bioreactor is never fully instrumented: a handful of probes report a
+handful of the culture's many species, and the rest are unmeasured. The
+monitoring task is therefore an \emph{inverse} problem---reconstruct the
+complete metabolic state from partial observation---rather than a forward
+simulation. We solve it by an iterative procedure that propagates the
+measured quantities through the network's own constraints, and we prove it
+converges to a unique answer. The state is reported as a bounded region
+(honouring the floor of \Cref{sec:floor}), represented as a fuzzy set.
+
+\subsection{Fuzzy state representation}
+
+Because no quantity is known to a point (\Cref{cor:no-point}), we represent
+each node's state as a fuzzy membership function over concentration space,
+which is exactly a bounded region with graded membership
+\citep{zadeh1965fuzzy}.
+
+\begin{definition}[Fuzzy node state]
+\label{def:fuzzy}
+A \emph{fuzzy state} of node $v_i$ is a function
+$\tilde\mu_i\colon\R_{\ge0}\to[0,1]$, where $\tilde\mu_i(c)$ is the degree
+to which concentration $c$ is consistent with the available information;
+$\tilde\mu_i(c)=1$ means fully consistent, $\tilde\mu_i(c)=0$ means
+excluded. Its \emph{support} $\{c:\tilde\mu_i(c)>0\}$ and \emph{core}
+$\{c:\tilde\mu_i(c)=1\}$ are its region of possibility and its region of
+full consistency. By \Cref{cor:no-point}, the support has width
+$\ge\floorc$.
+\end{definition}
+
+\begin{definition}[Fuzzy network state; metric]
+\label{def:fuzzy-net}
+The \emph{fuzzy network state} is the tuple
+$\widetilde{\mathbf{X}}=(\tilde\mu_1,\dots,\tilde\mu_N)$. On upper
+semi-continuous normal fuzzy sets, the Hausdorff distance between the
+$\alpha$-level sets, taken as a supremum over $\alpha\in(0,1]$,
+\[
+d_H(\tilde\mu,\tilde\nu)=\sup_{\alpha\in(0,1]}
+d_{\mathrm{Haus}}\!\bigl([\tilde\mu]^\alpha,[\tilde\nu]^\alpha\bigr),
+\]
+is a complete metric, and the product metric on the network state is
+$d(\widetilde{\mathbf{X}},\widetilde{\mathbf{Y}})=\max_i
+d_H(\tilde\mu_i,\tilde\nu_i)$.
+\end{definition}
+
+\subsection{Three constraint operators}
+
+The reconstruction is driven by three operators, each tightening the fuzzy
+state using a different physical constraint. All three are properties of
+the network (\Cref{prop:kirchhoff}) and hold regardless of what the sensors
+report.
+
+\begin{definition}[Constraint operators]
+\label{def:operators}
+On the space of fuzzy network states, define:
+\begin{enumerate}[label=(\roman*),leftmargin=2em,nosep]
+\item $\mathcal{T}_{\mathrm{bal}}$ (\emph{mass balance}): at each node,
+intersect $\tilde\mu_i$ with the set of concentrations consistent with the
+node current law (\Cref{prop:kirchhoff}) given the neighbours' current
+fuzzy states, propagated by interval arithmetic.
+\item $\mathcal{T}_{\mathrm{therm}}$ (\emph{thermodynamic consistency}):
+for each independent cycle, restrict node memberships so the fuzzy cycle
+potential contains zero in its core (the voltage law).
+\item $\mathcal{T}_{\mathrm{kin}}$ (\emph{kinetic feasibility}): for each
+node, compute the most-probable causal history of its current state by a
+maximum-a-posteriori (Viterbi) trace back through the network
+\citep{viterbi1967error}, and restrict $\tilde\mu_i$ to concentrations
+whose inferred history is consistent with a nominal reference.
+\end{enumerate}
+The combined operator is
+$\mathcal{T}=\mathcal{T}_{\mathrm{kin}}\circ\mathcal{T}_{\mathrm{therm}}
+\circ\mathcal{T}_{\mathrm{bal}}$.
+\end{definition}
+
+The kinetic operator uses a fact worth isolating: the most-probable
+backward trajectory of a node is a fixed, time-independent property of its
+state and the network.
+
+\begin{proposition}[Backward trajectories are time-invariant]
+\label{prop:timeinv}
+For an autonomous (time-homogeneous) reaction network, the
+maximum-a-posteriori causal history of a node's observed state depends only
+on that state and the network topology, not on the absolute time of
+observation.
+\end{proposition}
+
+\begin{proof}
+The transition propensities of a mass-action network depend only on the
+current molecule counts, not on $t$; the chain is time-homogeneous. Hence
+the conditional law of the past trajectory given the present state is
+invariant under time-shift, and its maximiser---the MAP history---is the
+same whenever the observation is made
+\citep{gillespie1977exact,vankampen2007stochastic,viterbi1967error}.
+\end{proof}
+
+\begin{remark}[The categorical address]
+\label{rem:address}
+\Cref{prop:timeinv} lets the monitor treat a node's backward trajectory as
+a fixed \emph{address}---a stable identity of its state in the network,
+independent of when the culture is sampled. Two nodes at the same
+concentration but different network positions have different addresses, so
+the monitor distinguishes them even when a bulk sensor cannot. A culture is
+nominal when every node's address lies in the nominal basin; an aberration
+is a node whose address has escaped it. This is the diagnostic that
+\Cref{thm:blindness} showed the culture cannot compute for itself.
+\end{remark}
+
+\subsection{Convergence}
+
+\begin{theorem}[Convergence of trajectory completion]
+\label{thm:convergence}
+The operator $\mathcal{T}=\mathcal{T}_{\mathrm{kin}}\circ
+\mathcal{T}_{\mathrm{therm}}\circ\mathcal{T}_{\mathrm{bal}}$ is a
+contraction on the complete metric space of fuzzy network states
+(\Cref{def:fuzzy-net}). Consequently it has a unique fixed point
+$\widetilde{\mathbf{X}}^\ast$, and iteration from any initial state
+converges to it geometrically.
+\end{theorem}
+
+\begin{proof}
+We show each sub-operator is a (weak) contraction and their composition a
+strict one. For $\mathcal{T}_{\mathrm{bal}}$, the balance constraint
+expresses $[C_i]$ as a convex combination of its in-neighbours' fuzzy
+states with coefficients $k_{ji}/\sum_l k_{li}$ that are positive and sum
+to at most one; interval propagation and intersection with the prior can
+only reduce the Hausdorff distance, so
+$d_H(\mathcal{T}_{\mathrm{bal}}(\widetilde{\mathbf X})_i,
+\mathcal{T}_{\mathrm{bal}}(\widetilde{\mathbf Y})_i)
+\le\sum_{j}\frac{k_{ji}}{\sum_l k_{li}}
+d_H(\tilde\mu_j,\tilde\nu_j)$, a contraction with constant $c_1\le1$,
+strict once any node is anchored by a measurement. For
+$\mathcal{T}_{\mathrm{therm}}$, restricting to the thermodynamic constraint
+manifold narrows each interval toward it, giving a factor $c_2<1$
+depending on cycle length. For $\mathcal{T}_{\mathrm{kin}}$, restricting to
+addresses consistent with the reference reduces support width
+monotonically, giving $c_3<1$ whenever the address constraint is
+non-trivial. The composition has constant $c\le c_1 c_2 c_3<1$. The space
+is complete as a finite product of complete Hausdorff metric spaces
+\citep{zadeh1965fuzzy}, so the Banach fixed-point theorem
+\citep{banach1922operations} gives a unique fixed point and geometric
+convergence $c^n d(\widetilde{\mathbf X}_0,\widetilde{\mathbf X}^\ast)$.
+\end{proof}
+
+\begin{corollary}[Sufficient observation yields a bounded region]
+\label{cor:observability}
+If the measured nodes form a dominating set of the network---every
+unmeasured node has a measured neighbour---then the fixed point
+$\widetilde{\mathbf X}^\ast$ has every node's support narrowed to a region
+of width bounded below by the floor $\floorc$ and above by a width set by
+the observation set. The monitor reports this region, not a point.
+\end{corollary}
+
+\begin{proof}
+Under domination, $\mathcal{T}_{\mathrm{bal}}$ constrains each unmeasured
+node from a measured neighbour; $\mathcal{T}_{\mathrm{therm}}$ and
+$\mathcal{T}_{\mathrm{kin}}$ remove thermodynamically and kinetically
+inconsistent candidates. The fixed-point widths therefore contract to the
+region admitted jointly by the three constraints, bounded below by
+$\floorc$ (\Cref{thm:floor}) and above by the residual freedom the
+observation set leaves.
+\end{proof}
+
+\begin{remark}[What the monitor delivers here]
+\label{rem:deliver-completion}
+\Cref{thm:convergence,cor:observability} are the core monitoring
+guarantee for the bulk state: from whatever subset of species the reactor
+happens to instrument, the framework reconstructs a bounded, uncertainty-
+honest region for \emph{every} species in the network, converging in a
+number of iterations logarithmic in the desired precision. Complexity is
+$O(N\cdot R\cdot L)$ per iteration for a network of $N$ species, $R$
+reactions, and backward-trajectory depth $L$ (\Cref{sec:pipeline}), which
+is tractable for genome-scale networks. This is the framework's answer to
+the soft-sensor problem, but with a convergence proof and an explicit,
+theory-set uncertainty region in place of an empirically fitted error bar.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel3_completion.png}
+    \caption{\textbf{Trajectory Completion Contracts to a Unique Bounded
+    Region.}
+    (\textbf{A})~Iteration residual
+    $d(\widetilde{\mathbf X},\widetilde{\mathbf X}_{\mathrm{prev}})$ on a log
+    $y$-axis ($10^{-13}$ to $10^{1}$) versus iteration on the linear $x$-axis
+    ($0$ to ${\sim}35$), eight random forty-species networks (steel-blue).
+    Every curve is a straight line on the semi-log axis: convergence is
+    geometric, the signature of a contraction (\Cref{thm:convergence}), each
+    network reaching machine precision within $\sim\!30$ passes.
+    (\textbf{B})~Distribution of the measured contraction constant $c$ on the
+    linear $x$-axis ($0$ to $1.05$) with the boundary $c=1$ marked (coral
+    dashed), sea-green. Every measured constant is strictly below one (mean
+    $0.50$, maximum $0.63$ over $40$ instances), so the Banach fixed-point
+    theorem applies and the fixed point is unique and reached from any
+    initial state.
+    (\textbf{C})~Distribution of reconstructed interval width normalised by
+    the floor, $w/\floorc$, on the linear $x$-axis ($0.9$ to ${\sim}9$),
+    orange, with the floor $w/\floorc=1$ marked (coral dashed). A pile-up
+    sits exactly at the floor---well-constrained species reach width
+    $\floorc$---while distant unmeasured species retain wider intervals; no
+    width falls below $\floorc$, the bounded-region guarantee of
+    \Cref{cor:observability}. The monitor reports a region, never a point.
+    (\textbf{D})~Three-dimensional midpoint trajectories of three tracked
+    species from two well-separated initial fuzzy states (init~1 blue,
+    init~2 purple) over the coordinates $(x_0,x_1,x_2)$, viewing angle
+    elevation $22^{\circ}$ azimuth $-60^{\circ}$; both trajectories converge
+    to the identical fixed point (red marker). Distinct starting states reach
+    one limit, the uniqueness clause of \Cref{thm:convergence}.}
+    \label{fig:panel3}
+\end{figure*}
+
+% =====================================================================
+\section{Multimodal Reaction Localisation}
+\label{sec:localisation}
+% =====================================================================
+
+Trajectory completion (\Cref{sec:completion}) reconstructs the bulk state:
+how much of each species is present. We now address the finer question of
+\emph{where} and \emph{when} an individual reaction occurs. Conventional
+bioprocess thinking treats intracellular reaction location as lost to
+thermal averaging. We show it is recoverable, because a single reaction
+event radiates disturbances into several physically distinct propagation
+channels at once, and the intersection of their arrival patterns pins the
+event.
+
+\subsection{One event, several modalities}
+
+\begin{definition}[Reaction event; modalities]
+\label{def:event}
+A \emph{reaction event} occurs at position $\mathbf{r}_0$ and time $t_0$. It
+excites, simultaneously, disturbances in several \emph{modalities}, each
+governed by distinct propagation physics:
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item \textbf{chemical}: product species spreading diffusively,
+$D\sim10^{-11}\,\mathrm{m}^2/\mathrm{s}$;
+\item \textbf{acoustic}: a pressure wave from molecular rearrangement,
+$c_s\sim1540\,\mathrm{m/s}$;
+\item \textbf{thermal}: reaction-enthalpy heat spreading diffusively,
+$\alpha\sim10^{-7}\,\mathrm{m}^2/\mathrm{s}$;
+\item \textbf{electromagnetic}: charge redistribution, screened over the
+Debye length $\lambda_D\sim0.5$--$1\,\mathrm{nm}$;
+\item \textbf{vibrational}: a local bond-frequency change, extent
+$\sim0.1\,\mathrm{nm}$;
+\item \textbf{categorical}: a discrete change in partition coordinates,
+counted exactly (\Cref{def:catdist}), with no threshold.
+\end{itemize}
+\end{definition}
+
+Each modality reaches an observation point $\mathbf{r}$ at a characteristic
+time, defining an arrival-time function
+$\mathcal{T}_i(\mathbf{r};\mathbf{r}_0,t_0)$ whose level sets are
+\emph{arrival-time surfaces}. Ballistic modalities (acoustic) give surfaces
+expanding linearly, $|\mathbf{r}-\mathbf{r}_0|=c_s(t-t_0)$; diffusive
+modalities (chemical, thermal) give surfaces expanding as $\sqrt{t}$,
+$|\mathbf{r}-\mathbf{r}_0|=2\sqrt{D\mathcal{L}(t-t_0)}$ for a logarithmic
+threshold factor $\mathcal{L}$; screened and local modalities (EM,
+vibrational) give hard constraint spheres; the categorical modality gives a
+discrete, threshold-free constraint
+\citep{crank1979mathematics,smoluchowski1917versuch,herzberg1950spectra,%
+boxer2009stark}.
+
+\subsection{The intersection principle}
+
+\begin{theorem}[Localisation by intersection]
+\label{thm:intersection}
+Given accurate arrival times of at least three modalities with distinct
+propagation laws, observed at a sufficient set of points, the reaction
+coordinates $(\mathbf{r}_0,t_0)$ are uniquely determined. The probability
+of a false localisation decreases exponentially in the number of
+modalities.
+\end{theorem}
+
+\begin{proof}
+Consider the acoustic (linear-in-distance) and chemical (quadratic-in-
+distance) constraints observed at $\mathbf{r}$. Writing
+$r=|\mathbf{r}-\mathbf{r}_0|$, the acoustic constraint gives
+$r=c_s(t_A-t_0)$ and the chemical constraint gives
+$r^2=4D\mathcal{L}(t_C-t_0)$. Eliminating $r$ yields a quadratic in $t_0$
+whose physical (earlier) root is selected by causality, fixing $t_0$ and
+hence $r$. A third distinct-law modality, or observations at further
+points, resolves direction by trilateration
+\citep{fang2008simple}. Because the modalities obey functionally
+independent laws (linear vs.\ quadratic vs.\ hard-sphere vs.\ discrete),
+their constraint surfaces meet transversally, so coincident false
+intersections form a measure-zero set; with independent measurement noise
+across $N$ modalities the false-localisation probability falls as
+$e^{-\Theta(N)}$.
+\end{proof}
+
+\begin{theorem}[Resolution multiplies with modalities]
+\label{thm:resolution}
+If modality $i$ excludes a fraction $\eps_i\in(0,1)$ of the candidate
+volume, then the combined localisation resolution is
+\[
+\delta r_{\mathrm{comb}}=\delta r_{\mathrm{single}}\prod_{i=1}^{N}
+\eps_i^{1/3},
+\]
+the $1/3$ exponent arising from three-dimensional intersection.
+\end{theorem}
+
+\begin{proof}
+For statistically independent modalities the admissible volume is
+$V_0\prod_i\eps_i$; the characteristic linear dimension scales as
+$V^{1/3}$, giving $\delta r_{\mathrm{comb}}=\delta
+r_{\mathrm{single}}(\prod_i\eps_i)^{1/3}$
+\citep{fang2008simple}.
+\end{proof}
+
+\begin{example}[Order of magnitude]
+\label{ex:resolution}
+With six modalities of typical exclusion factors $\eps_i$ between
+$10^{-2}$ and $10^{-6}$, the product $\prod_i\eps_i^{1/3}\sim10^{-7}$, so a
+diffraction-limited single-channel resolution of $\sim300\,\mathrm{nm}$
+sharpens toward the sub-nanometre scale, in practice limited to
+$\sim0.1$--$1\,\mathrm{nm}$ by thermal noise. The gain is the payoff for
+fusing physically independent channels rather than refining one.
+\end{example}
+
+\subsection{Opacity-independent measurement}
+
+The categorical modality plays a special role, because it lives in the
+space of distinctions, not the space of physical positions.
+
+\begin{proposition}[Categorical distance is independent of physical
+distance and opacity]
+\label{prop:opacity}
+The categorical distance $\dcat$ (\Cref{def:catdist}) between two states is
+mathematically independent of their spatial separation and of the optical
+opacity of the intervening medium.
+\end{proposition}
+
+\begin{proof}
+$\dcat$ is defined on partition coordinates, which reside in the space of
+distinctions; spatial distance and optical opacity are defined on physical
+coordinates. The two coordinate systems are constructed independently, so
+their generated distances are uncorrelated: a state may be categorically
+close yet physically distant or occluded, and vice versa.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel4_localisation.png}
+    \caption{\textbf{Multimodal Intersection Localises a Reaction; Resolution
+    Multiplies.}
+    (\textbf{A})~Localisation error on a log $y$-axis (nm) versus the number
+    of intersecting modalities on the linear $x$-axis ($1$ to $3$), median
+    with inter-quartile bars over $120$ events per point (steel-blue). Error
+    falls monotonically as modalities are added---from ${\sim}1.6\,\mu$m with
+    the acoustic channel alone to $\sim\!20\,$nm with acoustic, thermal, and
+    chemical combined---the intersection principle of \Cref{thm:intersection}:
+    functionally independent arrival-time surfaces meet at a single event.
+    (\textbf{B})~Combined resolution on a log $y$-axis (nm) versus modality
+    count on the linear $x$-axis ($1$ to $6$), sea-green, with the
+    $1\,$nm line marked (coral dashed). The product-law factor
+    $\prod_i\eps_i^{1/3}$ drives resolution from $\sim\!300\,$nm toward the
+    sub-nanometre scale, confirming \Cref{thm:resolution}: each independent
+    channel contributes a multiplicative $\eps_i^{1/3}$ to the resolving
+    power.
+    (\textbf{C})~Median localisation error on the linear $y$-axis (nm) versus
+    optical opacity of the intervening medium on the linear $x$-axis
+    ($0$ to $50$), orange. The error is flat---${\sim}20\,$nm at every
+    opacity---because the timing and categorical channels do not read
+    photons: localisation is invariant to opacity, the content of
+    \Cref{prop:opacity} and \Cref{cor:opacity}, so a reaction behind an
+    opaque barrier remains monitorable.
+    (\textbf{D})~Three-dimensional scatter of true (blue) and recovered (red
+    crosses) event positions over the $10\,\mu$m domain
+    $(x,y,z)$, viewing angle elevation $20^{\circ}$ azimuth $-58^{\circ}$.
+    Recovered points coincide with the true positions to sub-nanometre in the
+    noiseless limit (maximum error ${\sim}10^{-16}\,$m), so the two markers
+    overlie one another: the intersection is exact
+    (\Cref{thm:intersection}).}
+    \label{fig:panel4}
+\end{figure*}
+
+\begin{corollary}[Subsurface reactions remain measurable]
+\label{cor:opacity}
+A reaction occurring behind an optically opaque barrier---inside a cell,
+behind a membrane, within an aggregate---remains categorically accessible
+to the monitor, provided its partition signature is distinguishable. The
+optically inaccessible reaction is not thereby monitor-inaccessible.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{prop:opacity}: opacity governs photon transmission,
+$\dcat$ governs distinguishability, and the two are independent.
+\end{proof}
+
+\begin{remark}[The reaction pathway as a chromatographic process]
+\label{rem:chromatography}
+There is a productive way to picture the localisation channels
+concretely. Imagine the culture---or a sampled stream from it---traversing
+a structured medium (a packed column of conductive dielectric beads) under
+flow, optical access, and a small electrical bias. Each reacting species,
+as it passes, modulates three physical channels at once: it changes the
+local viscous resistance (mechanical), the local refractive index
+(optical), and the local conductance across bead junctions (electrical).
+The species is then operationally a \emph{partition operator}: each
+channel-completing or channel-interrupting event is a categorical
+transition, and the temporal sequence of such events is the reaction being
+read out. The result is a multi-channel fingerprint of the reaction
+whose resolving power multiplies across channels
+(\Cref{thm:resolution})---the same intersection principle, realised as an
+instrument in which separation and detection are one event rather than two.
+A standard mass spectrometer is the degenerate special case that reads only
+one channel. This reading is offered as orientation and as a route to a
+physical instrument; the theorems above stand on the abstract modalities
+alone.
+\end{remark}
+
+% =====================================================================
+\section{Distributed Monitoring by a Phase-Locked Swarm}
+\label{sec:swarm}
+% =====================================================================
+
+A single monitoring agent identifies the state of a local region. To
+monitor a whole vessel---and to identify the culture as completely as
+possible---one deploys many agents. The question is how they coordinate. We
+show that agents which synchronise to a common cellular oscillation
+coordinate at zero communication overhead once coherent, that their
+resolving power \emph{increases} with agent count, and that the loss of
+their coherence is itself a first-class fault signal.
+
+\subsection{Agents as coupled oscillators}
+
+\begin{definition}[Monitoring agent]
+\label{def:agent}
+A \emph{monitoring agent} is characterised by a natural oscillation
+frequency $\omega_i=2\pi f_i$, a phase $\phi_i(t)$, and a
+\emph{cell registry} mapping each cell of a fixed partition of the
+observable space to a pre-compiled action. Agents communicate only by
+emitting bare timing pulses: the sole communicated quantity is \emph{when}
+a pulse arrives, never a semantic payload. A physical perturbation shifts
+an agent's inter-pulse interval into a different cell, triggering the
+associated action, with no explicit encoding or decoding.
+\end{definition}
+
+\begin{definition}[Coupling; order parameter]
+\label{def:kuramoto}
+Agents evolve by the Kuramoto dynamics
+\citep{kuramoto1984chemical,strogatz2000kuramoto}
+\[
+\dot\phi_i=\omega_i+\frac{K}{n}\sum_{j=1}^{n}\sin(\phi_j-\phi_i),
+\]
+with coupling strength $K\ge0$. The natural frequencies are drawn from a
+symmetric unimodal distribution of standard deviation $\sigma_\omega$. The
+collective coherence is the \emph{order parameter}
+\[
+\Rens\,e^{i\psi}=\frac1n\sum_{j=1}^{n}e^{i\phi_j},\qquad \Rens\in[0,1],
+\]
+with $\Rens=0$ full incoherence and $\Rens=1$ perfect synchrony.
+\end{definition}
+
+\begin{theorem}[Critical coupling]
+\label{thm:critical}
+There is a critical coupling $K_c=2\sigma_\omega/\pi$ such that for $K<K_c$
+the only stable state is incoherent ($\Rens^\ast=0$), while for $K>K_c$ a
+coherent state $\Rens^\ast=\sqrt{1-K_c/K}$ emerges through a supercritical
+pitchfork bifurcation.
+\end{theorem}
+
+\begin{proof}
+In the mean-field limit each agent obeys
+$\dot\phi_i=\omega_i+K\Rens\sin(\psi-\phi_i)$; splitting into locked
+($|\omega_i|\le K\Rens^\ast$) and drifting populations and imposing
+self-consistency on $\Rens^\ast$ gives, near the bifurcation,
+$1=\tfrac{\pi}{2}K^2 g(0)$ for the frequency density $g$; substituting
+$g(0)$ for a unimodal distribution of spread $\sigma_\omega$ yields
+$K_c=2\sigma_\omega/\pi$, and the normal-form reduction gives the stable
+branch $\Rens^\ast=\sqrt{1-K_c/K}$
+\citep{strogatz2000kuramoto,pikovsky2001synchronization}.
+\end{proof}
+
+\subsection{Zero-overhead coordination}
+
+\begin{theorem}[Zero-overhead coordination]
+\label{thm:zero-overhead}
+In the phase-locked regime $\Rens\ge0.95$, with a cell partition whose
+minimum cell width exceeds the residual phase spread
+$2\pi(1-\Rens)/\bar\omega$, the per-iteration coordination overhead is
+identically zero: every agent assigns the same cell to each event and hence
+computes the same action, with no message exchange.
+\end{theorem}
+
+\begin{proof}
+At $\Rens\ge0.95$ all agents rotate at a common angular velocity up to a
+residual phase error $|\delta_i|\le\arccos(\Rens)$; the induced spread of
+inter-pulse intervals is bounded by $\eps_0=2\pi(1-\Rens)/\bar\omega$. If
+the minimum cell width exceeds $\eps_0$, any two agents' intervals for the
+same event fall in the same cell, so their (identical, pre-distributed)
+registries yield the same action. No exchange of cell assignments is needed
+because the assignments already agree; hence the coordination overhead is
+zero \citep{lynch1996distributed}.
+\end{proof}
+
+\begin{remark}[Contrast with content-based consensus]
+\label{rem:consensus}
+\Cref{thm:zero-overhead} is the coordination analogue of a coherent
+collective ground state: below the decoherence threshold, agents act as one
+without reconciliation events, whereas content-based consensus protocols
+require $O(\log n)$ to $O(n^2)$ messages per decision
+\citep{lynch1996distributed}. The saving is structural, not algorithmic:
+there is nothing to reconcile because there is no semantic content in the
+channel, only timing.
+\end{remark}
+
+\subsection{More agents mean finer identification}
+
+\begin{theorem}[Composition inflates distinguishability]
+\label{thm:composition}
+A federation whose agents contribute $D$ independent sensing channels in
+total can distinguish, over $m$ timing events,
+\[
+T(m,D)=D\,(D+1)^{m-1}
+\]
+joint states. Adding an agent with $d$ channels multiplies the count by
+$\bigl((D+d+1)/(D+1)\bigr)^{m-1}>1$.
+\end{theorem}
+
+\begin{proof}
+Model the joint state at each event as a draw from an alphabet of size
+$D+1$ ($D$ channel-excited states plus one nominal). The first event has
+$D$ informative states; each later event draws independently from all
+$D+1$, giving $D(D+1)^{m-1}$. Replacing $D$ by $D+d$ gives the multiplier,
+which exceeds one for $d\ge1$
+\citep{cover2006elements}.
+\end{proof}
+
+\begin{remark}[The identification goal]
+\label{rem:identify}
+\Cref{thm:composition} is why adding monitoring agents \emph{helps} rather
+than merely costs: distinguishability grows super-exponentially in the
+number of channels, reversing the usual curse of dimensionality. Combined
+with the resolution multiplication of \Cref{thm:resolution} and the
+never-completable medium of \Cref{def:medium}, this makes precise the
+monitoring goal: identify the culture as completely as the deployed
+channels allow, knowing the floor forbids ever completing it. More agents
+resolve more of the culture; none of them finish it.
+\end{remark}
+
+\subsection{Decoherence as a fault signal}
+
+\begin{theorem}[Graceful decoherence and detection bound]
+\label{thm:decoherence}
+If the effective coupling falls below $K_c$ (through channel degradation or
+a genuine process disturbance), the coherence $\Rens$ relaxes toward zero at
+rate $(K_c-K)/2$, and the departure is detectable within
+$m^\ast=\lceil1/\eps\rceil$ timing events for timing precision $\eps$. The
+federation does not fail abruptly; it degrades to the next-lower
+coordination regime, continuing to monitor at correspondingly higher
+overhead.
+\end{theorem}
+
+\begin{proof}
+For $K<K_c$ the coherent fixed point disappears and $\Rens$ decays with
+rate set by the curvature of the coupling potential at the origin,
+$(K_c-K)/2$; a per-event decrease of at least $\eps$ is observable after at
+most $1/\eps$ events. The five coordination regimes are ordered by
+$\Rens$, so crossing a boundary triggers the fallback protocol of the next
+regime rather than collapse
+\citep{strogatz2000kuramoto,pikovsky2001synchronization}.
+\end{proof}
+
+\begin{corollary}[Swarm decoherence is a monitoring output]
+\label{cor:decoherence-output}
+The loss of swarm coherence is itself a first-class, early fault
+signal---detectable within $\lceil1/\eps\rceil$ events, before any
+individual agent has diagnosed a local aberration---and is reported by the
+monitor as such.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:decoherence} the coherence responds to any disturbance that
+perturbs the agents' common clock, and the response is detectable within a
+bounded number of events; the monitor exposes $\Rens$ and its regime as an
+output.
+\end{proof}
+
+\begin{remark}[Security by absence of content]
+\label{rem:security}
+Because the inter-agent channel carries only timing and no semantic
+payload, there is no content to inject, corrupt, or forge: a spurious pulse
+can at worst shift an interval to an adjacent cell, selecting a different
+but still pre-approved action, and a replayed pulse is rejected by a
+monotone phase counter. The monitoring swarm is thus structurally immune to
+content-injection attacks, a property inherited from the timing-only
+channel rather than from any cryptographic layer.
+\end{remark}
+
+
+% =====================================================================
+\section{Monitoring Coincidence Nodes: States True of the Population,
+Present in No Cell}
+\label{sec:coincidence}
+% =====================================================================
+
+We now reach a capability that distinguishes this framework from every
+per-cell or bulk-average monitoring method: the ability to monitor a
+process that occurs only under a \emph{conjunction} of conditions that no
+single cell need ever satisfy at once. Such a process is invisible to
+conventional monitoring---there is no cell to probe while it happens, and it
+is averaged away in any bulk signal---yet it is individuable from the
+population's joint evidence. The information about it is true of the culture
+as a structured whole while being present in no member of it.
+
+\subsection{Coincidence nodes}
+
+\begin{definition}[Condition; coincidence node]
+\label{def:coincidence}
+A \emph{condition} is a predicate on the observable state---for example
+``$\mathrm{pH}=x$,'' ``$T=y$,'' ``the UV--vis spectrum lies in band $z$.''
+A \emph{coincidence node} is a network node (a reaction or state,
+\Cref{def:network}) whose occurrence requires the \emph{conjunction} of two
+or more conditions $c_1\wedge c_2\wedge\cdots\wedge c_p$, each supplied by a
+distinct evidentiary channel. Its \emph{physical support} at a given instant
+is the set of cells that satisfy all $p$ conditions simultaneously; the
+support may be empty even when each condition is satisfied by many cells
+individually.
+\end{definition}
+
+\begin{example}[A triple-conjunction node]
+\label{ex:triple}
+Let a node $\nu$ fire only when a cell is simultaneously at pH $x$,
+temperature $y$, and exhibiting UV--vis spectrum $z$. In a well-mixed
+reactor, many cells are at pH $x$, many at temperature $y$, and many showing
+spectrum $z$, but the fraction at all three at once may be vanishingly small
+or momentarily zero. No probe placed on any cell reliably catches $\nu$; no
+bulk average contains it, since the overwhelming majority of cells
+contributing to any average are not at the intersection. By the standards of
+conventional monitoring, $\nu$ is unmonitorable.
+\end{example}
+
+\subsection{Individuation of an empty-support node}
+
+The framework individuates $\nu$ regardless, because individuation is by
+negation against the medium (a property of the whole,
+\Cref{thm:negation})---not by finding a cell that instantiates $\nu$.
+
+\begin{definition}[Categorical address of a coincidence node]
+\label{def:coincidence-address}
+The \emph{categorical address} of a coincidence node $\nu=c_1\wedge\cdots
+\wedge c_p$ is the point of the state space at which all $p$ conditions'
+constraint regions intersect, expressed in the categorical coordinates of
+\Cref{sec:sspace}. It is defined by the conditions, not by any cell: it is
+the categorical intersection of the $p$ conditions, whether or not a cell
+occupies it.
+\end{definition}
+
+\begin{theorem}[Conjunction individuation]
+\label{thm:conjunction}
+Let $\nu=c_1\wedge\cdots\wedge c_p$ be a coincidence node, each condition
+$c_i$ witnessed by an independent channel that individuates a constraint
+region of separation cost $\ge\floorc$ (\Cref{thm:floor}). If the
+categorical address of $\nu$ (\Cref{def:coincidence-address}) is reachable
+from the committed evidence---that is, the $p$ constraint regions have a
+non-empty categorical intersection---then $\nu$ is individuable, and the
+monitor reports its reconstructed state-region, \emph{even when the physical
+support of $\nu$ is empty}.
+\end{theorem}
+
+\begin{proof}
+Each condition $c_i$ is individuated against the medium by negation
+(\Cref{thm:negation}), fixing a constraint region $\Reac_i$ of the state
+space of separation cost $\ge\floorc$ (\Cref{thm:floor}); this fixing uses
+only the channel witnessing $c_i$ and the medium, and in particular does not
+require a cell that satisfies $c_i$ to also satisfy the others. The address
+of $\nu$ is the categorical intersection $\bigcap_{i=1}^{p}\Reac_i$
+(\Cref{def:coincidence-address}). Because categorical distance is
+independent of physical distance and of whether any cell occupies the
+intersection (\Cref{prop:opacity}), the reachability of the address is a
+statement about the intersection of the $\Reac_i$ in categorical
+coordinates, not about the physical support of $\nu$. When that intersection
+is non-empty, the trajectory-completion operators of \Cref{sec:completion}
+propagate the $p$ constraints---each committed by a different channel---to a
+unique fixed-point region for $\nu$ (\Cref{thm:convergence}), of width
+$\ge\floorc$ (\Cref{cor:observability}). This region is $\nu$'s
+reconstructed state. No step required a cell instantiating all $p$
+conditions; hence $\nu$ is individuated with empty physical support.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel5_coincidence.png}
+    \caption{\textbf{A Coincidence Node: True of the Population, Present in No
+    Cell.}
+    (\textbf{A})~Number of cells satisfying each single condition and the
+    three-way conjunction, on a symmetric-log $y$-axis, over a population of
+    $5{,}000$ cells (bars; the conjunction bar in coral). Each condition
+    holds for many cells---$3{,}361$ at the pH band, $3{,}291$ at the
+    temperature band, $3{,}348$ at the spectral band---yet the conjunction is
+    satisfied by \emph{zero} cells: the physical support is empty, so the
+    node is unmonitorable by any per-cell method (\Cref{thm:unmonitorable}).
+    (\textbf{B})~The reconstructed categorical address as normalised
+    condition ranges for the three axes (sea-green horizontal bars, each
+    axis rescaled to $[0,1]$ of its physiological range). The three
+    condition regions have a non-empty, bounded intersection---the address
+    of the node---even though no cell occupies it, the object individuated by
+    \Cref{thm:conjunction} and \Cref{def:coincidence-address}.
+    (\textbf{C})~Node detected ($0$ or $1$) by three methods: per-cell,
+    bulk-average, and conjunction individuation (bars; failing methods in
+    coral, the succeeding method in green). Only conjunction individuation
+    returns the node; the per-cell and bulk routes cannot, the separation
+    proved in \Cref{thm:unmonitorable}.
+    (\textbf{D})~Three-dimensional scatter of the population in condition
+    space (pH $5.5$ to $8.5$, temperature $30$ to $42$, spectral band $0$ to
+    $1$), each cell coloured by how many of the three bands it satisfies
+    ($0$ grey, $1$ blue, $2$ orange---never three), viewing angle elevation
+    $20^{\circ}$ azimuth $-62^{\circ}$. The cloud forms a cross whose centre
+    is hollow; the coral wireframe box marks the empty categorical address at
+    the band intersection---the state the monitor reconstructs from the
+    population's joint evidence, present in no member of it
+    (\Cref{cor:populational}).}
+    \label{fig:panel5}
+\end{figure*}
+
+\begin{corollary}[The information is populational, not cellular]
+\label{cor:populational}
+The state of a coincidence node is carried by the joint structure of the
+population's evidence---one condition per channel, drawn across different
+cells and different instants---and by no single cell. It is information that
+is true for the culture as a whole and present in no member of it.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:conjunction} the reconstruction of $\nu$ uses one committed
+constraint per condition, each witnessed by a distinct channel and,
+generically, sourced from a different subpopulation of cells; no cell
+supplies more than a proper subset of the conjunction (else the support
+would be non-empty at that cell). The individuated region for $\nu$ is
+therefore a function of the joint evidence across channels and cells, and is
+recoverable from no single cell's state.
+\end{proof}
+
+\subsection{Why conventional monitoring cannot do this}
+
+\begin{theorem}[Coincidence nodes are unmonitorable per cell or in bulk]
+\label{thm:unmonitorable}
+A coincidence node with empty physical support cannot be detected by any
+method that reads individual cells or bulk population averages, yet is
+individuable by conjunction individuation (\Cref{thm:conjunction}).
+\end{theorem}
+
+\begin{proof}
+A per-cell method detects a node only by observing a cell that instantiates
+it; with empty physical support there is no such cell, so per-cell detection
+fails. A bulk-average method reports a population mean; the contribution of a
+node instantiated by a measure-zero (or empty) fraction of cells is
+dominated by the overwhelming complementary fraction not at the
+intersection, so the node is not resolvable from the average
+(\Cref{thm:blindness} gives the sharper statement that the bulk flux carries
+no classifier of the node's occurrence). Both conventional routes therefore
+fail. Conjunction individuation, by contrast, reconstructs the node from the
+categorical intersection of independently committed conditions
+(\Cref{thm:conjunction}), which does not require the node's physical support
+to be non-empty. Hence the node is monitorable by the framework and by
+neither conventional route.
+\end{proof}
+
+\begin{remark}[Monitoring processes that occur after specific sequences]
+\label{rem:sequence}
+The conjunction of \Cref{def:coincidence} need not be simultaneous in the
+naive sense: a condition may itself be ``the culture has passed through
+state $s$,'' encoded as a committed step in the monotone history of the
+completion procedure. A coincidence node may then require an \emph{ordered}
+sequence of conditions---a process that occurs only after a specific
+succession of events. Because the backward addresses of
+\Cref{prop:timeinv} record committed history, the framework individuates
+such sequence-gated nodes by the same theorem: the conditions are the
+history-predicates, and their categorical intersection is the address of the
+sequence-triggered process. Processes that ``only occur after this, then
+this, then this'' are thus monitorable exactly as spatial conjunctions are.
+\end{remark}
+
+\begin{remark}[Latent nodes and the identification goal]
+\label{rem:latent}
+\Cref{thm:conjunction} instructs the monitor to carry coincidence nodes as
+\emph{latent but individuable}: a coincidence node is represented as a
+categorical address with a reconstructed region, flagged with its current
+physical support (possibly empty), whether or not any cell currently
+occupies it. This is the sharpest form of the identification goal
+(\Cref{rem:identify}): the monitor accumulates not only what each cell is
+doing, but what is true of the population's joint structure---coincidences
+and sequences that no cell exhibits alone. It is knowledge extracted from
+the culture as a whole, and it is exactly the knowledge that conventional
+monitoring, bound to cells and averages, cannot reach.
+\end{remark}
+
+
+% =====================================================================
+\section{Closure: When Monitoring Is Entitled to Report}
+\label{sec:closure}
+% =====================================================================
+
+A monitor that fuses many channels must decide when it has seen enough. We
+give a stopping rule---\emph{closure}---that is strictly stronger than
+crossing a confidence threshold, prove it terminates, and show it yields
+exactly two honest outcomes: a single reported state, or an explicit
+declaration that the evidence is contested.
+
+\subsection{Evidence, catalysts, and coherence}
+
+\begin{definition}[Catalyst]
+\label{def:catalyst}
+A \emph{catalyst} is an evidence-producing operation---a probe reading, a
+spectroscopic inversion, a completed trajectory reconstruction, a
+localisation---that moves the monitor's estimate toward the state being
+identified by committing a contact in the contact graph. Catalysts of any
+physical source (in-line probe, off-line assay, inferred quantity) are
+\emph{uniform}: the framework encodes only the cost of the evidence they
+produce, never its physical origin (\Cref{def:contact}).
+\end{definition}
+
+\begin{definition}[Catalytic power; composition]
+\label{def:power}
+The \emph{power} $\kappa\in[0,1]$ of a catalyst is the fraction of the
+above-floor uncertainty it removes. A chain of catalysts of powers
+$\kappa_1,\dots,\kappa_n$ has composite power
+$\kappa=1-\prod_{i=1}^{n}(1-\kappa_i)$.
+\end{definition}
+
+\begin{proposition}[Diminishing returns and diversification]
+\label{prop:diminishing}
+Repeating one catalyst of power $\kappa$ gives composite power
+$1-(1-\kappa)^n$, strictly increasing toward but never reaching $1$; a
+chain drives the residual uncertainty to zero only if
+$\sum_i\kappa_i=\infty$. Hence independent catalysts addressing distinct
+evidentiary channels saturate faster and more robustly than repeated near-
+duplicate ones.
+\end{proposition}
+
+\begin{proof}
+The residual fraction after $n$ catalysts is $\prod_{i\le n}(1-\kappa_i)$;
+for a single repeated catalyst this is $(1-\kappa)^n\to0$ but never $0$ at
+finite $n$. Taking logarithms, $\sum_i\log(1-\kappa_i)\to-\infty$ iff
+$\sum_i\kappa_i=\infty$ (comparison test, since $-\log(1-\kappa)\asymp
+\kappa$ for small $\kappa$). Distinct channels contribute independent
+powers and so accumulate the divergent sum faster than duplicates, whose
+marginal power collapses \citep{cover2006elements}.
+\end{proof}
+
+\begin{theorem}[Coherence requires three independent catalysts]
+\label{thm:triangle}
+A monitored state is robustly grounded---its identification survives the
+failure of any single catalyst---if and only if its supporting catalysts
+contain a strongly connected cycle of at least three mutually reinforcing,
+independently sourced members. One or two catalysts do not suffice: a
+single source has no internal check, and two sources can only mutually
+assert, with no third to break a disagreement.
+\end{theorem}
+
+\begin{proof}
+\emph{Necessity.} An acyclic support structure has a terminal catalyst with
+no incoming support; removing it, or any catalyst supporting only
+downstream members, collapses the chain below it, so no acyclic structure
+is robust to single removal. A one-cycle is self-support (vacuous); a
+two-cycle is mutual assertion between exactly two members, and removing
+either leaves one unsupported, failing a majority check. The shortest
+robust support cycle therefore has length $\ge3$.
+\emph{Sufficiency.} In a strongly connected triangle each member is
+supported by the other two; removing one leaves the remaining two still
+mutually supporting, so the identification persists.
+\end{proof}
+
+\begin{remark}[Monitoring reading]
+\label{rem:triangle-monitoring}
+\Cref{thm:triangle} is the framework's formalisation of a familiar
+laboratory instinct: a critical process reading should be corroborated by
+at least three independent lines of evidence---say an in-line probe, a
+spectroscopic inference, and a completed mass balance---before it is
+trusted, precisely because a lone reading (or two mutually confirming ones)
+cannot survive the failure of one source. The requirement is structural and
+decidable from the \emph{signs} of pairwise support alone, without knowing
+the powers.
+\end{remark}
+
+\subsection{The closure criterion}
+
+\begin{definition}[Reachable state set]
+\label{def:reachable}
+At a given monitoring stage, let $\mathcal{C}$ be the set of state-regions
+reachable by some admissible chain of catalysts invoked so far, taken up to
+the equivalence ``indistinguishable by any test of the reported state.''
+\end{definition}
+
+\begin{definition}[Closure]
+\label{def:closure}
+A monitoring query is \emph{closed} if, for every catalyst available but
+not yet invoked, extending the query by that catalyst cannot add a new
+region to $\mathcal{C}$: every further reachable outcome already lies in a
+region present in $\mathcal{C}$.
+\end{definition}
+
+\begin{theorem}[Closure is strictly stronger than a confidence threshold]
+\label{thm:closure-stronger}
+There exist monitoring configurations and thresholds $\theta$ in which a
+reading meets the confidence criterion (its estimate exceeds $\theta$)
+while the query is not closed: a further, not-yet-invoked catalyst would
+reach a region in a distinct equivalence class.
+\end{theorem}
+
+\begin{proof}
+Take two disjoint, internally self-consistent clusters $A$ and $B$ of
+supporting evidence, each reachable by a single catalyst $\gamma_A$,
+$\gamma_B$. A chain via $\gamma_A$ alone terminates at a region in $A$ and
+satisfies any fixed threshold trivially, since it is internally consistent.
+Yet $\gamma_B$, not yet invoked, reaches a region in $B$ distinct from that
+in $A$. The confidence criterion is met after $\gamma_A$; the query is not
+closed, because $\gamma_B$ can still add a new region.
+\end{proof}
+
+\begin{remark}[Why closure is correct]
+\label{rem:closure-correct}
+\Cref{thm:closure-stronger} isolates the standard failure of threshold
+stopping: one early, internally consistent sensor reports high confidence
+while a second, independent sensor would conclude otherwise. Closure
+forbids stopping until \emph{every} available further catalyst has been
+checked to land in an already-reached region. It is not that the current
+reading looks confident; it is that the space of readings has stopped
+producing new destinations. For a bioreactor this is the difference between
+``the DO probe is confident'' and ``no available measurement could change
+our conclusion.''
+\end{remark}
+
+\subsection{Two honest outcomes}
+
+\begin{theorem}[Convergent closure or honest decline]
+\label{thm:decline}
+Every monitoring query over a finite catalyst set terminates, in finitely
+many steps, in exactly one of two states:
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em,nosep]
+\item \textbf{convergent closure}: $\mathcal{C}$ stabilises to a single
+equivalence class, and the monitor reports that region as the identified
+state;
+\item \textbf{contested closure (decline)}: $\mathcal{C}$ stabilises but
+contains more than one class, and the monitor reports \emph{decline}---no
+single sufficient state exists---together with the distinct regions found.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The catalyst set is finite, so the reachable state set is finite and can
+grow only finitely often before every catalyst has been tried against every
+reached class; at that point \Cref{def:closure} holds by exhaustion, so
+closure is reached in finitely many steps. If the stabilised $\mathcal{C}$
+has one class, outcome (i) holds; if more than one, no single region is
+licensed and outcome (ii) holds. The two cases are exhaustive and mutually
+exclusive on a non-empty partition.
+\end{proof}
+
+\begin{remark}[Decline is information, not failure]
+\label{rem:decline}
+\Cref{thm:decline}(ii) is essential to an honest monitor. When independent
+lines of evidence disagree---an in-line probe says one thing, an off-gas
+inference another---the correct output is neither to loop forever nor to
+silently emit one of the contested readings as if it were unique, but to
+report that the sources disagree, with the alternatives. Contested closure
+localises exactly where independent inquiry diverges, which is itself
+valuable diagnostic output and, frequently, the earliest sign of a
+developing fault.
+\end{remark}
+
+
+% =====================================================================
+\section{The Separation of Monitoring from Control}
+\label{sec:separation}
+% =====================================================================
+
+We now establish, as a structural result rather than a design preference,
+that process monitoring (the framework of this paper) must be kept as a
+\emph{separate} framework from process control. Three independent arguments
+force the separation, and together they fix the worst-case behaviour of the
+monitor as its most valuable property.
+
+\subsection{Three arguments for separation}
+
+\begin{theorem}[Monitoring requires an observer outside the loop]
+\label{thm:sep-blindness}
+A system that acts on the culture cannot serve as an unbiased observer of
+the culture it acts on.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:blindness}, diagnosing a culture's state class requires an
+observer external to the culture's own forward dynamics, holding the network
+topology and a nominal reference. A control element that actuates the
+culture is, by construction, part of the loop whose state is in question:
+its actions enter the very dynamics the diagnosis must judge, and its
+observations are of a culture it has already perturbed. Fusing observation
+with actuation therefore returns the observer to the inside of the loop and
+reintroduces the blindness \Cref{thm:blindness} identifies. Hence unbiased
+monitoring requires the observer to be separated from the actuator.
+\end{proof}
+
+\begin{theorem}[The floor forbids the point-precision control presumes]
+\label{thm:sep-floor}
+A controller acting on a monitored quantity as if it were known to a point
+acts on precision the framework forbids.
+\end{theorem}
+
+\begin{proof}
+By \Cref{cor:no-point}, every monitored quantity resolves to a region of
+width $\ge\floorc>0$, never a point. A control law that consumes a point
+estimate discards the region and the residual, acting on a precision that
+\Cref{thm:floor} shows cannot exist. A correct architecture hands the
+controller the honest region---floor, residue, and, where evidence is
+contested, the decline of \Cref{thm:decline}(ii)---which is a different
+interface from a point estimate and belongs to a distinct framework whose
+job is to decide what to do given a region, not a number.
+\end{proof}
+
+\begin{theorem}[Observation terminates at knowing, not acting]
+\label{thm:sep-obs}
+The monitoring operation is closed under identification and does not extend
+to actuation.
+\end{theorem}
+
+\begin{proof}
+Every operation in the framework---individuation (\Cref{thm:negation}),
+completion (\Cref{thm:convergence}), localisation (\Cref{thm:intersection}),
+closure (\Cref{thm:decline})---terminates in a reported state-region or a
+decline. None produces an action on the culture: the output type of the
+framework is information (regions, addresses, coherence, fault signals),
+not actuation. Actuation is a distinct operation the framework never
+performs, and joining it would require an output type---a command---that no
+theorem of the framework produces.
+\end{proof}
+
+\subsection{The worst case is a safe state}
+
+\begin{theorem}[Worst-case monitoring output]
+\label{thm:worst-case}
+If the control framework is absent, misconfigured, or declines to act, the
+monitoring framework still delivers, for the culture: a bounded state-region
+per species (\Cref{cor:observability}), localised reaction events
+(\Cref{thm:intersection}), a swarm-coherence health signal
+(\Cref{cor:decoherence-output}), and, per query, either an identified region
+or an explicit decline (\Cref{thm:decline}). It degrades to detailed,
+uncertainty-bounded information about the process and nothing about it
+breaks.
+\end{theorem}
+
+\begin{proof}
+Each cited result is a property of the monitoring framework alone and
+invokes no control action: completion, localisation, coherence estimation,
+and closure all run on observation only. Removing or disabling control
+removes no input to any of them. Hence the monitor's outputs persist
+unchanged, and its worst case is the delivery of information with no action
+taken.
+\end{proof}
+
+\begin{corollary}[Independent failure modes]
+\label{cor:independent-failure}
+Under the separation, a failure of control does not induce a failure of
+monitoring: the monitor continues to produce information, leaving the system
+in the safe state of \Cref{thm:worst-case}. A fused monitor--controller has
+no such guarantee, since a fault in its control logic disables its
+observation with it.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:worst-case} the monitor's outputs are independent of control;
+by construction a fused system shares a failure surface between observation
+and actuation, so a control fault removes observation. The separated
+architecture therefore strictly dominates the fused one in failure
+containment.
+\end{proof}
+
+\begin{remark}[The design principle]
+\label{rem:design-principle}
+The three theorems and their corollary give a single design principle: the
+deliverables of this framework end at information---bounded regions,
+categorical addresses, coherence and fault signals, and decline reports---
+handed \emph{across} an interface to a separate control framework whose task
+is to decide actions given that information and its uncertainty. The
+separation is not caution; it is what the finiteness of the observer, the
+resolution floor, and the closure of observation under identification
+jointly require. Its dividend is that the monitor's worst case is never a
+wrong action, only detailed knowledge of the process---which is exactly the
+floor one wants a monitoring system to guarantee.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel6_swarm.png}
+    \caption{\textbf{Swarm Synchronisation, Zero-Overhead Locking, and
+    Decoherence as a Fault Signal.}
+    (\textbf{A})~Kuramoto order parameter $\Rens$ on the linear $y$-axis
+    ($0$ to $1$) versus coupling ratio $K/K_c$ on the linear $x$-axis
+    ($0.3$ to $8$), measured (blue markers) against the mean-field branch
+    $\Rens^\ast=\sqrt{1-K_c/K}$ (coral line), with the critical point
+    $K/K_c=1$ marked (green dotted). Coherence stays near zero below
+    $K_c=2\sigma_\omega/\pi\approx0.637$ and rises above it, converging to
+    the mean-field prediction at strong coupling (absolute error $0.04$ at
+    $8K_c$), the transition of \Cref{thm:critical}; the near-critical gap is
+    the expected finite-size lag.
+    (\textbf{B})~Distinguishable joint-state count $T(m,D)=D(D+1)^{m-1}$ on a
+    log $y$-axis versus channel count $D$ on the linear $x$-axis
+    ($1$ to $40$), orange, at $m=10$ events. The count rises
+    super-exponentially---$2.4\times10^{10}$ at $D=10$,
+    $1.1\times10^{20}$ at $D=100$---confirming \Cref{thm:composition}:
+    adding channels multiplies distinguishability, reversing the usual curse
+    of dimensionality.
+    (\textbf{C})~Order parameter $\Rens$ on the linear $y$-axis ($0$ to $1$)
+    versus time on the linear $x$-axis, steel-blue, with the coupling drop
+    marked (coral dashed). Held above $K_c$ the swarm locks at
+    $\Rens\approx0.9$; when the coupling falls below $K_c$ the coherence
+    relaxes to ${\sim}0.05$, the graceful-decoherence fault signal of
+    \Cref{thm:decoherence} and \Cref{cor:decoherence-output}.
+    (\textbf{D})~Three-dimensional surface of the order parameter over
+    coupling $K/K_c$ ($0.5$ to $6$) and network size $\log_{10}n$
+    ($1.7$ to $2.9$), viridis colourmap, viewing angle elevation
+    $24^{\circ}$ azimuth $-56^{\circ}$. The synchronisation manifold is the
+    ridge where $\Rens$ climbs from near-zero to near-one across $K_c$; the
+    transition sharpens with $n$, approaching the thermodynamic-limit
+    bifurcation of \Cref{thm:critical}.}
+    \label{fig:panel6}
+\end{figure*}
+
+
+% =====================================================================
+\section{The Complete Monitoring Pipeline}
+\label{sec:pipeline}
+% =====================================================================
+
+We assemble the results into a single procedure and state its correctness
+and complexity. The pipeline takes the reactor's sensor stream and produces,
+at each monitoring cycle, an uncertainty-bounded report of the culture's
+state together with any localised events and fault signals---and never an
+action.
+
+\subsection{The procedure}
+
+\begin{algorithm}[t]
+\caption{Bioreactor Monitoring Cycle}
+\label{alg:monitor}
+\begin{algorithmic}[1]
+\Require Reaction network $G=(\V,\E,w)$ with standard potentials; partial
+sensor readings $\mathcal{O}$; nominal reference addresses
+$\{\mathcal{A}_i^H\}$; catalyst registry; swarm phase stream
+$\{\phi_j\}$; floor $\floorc$.
+\Ensure State report $\widetilde{\mathbf X}^\ast$ (bounded region per
+species); localised events; coherence $\Rens$ and regime; per-query
+verdict (identified region or \textsc{decline}).
+\State \textbf{Coordinates.} Map each sensor reading to S-entropy
+coordinates $\Scoord=(\Sk,\St,\Se)$ (\Cref{def:sspace}); individuate each
+against the medium by negation (\Cref{thm:negation}).
+\State \textbf{Completion.} Initialise fuzzy states: measured nodes as
+narrow regions of width $\ge\floorc$, unmeasured nodes as maximum-entropy
+priors over physiological ranges.
+\Repeat
+   \State $\widetilde{\mathbf X}\gets\mathcal{T}_{\mathrm{bal}}
+          (\widetilde{\mathbf X})$
+          \Comment{mass balance at every node}
+   \State $\widetilde{\mathbf X}\gets\mathcal{T}_{\mathrm{therm}}
+          (\widetilde{\mathbf X})$
+          \Comment{thermodynamic cycle consistency}
+   \State $\widetilde{\mathbf X}\gets\mathcal{T}_{\mathrm{kin}}
+          (\widetilde{\mathbf X})$
+          \Comment{Viterbi backward-address feasibility}
+\Until{$d(\widetilde{\mathbf X},\widetilde{\mathbf X}_{\mathrm{prev}})
+       <\eps$}
+       \Comment{contraction, \Cref{thm:convergence}}
+\State \textbf{Health.} For each node, compare its backward address to the
+nominal $\mathcal{A}_i^H$; flag \emph{address escape} where the categorical
+distance exceeds the per-node threshold (\Cref{rem:address}).
+\State \textbf{Localisation.} For each event of interest, intersect the
+arrival-time surfaces of the available modalities to recover
+$(\mathbf r_0,t_0)$ (\Cref{thm:intersection}); resolution multiplies with
+modality count (\Cref{thm:resolution}).
+\State \textbf{Coherence.} Estimate the swarm order parameter $\Rens$ from
+$\{\phi_j\}$; classify the coordination regime; if $\Rens$ has fallen a
+regime, raise the decoherence fault (\Cref{cor:decoherence-output}).
+\State \textbf{Closure.} For each monitoring query, invoke catalysts until
+no available catalyst adds a new state-region (\Cref{def:closure}); require
+a $\ge3$-catalyst coherence cycle for a grounded verdict
+(\Cref{thm:triangle}).
+\If{$\mathcal{C}$ is a single class}
+   \State \Return identified region (convergent closure)
+\Else
+   \State \Return \textsc{decline} with the distinct regions (contested
+   closure, \Cref{thm:decline})
+\EndIf
+\State \textbf{(No actuation.)} Hand the report across the interface to the
+separate control framework (\Cref{sec:separation}).
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Correctness and complexity}
+
+\begin{theorem}[Pipeline correctness]
+\label{thm:pipeline-correct}
+Each monitoring cycle of \Cref{alg:monitor} terminates and returns a report
+in which (i) every species is assigned a bounded region of width
+$\ge\floorc$; (ii) every localised event is unique with false-localisation
+probability $e^{-\Theta(N_{\mathrm{mod}})}$; (iii) every query ends in a
+single identified region or an explicit decline; and (iv) no output is an
+action on the culture.
+\end{theorem}
+
+\begin{proof}
+The completion loop terminates and is correct by \Cref{thm:convergence}
+(contraction to a unique fixed point) and \Cref{cor:observability} (bounded
+regions of width $\ge\floorc$), giving (i). Localisation uniqueness and the
+false-localisation bound are \Cref{thm:intersection}, giving (ii). Closure
+termination in one of two outcomes is \Cref{thm:decline}, giving (iii). No
+step produces an action: every return value is a region, a signal, or a
+decline, by \Cref{thm:sep-obs}, giving (iv).
+\end{proof}
+
+\begin{proposition}[Per-cycle complexity]
+\label{prop:complexity}
+For a network of $N$ species, $R$ reactions, maximum degree $\Delta$,
+backward-trajectory depth $L$, $N_{\mathrm{mod}}$ localisation modalities,
+$M$ observation points, and $n$ swarm agents, one monitoring cycle costs
+\[
+O\!\bigl(N R L\,\log(1/\eps)\bigr)\ (\text{completion})
+\;+\;O\!\bigl(M^2 N_{\mathrm{mod}}\bigr)\ (\text{localisation})
+\;+\;O(n)\ (\text{coherence}),
+\]
+with completion dominating for genome-scale networks; the completion
+sub-steps parallelise across nodes.
+\end{proposition}
+
+\begin{proof}
+Completion: mass balance is $O(N\Delta)$ per iteration, cycle consistency
+$O(R\Delta)$, and Viterbi addresses $O(N R L)$; geometric convergence
+(\Cref{thm:convergence}) needs $O(\log(1/\eps)/\log(1/c))$ iterations,
+giving $O(N R L\log(1/\eps))$. Localisation is $O(M^2 N_{\mathrm{mod}})$ for
+pairwise arrival-time constraints across modalities and points, plus a
+bounded-iteration least-squares refinement. Coherence is $O(n)$ for the
+order-parameter sum. Node updates in completion are independent given fixed
+neighbours, so they parallelise
+\citep{viterbi1967error,fang2008simple}.
+\end{proof}
+
+\begin{remark}[Reading the pipeline]
+\label{rem:pipeline}
+\Cref{alg:monitor} is the framework in operational form. Every step is a
+theorem discharged: coordinates and negation
+(\Cref{sec:sspace,sec:observer}), completion (\Cref{sec:completion}),
+addresses and health (\Cref{rem:address}), localisation
+(\Cref{sec:localisation}), coherence (\Cref{sec:swarm}), closure
+(\Cref{sec:closure}), and the terminal absence of actuation
+(\Cref{sec:separation}). What the operator receives each cycle is a
+complete, uncertainty-honest picture of the culture---bulk state, event
+locations, and health---with an explicit statement of what remains
+contested, and nothing that acts on the vessel.
+\end{remark}
+
+
+% =====================================================================
+\section{Mapping the Framework to a Physical Bioreactor}
+\label{sec:mapping}
+% =====================================================================
+
+The framework is stated in abstract quantities; we now identify each with a
+concrete bioreactor observable, so that a reader can see how the pipeline
+would be instantiated on a real vessel. Nothing in this section adds a
+claim; it is a dictionary.
+
+\subsection{Coordinates and the state space}
+
+The knowledge coordinate $\Sk$ is set by the spread of the culture's
+identifiable state---operationally, the entropy of the reconstructed
+concentration distribution over the network's species. The temporal
+coordinate $\St$ is set by the spread of characteristic process timescales,
+from fast metabolic turnover to slow expression dynamics. The evolution
+coordinate $\Se$ is set by the uncertainty in the culture's trajectory---
+whether it is heading toward, holding at, or departing from its nominal
+operating regime. Each is a normalised information measure computed from the
+sensor stream and the completed state.
+
+\subsection{Sensors as catalysts}
+
+Every physical sensor is a catalyst in the sense of \Cref{def:catalyst},
+producing evidence that individuates part of the culture against the medium.
+Table~\ref{tab:sensors} gives representative correspondences. The framework
+treats them uniformly: what matters is the cost and independence of the
+evidence, not the transducer.
+
+\begin{table}[t]
+\centering
+\caption{Representative physical sensors as catalysts, and the modality
+(\Cref{def:event}) each primarily excites.}
+\label{tab:sensors}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Physical sensor} & \textbf{Evidence produced} & \textbf{Primary modality} \\
+\midrule
+Dissolved-oxygen probe      & O\textsubscript{2} activity, respiration & chemical \\
+pH probe                    & proton activity, acid--base state        & chemical/electrical \\
+Off-gas mass spectrometry   & \ce{CO2}/\ce{O2} exchange, respiratory quotient & chemical \\
+Dielectric (capacitance)    & viable biomass, membrane state           & electrical \\
+Raman / NIR spectroscopy    & metabolite and product bands             & vibrational/optical \\
+Calorimetry (heat flux)     & metabolic heat, reaction enthalpy        & thermal \\
+Acoustic / ultrasonic       & density, rearrangement signatures        & acoustic \\
+Fluorescence (NAD(P)H)      & redox and electronic state               & optical \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The oxygen sensor field}
+
+Molecular oxygen has a distinctive role. It is paramagnetic, ubiquitous in
+an aerobic culture ($\sim10^2\,\mu\mathrm{M}$, of order $10^8$ molecules per
+cell), highly mobile, and its vibrational frequency shifts with local
+electric field through the Stark effect, $\delta\omega\propto|\mathbf E|^2$
+\citep{herzberg1950spectra,boxer2009stark}. It therefore constitutes a
+dense, distributed field-sensing network already present in the medium: an
+enormous number of simultaneous, in-situ reporters of local charge
+redistribution. Two consequences follow for the pipeline. First, dissolved
+oxygen is not merely a respiration proxy but a spatial field probe, feeding
+the electromagnetic and vibrational modalities of localisation
+(\Cref{sec:localisation}). Second, a characteristic cellular oscillation
+carried on the oxygen field furnishes the common clock to which a
+monitoring swarm phase-locks (\Cref{sec:swarm})---the coupling medium is
+physically the same signal the culture runs on, so coherence and its loss
+report directly on the culture, not on an artificial synchronisation layer.
+
+\subsection{The cell as a three-layer electrostatic system}
+
+For the electromagnetic modality, it is useful to picture the cell
+concretely as a three-layer electrostatic system: a fixed negative charge
+on the genomic DNA (a sequence-independent scaffold of order $-1\,$nC), a
+mobile-ion cytoplasm, and a dynamically charged plasma membrane. This
+configuration sustains a static cytoplasmic field of order
+$10^5$--$10^6\,\mathrm{V/m}$
+\citep{israelachvili2011intermolecular,hille2001ion}, against which reaction
+events register as local charge redistributions---the electromagnetic
+disturbances of \Cref{def:event}. The picture is offered to make the EM
+modality tangible; the localisation theorems do not depend on it.
+
+\subsection{Health readouts}
+
+The framework exposes three complementary health signals, all computed from
+observation alone. The \emph{address-escape} signal (\Cref{rem:address})
+flags any species whose reconstructed causal history has left the nominal
+basin---an early, concentration-independent indicator of regulatory or
+mechanistic departure. The \emph{swarm-coherence} signal
+(\Cref{cor:decoherence-output}) flags a loss of collective synchronisation
+across the monitoring array within $\lceil1/\eps\rceil$ events. The
+\emph{contested-closure} signal (\Cref{thm:decline}(ii)) flags, per query,
+that independent evidence lines disagree---frequently the earliest sign of
+a developing fault, and precisely the situation in which a fused
+monitor--controller would be most dangerous.
+
+
+% =====================================================================
+\section{Numerical Validation}
+\label{sec:validation}
+% =====================================================================
+
+The theorems of this paper are proved from the stated premises and require
+no computation. It is nonetheless useful to exhibit them on explicitly
+constructed instances, both as a check against error and to display the
+quantitative shape of each result. This section reports a validation suite
+of seven independent experiments, one per major result, comprising
+thirty-four individual checks. Every check passed; the suite is
+deterministic given a master seed and was confirmed to pass under
+independent re-seeding, so the outcomes are not artefacts of a particular
+random draw. \Cref{tab:validation} summarises the suite, and
+\Cref{fig:panel1,fig:panel2,fig:panel3,fig:panel4,fig:panel5,fig:panel6,%
+fig:panel7} display the measured quantities against the predicted bounds.
+
+\begin{table}[t]
+\centering
+\caption{Validation suite. Each experiment tests the theorems of one
+section by direct numerical experiment; all checks pass.}
+\label{tab:validation}
+\small
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Experiment} & \textbf{Result tested} & \textbf{Checks} \\
+\midrule
+Resolution floor      & \Cref{thm:floor}, \Cref{cor:no-point}, \Cref{prop:refine} & 4/4 \\
+Reaction rates        & \Cref{thm:rate}, \Cref{cor:arrhenius}, \Cref{prop:efficiency} & 3/3 \\
+Trajectory completion & \Cref{thm:convergence}, \Cref{cor:observability} & 5/5 \\
+Localisation          & \Cref{thm:intersection}, \Cref{thm:resolution}, \Cref{prop:opacity} & 5/5 \\
+Coincidence nodes     & \Cref{thm:conjunction}, \Cref{thm:unmonitorable} & 7/7 \\
+Swarm coordination    & \Cref{thm:critical}, \Cref{thm:zero-overhead}, \Cref{thm:composition} & 4/4 \\
+Closure \& coherence  & \Cref{thm:triangle}, \Cref{thm:closure-stronger}, \Cref{thm:decline} & 6/6 \\
+\midrule
+\textbf{Total} & & \textbf{34/34} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The resolution floor}
+
+We built random contact graphs (three to fourteen parts, a medium vertex
+adjacent to every part, edge weights drawn at or above a floor
+$\floorc=1$) and computed each part's separation cost
+$\sigma(v)=\min\text{-cut}(v,\med)$ exactly by maximum flow. Across
+$\sim\!2{,}600$ parts of $300$ instances, every $\sigma(v)\ge\floorc$
+(\Cref{thm:floor}): the minimum observed ratio $\sigma(v)/\floorc$ was
+$1.02$, and no separation was free (\Cref{cor:no-point}). Refining a graph
+by adding parts and contacts of weight $\ge\floorc$ never produced a
+sub-floor separation, and the floor remained strictly positive as the
+medium grew from four to sixty-four parts (\Cref{prop:refine}).
+\Cref{fig:panel1} displays the result.
+
+
+
+\subsection{Reaction rates}
+
+The partition-geometry rate $k=(1/\taup)\,b^{-\Delta\Depth}$ was checked
+against the Arrhenius form $k=A\,e^{-E_a/(\kB T_{\mathrm p})}$ with
+$A=1/\taup$ and $E_a=\kB T_{\mathrm p}\ln b\cdot\Delta\Depth$ over $500$
+random parameter draws: the two agreed to a maximum relative error below
+$10^{-12}$ (\Cref{cor:arrhenius}). Against a panel of eight enzymes spanning
+catalytic distances $\dC\in\{1,\dots,4\}$, the fitted slope of
+$\log_{10}(k_{\mathrm{cat}}/K_{\mathrm M})$ in $\dC$ was $\approx-1$ (one
+order of magnitude per partition boundary) with a strong negative rank
+correlation, confirming the inverse dependence of \Cref{prop:efficiency}.
+\Cref{fig:panel2} displays the result.
+
+
+\subsection{Trajectory completion}
+
+On random reaction networks of forty species with a dominating measured
+set, the combined constraint operator was iterated from arbitrary initial
+fuzzy states. The measured contraction constant was strictly below one on
+every instance, iteration converged geometrically, and two distinct
+initial states reached the same fixed point (\Cref{thm:convergence}); every
+reconstructed interval had width $\ge\floorc$ and contained the truth at
+measured nodes (\Cref{cor:observability}). \Cref{fig:panel3} displays the
+result.
+
+
+
+\subsection{Multimodal localisation}
+
+A reaction event was localised by least-squares intersection of acoustic
+(linear-in-distance), chemical, and thermal (quadratic-in-distance)
+arrival-time surfaces observed at twelve points in a $10\,\mu\mathrm m$
+domain. Noiseless recovery was exact to sub-nanometre; under realistic
+timing noise the median error stayed sub-micron (\Cref{thm:intersection}).
+Adding modalities reduced the error monotonically, and the product-law
+factor $\prod_i\eps_i^{1/3}$ reached the sub-nanometre scale
+(\Cref{thm:resolution}); the error was invariant to a varied optical
+opacity (\Cref{prop:opacity}). \Cref{fig:panel4} displays the result.
+
+
+
+\subsection{Coincidence nodes}
+
+A population of $5{,}000$ cells was arranged in a three-dimensional
+condition space (pH, temperature, spectral band) so that each condition
+held for many cells while \emph{no} cell satisfied all three at once---an
+empty physical support. A per-cell detector returned nothing and a
+bulk-average detector could not report the truth, yet the categorical
+address (the intersection of the three condition regions) was non-empty and
+bounded, and conjunction individuation reconstructed the node's region
+(\Cref{thm:conjunction}, \Cref{thm:unmonitorable}). The ordered-sequence
+variant behaved identically. A control with non-empty support confirmed
+that per-cell detection succeeds precisely when the support is non-empty.
+\Cref{fig:panel5} displays the result.
+
+
+
+\subsection{Swarm coordination}
+
+Simulating the Kuramoto model with Lorentzian natural frequencies, the
+order parameter stayed near zero below $K_c=2\sigma_\omega/\pi$ and rose
+toward $\sqrt{1-K_c/K}$ above it, matching the mean-field branch at strong
+coupling (\Cref{thm:critical}). In the phase-locked regime the residual
+phase spread fell below the cell width, so all agents shared one cell with
+zero coordination messages (\Cref{thm:zero-overhead}); the distinguishable
+joint-state count $T(m,D)=D(D+1)^{m-1}$ grew super-exponentially with
+channel count (\Cref{thm:composition}); and dropping the coupling below
+$K_c$ relaxed the coherence downward, the decoherence fault signal
+(\Cref{thm:decoherence}). \Cref{fig:panel6} displays the result.
+
+
+
+\subsection{Closure and coherence}
+
+The composite catalytic power $1-\prod_i(1-\kappa_i)$ matched sequential
+residual reduction to machine precision and stayed strictly below one
+(\Cref{prop:diminishing}). A support structure was robust to single-catalyst
+removal exactly when it contained a mutually-supporting group of at least
+three members---never at one or two (\Cref{thm:triangle}). A two-cluster
+configuration met a confidence threshold while remaining un-closed
+(\Cref{thm:closure-stronger}), and every query terminated in convergent
+closure or honest decline (\Cref{thm:decline}). \Cref{fig:panel7} displays
+the result.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel7_closure.png}
+    \caption{\textbf{Catalytic Power, the Coherence Triangle, and Closure
+    Beyond Confidence.}
+    (\textbf{A})~Composite catalytic power computed by the closed form
+    $1-\prod_i(1-\kappa_i)$ on the linear $y$-axis versus sequential residual
+    reduction on the linear $x$-axis ($0$ to $1$), over $400$ random catalyst
+    chains (steel-blue), with the identity $y=x$ marked (coral dashed). Every
+    point lies on the diagonal (maximum absolute error $0.0$): the
+    multiplicative composition law of \Cref{prop:diminishing} is exact, and
+    the composite power stays strictly below one.
+    (\textbf{B})~Robustness to single-catalyst removal ($0$ or $1$) versus
+    mutual-support group size on the linear $x$-axis ($1$ to $6$), bars with
+    the $2\!\to\!3$ boundary marked (orange dotted); groups of size one and
+    two are never robust (coral), groups of three and above always are
+    (green). Robust grounding first appears at three mutually reinforcing
+    catalysts and never below, the exact content of \Cref{thm:triangle}: a
+    lone or paired source cannot survive the failure of one member.
+    (\textbf{C})~Confidence value and closure status on the linear $y$-axis
+    ($0$ to $1$) versus threshold $\theta$ on the linear $x$-axis
+    ($0.5$ to $0.99$) for two-cluster configurations: cluster-A confidence
+    (blue) stays at $\sim\!0.95$, above every threshold, while the closure
+    flag (coral) stays at zero, with the gap shaded. A configuration can meet
+    any confidence threshold yet remain not closed---an un-invoked catalyst
+    reaches a distinct region---the strict-separation result of
+    \Cref{thm:closure-stronger}.
+    (\textbf{D})~Three-dimensional surface of the two-catalyst composite
+    power $1-(1-\kappa_1)(1-\kappa_2)$ over the unit square
+    $\kappa_1,\kappa_2\in[0,1]$, magma colourmap, viewing angle elevation
+    $22^{\circ}$ azimuth $-55^{\circ}$. The surface rises from zero at the
+    origin to one at $(1,1)$, saturating fastest along either axis and
+    slowest on the diagonal where both catalysts are weak---the geometry of
+    diminishing returns and the value of diverse, independent evidence
+    (\Cref{prop:diminishing}).}
+    \label{fig:panel7}
+\end{figure*}
+
+\begin{remark}[Status of the numerical witness]
+\label{rem:witness-status}
+The figures confirm the results on concrete instances and display their
+quantitative form; they are evidence of correctness and magnitude, not a
+substitute for the proofs, which hold for every instance satisfying the
+premises. Where a result is asymptotic---the mean-field synchronisation
+branch of \Cref{thm:critical}---the suite asserts what holds at finite size
+(incoherence below $K_c$, coherent onset above it, convergence to the
+prediction at strong coupling) and records the expected near-critical
+deviation rather than concealing it. Where the reference data are real and
+noisy---enzyme efficiencies against catalytic distance---the suite tests the
+theorem's actual claim, the inverse trend, not a strict monotonicity the
+scatter would not support. All thirty-four checks passed.
+\end{remark}
+
+
+% =====================================================================
+\section{Discussion, Scope, and Conclusion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{Relation to existing monitoring practice}
+
+The framework does not discard established bioprocess monitoring; it
+supplies the foundation that established practice lacks and recovers its
+components as special cases. Flux balance analysis
+\citep{orth2010fba} is the mass-balance operator
+$\mathcal{T}_{\mathrm{bal}}$ of \Cref{def:operators} without the
+thermodynamic and kinetic constraints; the framework adds cycle consistency
+and backward-address feasibility and, crucially, an existence-and-
+uniqueness proof for the reconstructed state (\Cref{thm:convergence}).
+Soft sensors \citep{luttmann2012soft,mandenius2015bioprocess} are
+instances of trajectory completion, but with the empirically fitted error
+bar replaced by a theory-set uncertainty region bounded below by the
+resolution floor (\Cref{sec:floor}). Multivariate statistical monitoring
+\citep{wold1987principal,qin2012survey} detects departures in a learned
+subspace; the framework detects them as address escape in the network's own
+coordinates, with a mechanistic rather than a correlational reading, and
+adds the swarm-coherence and contested-closure signals that have no
+statistical-monitoring analogue. Classical estimation
+\citep{kalman1960new} propagates a point estimate with a covariance; the
+framework propagates a bounded region and reports, honestly, when the region
+cannot be reduced to one class. The Process Analytical Technology programme
+\citep{fda2004pat} calls for exactly the uncertainty-explicit, mechanism-
+grounded monitoring the framework provides.
+
+\subsection{Why the framework is not phenomenology}
+
+A reasonable concern is whether the framework merely re-labels known
+results. It does not: from the single premise of a finite observer against a
+non-completable medium, it \emph{derives} the resolution floor
+(\Cref{thm:floor}), the convergence of state reconstruction
+(\Cref{thm:convergence}), the localisation and resolution laws
+(\Cref{thm:intersection,thm:resolution}), the coordination and coherence
+results (\Cref{thm:zero-overhead,thm:decoherence}), the closure criterion
+(\Cref{thm:decline}), and the monitor--control separation
+(\Cref{thm:sep-blindness,thm:sep-floor,thm:sep-obs}). Each is a consequence
+of the premise, not an assumption added to fit a case. Where the framework
+recovers classical results---Arrhenius and Eyring kinetics
+(\Cref{cor:arrhenius}), Kirchhoff-type conservation laws
+(\Cref{prop:kirchhoff})---it does so as corollaries, which is evidence for
+the premise rather than a restatement of the corollaries.
+
+\subsection{Scope and limitations}
+
+The framework is a monitoring theory and a monitoring algorithm; it is not
+a control law, a completed software system, or an experimental validation on
+a physical vessel, and the separation of monitoring from control
+(\Cref{sec:separation}) is deliberate. Several assumptions bound its present
+reach. The trajectory-completion convergence (\Cref{thm:convergence})
+assumes an autonomous, time-homogeneous network; strongly time-varying
+kinetics (rapid induction, phase transitions in the culture) require a
+non-autonomous extension that would forgo the time-invariance of backward
+addresses (\Cref{prop:timeinv}). The localisation theorems
+(\Cref{sec:localisation}) assume a homogeneous propagation medium and a
+single event at a time; spatial heterogeneity and simultaneous events
+require, respectively, spatially varying propagation parameters and source
+separation. The swarm results (\Cref{sec:swarm}) assume controllable
+coupling and an all-to-all topology in the thermodynamic limit; finite-size
+and heterogeneous-topology corrections are needed for small arrays. The
+categorical modality's contribution to localisation depends on maintaining
+distinguishable partition signatures over the relevant scale. None of these
+limitations touches the resolution floor or the monitor--control separation,
+which follow from the premise alone.
+
+\subsection{Conclusion}
+
+We have developed, from the single premise that a bioreactor is a population
+of finite observers against a non-completable medium, a self-contained
+framework for bioprocess monitoring. The framework answers the three
+questions with which we began. A bioreactor measurement is the individuation
+of a bounded region of the culture's state space, fixed by negation against
+the medium; it is never a point. The precision of monitoring is bounded below
+by a resolution floor that is a property of the finite culture and not of the
+instrument, so an honest monitor reports regions of width no less than that
+floor. And a monitoring query is entitled to report when it reaches
+closure---when no available further evidence can change its outcome---
+terminating either in a single identified region or in an explicit
+declaration that the evidence is contested.
+
+Around these answers we built an operational pipeline: reconstruct the full
+metabolic state from partial observation by a provably convergent completion
+of the network's own constraints; localise individual reactions by
+intersecting the arrival-time surfaces of several physically independent
+modalities, with resolution that multiplies as modalities are added and that
+is indifferent to optical opacity; coordinate a distributed monitoring swarm
+at zero overhead through phase-locking to the culture's own oxygen-borne
+clock, reading the loss of coherence as an early fault; and terminate every
+query at closure, with contested closure exposing exactly where independent
+evidence diverges.
+
+Finally, we established that monitoring must be kept separate from control,
+because a system that acts on the culture cannot be its unbiased observer,
+because the resolution floor forbids the point-precision a fused controller
+would presume, and because observation is closed under identification and
+does not extend to actuation. The dividend of the separation is the
+framework's worst-case guarantee: with control absent or failed, the monitor
+still delivers detailed, uncertainty-bounded information about the process
+and never a wrong action. In the worst case, one simply has thorough
+knowledge of the bioreactor---which is precisely what a monitoring system
+should be built to guarantee.
+
+
+% =====================================================================
+\section*{Acknowledgements}
+% =====================================================================
+The author thanks the Technical University of Munich for institutional
+support. All results are proved from the stated premises; material that
+could not be established at that standard has been omitted rather than
+weakened.
+
+% =====================================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% =====================================================================
+
+\end{document}

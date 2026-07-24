@@ -1,0 +1,112 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titlespacing{\section}{0pt}{10pt}{4pt}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\large\textbf{Programming, Data-Analysis, and Machine-Learning Projects}}\\[2pt]
+Kundai Farai Sachikonye \quad--\quad
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+\end{center}
+
+\vspace{4pt}
+
+An overview of representative projects, grouped by the three data modalities of
+xMDT-HPB --- clinical/language, imaging, and laboratory data --- followed by the ML
+engineering and reproducibility work underneath them. All projects are open-source;
+most are deployed with a live demo. Where a number is given it is validated against
+a named reference (IEDB, NIST, 1000~Genomes/gnomAD/UK~Biobank).
+
+\section{Explainable / auditable diagnostic AI}
+
+\textbf{syndrome} --- \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}\\
+Computational-oncology toolkit: neoantigen identification, MHC binding prediction
+(AUC~0.81, validated on 2{,}847 IEDB peptides), and immune-escape scoring. The
+method uses three-channel discrete Fourier transforms on amino-acid physicochemical
+properties with \emph{zero} free parameters trained on patient data --- every
+prediction is reproducible from the algorithm alone, independent of any training
+cohort. Developed with KRAS-mutant pancreatic ductal adenocarcinoma (PDAC) immune
+evasion as a worked clinical case. Runs in-browser (WebGPU), 50\,MB, no cluster
+required. \emph{Relevance:} a concrete instance of \emph{structural} explainability
+(auditable by construction) as distinct from post-hoc explanation (SHAP/LIME).
+
+\textbf{crown-prince} --- \href{https://github.com/fullscreen-triangle/crown-prince}{github.com/fullscreen-triangle/crown-prince}\\
+Pharmacological AI: PK/PD/ADME trajectories and binding affinities derived from
+molecular geometry, validated 39/39 against NIST with zero empirical parameters.
+Interpretable-by-construction: predictions are geometric operations, not statistical
+associations from potentially biased training data.
+
+\section{Imaging}
+
+\textbf{hieronymus} --- \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}\\
+GPU-accelerated medical image analysis: segmentation, point-spread-function
+deconvolution, registration, and morphometry, with metric-preserving reconstruction
+and uncertainty quantification. Implemented in WebGL/GLSL for real-time pipelines.
+\emph{Relevance:} direct experience with the image-analysis primitives underlying
+radiological AI --- segmentation, registration, quantitative morphometry.
+
+\textbf{BRUT (rPPG)} --- \href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app}\\
+Camera-based physiological inference: recovers melanin, haemoglobin, and vasodilation
+from ordinary RGB video by inverting a layered optical skin model. \emph{Relevance:}
+multimodal signal fusion --- extracting several physically distinct physiological
+channels from one imaging stream, with an explicit forward model rather than a
+black box.
+
+\section{Laboratory \& multi-omics data}
+
+\textbf{lavoisier} --- \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}\\
+High-throughput mass-spectrometry pipeline: platform-invariant feature extraction,
+98.9\% accuracy against NIST reference libraries, distributed processing (Ray),
+memory-mapped I/O for large mzML datasets. Deterministic and benchmarked ---
+reproducible by a third party from a stated seed. \emph{Relevance:} the reproducible,
+reference-validated laboratory-data pipeline discipline the project asks for.
+
+\textbf{gospel} --- \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}\\
+Multi-site multi-omics integration: host genotype, transcriptomics, and metagenomics
+as a joint Bayesian graph; validated against 1000~Genomes, gnomAD, and UK~Biobank.
+\emph{Relevance:} hands-on experience with what data actually flows across multiple
+clinical sites, where pseudonymisation fails, and the constraints multi-site
+analysis places on data governance.
+
+\section{ML engineering, agentic systems, and reproducibility}
+
+\textbf{kwasa-kwasa / Turbulance} --- \href{https://github.com/fullscreen-triangle/kwasa-kwasa}{github.com/fullscreen-triangle/kwasa-kwasa}\\
+A declarative orchestration language for multi-agent, multi-substrate delegation
+(LLM oracles, tools, Python) with confidence/argumentation semantics and grounding
+of generated values. Rust core + TypeScript, with a VSCode language server.
+
+\textbf{four-sided-triangle} --- \href{https://github.com/fullscreen-triangle/four-sided-triangle}{github.com/fullscreen-triangle/four-sided-triangle}\\
+An 8-stage metacognitive multi-agent RAG / reasoning pipeline with resource-aware
+orchestration; Rust core, FastAPI + Ray + Docker.
+
+\textbf{purpose} --- \href{https://github.com/fullscreen-triangle/purpose}{github.com/fullscreen-triangle/purpose}\\
+A Rust CLI for agent-queryable context retrieval that reduces LLM token cost;
+trait-based architecture in which hand-coded and LoRA-trained resolvers swap
+transparently.
+
+\vspace{6pt}
+\textbf{Foundation-model adaptation \& training methodology.} LoRA fine-tuning and
+knowledge distillation; research on curriculum design (inverse curricula) for
+sample-efficient training. PyTorch throughout, at HPC/SLURM scale.
+
+\vspace{6pt}
+\textbf{Reproducibility discipline (across all projects).} Public source; validation
+suites that are deterministic and seeded, so results reproduce exactly; every
+quantitative claim checked against an explicit external reference rather than
+asserted. Version control, documentation, and containerised deployment as standard.
+
+\end{document}

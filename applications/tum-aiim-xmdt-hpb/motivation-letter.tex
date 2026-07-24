@@ -1,0 +1,154 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{amsmath}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Auf der Lichtung 19, 82178 Puchheim, Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\
+(+49) 1626386344 \\[6pt]
+22 July 2026
+\end{flushright}
+
+\vspace{1em}
+
+Dr.\ med.\ Felix Busch \\
+Chair of Medical Informatics \\
+Institute for AI and Informatics in Medicine (AIIM) \\
+TUM School of Medicine and Health \\
+Ismaninger Str.\ 22, 81675 Munich
+
+\vspace{1.5em}
+
+\textbf{Re: Doctoral position, xMDT-HPB --- explainable multimodal AI for
+hepato-pancreato-biliary oncology}
+
+\vspace{1em}
+
+Dear Dr.\ Busch,
+
+I am applying for the doctoral position in the xMDT-HPB project.
+I want to do this PhD, and to do it inside a structured clinical-informatics
+group, for a specific reason: I have spent several years building explainable
+AI systems for cancer on my own, and I have reached the limit of what
+independent work can teach me about the part that matters most here ---
+making those systems trustworthy to clinicians inside a real multidisciplinary
+tumour board, against real clinical data and real standards.
+That is the education a structured doctorate at AIIM offers and independent
+work cannot, and it is the reason I am applying rather than continuing alone.
+
+\textbf{The project's central word is the one I have worked on hardest.}
+xMDT-HPB is built around AI that clinicians can \emph{understand and trust}.
+Most work on this responds to the black-box problem with post-hoc explanation
+--- SHAP values, attention maps, saliency --- which documents a model's behaviour
+without making the model itself auditable.
+I have spent my independent research building diagnostic systems that are
+auditable in a stronger sense.
+The \href{https://syndrome-seven.vercel.app/tools}{Syndrome} framework performs
+MHC binding prediction (AUC\,$0.81$, validated on 2{,}847 IEDB peptides),
+neoantigen identification, and cancer immune-escape scoring using three-channel
+discrete Fourier transforms on amino-acid physicochemical properties, with
+\emph{zero} free parameters trained on patient data: every prediction is a
+geometric operation reproducible from the algorithm alone, independent of any
+training cohort.
+I do not present this as the method xMDT-HPB should adopt --- clinical text,
+imaging, and laboratory trajectories are different problems with their own
+mature approaches.
+I present it as evidence that I understand, concretely and from the building
+side, the difference between a model that is \emph{explained} and one that is
+\emph{explainable}, which is exactly the distinction this project has to get
+right for clinicians to trust its output.
+
+\textbf{Hepato-pancreato-biliary, specifically.}
+The pancreatic component of HPB is where my existing work already touches the
+project's clinical domain.
+Syndrome's neoantigen and immune-escape analysis was developed with
+KRAS-mutant pancreatic ductal adenocarcinoma as a worked case --- the immune
+evasion that makes PDAC so difficult is one of the disease states the framework
+was built to characterise.
+I am not coming to HPB cancer cold; I have read and modelled in this space,
+and I would bring that grounding while learning the radiological and
+clinical-narrative modalities that are new to me.
+
+\textbf{Multimodal and longitudinal data.}
+The project integrates clinical text, multimodal imaging, and laboratory
+trajectories.
+Multimodal fusion and longitudinal inference are where my independent work
+already lives.
+I have built systems that combine physically distinct signal channels into a
+single inference, and a framework for monitoring \emph{laboratory trajectories}
+as bounded, uncertainty-honest regions rather than point estimates --- inferring
+a full state from partial, noisy, longitudinal observation with a provable
+convergence guarantee.
+That last problem --- reconstructing a trustworthy trajectory from incomplete
+clinical measurement --- is structurally the laboratory-data problem xMDT-HPB
+faces, and it is one I have worked on directly.
+
+\textbf{Open-source, reproducible, benchmarked --- how I already work.}
+The project commits to releasing everything as open-source software and
+reusable artifacts, with reproducible experiments and benchmarking pipelines.
+This is not an adjustment for me; it is how I build.
+My work is public on GitHub, my validation suites are deterministic and
+seeded so that results reproduce exactly from a stated seed, and every claim I
+make is checkable against an explicit reference rather than asserted.
+I would contribute to the project's benchmarking and quality-assurance work
+from day one, because reproducible, independently-verifiable results are the
+standard I already hold myself to.
+
+\textbf{Why the structured path, and why now.}
+I was previously a doctoral candidate in computational lipidomics at TUM, where
+I worked on machine learning for large clinical omics cohorts and distributed
+inference across federated sites, before funding ended and I left the programme.
+Since then I have worked independently and built a great deal --- but the thing
+I most want now is precisely what this position provides and independent work
+does not: structured supervision, a real interdisciplinary team of clinicians
+and engineers, and clinical data and standards (MII, FHIR) I can only learn
+inside a group that works with them.
+I am genuinely prepared to familiarise myself with medical standards, data
+protection, and good scientific practice, and to do the careful, documented,
+team-aligned work the project describes.
+I would rather ground my work in a real clinical setting under supervision than
+continue to extend it alone, and this project is exactly that setting.
+
+\textbf{Background.}
+I hold an MSc in Computational Biology (Universität Tübingen) and an MSc in
+Pharmaceutical Biotechnology (HAW Hamburg), with a BSc in Biochemistry and Cell
+Biology (Jacobs University Bremen).
+I conducted doctoral research in Computational Lipidomics at TUM (2019--2021).
+I work daily in Python and have hands-on experience with machine-learning
+frameworks and the full software-engineering discipline the role asks for:
+version control, documentation, testing, and reproducible pipelines.
+I have lived and worked in Germany since 2011 and hold permanent residence, so
+there is no work-authorisation or sponsorship question.
+I completed both of my master's degrees --- Pharmaceutical Biotechnology and
+Computational Biology --- entirely in German, and taught master's-level material
+in German at TUM.
+Two full German-language degrees are, I would suggest, more direct evidence of
+the academic and clinical German this role requires than any certificate:
+I have already done sustained scientific work in German at exactly this level.
+English is native.
+
+I would welcome the chance to discuss how this background fits xMDT-HPB, and I
+can start as soon as the project requires.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

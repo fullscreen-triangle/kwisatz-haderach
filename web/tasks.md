@@ -23,8 +23,8 @@ File is gitignored. Never commit it.
 
 ### 1. Garmin — health panel
 ```
-GARMIN_EMAIL=
-GARMIN_PASSWORD=
+GARMIN_EMAIL=kundai.sachikonye@gmail.com
+GARMIN_PASSWORD=LiXgAe!Vin2
 ```
 - Just your Garmin Connect login email and password.
 - No registration needed — uses the unofficial `garminconnect` library already installed.

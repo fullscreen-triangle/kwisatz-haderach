@@ -38,7 +38,15 @@
       "Bash(python -m tools.staging_assistant job --job-file docs/job-application.md)",
       "Bash(python -c \"import json; p = json.load\\(open\\('package.json'\\)\\); print\\(json.dumps\\(p.get\\('scripts', {}\\), indent=2\\)\\); print\\('--- devDeps ---'\\); print\\(json.dumps\\(p.get\\('devDependencies', {}\\), indent=2\\)\\)\")",
       "Bash(npm install *)",
-      "Bash(npx jest *)"
+      "Bash(npx jest *)",
+      "Bash(\"C:/Users/kunda/.cargo/bin/purpose.exe\" ask:*)",
+      "Bash(\"C:/Users/kunda/.cargo/bin/purpose.exe\" index:*)",
+      "Bash(\"C:/Users/kunda/.cargo/bin/purpose.exe\" index)",
+      "Bash(\"C:/Users/kunda/.cargo/bin/purpose.exe\" --version)"
     ]
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://compat.bitagent.dev",
+    "ANTHROPIC_CUSTOM_HEADERS": "x-gateway-credential:gw_c7edfc024a3aaaedfbcb871d95b958aa6575c3d7971d75d1e39fee98c1291642"
   }
 }

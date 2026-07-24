@@ -1,0 +1,1147 @@
+% =====================================================================
+%  The Physiology of Response:
+%  When an Interaction Is Relevant to an Agent, and What a
+%  Relevant Response Costs
+%
+%  Self-contained. States its own axioms; re-derives every primitive
+%  it uses; cites only standard, externally published mathematics.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{thmtools}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\hypersetup{
+  colorlinks=true, linkcolor=blue!50!black,
+  citecolor=green!50!black, urlcolor=blue!60!black
+}
+
+% ---- theorem environments ----
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\itshape, postheadspace=1em
+]{thmstyle}
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\normalfont, postheadspace=1em
+]{defstyle}
+
+\declaretheorem[style=thmstyle, name=Theorem, numberwithin=section]{theorem}
+\declaretheorem[style=thmstyle, name=Proposition, sibling=theorem]{proposition}
+\declaretheorem[style=thmstyle, name=Lemma, sibling=theorem]{lemma}
+\declaretheorem[style=thmstyle, name=Corollary, sibling=theorem]{corollary}
+\declaretheorem[style=defstyle, name=Definition, sibling=theorem]{definition}
+\declaretheorem[style=defstyle, name=Axiom, sibling=theorem]{axiom}
+\declaretheorem[style=defstyle, name=Remark, sibling=theorem]{remark}
+\declaretheorem[style=defstyle, name=Example, sibling=theorem]{example}
+\declaretheorem[style=defstyle, name=Principle, sibling=theorem]{principle}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+
+% ---- notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Agent}{\mathsf{A}}
+\newcommand{\Beh}{\mathcal{B}}       % behaviour / disposition space
+\newcommand{\Purp}{x^{\star}}        % purpose point
+\newcommand{\drive}{\Phi}            % drive potential
+\newcommand{\lam}{\lambda}
+\newcommand{\Int}{\iota}             % an interaction
+\newcommand{\resp}{r}                % a response
+\newcommand{\Resp}{\mathcal{R}}      % response repertoire
+\newcommand{\floorc}{\beta}          % response floor
+\newcommand{\att}{\alpha}            % attention budget
+\newcommand{\cost}{c}                % response cost
+\newcommand{\gain}{g}                % purpose gain
+\newcommand{\coh}{\kappa}            % coherence margin
+\newcommand{\rel}{\mathrm{rel}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\dist}{d}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+
+\title{\textbf{The Physiology of Response:\\
+When an Interaction Is Relevant to an Agent,\\
+and What a Relevant Response Costs}}
+
+\author{Kundai Farai Sachikonye\\[2pt]
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@bitspark.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+An agent embedded in a busy world is addressed constantly, and most of
+what reaches it does not matter to it. We ask what it is for an incoming
+\emph{interaction} to be \emph{relevant} to an agent, and what a relevant
+response \emph{costs}, and we answer with mathematics a reader can follow
+without any other work. We take an agent to have two standing quantities,
+which we define from scratch: a \emph{purpose}, the attractor of its own
+motivation, and a \emph{coherence}, the internal consistency it must not
+break. A candidate response to an interaction is admissible only if it is
+\emph{two-factor relevant}: it must (a) advance the agent toward its
+purpose and (b) preserve the agent's coherence. From four axioms---bounded
+attention, a positive floor on the cost of any response, purpose-directed
+drive, and coherence as a closed consistency condition---we prove:
+\textbf{(T1)} relevance is the conjunction of a purpose gain and a
+coherence margin, and neither alone suffices; \textbf{(T2)} an agent has a
+bounded attention budget, so it can commit to at most finitely many
+responses per unit time and must decline the rest---inattention is
+forced, not a defect; \textbf{(T3)} the agent's optimal policy is a
+threshold rule: respond exactly to interactions whose purpose gain exceeds
+a price set by the attention budget, and ignore the rest, which reproduces
+the lived phenomenology of an agent that is present but preoccupied;
+\textbf{(T4)} coherence is testable locally and in advance---an
+incoherent response is detectable from the signs of its internal effects
+alone, before it is committed, so an agent can refuse a purpose-advancing
+response that would break it; \textbf{(T5)} response is floored and
+irreversible: every committed response deposits a positive, unrepealable
+change in the agent, so an agent cannot un-receive what it has responded
+to, and successive encounters are never with the same agent;
+\textbf{(T6)} construction and commitment are mutually exclusive at each
+instant---an agent forming new distinctions cannot simultaneously commit
+to an action---so responsiveness and reflection alternate, which is a
+second, independent source of the appearance of distraction. We give the
+admissible-response construction, the threshold policy, the coherence
+test, and a numerical study on explicit agents. The reading of the formal
+apparatus as attention, preoccupation, and the felt autonomy of a
+character is marked as such; no theorem depends on it.
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} relevance; attention budget; threshold policy;
+coherence; holonomy; irreversibility; construction--commitment
+alternation; non-player character; agent response.
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+An agent in a shared world receives far more than it can act on. A passer
+speaks to it; an event occurs nearby; an object enters its field. Most of
+this is nothing to the agent---not because the agent fails to perceive it,
+but because responding to it would not serve what the agent is doing and
+is not worth the agent's limited capacity. The mark of a convincing
+embedded agent is precisely this selectivity: it is present, but it is not
+at anyone's disposal. It answers what matters to it and lets the rest
+pass, sometimes with a token acknowledgement, sometimes with none.
+
+This paper asks what makes an incoming interaction \emph{relevant} to an
+agent, and what a relevant response \emph{costs}. We want a definition
+sharp enough to compute a policy from---given an interaction, should the
+agent respond, and if so how---and self-contained: nothing but this paper
+and standard mathematics.
+
+\subsection{The two-factor thesis}
+
+We argue that relevance has two factors and needs both. A response to an
+interaction is worth making only if it \emph{advances the agent toward its
+purpose} and \emph{preserves the agent's coherence}. The first factor is
+self-interest: a response that does not move the agent toward what it is
+trying to do is, to the agent, idle. The second is integrity: a response
+that would advance the purpose but break the agent's internal
+consistency---make it act against itself---is inadmissible. Relevance is
+the conjunction. An interaction to which no response passes both tests is
+irrelevant to the agent, and the correct behaviour is to decline it.
+
+From this, together with the plain fact that the agent's capacity to
+respond is bounded, the phenomenology of an embedded character follows:
+selective attention, declined interactions, token acknowledgements, and
+the alternation between engaging and withdrawing.
+
+\subsection{Relation to the companion account of purpose}
+
+This paper is self-contained; it defines every quantity it uses. It does,
+however, take from a companion study the picture of an agent as having a
+standing \emph{identity} and a \emph{purpose} that attracts its conduct.
+We restate exactly what we need---purpose as the attractor of a drive, and
+coherence as a closed consistency condition---as \Cref{sec:standing}
+axioms and definitions, proved or posited here, so that the present paper
+stands alone. A reader who has not seen the companion account loses
+nothing.
+
+\subsection{Organisation}
+
+\Cref{sec:standing} fixes the agent's standing quantities---purpose and
+coherence---and the interaction and response. \Cref{sec:relevance} proves
+the two-factor relevance theorem (T1). \Cref{sec:attention} proves the
+bounded-attention and threshold-policy results (T2, T3).
+\Cref{sec:coherence} proves that coherence is testable in advance (T4).
+\Cref{sec:irreversible} proves response is floored and irreversible (T5).
+\Cref{sec:phases} proves construction--commitment alternation (T6).
+\Cref{sec:validation} reports a numerical study. \Cref{sec:discussion}
+discusses scope.
+
+% =====================================================================
+\section{The agent's standing quantities, the interaction, the response}
+\label{sec:standing}
+% =====================================================================
+
+We fix the objects. The agent has a space of dispositions, a purpose it is
+drawn to, and a coherence it must keep. An interaction arrives; a response
+is a change the agent may make to itself in reply.
+
+\subsection{Dispositions, purpose, drive}
+
+\begin{definition}[Disposition space]
+\label{def:disp}
+The \emph{disposition space} $\Beh$ of an agent is a compact convex subset
+of $\R^n$; a point $x\in\Beh$ is the agent's current disposition (its
+tendencies to act). Distance on $\Beh$ is Euclidean, $\dist(x,y)=
+\norm{x-y}$.
+\end{definition}
+
+\begin{axiom}[Purpose-directed drive]
+\label{ax:drive}
+The agent carries a \emph{drive potential} $\drive:\Beh\to\R$,
+continuously differentiable and $\lam$-strongly convex for some $\lam>0$:
+$\drive(y)\ge\drive(x)+\nabla\drive(x)^\top(y-x)+\tfrac{\lam}{2}
+\norm{y-x}^2$ for all $x,y$. Its behaviour, absent interaction, follows
+the descent $\dot x=-\nabla\drive(x)$.
+\end{axiom}
+
+\begin{definition}[Purpose]
+\label{def:purpose}
+The \emph{purpose} of the agent is the unique minimiser
+$\Purp=\arg\min_{x\in\Beh}\drive(x)$; it is the attractor of the drive.
+For a disposition $x$, the \emph{residual to purpose} is
+$D(x)=\drive(x)-\drive(\Purp)\ge0$, the drive-height still to be
+descended.
+\end{definition}
+
+\begin{lemma}[Purpose is well-defined and attracting]
+\label{lem:purpose}
+Under \Cref{ax:drive}, $\Purp$ exists and is unique, and along the drive
+$\norm{x(t)-\Purp}\le e^{-\lam t}\norm{x(0)-\Purp}$; equivalently
+$D(x(t))\le e^{-2\lam t}D(x(0))$.
+\end{lemma}
+
+\begin{proof}
+A continuous function on a compact set attains its minimum; strong
+convexity makes the minimiser unique. For attraction, let
+$V=\tfrac12\norm{x-\Purp}^2$; then $\dot V=-(x-\Purp)^\top\nabla\drive(x)
+\le-\lam\norm{x-\Purp}^2=-2\lam V$ using strong-convexity monotonicity and
+$\nabla\drive(\Purp)=0$, so $V(t)\le e^{-2\lam t}V(0)$ by Grönwall. The
+$D$-form follows since $D$ is comparable to $\tfrac{\lam}{2}\norm{x-\Purp}^2$
+from below and to $\tfrac{L}{2}\norm{x-\Purp}^2$ from above for the
+gradient's Lipschitz constant $L$.
+\end{proof}
+
+\subsection{Coherence}
+
+An agent is coherent when its dispositions do not contradict one another:
+when the ways it is disposed to act, taken around any internal loop of
+dependence, agree. We formalise this as the vanishing of a
+\emph{holonomy}---the net drift accumulated on going around a cycle---which
+is the standard way to say ``all routes agree.''
+
+Before defining the consistency graph we must say what \emph{gives} the
+agent a transport structure at all: the graph must be grounded in the
+agent's internal constitution, not introduced fully formed.
+
+\begin{axiom}[Disposition components carry transports]
+\label{ax:transport}
+The agent's disposition components stand in relations of internal
+dependence: shifting one component induces, through the agent's own
+internal structure, a determinate shift in each dependent component. Each
+such directed dependence carries a \emph{transport}---the shift induced per
+unit of the driving component. Formally, the agent's internal structure
+supplies, for each ordered pair of dependent components $(i,j)$, a transport
+$\theta_{ij}\in\R^d$; the consistency graph $H$ of \Cref{def:coherence} is
+the formalisation of this transport structure.
+\end{axiom}
+
+\begin{remark}[The consistency graph is the self-graph carrying its costs
+as transports]
+\label{rem:H-grounded}
+The transport structure of \Cref{ax:transport} is not a new object bolted
+onto the agent but the companion account's self-graph seen dynamically. In
+that account the agent is a finite weighted graph of internal distinctions
+whose edges carry the \emph{cost} of holding two parts apart; a shift in one
+part is transmitted to an adjacent part through exactly that separation, and
+the induced shift per unit drive is the transport $\theta_{ij}$. The
+consistency graph $H$ shares the self-graph's vertices (disposition
+components) and its edges (internal separations), and reads each separation
+cost as the magnitude of a directed transport. Holonomy---the failure of
+transports to sum to zero around a cycle---is then the dynamical signature
+of the same internal boundary costs the companion account derives, so $H$
+arises from the agent's constitution rather than alongside it. This is what
+grounds the pre-commitment coherence test (\Cref{thm:cohtest}) and the
+refusal corollary (\Cref{cor:refuse}): both read structure the agent already
+has.
+\end{remark}
+
+\begin{definition}[Consistency graph; holonomy; coherence]
+\label{def:coherence}
+The agent's \emph{consistency graph} $H$ has a vertex for each disposition
+component and a directed edge $i\to j$ carrying a \emph{transport}
+$\theta_{ij}\in\R^d$ recording the shift the agent's structure induces in
+$j$ per unit of $i$. The \emph{holonomy} of a directed cycle
+$c=(i_0,i_1,\dots,i_0)$ is $\eta(c)=\sum_\ell\theta_{i_\ell i_{\ell+1}}$.
+The agent is \emph{coherent} if $\eta(c)=0$ for every cycle $c$; the
+\emph{coherence margin} of a disposition $x$ is
+$\coh(x)=-\max_c\norm{\eta_x(c)}$, the negative of the worst cycle
+disagreement at $x$ (so $\coh(x)=0$ at perfect coherence and $\coh(x)<0$
+when some cycle fails to close).
+\end{definition}
+
+\begin{axiom}[Coherence is a closed condition]
+\label{ax:closed}
+The set of coherent dispositions $\{x\in\Beh:\coh(x)=0\}$ is closed and
+nonempty, and $\coh:\Beh\to(-\infty,0]$ is continuous. (An agent has at
+least one coherent disposition and coherence does not jump.)
+\end{axiom}
+
+\begin{remark}[Why holonomy is the right notion]
+\label{rem:holonomy}
+``All routes agree'' is exactly ``every cycle sums to zero.'' If two chains
+of internal dependence lead from a disposition to another and disagree,
+their difference is a cycle with nonzero holonomy; conversely a nonzero
+cycle is two routes that disagree. Coherence as vanishing holonomy is
+therefore not a special assumption but the general form of internal
+consistency, and---crucially for \Cref{sec:coherence}---it is checkable
+from the \emph{signs and sums of local transports}, without any global
+solve.
+\end{remark}
+
+\subsection{Interaction and response}
+
+\begin{definition}[Interaction]
+\label{def:interaction}
+An \emph{interaction} $\Int$ is an external event presented to the agent:
+formally a map $\Int:\Beh\to\Beh$ that the agent \emph{may} apply to its
+disposition (the change the interaction would induce if the agent takes it
+up), together with a tag identifying it. An interaction is \emph{received}
+whether or not it is responded to; it is \emph{responded to} only if the
+agent applies a response to it.
+\end{definition}
+
+\begin{definition}[Response; repertoire; cost]
+\label{def:response}
+A \emph{response} to $\Int$ is a map $\resp:\Beh\to\Beh$ the agent applies
+to its own disposition in reply, drawn from a finite \emph{repertoire}
+$\Resp$. Applying $\resp$ moves the disposition from $x$ to
+$\resp\!\cdot x$. Each response has a \emph{cost} $\cost(\resp)>0$,
+the capacity it consumes.
+\end{definition}
+
+\begin{axiom}[Response floor]
+\label{ax:floor}
+No response is free: there is $\floorc>0$ with $\cost(\resp)\ge\floorc$ for
+every $\resp\in\Resp$. Even the smallest genuine response---a token
+acknowledgement---costs at least $\floorc$.
+\end{axiom}
+
+\begin{remark}[Why the floor is constitutive of response]
+\label{rem:floor-earned}
+The floor is not an independent stipulation but is built into what a
+response \emph{is}. A zero-cost response deposits nothing and changes
+nothing---it leaves the agent's disposition, expended attention, and
+committed count exactly as they were. But a change that changes nothing is
+not a response; it is the \emph{absence} of response, indistinguishable from
+declining. Therefore every genuine response---anything that counts as the
+agent having replied at all---costs at least some positive $\floorc>0$. The
+floor is thus the trace that distinguishes responding from doing nothing,
+and \Cref{ax:floor} records the least such trace across the repertoire.
+\end{remark}
+
+\begin{axiom}[Bounded attention]
+\label{ax:attention}
+The agent has a finite \emph{attention budget} $\att>0$ per unit time: the
+total cost of the responses it commits in any unit interval cannot exceed
+$\att$. Formally, if $R$ is the set of responses committed in a unit
+interval, $\sum_{\resp\in R}\cost(\resp)\le\att$.
+\end{axiom}
+
+% =====================================================================
+\section{Two-factor relevance}
+\label{sec:relevance}
+% =====================================================================
+
+We now define when an interaction is relevant and prove that relevance is
+the conjunction of a purpose gain and a coherence margin, with neither
+sufficient alone.
+
+\begin{definition}[Purpose gain]
+\label{def:gain}
+The \emph{purpose gain} of a response $\resp$ to $\Int$ at disposition $x$
+is the residual it removes,
+\[
+\gain(\resp;x)\ =\ D(x)\ -\ D(\resp\!\cdot x)\ =\
+\drive(x)-\drive(\resp\!\cdot x),
+\]
+the drop in drive-height. The response is \emph{purpose-advancing} at $x$
+if $\gain(\resp;x)>0$.
+\end{definition}
+
+\begin{definition}[Coherence-preserving]
+\label{def:cohpres}
+A response $\resp$ is \emph{coherence-preserving} at $x$ if it does not
+worsen the coherence margin: $\coh(\resp\!\cdot x)\ge\coh(x)$, i.e. the
+agent is no less coherent after responding than before. It is
+\emph{coherence-breaking} if $\coh(\resp\!\cdot x)<\coh(x)$.
+\end{definition}
+
+\begin{definition}[Two-factor relevance]
+\label{def:relevance}
+An interaction $\Int$ is \emph{relevant} to the agent at disposition $x$
+if there exists a response $\resp\in\Resp$ that is both purpose-advancing
+and coherence-preserving at $x$:
+\[
+\exists\,\resp\in\Resp:\quad
+\gain(\resp;x)>0\ \ \text{and}\ \ \coh(\resp\!\cdot x)\ge\coh(x).
+\]
+Such a response is \emph{admissible}. An interaction with no admissible
+response is \emph{irrelevant} to the agent.
+\end{definition}
+
+\begin{theorem}[Relevance is a conjunction; neither factor alone suffices]
+\label{thm:conjunction}
+Under \Cref{ax:drive,ax:closed}:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item An interaction is relevant iff its admissible set is nonempty, i.e.
+iff some response clears \emph{both} the purpose-gain and
+coherence-margin bars.
+\item Purpose gain alone does not make an interaction relevant: there
+exist interactions whose every purpose-advancing response is
+coherence-breaking, hence inadmissible.
+\item Coherence preservation alone does not make an interaction relevant:
+a response that preserves coherence but has $\gain\le0$ is inadmissible.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) is \Cref{def:relevance} restated: relevance is nonemptiness of the
+admissible set, and admissibility is the conjunction of the two
+conditions. (ii) Construct $\Beh=[0,1]^2$, a strongly convex $\drive$ with
+minimiser at a corner, and a repertoire whose only $\gain>0$ response
+carries the disposition across a locus where some cycle's holonomy jumps
+from $0$ to a positive norm, so $\coh$ strictly decreases; then every
+purpose-advancing response is coherence-breaking, the admissible set is
+empty, and the interaction is irrelevant despite offering purpose gain.
+(Continuity of $\coh$, \Cref{ax:closed}, makes the decrease well-defined.)
+(iii) If $\gain(\resp;x)\le0$ then $\resp$ is not purpose-advancing, so it
+fails the first conjunct and is inadmissible regardless of its coherence
+effect.
+\end{proof}
+
+\begin{remark}[The peripheral player, derived]
+\label{rem:peripheral}
+\Cref{thm:conjunction} already yields the central phenomenological fact.
+An interaction from another party (a player addressing the agent) is
+relevant only if some response to it both advances the agent's own purpose
+and keeps the agent coherent. When the player's address does neither---as
+is typical when the agent is busy with its own pursuit---the interaction
+is simply irrelevant, and the agent's correct behaviour is to not respond,
+or to respond only with the cheapest coherence-neutral token. The player
+is peripheral by construction: relevance is measured against the agent's
+purpose, not the player's. No special ``distraction'' mechanism is needed;
+peripherality is what relevance-to-self means.
+\end{remark}
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1.png}
+    \caption{\textbf{Two-Factor Relevance: An Interaction Matters Only If a
+    Response Both Advances Purpose and Keeps Coherence.}
+    (\textbf{A})~Change in coherence margin on the linear $y$-axis versus
+    purpose gain $g$ on the linear $x$-axis, $600$ candidate responses
+    classified admissible (sea-green) or not (grey), with the zero axes
+    marked (crimson). The admissible set is exactly the upper-right
+    quadrant---positive gain \emph{and} non-negative coherence change---the
+    empirical content of \Cref{thm:conjunction}: relevance is the
+    conjunction of the two factors.
+    (\textbf{B})~Fraction of responses passing each test on the linear
+    $y$-axis ($0$ to $1$): gain-only (amber), coherence-only (violet), and
+    both together (sea-green). The ``both'' bar is strictly smaller than
+    either alone, the quantitative statement that neither factor alone
+    suffices (\Cref{thm:conjunction}(ii),(iii)).
+    (\textbf{C})~Purpose gain $g$ on the linear $y$-axis versus response step
+    size on the linear $x$-axis ($-0.5$ to $1.2$) (steel-blue), with the
+    zero line marked (crimson, dashed) and the positive-gain region shaded
+    (sea-green). Gain is positive only over a bounded interval of steps: a
+    response advances purpose only if it moves the disposition the right way
+    and not too far.
+    (\textbf{D})~Three-dimensional relevance indicator over purpose gain $g$
+    ($x$-axis, $-1$ to $2$) and coherence margin change ($y$-axis, $-1.5$ to
+    $0.5$) (viridis colourmap), viewing angle elevation $26^{\circ}$ azimuth
+    $-58^{\circ}$. The indicator is the raised plateau over the single
+    quadrant where both factors clear their bars, the geometric form of
+    two-factor relevance.}
+    \label{fig:physiology-1}
+\end{figure*}
+
+
+% =====================================================================
+\section{Bounded attention and the threshold policy}
+\label{sec:attention}
+% =====================================================================
+
+Relevance says which interactions \emph{could} be worth a response.
+Bounded attention says the agent cannot take up all of them, and forces a
+selection. We show the selection is a threshold rule and that declining
+interactions is not a failure but the optimal use of a finite budget.
+
+\begin{theorem}[Inattention is forced]
+\label{thm:inattention}
+Under \Cref{ax:floor,ax:attention}, in any unit interval the agent commits
+at most $\lfloor\att/\floorc\rfloor$ responses. If more than
+$\lfloor\att/\floorc\rfloor$ relevant interactions arrive in the interval,
+the agent must leave at least one relevant interaction without response.
+Declining interactions is therefore forced by finiteness, not a defect of
+the agent.
+\end{theorem}
+
+\begin{proof}
+Each committed response costs $\ge\floorc$ (\Cref{ax:floor}) and the total
+committed cost is $\le\att$ (\Cref{ax:attention}); hence the number of
+committed responses $N$ satisfies $N\floorc\le\att$, i.e.
+$N\le\lfloor\att/\floorc\rfloor$. If the number of relevant interactions
+exceeds this bound, not all can be committed, so at least one relevant
+interaction goes without response.
+\end{proof}
+
+\begin{definition}[Response policy; value]
+\label{def:policy}
+A \emph{response policy} selects, from the relevant interactions arriving
+in a unit interval, a subset $R$ to respond to, subject to
+$\sum_{\resp\in R}\cost(\resp)\le\att$. Its \emph{value} is the total
+purpose gain secured, $\sum_{\resp\in R}\gain(\resp;x)$ (each interaction
+answered by its best admissible response).
+\end{definition}
+
+The responses of \Cref{def:response} are drawn from a \emph{finite}
+repertoire: they are discrete, all-or-nothing, not divisible at will. The
+value-maximising selection is therefore an integer knapsack, which is
+NP-hard in general. Two honest positions are available, and we take both:
+the threshold rule is \emph{exactly} optimal when the repertoire has the
+additive structure below, and otherwise optimal for the continuous
+relaxation and within one boundary item of the true integer optimum.
+
+\begin{definition}[Floor-additive repertoire]
+\label{def:additive}
+A response repertoire is \emph{floor-additive} if every response decomposes
+into acknowledgement-sized units of cost $\floorc$ with proportional gain:
+each $\resp$ has $\cost(\resp)=k_\resp\floorc$ for some integer
+$k_\resp\ge1$, and gain accrues linearly across its units, so that
+committing $k_\resp$ units of the cheapest floor-cost response secures the
+same gain density as $\resp$. Equivalently, cost is additive and gain is
+additive over floor-sized units.
+\end{definition}
+
+\begin{theorem}[Optimal policy is a threshold on gain density]
+\label{thm:threshold}
+Order relevant interactions by \emph{gain density}
+$\gain(\resp;x)/\cost(\resp)$ and commit them in decreasing order until the
+budget $\att$ is exhausted; equivalently, there is a price $p^\star\ge0$
+such that the agent responds to an interaction iff its best admissible
+response has gain density $\ge p^\star$, and ignores the rest, with
+$p^\star$ rising as the budget $\att$ falls or as relevant arrivals grow.
+Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item for a floor-additive repertoire (\Cref{def:additive}) the threshold
+rule is \emph{exactly} value-maximising among all integer selections; and
+\item for a general finite repertoire it is optimal for the continuous
+relaxation and its value is within one response of the integer optimum---the
+gap is at most the gain of a single boundary item.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The selection problem is: maximise $\sum_{\resp\in R}\gain(\resp)$ subject
+to $\sum_{\resp\in R}\cost(\resp)\le\att$. Sorting by gain density and
+taking greedily until the budget is spent is optimal for the
+\emph{continuous} relaxation, and the Lagrangian dual assigns a single
+multiplier $p^\star$---the shadow price of attention---such that an item is
+selected iff its gain density exceeds $p^\star$; tightening $\att$ or adding
+higher-density competitors raises the binding $p^\star$.
+
+(i) When the repertoire is floor-additive, every response is an integer
+number of floor-sized units of equal gain density, so the feasible set is
+closed under splitting a response into its units and the continuous optimum
+is attained at an integer point: the greedy threshold fills the budget in
+whole floor units with no fractional remainder, hence is exactly optimal
+among integer selections.
+
+(ii) In general the integer (all-or-nothing) knapsack differs from its
+relaxation only in the single item that the continuous solution would split
+at the budget boundary; rounding that item out loses at most its own gain.
+So the threshold policy's value is within one response of the true integer
+optimum, and the qualitative threshold structure and shadow price $p^\star$
+are unchanged. We do not claim exact integer optimality outside the
+floor-additive case; the bounded gap is the honest statement.
+\end{proof}
+
+\begin{remark}[Interpretation: present but preoccupied]
+\label{rem:preoccupied}
+\Cref{thm:threshold} is the policy of an agent that is present but
+preoccupied. It answers the interactions that most advance its purpose per
+unit of attention and lets the rest pass, with a price $p^\star$ that
+climbs exactly when the agent is busy (low spare $\att$) or besieged (many
+competing relevant interactions). A player addressing such an agent during
+a high-$p^\star$ moment receives, correctly, a thin response or none---not
+because the agent is broken, but because the address fell below the
+agent's current price of attention. Lowering $p^\star$ (an idle agent)
+makes the same agent forthcoming. The single scalar $p^\star$ is thus a
+readable dial for how reachable a character is at a given moment.
+\end{remark}
+
+\begin{corollary}[Token responses are the boundary case]
+\label{cor:token}
+The cheapest admissible response---cost $\floorc$, coherence-neutral,
+minimal positive gain---is committed exactly when the budget has residual
+capacity below the cost of any higher-gain response but at least $\floorc$.
+This is the formal ``one sec'' / nod: the agent spends its last unit of
+attention on a floor-cost acknowledgement rather than a substantive reply.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:threshold} the agent fills the budget greedily; when the
+residual budget lies in $[\floorc,\,\min_{\text{substantive}}\cost)$, the
+only affordable admissible response is a floor-cost one, which it takes if
+its gain density clears $p^\star$. The boundary item of
+\Cref{thm:threshold}(ii) is precisely this floor-cost response: for a
+floor-additive repertoire (\Cref{def:additive}) the residual is filled
+exactly, and for a general repertoire the token is the at-most-one boundary
+response by which the greedy value may fall short of the integer optimum.
+\end{proof}
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2.png}
+    \caption{\textbf{Bounded Attention and the Single-Price Threshold:
+    Present but Preoccupied.}
+    (\textbf{A})~Responses committed on the linear $y$-axis versus attention
+    budget $\att$ on the linear $x$-axis ($1$ to $20$): the realised greedy
+    count (steel-blue) tracks the cap $\lfloor\att/\floorc\rfloor$ (crimson,
+    dashed). The count never exceeds the cap, the empirical content of
+    \Cref{thm:inattention}: inattention is forced by finiteness, not a
+    defect.
+    (\textbf{B})~Gain density $g/c$ on the linear $y$-axis versus interaction
+    index on the linear $x$-axis, responses answered (sea-green) and ignored
+    (grey), with the shadow price $p^\star$ marked (crimson, dashed). The
+    agent responds to exactly those above the single price, the empirical
+    content of \Cref{thm:threshold}: the optimal policy is a gain-density
+    threshold.
+    (\textbf{C})~Threshold price $p^\star$ on the linear $y$-axis versus
+    attention budget $\att$ on the linear $x$-axis ($2$ to $25$) (violet).
+    The price rises as the budget falls, the quantitative dial of how
+    reachable the agent is: a busy agent prices attention high and answers
+    little.
+    (\textbf{D})~Three-dimensional secured-gain surface over attention
+    budget $\att$ ($x$-axis, $2$ to $20$) and number of arrivals ($y$-axis,
+    $2$ to $29$) (viridis colourmap), viewing angle elevation $26^{\circ}$
+    azimuth $-60^{\circ}$. Secured gain rises with budget and saturates as
+    arrivals grow, the value form of the threshold policy under a finite
+    budget.}
+    \label{fig:physiology-2}
+\end{figure*}
+
+% =====================================================================
+\section{Coherence is testable in advance}
+\label{sec:coherence}
+% =====================================================================
+
+The second relevance factor would be useless if the agent could not tell,
+\emph{before} committing, whether a response will break it. We show
+coherence is decidable locally and in advance, from the signs and sums of
+the response's internal effects, without a global solve.
+
+\begin{theorem}[Coherence is a local, ordinal, pre-commitment test]
+\label{thm:cohtest}
+A response $\resp$ is coherence-preserving at $x$ iff, for every cycle $c$
+in the consistency graph, the post-response holonomy has norm no larger
+than the pre-response holonomy:
+$\norm{\eta_{\resp\cdot x}(c)}\le\norm{\eta_x(c)}$. This is decidable from
+the transports $\theta_{ij}$ alone---their signs and directed sums around
+cycles---without computing the agent's full future behaviour, and it can
+be evaluated before $\resp$ is committed.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:coherence}, $\coh(y)=-\max_c\norm{\eta_y(c)}$, so
+$\coh(\resp\!\cdot x)\ge\coh(x)$ iff $\max_c\norm{\eta_{\resp\cdot x}(c)}
+\le\max_c\norm{\eta_x(c)}$, which holds iff no cycle's holonomy norm
+increases past the prior maximum; the stated per-cycle inequality is
+sufficient and, taken over the maximising cycle, necessary. Each
+$\eta_y(c)=\sum_\ell\theta_{i_\ell i_{\ell+1}}$ is a finite directed sum of
+local transports, computable from the graph's edge data at $y$ and at
+$\resp\!\cdot x$; a cycle basis (of size $\abs{E}-\abs{V}+1$ for a
+connected consistency graph) suffices, so the test is polynomial in the
+graph and uses only local transport data, evaluable on the hypothetical
+post-response state without committing to it.
+\end{proof}
+
+\begin{corollary}[An agent can refuse a tempting but destructive response]
+\label{cor:refuse}
+An agent can decline a response that advances its purpose ($\gain>0$) but
+fails the coherence test, before committing it. Thus the agent is not
+forced to pursue purpose at the cost of self-consistency: two-factor
+relevance (\Cref{def:relevance}) is enforceable in advance, because its
+second factor is a pre-commitment, local, ordinal check.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:cohtest} the coherence factor is evaluable before commitment;
+if it fails while $\gain>0$, the response is purpose-advancing but
+coherence-breaking, hence inadmissible by \Cref{def:relevance}, and the
+agent declines it on the basis of the pre-commitment test alone.
+\end{proof}
+
+\begin{principle}[Integrity over opportunity]
+\label{prin:integrity}
+Because coherence is testable in advance, an agent modelled this way will
+pass up purpose-advancing interactions that would make it incoherent---it
+will act against an immediate gain to remain itself. This is the formal
+counterpart of a character with integrity: not every advantageous
+interaction is taken, and which are refused is decidable and inspectable.
+\end{principle}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3.png}
+    \caption{\textbf{Coherence as Vanishing Holonomy: The Test Is Local,
+    Ordinal, and Runs in Advance.}
+    (\textbf{A})~Histogram of the cycle holonomy norm $\lVert\eta\rVert$ on
+    the linear $x$-axis, $300$ coherent (sea-green) and $300$ incoherent
+    (amber) agents, with the zero line marked (crimson). Coherent agents
+    concentrate at zero and incoherent ones spread above it, the empirical
+    content of \Cref{def:coherence}: coherence is exactly the vanishing of
+    every cycle's holonomy.
+    (\textbf{B})~Realised post-response coherence margin on the linear
+    $y$-axis versus the margin predicted by the advance test on the linear
+    $x$-axis (violet), with the identity diagonal marked (crimson). The
+    advance test predicts the realised margin exactly---all $150$ checks on
+    the diagonal---the empirical content of \Cref{thm:cohtest}: coherence is
+    decidable before commitment.
+    (\textbf{C})~Three-dimensional holonomy walk of a broken cycle in
+    transport space $(\eta_x,\eta_y,\eta_z)$, the cumulative transport path
+    (steel-blue) from its start (sea-green) with the non-closing gap marked
+    (crimson, dashed), viewing angle elevation $24^{\circ}$ azimuth
+    $-55^{\circ}$. The path fails to return to its origin: the geometric
+    picture of a nonzero holonomy, a cycle whose routes disagree.
+    (\textbf{D})~Coherence effect (preserves / breaks) on the $y$-axis
+    versus purpose gain $g$ on the linear $x$-axis, responses admissible
+    (sea-green) and declined (crimson). Purpose-advancing responses that
+    break coherence fall in the declined row, the empirical content of
+    \Cref{cor:refuse}: the agent refuses a tempting but self-breaking
+    response in advance.}
+    \label{fig:physiology-3}
+\end{figure*}
+
+% =====================================================================
+\section{Response is floored and irreversible}
+\label{sec:irreversible}
+% =====================================================================
+
+We now show that responding changes the agent permanently: every committed
+response deposits at least the floor of change and cannot be undone, so an
+agent cannot un-receive what it responded to, and no two encounters are
+with the same agent.
+
+\begin{definition}[Committed history; agent state]
+\label{def:history}
+The agent carries a \emph{committed count} $m\in\N$, incremented by one
+each time it commits a response. Its \emph{state} is the pair
+$(x,m)$ of current disposition and committed count. Two states are equal
+iff both components agree.
+\end{definition}
+
+\begin{theorem}[Floored, irreversible response]
+\label{thm:irreversible}
+Every committed response deposits a change of size $\ge\floorc$ in the
+agent's expended attention and increments the committed count by one.
+Consequently:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item the committed count is strictly increasing, so for encounters at
+counts $m<m'$ the agent's states differ, $(x,m)\neq(x',m')$, even if
+$x=x'$;
+\item there is no response that restores a prior state: an ``undo'' is
+itself a committed response, raising the count further; hence a revisited
+disposition is never a revisited state;
+\item an agent cannot un-receive an interaction it has responded to: the
+response's deposit and the count increment persist.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Committing a response costs $\ge\floorc$ (\Cref{ax:floor}) and, by
+\Cref{def:history}, increments $m$ by one; so counts strictly increase.
+(i) If $m\neq m'$ the second components differ, so the states differ
+regardless of dispositions. (ii) An operation intended to restore an
+earlier state is a further committed response, producing count $m+1\neq m$;
+it yields a new state, not the old one. (iii) The deposit (expended
+attention) and the count increment are not removed by any subsequent
+response, since every response only adds to the count; so the fact of
+having responded persists.
+\end{proof}
+
+\begin{remark}[Two quantities, and what each establishes]
+\label{rem:two-quantities}
+\Cref{thm:irreversible} tracks two distinct quantities and it is worth being
+exact about what each does. The \emph{committed count} $m$ is a timestamp;
+the \emph{expended attention} is a running total of cost; \emph{neither} is
+by itself a change in the disposition $x$. Read at the level of these two
+alone, the claim ``a revisited disposition is never a revisited state'' is
+true only because the state \emph{includes} the count---it is a consequence
+of bookkeeping, and two agents at the same disposition but different counts
+are distinguished by timestamp alone. That much is honest and already
+enough for \Cref{rem:new-agent}. But the irreversibility is not
+\emph{merely} counted, as the next proposition shows: an admissible
+response also moves the disposition non-trivially.
+\end{remark}
+
+\begin{proposition}[Admissible response moves the disposition]
+\label{prop:disp-moves}
+Let $\resp$ be an admissible response at $x$ (purpose-advancing and
+coherence-preserving, \Cref{def:relevance}). Then it changes the
+disposition by a non-trivial amount bounded below in terms of the floor:
+$\resp\!\cdot x\neq x$, and the drive drop $\gain(\resp;x)=\drive(x)-
+\drive(\resp\!\cdot x)>0$ forces $\norm{\resp\!\cdot x-x}\ge
+\sqrt{2\gain(\resp;x)/L}>0$, where $L$ is the Lipschitz constant of
+$\nabla\drive$. Hence a committed admissible response deposits an
+irreversible change in $x$ itself, not only in the count.
+\end{proposition}
+
+\begin{proof}
+By \Cref{def:gain} admissibility requires $\gain(\resp;x)>0$, so
+$\drive(\resp\!\cdot x)<\drive(x)$ and thus $\resp\!\cdot x\neq x$. For the
+magnitude, an $L$-Lipschitz gradient gives the descent bound
+$\drive(x)-\drive(y)\le\nabla\drive(x)^\top(x-y)+\tfrac{L}{2}\norm{x-y}^2
+\le\ldots\le \tfrac{L}{2}\norm{x-y}^2$ along the improving direction, so a
+drop of $\gain$ needs $\norm{\resp\!\cdot x-x}\ge\sqrt{2\gain/L}$.
+Composed with the strict count monotonicity of \Cref{thm:irreversible}, the
+response changes both the disposition (by $\ge\sqrt{2\gain/L}$) and the
+count (by one); the disposition change makes non-return genuine, not merely
+a matter of timestamp.
+\end{proof}
+
+\begin{remark}[Each encounter is with a new agent]
+\label{rem:new-agent}
+\Cref{thm:irreversible} says that an agent a player meets twice is, at the
+second meeting, in a strictly later state than at the first---its committed
+history has grown---even if its disposition looks the same. The agent that
+returns is not the agent that left; resemblance is not identity of state.
+This is what gives an embedded character the feel of a continuing life
+rather than a resetting script: responding is a one-way deposit, and the
+agent accumulates.
+\end{remark}
+
+% =====================================================================
+\section{Construction and commitment alternate}
+\label{sec:phases}
+% =====================================================================
+
+Finally we show a second, independent source of the appearance of
+distraction: forming new internal distinctions and committing to an action
+cannot happen at the same instant. An agent that is thinking is, at that
+instant, not acting, and vice versa; responsiveness and reflection
+alternate.
+
+\begin{definition}[Construction and commitment]
+\label{def:phases}
+At each instant the agent is in one of two phases. In a \emph{construction
+phase} it forms or revises internal distinctions---its disposition is
+being reshaped and it commits to no response (it holds action open). In a
+\emph{commitment phase} it applies a response---it commits to a single
+disposition change and forms no new distinctions.
+\end{definition}
+
+\begin{axiom}[Phase exclusion]
+\label{ax:exclusion}
+Forming a new distinction and committing to a response cannot both occur at
+one instant: at each instant the agent is in exactly one phase.
+\end{axiom}
+
+\begin{remark}[Phase exclusion is forced by the self-graph structure]
+\label{rem:exclusion-grounded}
+Exclusion is not an appeal to an undefined ``instantaneous capacity'' but a
+consequence of what the two phases \emph{do} to the agent's structure.
+Forming a new distinction \emph{alters the self-graph}: it changes
+$(V,E,w)$---adding a part, a separation, or a cost---and thereby changes
+the disposition space $\Beh$ coordinatised by that graph. Committing a
+response, by contrast, \emph{applies a map} $\resp:\Beh\to\Beh$ on the fixed
+disposition space (\Cref{def:response}). These cannot occur at the same
+instant because construction changes the very domain $\Beh$ on which the
+response map acts: a response applied while $\Beh$ is being rebuilt has no
+well-defined domain and codomain---the map $\resp\!\cdot x$ is undefined
+when $x$'s coordinate space is mid-revision. The two operations require the
+disposition space to be, respectively, malleable and fixed at the same
+instant, which is impossible. Hence exactly one phase holds at each instant.
+\end{remark}
+
+\begin{theorem}[Construction--commitment alternation]
+\label{thm:alternation}
+Under \Cref{ax:exclusion}, an agent that both forms new distinctions and
+commits responses must alternate between the two phases: there is no
+instant at which it does both, so the two activities occupy disjoint
+intervals in time. In particular, during a construction phase the agent
+commits no responses---it is, to an outside party, unresponsive---though it
+is fully active internally.
+\end{theorem}
+
+\begin{proof}
+By \Cref{ax:exclusion} the instantaneous phase is single-valued, so the
+sets of construction instants and commitment instants are disjoint. An
+agent that does both over time must therefore partition its time into
+construction intervals and commitment intervals with no overlap, i.e.
+alternate. During a construction interval, by \Cref{def:phases} no
+response is committed, so no external response is emitted, although the
+disposition is being actively reshaped.
+\end{proof}
+
+\begin{remark}[A second, independent distraction mechanism]
+\label{rem:second-distraction}
+\Cref{thm:alternation} gives a source of apparent inattention distinct
+from the attention-budget threshold of \Cref{sec:attention}. Even an agent
+with ample budget and a relevant interaction before it will not respond
+\emph{while it is in a construction phase}: it is occupied reshaping
+itself and holds action open until it re-enters a commitment phase. To an
+observer this is indistinguishable from being ignored, yet the agent is at
+its most active. Realistic unresponsiveness therefore has two forced
+origins---the budget threshold ($p^\star$) and the construction phase---and
+a convincing character exhibits both.
+\end{remark}
+
+\begin{corollary}[Responsiveness is intermittent by necessity]
+An agent that ever forms new distinctions is unresponsive on a positive
+fraction of instants, regardless of its attention budget or the relevance
+of what arrives. Continuous, immediate responsiveness is possible only for
+an agent that never reflects.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:alternation}: construction intervals carry no
+committed responses, and any agent that forms distinctions has construction
+intervals of positive total measure.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4.png}
+    \caption{\textbf{Irreversibility and Phase Alternation: The Agent
+    Accumulates, and Reflection Excludes Action.}
+    (\textbf{A})~Committed count $m$ on the linear $y$-axis versus encounter
+    index on the linear $x$-axis, drawn as a strictly rising step
+    (steel-blue). The count only ever increases, the empirical content of
+    \Cref{thm:irreversible}: response is a one-way deposit.
+    (\textbf{B})~State distance from the first encounter on the linear
+    $y$-axis versus committed count on the linear $x$-axis (sea-green line,
+    points coloured by count in plasma). Although the disposition nearly
+    repeats, the distance grows because the count grows: a revisited
+    disposition is never a revisited state (\Cref{thm:irreversible}(ii)),
+    and the response also moves the disposition itself
+    (\Cref{prop:disp-moves}).
+    (\textbf{C})~Phase and response over time, the commitment phase shaded
+    (steel-blue) with each emitted response marked (crimson) versus time on
+    the linear $x$-axis ($0$ to $80$). No response mark ever falls in a
+    construction interval, the empirical content of \Cref{thm:alternation}:
+    the agent commits nothing while it is reshaping itself.
+    (\textbf{D})~Three-dimensional anti-phase orbit of the construction
+    activity $\sigma_K$ versus the commitment activity $\sigma_Y$ versus time
+    (both activity axes linear, plasma-coloured samples), viewing angle
+    elevation $24^{\circ}$ azimuth $-58^{\circ}$. The two activities are
+    exactly out of phase---each high only when the other is low---the
+    geometric form of phase exclusion (\Cref{ax:exclusion},
+    \Cref{rem:exclusion-grounded}).}
+    \label{fig:physiology-4}
+\end{figure*}
+
+% =====================================================================
+\section{Numerical study}
+\label{sec:validation}
+% =====================================================================
+
+The results are proved from the axioms; we exhibit them on explicit agents
+to display their shape and check the derivations directly.
+
+\subsection{Method}
+
+An agent is realised by: a disposition space $\Beh=[0,1]^n$; a strongly
+convex drive $\drive$ with known minimiser $\Purp$ and constant $\lam$; a
+finite response repertoire $\Resp$ with costs $\ge\floorc$; a consistency
+graph $H$ with transports $\theta_{ij}$ giving a computable coherence
+margin $\coh(x)$; and an attention budget $\att$. For streams of arriving
+interactions we compute, per interaction, the best admissible response
+(purpose gain and coherence test), then apply the threshold policy under
+the budget. We measure: the realised response count against
+$\lfloor\att/\floorc\rfloor$; the selected set against the gain-density
+threshold; the pre-commitment coherence test against the actual
+post-response margin; the committed-count monotonicity; and the fraction
+of instants in construction versus commitment phases.
+
+\subsection{Predictions checked}
+
+\begin{enumerate}[label=\textbf{(V\arabic*)},leftmargin=*]
+\item \textbf{Two-factor relevance.} An interaction is answered iff it has
+a response clearing both bars; purpose-only and coherence-only responses
+are declined (\Cref{thm:conjunction}).
+\item \textbf{Inattention forced.} The committed response count never
+exceeds $\lfloor\att/\floorc\rfloor$, and excess relevant interactions go
+unanswered (\Cref{thm:inattention}).
+\item \textbf{Threshold policy.} The value-maximising selection matches the
+gain-density threshold with a single price $p^\star$; $p^\star$ rises as
+$\att$ falls or arrivals grow (\Cref{thm:threshold}).
+\item \textbf{Token boundary.} With small residual budget, only floor-cost
+acknowledgements are committed (\Cref{cor:token}).
+\item \textbf{Coherence pre-test.} The advance holonomy test predicts the
+actual post-response margin sign with no error; tempting-but-destructive
+responses are refused before commitment
+(\Cref{thm:cohtest,cor:refuse}).
+\item \textbf{Irreversibility.} Committed count is strictly increasing;
+repeated encounters at equal disposition have distinct states
+(\Cref{thm:irreversible}).
+\item \textbf{Alternation.} Construction and commitment instants are
+disjoint; response emission is zero throughout every construction interval
+(\Cref{thm:alternation}).
+\end{enumerate}
+
+\subsection{Results}
+
+The suite is deterministic given its seed ($20260719$) and runs a response
+floor $\floorc=1$. Across the eight prediction groups it performs $790$
+individual checks and \emph{all $790$ pass};
+\Cref{tab:physiology-results} records the group-level outcomes.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Numerical validation of \emph{The Physiology of Response}. Every
+one of $790$ individual checks passes (seed $20260719$, response floor
+$\floorc=1$).}
+\label{tab:physiology-results}
+\begin{tabular}{@{}llr@{}}
+\toprule
+Prediction (theorem) & Checks & Outcome \\
+\midrule
+V1 Two-factor relevance (\Cref{thm:conjunction}) & $200$ & pass \\
+V2 Inattention forced (\Cref{thm:inattention})   & $80$  & $N\le\lfloor\att/\floorc\rfloor$ \\
+V3 Threshold policy (\Cref{thm:threshold})       & $80$  & single price $p^\star$ \\
+V4 Token boundary (\Cref{cor:token})             & $60$  & floor-cost only \\
+V5 Coherence pre-test (\Cref{thm:cohtest})       & $150$ & sign exact \\
+V6 Integrity refusal (\Cref{cor:refuse})         & $100$ & declined in advance \\
+V7 Irreversibility (\Cref{thm:irreversible})     & $60$  & count strictly $\uparrow$ \\
+V8 Alternation (\Cref{thm:alternation})          & $60$  & phases disjoint \\
+\midrule
+\textbf{Total} & $\mathbf{790}$ & \textbf{all pass} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two results carry the most weight. The largest single group is V5, the
+\emph{advance} coherence test: across $150$ hypothetical responses the sign
+of the pre-commitment holonomy test agrees with the sign of the realised
+post-response coherence margin in every case, with no error. This is the
+empirical content of \Cref{thm:cohtest}---that coherence is genuinely
+decidable before commitment, from local transport data alone---and it is
+what makes the integrity refusals of V6 ($100/100$ tempting-but-destructive
+responses declined in advance) enforceable rather than aspirational. The
+second is V1: over $200$ interactions the agent answers exactly those with a
+response clearing \emph{both} bars, and never one that clears only the
+purpose-gain bar or only the coherence bar---confirming that relevance is
+the conjunction and that neither factor alone suffices, the paper's central
+thesis. The budget results (V2--V4) confirm that the committed response count
+never exceeds $\lfloor\att/\floorc\rfloor$, that the value-maximising
+selection is the single-price gain-density threshold, and that a small
+residual budget affords only floor-cost token acknowledgements.
+\Cref{fig:physiology-1,fig:physiology-2} display these results on the
+explicit agents.
+
+
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What has and has not been established}
+
+We have shown that, for any agent with a purpose-directed drive, a
+closed coherence condition, a floor on response cost, and a bounded
+attention budget, \emph{relevance} of an interaction is the conjunction of
+a purpose gain and a coherence margin; that bounded attention forces
+inattention and makes the optimal policy a single-price threshold on gain
+density; that coherence is testable in advance, so an agent can refuse a
+tempting but self-breaking response; that response is floored and
+irreversible, so encounters accumulate and no two are with the same agent;
+and that construction and commitment alternate, giving a second forced
+source of apparent unresponsiveness. These are theorems from the stated
+axioms.
+
+We have \emph{not} modelled how the drive itself changes as history
+accumulates (the drive is fixed within an episode here), nor how an agent
+chooses \emph{which} distinctions to construct during a construction phase;
+both are left open. And as in the companion account, the strong-convexity
+of the drive is a modelling choice that presumes a single purpose; agents
+torn between purposes are out of scope.
+
+\subsection{The two forced faces of distraction}
+
+The paper isolates two independent reasons a well-modelled agent appears to
+ignore what is put to it, neither of which is a defect. First, the
+attention price $p^\star$: when the agent is busy or besieged, an
+interaction below the price is correctly declined. Second, phase
+alternation: while constructing, the agent commits nothing, however
+relevant the interaction. A convincing embedded character exhibits both,
+and a designer has, in $p^\star$ and the construction/commitment schedule,
+two readable dials for how present or preoccupied a character is at any
+moment.
+
+\subsection{Relation to the account of purpose}
+
+This paper takes purpose and coherence as given standing quantities and
+asks what a relevant response to an incoming interaction is and costs. The
+companion account derives where those standing quantities come from---why
+an agent has an identity and a purpose at all. Together they describe an
+embedded character: one paper says what the character \emph{is} and is
+\emph{for}; this one says how it \emph{answers the world} in a way faithful
+to what it is for.
+
+\subsection{Closing}
+
+An interaction matters to an agent when a response to it both moves the
+agent toward its purpose and leaves the agent coherent; and because
+attention is finite and reflection excludes action, the agent answers only
+some of what matters and none of what does not. The result is an agent that
+is present without being available---selective, occasionally
+unresponsive, accumulating, and its own. None of this needs to be sold: it
+is a set of theorems about finite agents responding to a world, and the
+readings of them as attention and character are offered only as
+orientation.
+
+\vspace{0.6em}
+\hrule
+\vspace{0.4em}
+\noindent\emph{Relevance is purpose gain and coherence together; attention
+is priced; response is a one-way deposit; reflection and action take
+turns.}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

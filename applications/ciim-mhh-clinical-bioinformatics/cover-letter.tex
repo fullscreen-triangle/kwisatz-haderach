@@ -1,0 +1,132 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, urlcolor=blue!60!black}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Kundai Farai Sachikonye \\
+Germany \\
+\href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle} \\
+\texttt{kundai.sachikonye@bitspark.com} \\[6pt]
+6 July 2026
+\end{flushright}
+
+\vspace{1em}
+
+Prof.\ Dr.\ Cheng-Jian Xu \\
+Clinical Bioinformatics Group \\
+Centre for Individualised Infection Medicine (CiiM) \\
+Hannover Medical School (MHH) \\
+Hannover
+
+\vspace{1.5em}
+
+\textbf{Re: PhD Position (f/d/m) in Clinical Bioinformatics}
+
+\vspace{1em}
+
+Dear Prof.\ Xu,
+
+I am applying for the PhD position in Clinical Bioinformatics in your group.
+The project's core problem --- reading immune aging, multimorbidity, and disease
+susceptibility off integrated multi-omics and population data, and turning that
+reading into predictive models for stratification --- is the exact problem I have
+been working on independently for the past year, both as computational
+infrastructure and as a formal method for representing disease state across
+biological scales. I want to describe that work concretely, because the fit is
+specific rather than general.
+
+The central object in my work is a \emph{disease-state vector}. In my paper
+\textit{Syndrome: Categorical Resolution of Disease Trajectories}, a patient's
+pathological signature is encoded as a vector $\mathbf{D}\in[0,1]^8$ over eight
+cellular oscillator classes --- protein folding, enzymatic catalysis, channel
+gating, membrane potential, ATP synthesis, genetic expression, calcium
+signalling, and circadian rhythm --- each contributing a coherence index
+$\eta_i\in[0,1]$. This is directly a multimorbidity representation: distinct
+conditions occupy distinct regions of the same low-dimensional space, so
+comorbidity, trajectory, and patient stratification become geometric questions
+on a shared manifold rather than separate disease labels. Optimal intervention
+targets are selected as $\arg\max_i w_i D_i$, a sparse $\ell_1$ linear programme
+with a computable a priori side-effect bound, and disease trajectories resolve in
+$\mathcal{O}(N\log N)$. This is the kind of predictive, stratifying model your
+project aims to build, and it is designed to take its inputs from exactly the data
+types you work with.
+
+A companion paper, \textit{On Disease Epistemology in Blind Receiver}, addresses
+the diagnostic criterion itself. It proves that template-based diagnosis ---
+comparison against a healthy reference --- is epistemologically insufficient, and
+derives the unique viable alternative: loop-holonomy self-consistency of the
+biochemical circuit. A system is healthy iff the composed constraint map around
+every reaction cycle returns the identity ($H_\ell=\mathrm{Id}\ \forall\ell$);
+disease is $H_\ell\neq\mathrm{Id}$ for some cycle. The holonomy test reaches
+AUC $=1.00$ against $0.896$ for template comparison across 25 validation
+experiments. The relevance to immune aging is direct: aging is not a single-marker
+event but a gradual loss of circuit-level consistency that individual biomarkers
+miss precisely because it is distributed across the network. A criterion that
+detects distributed inconsistency is the right instrument for a process that is
+itself distributed.
+
+On the immune side specifically, my paper \textit{On the Thermodynamic
+Consequences of Categorical Completion on Biological Systems} models adaptive
+immunity as categorical filtering rather than molecular complementarity, and
+yields an empirical result on real immunopeptidomics data: MHC binding affinity
+correlates with parent-protein categorical richness independently of classical
+sequence features ($r=0.73$, $p<10^{-12}$, $n=2{,}847$ IEDB peptides for MHC-I),
+and adding this term to NetMHCpan improves AUC from 0.68 to 0.81 ($p<0.001$,
+DeLong test). This is the immune-function layer your project studies, treated
+with the same modelling discipline.
+
+The computational infrastructure behind this is built and validated against
+authoritative reference data, and it maps onto the omics layers named in your
+posting. \href{https://github.com/fullscreen-triangle/gospel}{gospel} integrates
+whole-genome VCF data with RNA-seq expression matrices at $10^6$ variants/second,
+validated against 1000~Genomes Phase 3, gnomAD v3.1.2, and UK~Biobank --- this is
+genomic and transcriptomic integration at population scale, the core technical
+requirement of the role.
+\href{https://github.com/fullscreen-triangle/lavoisier}{lavoisier} is a
+mass-spectrometry metabolomics pipeline achieving 98.9\% feature-extraction
+accuracy against NIST reference libraries, with distributed computing via Ray and
+PyTorch models --- the metabolomic omics layer. Both are deployable and
+documented, not one-off scripts; I build reproducible, reference-validated tools,
+and several are available in the browser without installation
+(\href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}).
+
+The disease-vector formulation extends naturally to your epigenetic focus: the
+epigenome enters as an additional coherence layer, and a methylation-derived
+biological-aging coordinate sits directly alongside the transcriptomic and
+genomic ones on the same manifold. The statistical and integration machinery
+I have built is layer-agnostic by design, so adding an omics modality is a
+question of ingestion and preprocessing rather than of reworking the model.
+
+My academic background is in computational lipidomics at the Technische
+Universit\"at M\"unchen, where I trained in the multi-omics statistical methods
+that underpin all of this work; R and Python are both standard tools from that
+training. I am fully authorised to work in Germany without restriction or
+sponsorship (permanent residence), and I am available for the 1 September 2026
+start. I am not proposing to import my framework wholesale into your programme
+--- that is not the purpose of a doctoral position. I am proposing that a
+candidate who has independently derived and empirically validated a
+low-dimensional model of disease state, and built the multi-omics integration
+infrastructure your project depends on, will contribute to your work on immune
+aging and stratification from early on. I would welcome the chance to discuss it
+with you directly.
+
+\vspace{1.5em}
+Yours sincerely,
+
+\vspace{2.5em}
+\textbf{Kundai Farai Sachikonye}
+
+\end{document}

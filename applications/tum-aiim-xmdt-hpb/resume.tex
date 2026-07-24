@@ -1,0 +1,177 @@
+%----------------------------------------------------------------------------------------
+% Tailored CV — Doctoral position, xMDT-HPB
+% Institute for AI and Informatics in Medicine (AIIM), TUM School of Medicine and Health
+% Explainable, interoperable, multimodal AI for hepato-pancreato-biliary oncology
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper,sans]{moderncv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\moderncvstyle{classic}
+\moderncvcolor{blue}
+
+\usepackage[scale=0.80]{geometry}
+\usepackage{ragged2e}
+
+%----------------------------------------------------------------------------------------
+
+\firstname{Kundai Farai}
+\familyname{Sachikonye}
+
+\address{Auf der Lichtung 19}{82178 Puchheim, Germany}
+\mobile{(+49) 1626386344}
+\email{kundai.sachikonye@bitspark.com}
+\homepage{github.com/fullscreen-triangle}
+
+\quote{Computational scientist and ML engineer: explainable, multimodal AI over
+clinical text, imaging, and laboratory data --- from method to deployed,
+reproducible, reference-validated system.}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\makecvtitle
+
+%----------------------------------------------------------------------------------------
+%	PROFILE
+%----------------------------------------------------------------------------------------
+\section{Profile}
+\cvitem{}{
+  Computational scientist and machine-learning engineer working on explainable,
+  multimodal AI for biomedicine. I build deep-learning and multi-omics pipelines
+  over clinical and laboratory data, GPU-accelerated medical image analysis, and
+  auditable diagnostic models --- and take each from method to deployed, documented,
+  reference-validated tool. I have worked on clinical data inside two university
+  hospitals and conducted doctoral research at TUM. I am seeking a structured
+  doctorate to ground this work in a clinical, interdisciplinary setting.
+}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION
+%----------------------------------------------------------------------------------------
+\section{Education}
+\cventry{2019--2021}{Doctoral research, Computational Lipidomics}{Technische Universität München}{Munich}{}{
+  ML for large-scale clinical omics cohorts; distributed inference across federated
+  clinical sites; HPC-scale statistical analysis. Taught at Master's level (in German).
+  Programme not completed (funding ended); research continued independently.
+}
+\cventry{2018--2019}{MSc Computational Biology}{Universität Tübingen}{}{}{
+  Probabilistic graphical models, statistical bioinformatics, Bayesian methods, ML
+  for biological sequences. \textbf{Conducted entirely in German.}
+}
+\cventry{2014--2017}{MSc Pharmaceutical Biotechnology}{HAW Hamburg}{}{}{
+  \textbf{Conducted entirely in German.}
+}
+\cventry{2011--2014}{BSc Biochemistry and Cell Biology}{Jacobs University Bremen}{}{}{
+  Fluorescence-microscopy thesis (DNA interstrand crosslinking).
+}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+\section{Technical Skills}
+\cvitem{Machine learning}{
+  PyTorch (CNNs, attention / transformers, autoencoders); representation learning;
+  foundation-model adaptation (LoRA), knowledge distillation; scikit-learn, XGBoost;
+  model evaluation \& benchmarking
+}
+\cvitem{Multimodal \& imaging}{
+  GPU medical-image analysis --- segmentation, deconvolution, registration, morphometry;
+  camera-based (RGB) physiological signal recovery; fusion of physically distinct
+  signal channels into one inference; uncertainty quantification
+}
+\cvitem{Explainable / auditable AI}{
+  Zero-parameter, first-principles diagnostic models reproducible from the algorithm
+  alone; structural auditability vs.\ post-hoc explanation (SHAP / LIME)
+}
+\cvitem{Data \& infrastructure}{
+  HPC / SLURM, Ray, Dask; Docker, Kubernetes; FastAPI; HDF5, Parquet, memory-mapped
+  I/O for $>$100\,GB datasets; reproducible, seeded, benchmarked pipelines
+}
+\cvitem{Clinical / omics data}{
+  LC-MS/MS \& MALDI-TOF proteomics; multi-omics integration; variant analysis;
+  reference data --- 1000~Genomes, gnomAD, UK~Biobank, IEDB, NIST
+}
+\cvitem{Programming}{
+  Python (primary), Rust, TypeScript, R, SQL, Bash; GLSL / WebGPU
+}
+
+%----------------------------------------------------------------------------------------
+%	CLINICAL & RESEARCH EXPERIENCE
+%----------------------------------------------------------------------------------------
+\section{Clinical \& Research Experience}
+\cventry{2021--present}{Independent Computational-Science \& ML Researcher}{Bitspark GmbH}{}{}{
+  Deep-learning and multi-omics pipelines, GPU image analysis, agentic/multi-agent
+  systems, and auditable diagnostic tools --- from concept to deployed, documented,
+  reference-validated software. All work open-source.
+}
+\cventry{2019--2021}{Computational Science --- ML \& HPC}{Technische Universität München}{Munich}{}{
+  Deep-learning pipelines (PyTorch, CNNs) at HPC scale; SLURM; statistical
+  evaluation of $>$100\,GB clinical-omics datasets. Master's-level teaching, in German.
+}
+\cventry{2017--2018}{Glycomics \& Proteomics}{Universitätsklinikum Hamburg-Eppendorf}{Hamburg}{}{
+  Automated LC-MS/MS and MALDI-TOF clinical data pipelines; reproducible workflows
+  in a university-hospital setting.
+}
+\cventry{2013}{Cancer Biomarker Discovery}{University Medical Center Groningen}{Groningen}{}{
+  UPLC-MS/MS proteomics; high-dimensional feature analysis for oncology biomarkers.
+}
+
+%----------------------------------------------------------------------------------------
+%	SELECTED PROJECTS
+%----------------------------------------------------------------------------------------
+\section{Selected Projects (open-source, deployed)}
+
+\cvitem{syndrome}{
+  \textbf{Explainable oncology AI.} Neoantigen identification, MHC binding
+  (AUC~0.81, 2{,}847 IEDB peptides), and immune-escape scoring via 3-channel DFT
+  on amino-acid properties --- \emph{zero} parameters trained on patient data, every
+  prediction reproducible from the algorithm alone. Developed with KRAS-mutant
+  pancreatic (PDAC) immune evasion as a worked case.
+  \href{https://syndrome-seven.vercel.app/tools}{syndrome-seven.vercel.app}
+}
+\cvitem{hieronymus}{
+  \textbf{GPU medical image analysis.} Segmentation, point-spread-function
+  deconvolution, registration, and morphometry for microscopy; WebGL/GLSL;
+  metric-preserving reconstruction with uncertainty.
+  \href{https://hieronymus-omega.vercel.app/}{hieronymus-omega.vercel.app}
+}
+\cvitem{BRUT (rPPG)}{
+  \textbf{Camera-based physiological inference.} Recovers melanin, haemoglobin, and
+  vasodilation from RGB video by inverting a layered optical skin model --- multimodal
+  signal fusion from a single imaging stream.
+  \href{https://remote-photoplethysmography.vercel.app/}{remote-photoplethysmography.vercel.app}
+}
+\cvitem{lavoisier}{
+  \textbf{Reproducible laboratory-data pipeline.} High-throughput mass-spectrometry
+  processing; 98.9\% NIST accuracy; distributed (Ray); deterministic and benchmarked.
+  \href{https://lavoisier.vercel.app/sandbox}{lavoisier.vercel.app/sandbox}
+}
+\cvitem{gospel}{
+  \textbf{Multi-site multi-omics integration.} Federated inference (genotype +
+  transcriptomics + metagenomics) as a joint Bayesian graph; validated against
+  1000~Genomes, gnomAD, UK~Biobank.
+  \href{https://github.com/fullscreen-triangle/gospel}{github.com/fullscreen-triangle/gospel}
+}
+\cvitem{kwasa-kwasa, four-sided-triangle, purpose}{
+  \textbf{Agentic AI \& reasoning.} A multi-agent orchestration language (Rust +
+  TypeScript, with a language server); an 8-stage metacognitive RAG/reasoning
+  pipeline (FastAPI + Ray + Docker); and a context-retrieval CLI that cuts LLM token
+  burn. \href{https://github.com/fullscreen-triangle}{github.com/fullscreen-triangle}
+}
+
+%----------------------------------------------------------------------------------------
+%	LANGUAGES
+%----------------------------------------------------------------------------------------
+\section{Languages}
+\cvitemwithcomment{English}{Native / C2}{}
+\cvitemwithcomment{German}{Two master's degrees completed entirely in German; taught
+  master's-level courses in German at TUM}{resident in Germany since 2011}
+
+\renewcommand{\listitemsymbol}{-~}
+
+\end{document}

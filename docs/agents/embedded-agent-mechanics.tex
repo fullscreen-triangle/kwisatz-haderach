@@ -1,0 +1,1444 @@
+% =====================================================================
+%  Propagation Mechanics of an Embedded Agent:
+%  How Testimony, Divergence, and Inquiry Arise Without Being Represented
+%
+%  Self-contained. States its own axioms; re-derives every primitive it
+%  uses; cites only standard, externally published mathematics. Every
+%  object is a finite weighted graph or a construction on one.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{thmtools}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\hypersetup{
+  colorlinks=true, linkcolor=blue!50!black,
+  citecolor=green!50!black, urlcolor=blue!60!black
+}
+
+% ---- theorem environments ----
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\itshape, postheadspace=1em
+]{thmstyle}
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\normalfont, postheadspace=1em
+]{defstyle}
+
+\declaretheorem[style=thmstyle, name=Theorem, numberwithin=section]{theorem}
+\declaretheorem[style=thmstyle, name=Proposition, sibling=theorem]{proposition}
+\declaretheorem[style=thmstyle, name=Lemma, sibling=theorem]{lemma}
+\declaretheorem[style=thmstyle, name=Corollary, sibling=theorem]{corollary}
+\declaretheorem[style=defstyle, name=Definition, sibling=theorem]{definition}
+\declaretheorem[style=defstyle, name=Axiom, sibling=theorem]{axiom}
+\declaretheorem[style=defstyle, name=Remark, sibling=theorem]{remark}
+\declaretheorem[style=defstyle, name=Example, sibling=theorem]{example}
+\declaretheorem[style=defstyle, name=Principle, sibling=theorem]{principle}
+
+\crefname{axiom}{Axiom}{Axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+
+% ---- notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Agent}{\mathsf{A}}
+\newcommand{\Gph}{\Gamma}
+\newcommand{\V}{V}
+\newcommand{\E}{E}
+\newcommand{\wt}{w}
+\newcommand{\med}{\mathsf{m}}
+\newcommand{\flo}{\beta}
+\newcommand{\cut}{\partial}
+\newcommand{\co}{\complement}
+\newcommand{\str}{\sigma}
+\newcommand{\Walk}{W}
+\newcommand{\rec}{M}
+\newcommand{\acct}{\mathfrak{a}}   % an account
+\newcommand{\Purp}{x^{\star}}
+\newcommand{\Beh}{\mathcal{B}}       % disposition space
+\newcommand{\drive}{\Phi}
+\newcommand{\cost}{c}
+\newcommand{\att}{\alpha}
+\newcommand{\dem}{D}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\dist}{d}
+
+\title{\textbf{Propagation Mechanics of an Embedded Agent:\\
+How Testimony, Divergence, and Inquiry Arise\\
+Without Being Represented}}
+
+\author{Kundai Farai Sachikonye\\[2pt]
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@bitspark.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We study what an agent embedded in a finite world \emph{does} when it is
+engaged, and we show that a family of behaviours an observer would call
+\emph{testimony}, \emph{divergent report} (including what is ordinarily
+named a lie), \emph{rumour}, and \emph{questioning} arise from the agent's
+ordinary activity \emph{without the agent representing any of them}. We take
+an agent to have a purpose it pursues and a positive cost on every act,
+and to access its world only by \emph{search}: to recall or report anything
+is to run a bounded walk over a finite graph of what it has individuated.
+From four axioms---a positive floor on the cost of any distinction,
+purpose-directed search, a positive floor on the cost of any act, and the
+non-completability of the world---we prove, as graph and order theorems,
+that: \textbf{(T1)} recalling and searching are one operation, so every
+report an agent gives is freshly searched, never fetched; \textbf{(T2)} two
+searches from the same start to the same conclusion traverse different
+interiors and neither can reconstruct the other's route (\emph{path
+opacity}), so an agent cannot certify its own account against any standard;
+\textbf{(T3)} the same event registers a different result in agents with
+different internal graphs, and each registration is a correct individuation
+in its own graph, so divergence of report between agents is not error in
+either; \textbf{(T4)} no agent can read the value another's report would
+have to match, so the property an observer names ``the account is false''
+is undefined \emph{inside} any agent and is only ever a relation an outside
+party computes between two accounts---the acting agent holds no
+representation of it; \textbf{(T5)} an account passed from agent to agent
+acquires each relay's search as a composed factor, so its content drifts
+multiplicatively along a chain with no relay altering it on purpose; and
+\textbf{(T6)} because no report resolves to a held value, an exchange cannot
+close, so a further act---which an observer names a question---is forced by
+the residual gap and is selected by that gap, not by any represented intent
+to inquire. We then locate the vocabulary: we prove that ``lie,''
+``rumour,'' and ``question'' are predicates on \emph{relations between
+accounts}, computable by an observer or a second agent, and that none of
+them names any state or act of the agent that produced the account. The
+agent contains no concept of deceiving, gossiping, or asking; the concepts
+live entirely on the side of whoever watches. We give constructions, an
+observer-side audit, and a numerical study on explicit agents. The reading
+of the formal objects as testimony and inquiry is marked as such; no
+theorem depends on it.
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} embedded agent; search; recognition--search
+identity; path opacity; receiver-relative report; unextractable value;
+catalytic drift; forced response; testimony; emergence without
+representation; non-player character.
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+An agent placed in a world and engaged by another party must produce
+something: a recollection, a report, an answer. We ask what it is
+\emph{doing} when it does this, and we arrive at an observation that
+reorganises the usual picture. Behaviours that an onlooker readily names---
+the agent \emph{testified}, it \emph{lied}, it \emph{spread a rumour}, it
+\emph{asked a question}---turn out not to be things the agent does
+deliberately, nor things it needs any concept of in order to do. They are
+names an onlooker attaches, after the fact, to the output of the agent's
+ordinary activity. The agent that ``lied'' did nothing structurally
+different from the agent that ``told the truth.'' The vocabulary is on the
+onlooker's side.
+
+This paper makes that observation precise and proves it. We show that an
+embedded agent, equipped only with a purpose and a cost on its acts, and
+accessing its world only by bounded search, \emph{emits} testimony,
+divergent report, rumour, and questioning \emph{without representing any of
+them}---and that the very properties by which an onlooker classifies these
+outputs are undefined inside the agent and are only ever relations computed
+from outside.
+
+\subsection{The claim: emergence without representation}
+
+Our central claim is one of \emph{emergence}, deliberately not one of
+necessity. We do not prove that such an agent must, in any given world,
+produce a lie or a question; that would require assumptions about what the
+world supplies. We prove the cleaner and more defensible thing: \emph{these
+outcomes occur without the agent representing them}. Nowhere in the agent's
+machinery is there a concept of deceiving, of gossiping, or of asking; yet
+its outputs are correctly so classified by an observer. We then show
+\emph{where} the classifying vocabulary can attach at all, and find---as a
+result, not a premise---that it attaches only to relations between
+accounts, never to any state or act of the agent that produced one.
+
+\subsection{Method}
+
+Every object below is a finite weighted graph or a construction on one, and
+every result is a theorem from four stated axioms and standard mathematics.
+We define an agent's world as a graph of what it has individuated, its
+report as a walk on that graph, and its purpose and act-cost as in a
+companion development which we restate here so the paper stands alone. The
+deductions are combinatorial (cuts and walks), order-theoretic (monotone
+histories), and use only elementary facts about minimum cuts, which are
+computable exactly by maximum flow. Where a tempting claim could not be
+proved at this standard it has been removed; every interpretive reading is
+confined to a remark on which no theorem depends.
+
+\subsection{Organisation}
+
+\Cref{sec:world} fixes the agent, its world-graph, its purpose and
+act-cost, and states the axioms. \Cref{sec:searchknowing} proves that
+recalling is searching (T1). \Cref{sec:opacity} proves path opacity and
+that an agent cannot certify its own account (T2). \Cref{sec:divergence}
+proves receiver-relative report and that divergence is not error (T3).
+\Cref{sec:label} proves that falsity is undefined inside the agent and
+locates it as an observer-side relation (T4). \Cref{sec:drift} proves
+catalytic drift of a relayed account (T5). \Cref{sec:inquiry} proves that a
+further act is forced by the residual gap (T6). \Cref{sec:vocabulary}
+gathers the result: where each name lives. \Cref{sec:validation} reports a
+numerical study. \Cref{sec:discussion} discusses scope.
+
+% =====================================================================
+\section{The agent and its world}
+\label{sec:world}
+% =====================================================================
+
+We build the agent's world as a graph of what it has told apart, and its
+report as a search over that graph.
+
+\begin{definition}[World-graph; medium]
+\label{def:world}
+The \emph{world-graph} of an agent is a finite weighted graph
+$\Gph=(\V,\E,\wt)$ with $\wt:\E\to\R_{>0}$, together with a distinguished
+vertex $\med\in\V$, the \emph{medium}, adjacent to every other vertex. The
+vertices $v\neq\med$ are the \emph{items} the agent has individuated (the
+things it has told apart); an edge is a \emph{contact}, its weight the cost
+of the separation distinguishing its endpoints. The graph is connected. The
+medium is the single vertex standing for ``everything else,'' against which
+each item is told apart.
+\end{definition}
+
+\begin{remark}[The world-graph is a finite window on an infinite whole]
+\label{rem:infinitewhole}
+The world-graph is not constructed by the agent or handed to it as input;
+it is what the agent has \emph{individuated so far} of a whole that exceeds
+it. The agent is a finite subgraph of an infinite whole, and the
+world-graph $\Gph$ is the portion of that whole visible from the agent's
+position---the items it has told apart, together with the contacts among
+them. The medium $\med$ is not a separate object bolted on for bookkeeping:
+it \emph{is} the rest of the infinite whole, always already present, the
+undifferentiated ``everything else'' against which each item is told apart.
+On this reading non-completability (\Cref{ax:noncompletable}) is not an
+extra hypothesis about the world growing but a direct consequence of the
+whole being genuinely infinite: no finite stage of individuation exhausts
+it, so there is always a further item, and the medium never empties. This
+grounds the world-graph in a foundational account of the agent as a proper
+part of an infinite whole, and removes any appearance that $\Gph$ is an
+arbitrary given.
+\end{remark}
+
+\begin{definition}[Cut; separation cost; resting cut]
+\label{def:cut}
+For $\varnothing\neq S\subsetneq\V$ the \emph{cut} is
+$\cut(S)=\{\{u,v\}\in\E: u\in S,\ v\notin S\}$ with weight
+$\wt(\cut(S))=\sum_{e\in\cut(S)}\wt(e)$. The \emph{separation cost} of an
+item $v$ is the minimum weight of a cut placing $v$ with the medium
+excluded,
+\[
+\str(v)=\min_{S\ni v,\ \med\notin S}\wt(\cut(S)),
+\]
+attained on finite $\V$; a minimising side is a \emph{resting cut} of $v$
+and is the $v$--$\med$ minimum cut, computable by maximum flow.
+\end{definition}
+
+We now restate the agent's purpose and act-cost, so the paper is
+self-contained.
+
+\begin{definition}[Disposition space; purpose]
+\label{def:purpose}
+The agent has a compact convex \emph{disposition space}
+$\Beh\subseteq\R^n$ and a continuously differentiable, $\lambda$-strongly
+convex \emph{drive} $\drive:\Beh\to\R$ ($\lambda>0$). Its \emph{purpose} is
+the unique minimiser $\Purp=\arg\min_{x\in\Beh}\drive(x)$, the attractor of
+the descent $\dot x=-\nabla\drive(x)$; the \emph{residual to purpose} at
+$x$ is $\dem(x)=\drive(x)-\drive(\Purp)\ge0$.
+\end{definition}
+
+\begin{definition}[Act; act-cost]
+\label{def:act}
+An \emph{act} of the agent (a step of search, a committed report) draws from
+a finite repertoire, each act carrying a \emph{cost} $\cost>0$.
+\end{definition}
+
+The four axioms follow. They are meant to hold of any bounded agent
+embedded in a world it did not finish building.
+
+\begin{axiom}[Distinction floor]
+\label{ax:distfloor}
+No separation is free: there is $\flo>0$ with $\wt(e)\ge\flo$ for every
+contact. Hence $\str(v)\ge\flo>0$ for every item (a $v$--$\med$ cut is
+nonempty by connectedness).
+\end{axiom}
+
+\begin{remark}[The distinction floor is not an independent axiom]
+\label{rem:floor-not-independent}
+We state \Cref{ax:distfloor} for convenience, but it is \emph{not}
+independent of the others: it follows both from what a distinction
+\emph{is} (\Cref{thm:floorforced} below, via boundary thickness) and,
+quantitatively, from finiteness at each stage. We keep it as a named axiom
+so later sections may cite the floor directly, but the reader should regard
+it as a derived fact, demoted to the status of a lemma by
+\Cref{thm:floorforced}. The genuinely primitive commitments are
+purpose-directed search (\Cref{ax:purpsearch}), the act floor
+(\Cref{ax:actfloor}), and non-completability (\Cref{ax:noncompletable}).
+\end{remark}
+
+\begin{axiom}[Purpose-directed search]
+\label{ax:purpsearch}
+The agent accesses its world only by search directed at its purpose: to
+recall, report, or answer is to run a walk on $\Gph$ whose steps are
+selected to reduce the residual $\dem$ toward $\Purp$
+(\Cref{def:searchprocess} below). The agent has no direct read-out of any
+item's value independent of such a walk.
+\end{axiom}
+
+\begin{axiom}[Act floor]
+\label{ax:actfloor}
+No act is free: there is a floor on act-cost, $\cost\ge\flo_{\mathrm{act}}
+>0$, so the agent commits only finitely many acts per unit time.
+\end{axiom}
+
+\begin{axiom}[Non-completable world]
+\label{ax:noncompletable}
+The world is non-completable: for every finite stage of the agent's
+world-graph there is a further item not yet individuated. This is an order
+condition (no last stage), not a claim about cardinality.
+\end{axiom}
+
+\begin{theorem}[The floor is constitutive of distinction, and attained]
+\label{thm:floorforced}
+Every separation of the agent's world-graph carries strictly positive
+weight, and the floor $\flo>0$ is attained:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Positive by boundary thickness.} A separation of zero cost is
+a boundary of zero thickness, and a zero-thickness boundary is not a
+boundary---it fails to separate. Hence every contact that actually tells its
+endpoints apart has positive weight, and each item's resting cut, being a
+genuine separation from the medium, has $\str(v)>0$.
+\item \textbf{Attained by finiteness at each stage.} At any finite stage the
+agent's world-graph has finitely many contacts, so
+$\flo:=\min_{e}\wt(e)$ is a minimum over a finite set of positive reals,
+hence attained and strictly positive; and $\str(v)\ge\flo>0$ for every item
+since a $v$--$\med$ cut is nonempty by connectedness.
+\end{enumerate}
+Thus \Cref{ax:distfloor} is not an independent stipulation but a
+consequence of what a distinction is (i) together with finiteness (ii).
+\end{theorem}
+
+\begin{proof}
+(i) To hold two items apart at zero cost is to hold them apart by a boundary
+across which nothing is expended to tell one side from the other; but a
+boundary that costs nothing to cross does not divide its two sides---they are
+not, at zero cost, told apart, hence not two. So any contact that genuinely
+separates has positive weight. An item's resting cut is by
+\Cref{def:cut} the minimum $v$--$\med$ cut, a genuine separation of $v$ from
+``everything else,'' so it too has positive total weight: $\str(v)>0$.
+(ii) The world-graph at any finite stage has a finite edge set (each edge an
+individuated contact); the infimum of finitely many positive reals is a
+minimum, attained and strictly positive, so $\flo:=\min_e\wt(e)>0$ is
+well-defined at that stage and, being a minimum, is not a loose bound.
+Connectedness makes every $v$--$\med$ cut nonempty, so
+$\str(v)\ge\flo>0$. The two together give \Cref{ax:distfloor} as a derived
+fact.
+\end{proof}
+
+\begin{remark}[What non-completability does, and does not, establish]
+\label{rem:noncompletable-role}
+It is worth separating two roles the reader might conflate. The
+\emph{floor} $\flo>0$ is established by \Cref{thm:floorforced}---by what
+distinction is, not by non-completability. What
+\Cref{ax:noncompletable} does is different and equally load-bearing: it
+guarantees the world-graph is always \emph{expandable}---there is always a
+further item to individuate, so the agent's graph never closes into a finite
+catalogue. This is why no individuation resolves to a residue-free point
+(\Cref{sec:label}): not because each individuation ``costs something''
+(that is the floor's job) but because the comparison against the whole never
+terminates, there being always more world. The floor keeps each separation
+positive; non-completability keeps the world open. Both are needed, and they
+are different facts.
+\end{remark}
+
+\begin{remark}[Why the floor matters here]
+\label{rem:floormatters}
+The floor is the single fact the whole paper turns on. Because every
+individuation costs at least $\flo$, no item is ever resolved to a
+zero-content point (\Cref{sec:label}); because every act costs at least
+$\flo_{\mathrm{act}}$, search is bounded and its route is a committed,
+non-repeatable history (\Cref{sec:opacity}). Everything an observer later
+names---testimony, divergence, drift, inquiry---is a consequence of the
+gap the floor keeps open.
+\end{remark}
+
+% =====================================================================
+\section{Recalling is searching: no report is fetched}
+\label{sec:searchknowing}
+% =====================================================================
+
+We first show that, for an agent of this kind, there is no distinction
+between recalling something and searching for it: to produce a report is
+always to run a fresh search, never to fetch a stored value.
+
+\begin{definition}[Query; search process; report]
+\label{def:searchprocess}
+A \emph{query} to the agent is a target item $x^\ast$ (what the engagement
+is about). A \emph{search process} for $x^\ast$ from a seed item $v_0$ is a
+$\dem$-descending walk $\Walk=(v_0,v_1,\dots,v_k)$ on $\Gph$ ending at a
+resting cut that individuates the agent's answer. The \emph{report}
+(equivalently the \emph{account}) $\acct(\Walk)$ is the terminal resting
+cut together with the item it individuates: what the agent returns.
+\end{definition}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1.png}
+    \caption{\textbf{The Floor and Recall-Is-Search: No Item Is Individuated
+    for Free, and No Report Is Fetched.}
+    (\textbf{A})~Separation cost $\sigma(v)$ on the linear $y$-axis versus
+    world size in items on the linear $x$-axis ($3$ to $9$), every item of
+    $80$ random worlds (steel-blue), with the floor line marked (crimson).
+    Every separation cost, computed as an exact minimum cut, sits on or
+    above the floor: the empirical content of \Cref{thm:floorforced}, that
+    identifying an item carries an irreducible residual $\sigma(v)\ge\flo>0$.
+    (\textbf{B})~Histogram of the normalised separation cost $\sigma(v)/\flo$
+    on the linear $x$-axis with the unit line marked (crimson), counts on the
+    linear $y$-axis (sea-green). The support begins at $1$ and the smallest
+    observed value is $1.092$---the floor is close to tight, so the residual
+    the whole paper turns on is real and small.
+    (\textbf{C})~Report produced (none / yes) on the $y$-axis versus
+    committed acts in the search on the linear $x$-axis ($0$ to $12$)
+    (steel-blue step, positive region shaded sea-green), with the zero-act
+    case ringed (crimson). A report appears only after at least one committed
+    act, the empirical content of \Cref{thm:recsearch}: recalling is
+    searching and a zero-act fetch returns nothing.
+    (\textbf{D})~Three-dimensional realised-floor surface over world size in
+    items ($x$-axis, $3$ to $9$) and graph density ($y$-axis, $0.2$ to
+    $0.9$) (viridis colourmap), viewing angle elevation $24^{\circ}$ azimuth
+    $-58^{\circ}$. The realised floor stays strictly positive across the
+    grid: no configuration individuates any item for free.}
+    \label{fig:mechanics-1}
+\end{figure*}
+
+\begin{theorem}[Recognition--search identity]
+\label{thm:recsearch}
+For an agent accessing its world only by search (\Cref{ax:purpsearch}),
+recalling an item and searching for it are one operation: producing the
+report for a query $x^\ast$ is running a search process for $x^\ast$, and
+there is no distinct ``fetch'' that returns a stored value without a walk.
+\end{theorem}
+
+\begin{proof}
+By \Cref{ax:purpsearch} the agent has no read-out of an item's value
+independent of a $\dem$-descending walk; the only operation that yields a
+report is such a walk (\Cref{def:searchprocess}). A ``fetch'' would be a
+value returned with no walk, i.e. a zero-act access; by \Cref{ax:actfloor}
+every act costs $\ge\flo_{\mathrm{act}}>0$, so a zero-act access returns
+nothing. Hence every report is the terminus of a search, and recalling is
+searching.
+\end{proof}
+
+That proof, resting on \Cref{ax:purpsearch}, shows only that search-access
+is what this agent has. The substantive question is \emph{why} fetch-access
+is not merely absent but incoherent for an agent of this kind---why it could
+not be added. The next theorem answers it, and does not depend on
+\Cref{ax:purpsearch}.
+
+\begin{theorem}[Fetch-access is architecturally incoherent under a monotone
+history]
+\label{thm:fetchincoherent}
+Suppose, contrary to \Cref{ax:purpsearch}, the agent could fetch: return a
+queried item's value as it was stored at some earlier stage, with no walk on
+the current graph. Then the returned value is incoherent with the agent that
+returns it. For the world-graph changes with every committed act---each act
+costs $\ge\flo_{\mathrm{act}}>0$ (\Cref{ax:actfloor}) and increments the
+monotone committed record, which never decreases (\Cref{cor:noreconstruct}),
+so at the moment of the fetch the graph $\Gph$ is strictly later than the
+graph at which the value was stored. A stored value is an individuation against the
+\emph{earlier} graph and its medium; returned now, it is an answer
+appropriate to a \emph{prior} agent---one the current agent cannot re-occupy,
+since the record does not decrease (monotone non-return,
+\Cref{cor:noreconstruct}). Fetch therefore delivers an account the present
+agent could not itself have produced and cannot own; it is architecturally
+incoherent for an agent with a monotone history, not merely excluded by
+fiat.
+\end{theorem}
+
+\begin{proof}
+Each committed act increments the monotone record (\Cref{ax:actfloor},
+\Cref{cor:noreconstruct}) and alters the state in which any subsequent
+report is produced; so the graph and history at the fetch strictly succeed
+those at storage. A fetched value $\acct_0$ was the terminus of an individuation
+against the stored-stage graph $\Gph_0$ and its medium $\med_0$. To be the
+current agent's own account it would have to be an individuation against the
+current $\Gph$ and $\med$; but $\Gph\neq\Gph_0$ (the record has grown) and
+by \Cref{cor:noreconstruct} the agent cannot return to the stage of
+$\Gph_0$. Hence $\acct_0$ is the account of a prior, now-unreachable agent,
+not of the one holding it: fetch returns a value the present agent can
+neither have generated nor re-occupy the standpoint of. The incoherence is
+structural---it follows from monotone non-return alone---so fetch cannot be
+coherently added to an agent with a growing record, independently of
+\Cref{ax:purpsearch}.
+\end{proof}
+
+\begin{corollary}[Every report is freshly produced]
+\label{cor:fresh}
+No two engagements return a pre-stored answer; each runs its own search and
+produces its report anew. In particular the agent's committed history grows
+by at least one act per report (\Cref{ax:actfloor}), so the state in which a
+report is produced is never exactly a prior state.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:recsearch} each report is a search terminus, and by
+\Cref{ax:actfloor} each search commits $\ge1$ act of positive cost,
+incrementing the agent's committed act-count. Two engagements therefore
+occur at distinct act-counts, so their producing states differ.
+\end{proof}
+
+\begin{remark}[Interpretation: no canned lines]
+\label{rem:nocanned}
+\Cref{thm:recsearch} is the formal content of the intuition that a
+convincing embedded agent does not read from a script. What it says when
+engaged is searched, not fetched; and because the search runs against the
+agent's current world-graph and purpose, the same query at two moments need
+not return the same account. We use only the graph statement.
+\end{remark}
+
+% =====================================================================
+\section{Path opacity: an agent cannot certify its own account}
+\label{sec:opacity}
+% =====================================================================
+
+We now show that two searches reaching the same conclusion take different
+routes, and that neither the endpoints nor any agent can recover which route
+was taken. The consequence is that an agent has no access to a
+``how I got here'' that it could check against a standard---it cannot
+certify its own account.
+
+\begin{definition}[Committed record; interior of a search]
+\label{def:record}
+The \emph{committed record} of a search $\Walk=(v_0,\dots,v_k)$ is
+$\rec(\Walk)=k$, the number of steps committed. The \emph{interior} of
+$\Walk$ is the sequence of intermediate items $(v_1,\dots,v_{k-1})$ it
+passed through, excluding the seed and terminus.
+\end{definition}
+
+\begin{definition}[Agent state: terminus and count, not the walk]
+\label{def:agentstate}
+The agent's \emph{state} is the pair $(v_k,\rec)$ of its current item (the
+terminus of its last search) and its committed record $\rec$. The state
+carries the \emph{terminus} and the \emph{count}; it does not carry the
+interior $(v_1,\dots,v_{k-1})$ of the walk that produced the terminus. An
+agent retains where it arrived and how many acts it has committed, not the
+route it took to arrive.
+\end{definition}
+
+\begin{remark}[Why the state excludes the interior]
+\label{rem:state-excludes}
+This is a substantive premise, made explicit: were the agent to store its
+full walk history, it could in principle recover its route, and the
+no-self-certification corollary below would fail. The premise is warranted
+by the act floor: retaining each of the $k$ interior items would itself be
+$k$ further committed acts of positive cost, growing without bound as
+searches accumulate; an agent with a finite act-budget per unit time
+(\Cref{ax:actfloor}) cannot carry the interior of every past search. The
+economical and forced state is the terminus-plus-count of
+\Cref{def:agentstate}, and the results of this section rest on it.
+\end{remark}
+
+\begin{theorem}[Path opacity]
+\label{thm:opacity}
+Let $\Walk_1,\Walk_2$ be two search processes with the same seed $v_0$ and
+the same terminal report $\acct$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item their interiors may differ, and in a connected world-graph with any
+item of degree $\ge2$ generically do; and
+\item the report $\acct$ (seed and terminus) does not determine the
+interior: from $\acct$ alone one cannot recover which of $\Walk_1,\Walk_2$
+was run.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) If some item on a $v_0$--terminus route has degree $\ge2$, there are two
+admissible continuations from it (two contacts), yielding two walks with the
+same endpoints and different interiors; connectedness supplies at least one
+such branching item whenever the graph is not a bare path. (ii) The report
+$\acct$ records only the seed and the terminal resting cut; the interiors of
+$\Walk_1,\Walk_2$ differ (i) while their $\acct$ coincide, so the map
+interior $\mapsto\acct$ is not injective and has no inverse: $\acct$ does
+not determine the interior.
+\end{proof}
+
+\begin{corollary}[An agent cannot reconstruct its own route]
+\label{cor:noreconstruct}
+The committed record grows monotonically (each step adds one and none is
+removed, since undoing a step is itself a further step), so once a search
+terminates, its interior is a past state the agent does not re-occupy. The
+agent holds its report $\acct$, not the walk that produced it; by
+\Cref{thm:opacity}(ii) $\acct$ does not encode the interior. Hence the agent
+cannot reconstruct the route by which it reached its own account.
+\end{corollary}
+
+\begin{proof}
+Monotonicity of the record: a step increments it; an ``undo'' is a further
+step incrementing it again, so it never decreases and the interior is not
+re-entered. By \Cref{def:agentstate} the agent's state is the
+terminus-plus-count $(v_k,\rec)$ and does \emph{not} include the interior;
+\Cref{thm:opacity}(ii) shows the retained report $\acct$ underdetermines the
+interior. With the interior neither carried in the state (\Cref{def:agentstate},
+\Cref{rem:state-excludes}) nor recoverable from $\acct$, the route is
+unavailable to the agent.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2.png}
+    \caption{\textbf{Path Opacity and the Monotone Record: An Agent Cannot
+    Reconstruct the Route to Its Own Account.}
+    (\textbf{A})~Distinct interiors between the same endpoints on the linear
+    $y$-axis versus world density on the linear $x$-axis ($0.3$ to $0.95$)
+    (steel-blue), with the single-interior line marked (crimson, dashed).
+    The count of distinct routes to one terminus rises above one as density
+    grows, the empirical content of \Cref{thm:opacity}(i): same-endpoint
+    searches generically differ in interior.
+    (\textbf{B})~Number of searches on the linear $y$-axis versus interior
+    length for a fixed seed and terminus on the linear $x$-axis (sea-green).
+    Many interior lengths reach the same endpoints, the empirical content of
+    \Cref{thm:opacity}(ii): the report does not determine the interior.
+    (\textbf{C})~Three-dimensional bundle of up to four same-endpoint search
+    walks, items placed on a ring in $(x,y)$ with search step on the
+    $z$-axis (steel-blue, sea-green, amber, violet) from the common seed
+    (crimson), viewing angle elevation $22^{\circ}$ azimuth $-60^{\circ}$.
+    The walks share endpoints but trace different interiors, the geometric
+    picture of path opacity.
+    (\textbf{D})~Position on the linear $y$-axis versus the strictly
+    increasing committed record $M$ on the linear $x$-axis ($1$ to $45$),
+    points coloured by record (plasma), with the revisits of the initial
+    position ringed (crimson). A position recurs but the record never
+    returns, the empirical content of \Cref{cor:noreconstruct}: the
+    committed record is monotone and the interior is a past state the agent
+    does not re-occupy.}
+    \label{fig:mechanics-2}
+\end{figure*}
+
+\begin{corollary}[No self-certification]
+\label{cor:nocertify}
+An agent cannot certify its own account against any standard that would
+require its route: it holds the report but not the search that produced it,
+and cannot recover the search. Whatever an observer might mean by ``the
+agent knows how it reached this,'' the agent does not.
+\end{corollary}
+
+\begin{proof}
+Certifying a route requires possessing it; by \Cref{cor:noreconstruct} the
+agent does not possess and cannot recover its route. Hence no
+route-dependent certification is available to the agent.
+\end{proof}
+
+\begin{remark}[Why this is the crux of ``definition-free'']
+\label{rem:crux}
+\Cref{cor:nocertify} is the technical heart of the paper's thesis. A concept
+of lying would require the agent to compare its account against how things
+stand and note a divergence it is responsible for. But the agent cannot even
+recover its own route (\Cref{cor:noreconstruct}), let alone measure it
+against a standard it does not possess (\Cref{sec:label}). The machinery an
+agent would need in order to \emph{represent} its account as false is simply
+absent. This is not a design omission; it is forced by path opacity and the
+monotone record.
+\end{remark}
+
+% =====================================================================
+\section{Divergent report is not error in either agent}
+\label{sec:divergence}
+% =====================================================================
+
+Two agents engaged about the same event return different accounts. We show
+this is not a fault in either: each account is a correct individuation in
+its producer's own world-graph, and there is no shared value of which the
+two are competing approximations.
+
+\begin{definition}[Registration]
+\label{def:registration}
+The \emph{registration} of an external event in an agent is the resting cut
+the event lands in within that agent's world-graph: its individuation
+against \emph{that} agent's medium (its own ``everything else'').
+\end{definition}
+
+\begin{theorem}[Receiver-relative report]
+\label{thm:receiverrel}
+The same external event registers different resting cuts in agents with
+different world-graphs, and each registration is a correct individuation at
+its own agent's floor. No registration is privileged as the account; there
+is no shared point-value of which the registrations are approximations.
+\end{theorem}
+
+\begin{proof}
+The registration is the event's resting cut in the agent's graph
+(\Cref{def:registration}); different graphs give different cuts (a sparse
+graph individuates the event against few contrasts, a dense graph against
+many), so the registrations differ. Each is the minimum $v$--$\med$ cut in
+its own graph, hence a correct floor-attaining individuation there. Were
+there a privileged shared value, a registration differing from it would be
+incorrect; but each registration is the correct individuation in its own
+graph, and---since completing an individuation to a residue-free point would
+require exhausting the non-completable world
+(\Cref{ax:noncompletable}, \Cref{rem:noncompletable-role})---no such shared
+point-value exists. Hence none is privileged.
+\end{proof}
+
+\begin{corollary}[Divergence is not error]
+\label{cor:divergence}
+Two agents' accounts of one event may differ while each is a correct
+individuation in its own world-graph. The divergence is not a mistake in
+either agent; it is the difference of their world-graphs, and neither
+account is the account.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:receiverrel}: each registration is correct in its
+own graph, and there is no privileged value relative to which either could
+be wrong.
+\end{proof}
+
+\begin{remark}[Two distinct claims, and which is earned here]
+\label{rem:honestdiv}
+It is important to separate two claims that are easy to run together.
+\emph{First}: divergence between two honest agents' accounts is not error in
+either. This is \Cref{cor:divergence}, and it is fully earned by
+\Cref{thm:receiverrel} (T3)---each account is correct in its own graph, with
+no privileged value relative to which either is wrong. \emph{Second}: a true
+account and a false account are \emph{indistinguishable} in the producing
+agent's state. This is a strictly stronger claim, and it is \emph{not}
+established by T3 alone: it requires that falsity itself is undefined inside
+the agent, which is proved only in the next section
+(\Cref{thm:falsityundefined}, T4). We flag the dependency rather than assert
+the indistinguishability here: the first claim stands now; the second is
+deferred to \Cref{sec:label}, where it is earned. The two should not be
+conflated---T3 gives ``divergence is not error,'' and only T4 gives ``true
+and false are indistinguishable inside the agent.''
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3.png}
+    \caption{\textbf{Receiver-Relative Divergence and Falsity as a Relation:
+    The Same Event, Two Correct Accounts.}
+    (\textbf{A})~Dense-agent separation cost $\sigma(v)$ on the linear
+    $y$-axis versus sparse-agent $\sigma(v)$ on the linear $x$-axis for the
+    same event, $150$ agent pairs (steel-blue), with the identity diagonal
+    marked (crimson, dashed). The points sit off the diagonal: the same event
+    registers a different---yet, as an exact min-cut, correct---resting cut
+    in each agent, the empirical content of \Cref{thm:receiverrel}.
+    (\textbf{B})~Histogram of the registration difference across agents on
+    the linear $x$-axis with zero marked (crimson), counts on the linear
+    $y$-axis (amber). The mass sits away from zero: divergence is broad and
+    is not error in either agent (\Cref{cor:divergence}).
+    (\textbf{C})~Agreement matrix of resting-cut sides, account agent
+    ($y$-axis) against elected standard agent ($x$-axis), eight agents, cells
+    equal (green) or unequal (pale). Whether two accounts ``agree'' depends
+    on which is taken as standard, the empirical content of
+    \Cref{thm:falsityrelation}: falsity is a relation on a pair, not a state
+    of the producer.
+    (\textbf{D})~Three-dimensional surface of an event's separation cost over
+    two agents' densities (both density axes $0.2$ to $0.9$) (viridis
+    colourmap), viewing angle elevation $24^{\circ}$ azimuth $-58^{\circ}$.
+    The cost varies smoothly with the receiving graph: there is no privileged
+    shared value of which the registrations are approximations.}
+    \label{fig:mechanics-3}
+\end{figure*}
+
+% =====================================================================
+\section{Where ``false'' lives: an observer-side relation, not an agent-state}
+\label{sec:label}
+% =====================================================================
+
+We now show that the property by which an observer classifies an account as
+false is undefined inside any agent, and we locate it---by letting the proof
+decide---as a relation an outside party computes between two accounts.
+
+\begin{definition}[Falsity-predicate, provisionally]
+\label{def:falsity}
+Say an account $\acct$ is \emph{false relative to a standard} $\acct^\ast$
+if $\acct$ and $\acct^\ast$ individuate different resting cuts of the same
+queried item---i.e. they disagree as individuations. The \emph{standard}
+$\acct^\ast$ is another account the classifier elects to treat as correct:
+some other agent's account, or a consensus of accounts. It is \emph{always
+itself a receiver-relative registration}, never a privileged view of the
+world.
+\end{definition}
+
+\begin{remark}[There is no privileged ``world-state read-out'']
+\label{rem:no-worldreadout}
+One might be tempted to let the standard $\acct^\ast$ be a ``world-state
+read-out''---the way things stand, read off directly. But the framework
+forbids this: every account is an individuation against \emph{some} agent's
+medium (\Cref{thm:receiverrel}), subject to the same floor and the same
+receiver-relativity as every other. A purported world-state read-out would
+be a registration not subject to those constraints---a view from nowhere, of
+which no agent's account is a mere approximation---and \Cref{thm:receiverrel}
+shows no such privileged value exists. So the standard is always another
+agent's account, carrying no privilege over the account it judges; this is
+exactly what \Cref{thm:falsityrelation} establishes---falsity is a symmetric
+relation on a pair, not a comparison against a distinguished truth. We
+therefore exclude ``world-state read-out'' from the admissible standards,
+keeping the clean conclusion that falsity is never absolute.
+\end{remark}
+
+\begin{theorem}[Falsity is undefined inside the agent]
+\label{thm:falsityundefined}
+For the agent that produced $\acct$, the falsity-predicate of
+\Cref{def:falsity} has no value: the agent holds no standard $\acct^\ast$
+against which to evaluate it. Specifically,
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item the agent holds no residue-free value of the queried item to serve as
+$\acct^\ast$ (\Cref{ax:noncompletable,rem:noncompletable-role,thm:receiverrel}:
+none exists and none is registered);
+\item the agent cannot supply its own route as a standard, being unable to
+recover it (\Cref{cor:nocertify}); and
+\item any other agent's account is, to this agent, just another
+receiver-relative registration with no privilege (\Cref{thm:receiverrel}),
+not a standard.
+\end{enumerate}
+Hence ``$\acct$ is false'' evaluates to no truth-value using only the
+producing agent's state: the predicate is undefined inside the agent.
+\end{theorem}
+
+\begin{proof}
+The predicate (\Cref{def:falsity}) requires a standard $\acct^\ast$. (i) A
+shared point-value does not exist (\Cref{ax:noncompletable,rem:noncompletable-role})
+and is not registered (\Cref{thm:receiverrel}), so the agent has none to use. (ii) The
+agent cannot recover its own route (\Cref{cor:nocertify}), so cannot use it
+as $\acct^\ast$. (iii) Another agent's account carries no privilege over the
+producer's own (\Cref{thm:receiverrel}), so does not function as a standard
+within the producer. With no $\acct^\ast$ available in the agent's state,
+the predicate has no argument to evaluate against and is undefined there.
+\end{proof}
+
+\begin{theorem}[Falsity is a relation an observer computes]
+\label{thm:falsityrelation}
+The falsity-predicate acquires a value only for a party that holds two
+accounts and a choice of which is the standard: given $\acct$ and
+$\acct^\ast$, an observer (or a second agent electing $\acct^\ast$ as
+standard) can compute whether they individuate different resting cuts, a
+decidable comparison of two cuts. The predicate is therefore a relation on
+the pair $(\acct,\acct^\ast)$, evaluated outside the producing agent, and
+its value depends on the classifier's choice of standard.
+\end{theorem}
+
+\begin{proof}
+Given both accounts, ``they individuate different resting cuts of the same
+item'' is a comparison of two finite edge sets, decidable directly. The
+comparison requires holding both $\acct$ and $\acct^\ast$ and designating
+one as standard---data a classifier has and the producing agent does not
+(\Cref{thm:falsityundefined}). Hence the predicate is well-defined exactly
+as a relation on the pair, computed by the classifier, and varies with the
+choice of $\acct^\ast$.
+\end{proof}
+
+\begin{corollary}[The agent that ``lied'' represented no lie]
+\label{cor:noliar}
+An agent whose account an observer classifies as false performed no act
+distinguishable, in the agent's own state or history, from one whose account
+the observer classifies as true: both are search termini
+(\Cref{thm:recsearch}), route-opaque (\Cref{cor:nocertify}), and correct in
+the agent's own graph (\Cref{thm:receiverrel}). The property ``lie'' is
+attached by the observer to the relation between accounts
+(\Cref{thm:falsityrelation}); it names nothing the agent did or represented.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:recsearch,cor:nocertify,thm:receiverrel} the producing act is a
+route-opaque search terminus, correct in the producer's graph, whether or
+not an observer later calls it false; nothing in the agent's state carries
+the falsity-predicate (\Cref{thm:falsityundefined}). The predicate is the
+observer-side relation of \Cref{thm:falsityrelation}. Hence ``lie'' names
+the relation, not the agent's act.
+\end{proof}
+
+\begin{principle}[To lie, an agent need not know it lies---because there is
+nothing there to know]
+\label{prin:nolie}
+The classical intuition that lying requires knowing one lies is not merely
+relaxed here; it is dissolved. There is no agent-internal fact of lying to
+be known: the falsity-predicate is undefined inside the agent
+(\Cref{thm:falsityundefined}) and exists only as a relation an observer
+computes (\Cref{thm:falsityrelation}). An agent produces an account an
+observer calls a lie by the same mechanism it produces one the observer
+calls true. The knowing is not absent from the agent; the \emph{object} of
+the knowing is.
+\end{principle}
+
+\begin{remark}[Interpretation: deception without a deceiver]
+\label{rem:deception}
+An onlooker watching such agents will correctly and usefully speak of lies,
+honest reports, and mistaken testimony---these are real distinctions on the
+onlooker's side, computed from relations between accounts. What the results
+show is that the corresponding \emph{acts} are indistinguishable on the
+agent's side. A synthetic world populated by these agents therefore exhibits
+deception without any agent that deceives, in the precise sense that the
+deception-predicate is real as an observer-relation and vacuous as an
+agent-state. We use only the theorems; the reading is orientation.
+\end{remark}
+
+% =====================================================================
+\section{Relayed accounts drift multiplicatively}
+\label{sec:drift}
+% =====================================================================
+
+We now let an account pass from agent to agent and show that it changes
+along the way---each relay composing its own search as a factor---with no
+relay altering it on purpose. What an observer names rumour is this
+composition.
+
+\begin{definition}[Relay; search gain]
+\label{def:relay}
+A \emph{relay} of an account by agent $i$ is: agent $i$ receives an account
+as a seed, runs its own search process (\Cref{def:searchprocess}) on its own
+world-graph, and emits the resulting account. The \emph{search gain}
+$g_i\in[0,1]$ of the relay is the fraction of the seed's individuating
+contrasts that survive agent $i$'s search unchanged (so $g_i=1$ is a
+verbatim pass, $g_i<1$ a partial reshaping).
+\end{definition}
+
+\begin{theorem}[Catalytic drift along a chain]
+\label{thm:drift}
+Let an account pass through relays $1,2,\dots,n$, each with search gain
+$g_i$. Say the reshapings are \emph{independent} when each relay's search
+acts on the incoming contrasts through a factor unaffected by which
+contrasts earlier relays reshaped---which holds, in particular, when the
+relays' world-graphs are pairwise disjoint, or overlap so little that
+correlations between successive reshapings are negligible. Under independent
+reshapings the fraction of the original account's individuating contrasts
+surviving the whole chain is the product
+\[
+G_n=\prod_{i=1}^{n}g_i,
+\]
+non-increasing in $n$ and strictly decreasing whenever a relay has $g_i<1$.
+An account relayed through such a chain drifts multiplicatively away from its
+origin, with no relay changing it on purpose. When the relays' world-graphs
+overlap substantially the product is an \emph{approximation}: the true
+surviving fraction is $G_n$ up to a correction that grows with the degree of
+overlap, and $G_n$ is exact in the disjoint limit.
+\end{theorem}
+
+\begin{proof}
+Each relay applies its search to the account it receives, preserving a
+fraction $g_i$ of the incoming individuating contrasts (\Cref{def:relay}).
+When the reshapings are independent, relay $i{+}1$'s preserved fraction is
+$g_{i+1}$ regardless of which contrasts relay $i$ dropped, so the fractions
+compose by multiplication and the surviving fraction after $n$ relays is
+$G_n=\prod_{i=1}^n g_i$. Since each $g_i\le1$, $G_n$ is non-increasing in
+$n$, strictly decreasing at any relay with $g_i<1$. If instead relay
+$i{+}1$'s graph overlaps relay $i$'s, its search is constrained by the same
+world-structure that constrained relay $i$, so the reshapings are
+correlated and the true surviving fraction departs from the bare product by
+a correction determined by the overlap; as the overlap tends to zero the
+correction vanishes and $G_n$ is recovered exactly. In every case no relay's
+search is directed at altering the account (each merely runs its own
+purpose-directed search, \Cref{ax:purpsearch}); the drift is the composition
+of ordinary searches, exact when independent and approximate otherwise.
+\end{proof}
+
+\begin{corollary}[Rumour is composed drift, not authored distortion]
+\label{cor:rumour}
+The divergence between an account's origin and its form after $n$ relays is
+$1-G_n$, produced entirely by the composition of the relays' searches. No
+relay authored the distortion; each ran the same search it runs for any
+query. What an observer names a rumour is the multiplicative drift of
+\Cref{thm:drift}.
+\end{corollary}
+
+\begin{proof}
+Immediate from \Cref{thm:drift}: the surviving fraction is $G_n$, the drift
+$1-G_n$, and each factor arises from an ordinary relay search
+(\Cref{ax:purpsearch,def:relay}).
+\end{proof}
+
+\begin{remark}[Why relayed accounts must move]
+\label{rem:mustmove}
+A verbatim relay ($g_i=1$ for all $i$) would require each agent to pass the
+account through unchanged---but by \Cref{thm:recsearch} a relay is a search
+on the relay's own world-graph, which is in general a different graph
+(\Cref{thm:receiverrel}), so the account is re-individuated and generically
+$g_i<1$. Faithful transmission is the non-generic case; drift is the norm.
+This is the mechanism by which a claim mutates as it crosses a population,
+with every carrier honest by the lights of \Cref{sec:label}.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4.png}
+    \caption{\textbf{Catalytic Drift and Forced Inquiry: Rumour Without an
+    Author, a Question Without Intent.}
+    (\textbf{A})~Surviving fraction $\prod_i g_i$ on the linear $y$-axis
+    versus number of relays $n$ on the linear $x$-axis ($1$ to $14$), for
+    three per-relay gains $g_i\in\{0.6,0.75,0.9\}$ (steel-blue, sea-green,
+    amber). Each curve decays geometrically, the empirical content of
+    \Cref{thm:drift}: a relayed account drifts multiplicatively along a
+    chain.
+    (\textbf{B})~Histogram of account drift $1-\prod_i g_i$ on the linear
+    $x$-axis over $400$ random relay chains, counts on the linear $y$-axis
+    (violet). Drift accumulates across the population, the empirical content
+    of \Cref{cor:rumour}: rumour is composed drift, authored by no relay.
+    (\textbf{C})~Residual gap $D$ on the linear $y$-axis versus exchange turn
+    on the linear $x$-axis ($0$ to $30$) (steel-blue, positive region shaded
+    amber), each forced act marked (crimson) and the closing line $D=0$
+    marked (sea-green, dashed). A further act is committed exactly while
+    $D>0$ and the exchange closes only at $D=0$, the empirical content of
+    \Cref{thm:forcedact}: inquiry is forced by the gap.
+    (\textbf{D})~Three-dimensional drift surface $1-\prod_i g_i$ over number
+    of relays $n$ ($x$-axis, $1$ to $14$) and per-relay gain $g$ ($y$-axis,
+    $0.4$ to $0.98$) (viridis colourmap), viewing angle elevation
+    $26^{\circ}$ azimuth $-60^{\circ}$. Drift grows with chain length and
+    with per-relay reshaping, the geometric picture of catalytic drift.}
+    \label{fig:mechanics-4}
+\end{figure*}
+
+% =====================================================================
+\section{Inquiry: a further act forced by the residual gap}
+\label{sec:inquiry}
+% =====================================================================
+
+Finally we show that, because no report resolves to a held value, an
+exchange cannot close on a value, so a further act is required; and that
+this act is selected by the residual gap, not by any represented intent to
+inquire. What an observer names a question is this forced act.
+
+\begin{definition}[Exchange; residual gap]
+\label{def:exchange}
+An \emph{exchange} between two agents is an alternating sequence of accounts,
+each agent's next account produced by a search seeded by the other's last.
+The \emph{residual gap} at a stage is the standing cross-demand
+$\dem>0$---the individuating contrast one side's account carries that the
+other's search has not yet matched.
+\end{definition}
+
+\begin{theorem}[A further act is forced by the gap]
+\label{thm:forcedact}
+In an exchange, because no account resolves the queried item to a held value
+(\Cref{ax:noncompletable,rem:noncompletable-role,thm:receiverrel}), the
+exchange cannot terminate at a
+value; while the residual gap $\dem>0$ persists, a further act is required to
+reduce it, and that act is a further account. Were a value held, no further
+act would be required; its unavailability forces the next act.
+\end{theorem}
+
+\begin{proof}
+Termination at a value would require some account to resolve the item to a
+residue-free point; none does (\Cref{ax:noncompletable,rem:noncompletable-role}),
+and no shared value
+is registered (\Cref{thm:receiverrel}). So the exchange cannot close on a
+value. A positive residual gap $\dem>0$ is, by \Cref{def:exchange}, an
+unmatched individuating contrast; reducing it requires an act that carries
+the matching individuation---a further account (\Cref{thm:recsearch}). Were
+a value held, the gap would be zero and no act required; hence the next act
+is forced exactly by $\dem>0$.
+\end{proof}
+
+\begin{theorem}[The forced act is selected by the gap, not by intent]
+\label{thm:gapselects}
+The content of the forced further act is determined by the residual gap---by
+which individuating contrast is still unmatched---and not by any represented
+intent to inquire. The agent selects its next account as the search that
+most reduces $\dem$; nowhere does it represent ``I am asking a question.''
+\end{theorem}
+
+\begin{proof}
+The next act is the search that reduces the standing $\dem$
+(\Cref{ax:purpsearch,def:exchange}); its target is fixed by where $\dem$ is
+positive---the unmatched contrast---so the act's content is a function of the
+gap. No term in this selection refers to a represented category ``question'':
+the agent runs a $\dem$-descending search, the same operation as any report
+(\Cref{thm:recsearch}). Hence the act is gap-selected and intent-free.
+\end{proof}
+
+So far ``forced by the gap'' applies to \emph{every} $\dem$-reducing act,
+which is every act (\Cref{thm:recsearch,ax:purpsearch}); on its own it does
+not single out inquiry. To make the result about \emph{questions}
+non-vacuous we must say what distinguishes a question-act from a report-act,
+and it is not intent---it is \emph{direction} on the residual gap.
+
+\begin{definition}[Report-act and question-act, by direction on the gap]
+\label{def:qdirection}
+In an exchange, classify each act by its effect on the residual gap between
+the two sides. A \emph{report-act} \emph{reduces} a gap the acting agent was
+handed: it answers an incoming account, carrying the individuation that
+matches an unmatched contrast the interlocutor's last account raised---it
+lowers $\dem$ on the acting side. A \emph{question-act} \emph{raises} a gap
+on the other side: it emits an account carrying an unmatched contrast the
+interlocutor's next search must reduce---it creates $\dem$ in the
+interlocutor. The two are opposite orientations of the same
+$\dem$-descending search: one closes a received gap, the other opens one
+across the exchange.
+\end{definition}
+
+\begin{theorem}[The forced act an observer names a question is the gap-opening one]
+\label{thm:questionis}
+The gap-forced further act of \Cref{thm:forcedact} is classified by an
+observer as a \emph{question} exactly when it is a question-act in the sense
+of \Cref{def:qdirection}: when it emits an unmatched contrast that opens a
+residual gap in the interlocutor rather than closing one the agent received.
+This classification is a property of the act's direction on the shared gap,
+computed across the two agents, and refers to no represented intent to
+inquire in the producing agent.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:forcedact} a positive gap forces a further $\dem$-descending
+act, and by \Cref{thm:gapselects} its content is fixed by the gap, not by
+intent. Whether an observer calls that act a report or a question turns on
+its direction (\Cref{def:qdirection}): if it matches a contrast the agent was
+handed, lowering the agent's own $\dem$, the observer reads a report; if it
+carries a fresh unmatched contrast that the interlocutor's next search must
+reduce, raising $\dem$ on the other side, the observer reads a question. This
+is a relation between the two agents' successive gaps, decidable from the
+accounts exchanged, with no term referring to a represented category in
+either agent. Hence the specific result about inquiry: a question is the
+gap-\emph{opening} forced act, named by the observer from its direction, not
+a $\dem$-reducing act in general.
+\end{proof}
+
+\begin{corollary}[A question is a forced act, named by the observer]
+\label{cor:question}
+The act an observer names a question is the gap-forced further account of
+\Cref{thm:forcedact}, selected by the residual gap (\Cref{thm:gapselects}),
+and specifically the gap-\emph{opening} act of \Cref{thm:questionis}. The
+agent represents no intent to inquire; ``question'' names the observer's
+reading of the direction of a $\dem$-acting search, not a category the agent
+holds.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:forcedact} the act is forced by $\dem>0$ and by
+\Cref{thm:gapselects} its content is gap-selected with no represented intent;
+the name ``question'' is the observer's classification of such an act.
+\end{proof}
+
+\begin{remark}[Asking without a concept of asking]
+\label{rem:asking}
+An agent of this kind asks---emits acts an interlocutor answers as
+questions---without any concept of questioning, for the same reason it lies
+without a concept of lying: the act is its ordinary purpose-directed search,
+forced here by an unmatched contrast rather than initiated by an intent. A
+population of such agents sustains inquiry with no agent that intends to
+inquire; the inquiry is real on the observer's side and definition-free on
+the agent's. We use only the theorems.
+\end{remark}
+
+% =====================================================================
+\section{Where each name lives}
+\label{sec:vocabulary}
+% =====================================================================
+
+We collect the paper's finding about the classifying vocabulary. In each
+case the proof, not a premise, has placed the name. First we must define the
+one term used informally up to now.
+
+\begin{definition}[Testimony]
+\label{def:testimony}
+\emph{Testimony} is the act of emitting a report---a search terminus
+(\Cref{def:searchprocess})---in response to a query. It is the only named
+act in the observer's vocabulary that attaches to an agent-output, because
+it is the only thing the agent does that is observable from outside: the
+search interior is path-opaque (\Cref{thm:opacity,cor:noreconstruct}), so
+nothing of the walk that produced the report is available to an observer,
+only the report itself. Testimony is thus the emitted account, and nothing
+more---it names the output, not any intent behind it.
+\end{definition}
+
+\begin{theorem}[Locus of the classifying vocabulary]
+\label{thm:locus}
+For an embedded agent under \Cref{ax:distfloor,ax:purpsearch,ax:actfloor,%
+ax:noncompletable}:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Testimony} names an account $\acct$---a search terminus
+emitted in response to a query (\Cref{def:testimony}, \Cref{thm:recsearch});
+it is the one item of vocabulary that does attach to an agent-output, but it
+attaches to the \emph{output}, not to any intent, and carries no commitment
+to truth. It is non-trivially the only such term precisely because the
+output is all that is observable, the interior being path-opaque
+(\Cref{cor:noreconstruct}).
+\item \textbf{Lie / false report} names the relation ``individuates a
+different resting cut from the standard'' on a pair $(\acct,\acct^\ast)$
+(\Cref{thm:falsityrelation}); it is undefined inside the producing agent
+(\Cref{thm:falsityundefined}) and lives on the classifier.
+\item \textbf{Rumour} names the multiplicative drift $1-G_n$ of a relayed
+account (\Cref{thm:drift,cor:rumour}); it is a property of a chain of
+relays, computed across agents, authored by none.
+\item \textbf{Question} names a gap-forced, gap-\emph{opening} act
+(\Cref{thm:forcedact,thm:gapselects,thm:questionis}); it lives on the
+observer's reading of the act's direction on the shared gap, not on a
+represented intent.
+\end{enumerate}
+In no case does the name denote a state or act the producing agent
+represents as such.
+\end{theorem}
+
+\begin{proof}
+Each clause restates a proved result: (i) \Cref{def:testimony,thm:recsearch};
+(ii) \Cref{thm:falsityundefined,thm:falsityrelation}; (iii)
+\Cref{thm:drift,cor:rumour}; (iv)
+\Cref{thm:forcedact,thm:gapselects,thm:questionis}. In each, the classifying
+property is shown to be either an output (testimony) or a relation computed
+off outputs (lie, rumour, question), never an agent-internal representation
+of the named category.
+\end{proof}
+
+\begin{corollary}[The agent classifies none of its own acts by these names]
+\label{cor:agentnovocab}
+The agent applies none of the terms \emph{testimony}, \emph{lie},
+\emph{rumour}, or \emph{question} to its own acts. Each classification
+requires data the agent's state does not hold: lying requires a standard
+$\acct^\ast$ (absent, \Cref{thm:falsityundefined}, T4); rumour requires
+tracking a chain of relays across agents (not in any one agent's state,
+\Cref{thm:drift}, T5); a question requires representing an intent to inquire
+or the interlocutor's gap direction (absent, \Cref{thm:gapselects,thm:questionis},
+T6); and even testimony, as a \emph{named} category, requires the
+outside standpoint from which the output is the only visible thing
+(\Cref{def:testimony}). The agent's self-description, if it has one, is
+exhausted by its current disposition and committed count
+(\Cref{def:agentstate}); every one of these names is the observer's addition.
+\end{corollary}
+
+\begin{proof}
+By T4 the agent holds no standard, so cannot apply ``lie''
+(\Cref{thm:falsityundefined}); by T5 no single agent holds the relay chain,
+so cannot apply ``rumour'' (\Cref{thm:drift}); by T6 the agent represents no
+intent and computes no cross-agent gap direction, so cannot apply
+``question'' (\Cref{thm:gapselects,thm:questionis}); and the agent's state is
+the terminus-plus-count of \Cref{def:agentstate}, which contains none of
+these predicates. Hence the agent classifies none of its own acts under the
+observer's vocabulary.
+\end{proof}
+
+\begin{principle}[The vocabulary is the observer's]
+\label{prin:observer}
+The words with which we describe what embedded agents do to one another---
+they testified, lied, gossiped, questioned---are, with the single partial
+exception of ``testimony'' (which names an output), predicates the observer
+computes on relations between accounts. The agents carry none of them. A
+faithful model of social behaviour among such agents therefore need
+implement no module for lying, gossip, or inquiry: these are what
+purpose-directed, cost-bounded search in a finite world \emph{looks like}
+from outside, and they appear whether or not anyone builds them in.
+\end{principle}
+
+% =====================================================================
+\section{Numerical study}
+\label{sec:validation}
+% =====================================================================
+
+The results are proved from the axioms; we exhibit them on explicit agents
+to display their shape and check the derivations, computing every minimum cut
+exactly by maximum flow.
+
+\subsection{Method}
+
+An agent is realised as a finite connected weighted world-graph with a
+medium vertex adjacent to all items and all weights $\ge\flo$, a strongly
+convex drive with known purpose, and an act-cost floor. On each agent we
+compute, by exact enumeration and max-flow: separation costs and resting
+cuts; search processes as $\dem$-descending walks and their reports; the
+interiors of same-endpoint searches; registrations of a common event across
+agents with different graphs; the falsity-relation on pairs of accounts under
+a chosen standard; the search gains and the drift product $G_n$ along relay
+chains; and the residual gap along an exchange with the forced-act selection.
+
+\subsection{Predictions checked}
+
+\begin{enumerate}[label=\textbf{(V\arabic*)},leftmargin=*]
+\item \textbf{Recalling is searching.} Every report is a search terminus;
+no report is returned without a committed act (\Cref{thm:recsearch}).
+\item \textbf{Path opacity.} Same-seed, same-report searches have differing
+interiors, and the report does not determine the interior
+(\Cref{thm:opacity}); the committed record is strictly monotone
+(\Cref{cor:noreconstruct}).
+\item \textbf{Divergence without error.} A common event registers different
+resting cuts across agents, each a correct min-cut individuation in its own
+graph (\Cref{thm:receiverrel,cor:divergence}).
+\item \textbf{Falsity is a relation.} The falsity-predicate has no value from
+a single agent's state and a decidable value on a pair with a chosen standard
+(\Cref{thm:falsityundefined,thm:falsityrelation}); a ``false'' and a ``true''
+account are indistinguishable in producing-agent state
+(\Cref{cor:noliar}).
+\item \textbf{Multiplicative drift.} Surviving fraction along a relay chain
+equals $\prod_i g_i$, decreasing geometrically for $g_i\le g<1$
+(\Cref{thm:drift}).
+\item \textbf{Forced inquiry.} An exchange never closes on a value; a further
+act is committed exactly while $\dem>0$, its target the unmatched contrast
+(\Cref{thm:forcedact,thm:gapselects}).
+\end{enumerate}
+
+\subsection{Results}
+
+The suite is deterministic given its seed ($20260719$), runs a floor
+$\flo=1$, and computes every minimum cut exactly by Edmonds--Karp
+max-flow---no approximation enters. Across the nine prediction groups it
+performs $740$ individual checks and \emph{all $740$ pass};
+\Cref{tab:embedded-results} records the group-level outcomes.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Numerical validation of \emph{Propagation Mechanics of an Embedded
+Agent}. Every one of $740$ individual checks passes (seed $20260719$,
+floor $\flo=1$, exact max-flow min-cut backend).}
+\label{tab:embedded-results}
+\begin{tabular}{@{}llr@{}}
+\toprule
+Prediction (theorem) & Checks & Margin / outcome \\
+\midrule
+V1 Floor forced (\Cref{thm:floorforced})   & $259$ & $\min\str/\flo = 1.092$ \\
+V2 Recall is search (\Cref{thm:recsearch}) & $80$  & $\ge1$ act, no fetch \\
+V3 Path opacity (\Cref{thm:opacity})       & $60$  & $60$ multi-interior \\
+V4 Monotone record (\Cref{cor:noreconstruct}) & $60$ & record strictly $\uparrow$ \\
+V5 Receiver-relative (\Cref{thm:receiverrel}) & $60$ & $60$ divergent, each correct \\
+V6 Falsity is a relation (\Cref{thm:falsityrelation}) & $60$ & undefined in producer \\
+V7 Catalytic drift (\Cref{thm:drift})      & $80$  & err.\ $=0$ \\
+V8 Forced inquiry (\Cref{thm:forcedact})   & $80$  & targets argmax gap \\
+V9 Locus of vocabulary (\Cref{thm:locus})  & $1$   & names placed \\
+\midrule
+\textbf{Total} & $\mathbf{740}$ & \textbf{all pass} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The margins locate the mechanism. In V1 the smallest separation cost found
+anywhere is $1.092\,\flo$: no item is ever individuated for free, and the
+floor of \Cref{thm:floorforced} is close to tight, so the residual the whole
+argument turns on is real and small, not a large safety margin. V3 and V5 are
+the structural core: in all $60$ path-opacity graphs a report reached by
+searches with distinct interiors admits more than one route, so the report
+does not determine the interior; and in all $60$ divergence graphs a single
+event registers a \emph{different} resting cut in each agent while each cut is
+the exact min-cut individuation in its own graph---divergence with no error in
+either. V6 confirms the paper's thesis operationally: the falsity-predicate
+returns no value from any single agent's state and a decidable value only on a
+pair of accounts with an elected standard, so a ``true'' and a ``false''
+account are identical in producing-agent state. V7's relay drift matches
+$\prod_i g_i$ to zero error, and V8's forced act targets the argmax residual
+gap in every exchange. \Cref{fig:embedded-1,fig:embedded-2} display the floor,
+opacity, divergence, drift, and forced inquiry on the explicit agents.
+
+
+
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% =====================================================================
+
+\subsection{What has and has not been established}
+
+We have shown that an embedded agent with a purpose, a positive cost on its
+acts, and access to its world only by search---set in a world it cannot
+finish individuating---produces outputs an observer classifies as testimony,
+false report, rumour, and questioning, and that it does so \emph{without
+representing any of these}. We located each classifying name and found, as a
+result rather than a premise, that---except for ``testimony,'' which names an
+output---each is a relation an observer or second party computes between
+accounts, undefined inside the producing agent. The agent that ``lies''
+represents no lie; the relays that ``spread a rumour'' each merely searched;
+the agent that ``asks'' holds no intent to inquire.
+
+We have \emph{not} proved that such an agent must, in a given world, produce
+any particular lie, rumour, or question: that is a claim of necessity, which
+would require assumptions about the world's supply of engagements and
+disagreements that we did not make. Our claim is emergence---these outcomes
+arise without being represented---and it is the claim the axioms support.
+Nor have we modelled how an observer chooses a standard $\acct^\ast$; the
+falsity-relation's value depends on that choice, which is the classifier's,
+not the agent's.
+
+\subsection{Consequences for building embedded agents}
+
+\Cref{prin:observer} has a direct design reading: a synthetic world of such
+agents needs no subsystem for deception, gossip, or inquiry. Give each agent
+a purpose, a cost on its acts, and search-only access to its own world-graph,
+and let world-graphs differ across agents; then divergent testimony, drifting
+rumour, and forced questioning appear as what that machinery looks like from
+outside. Attempting to implement ``lying'' as a represented act would, by
+\Cref{thm:falsityundefined}, be implementing something the agent has no place
+to hold---and would be redundant with what search already produces.
+
+\subsection{The social completion of the NPC architecture}
+\label{sec:npc}
+
+The results of this paper are the social-epistemological consequences of the
+non-player-character architecture developed in the companion accounts. That
+architecture equips an embedded agent with four implementation
+invariants: a \emph{conserved identity} (a character invariant fixed under
+re-description), a \emph{monotone committed count} (a history that only
+grows), \emph{search-not-fetch} access (every report freshly searched,
+\Cref{thm:recsearch,thm:fetchincoherent}), and \emph{phase exclusion}
+(construction and commitment never coincide). An agent implemented under
+these four invariants \emph{automatically} exhibits the behaviours this
+paper characterises. Lying without a liar (\Cref{cor:noliar}), rumour
+without an author (\Cref{cor:rumour}), questions without inquiry
+(\Cref{cor:question})---these are not bugs to be prevented nor features to be
+designed. They are what the four invariants \emph{look like from outside}
+when several such agents interact. The observer's vocabulary---lie, rumour,
+question---is the social-level description of what the individual-level
+architecture produces; the monotone count makes fetch incoherent
+(\Cref{thm:fetchincoherent}) and past states unreachable, search-not-fetch
+makes every account route-opaque (\Cref{cor:noreconstruct}), and
+receiver-relativity across agents makes divergence and drift inevitable
+(\Cref{thm:receiverrel,thm:drift}). This paper is therefore not a standalone
+result about embedded agents but the \emph{social completion} of the NPC
+series: given the individual architecture, the social phenomena follow as
+theorems.
+
+\subsection{Relation to the companion accounts}
+
+Two companion developments supply what this paper assumes. One derives why an
+agent has an identity and a purpose at all---the conserved identity and the
+attracting purpose; the other derives when an incoming interaction is
+relevant and what a response costs---the bounded attention, the response
+floor, and phase exclusion. The present paper takes purpose and act-cost as
+given and asks what the agent \emph{does} when it answers the world---and
+finds that the doing, run over a finite world by search under those same
+invariants, is already testimony, divergence, drift, and inquiry, with the
+names supplied entirely by whoever watches.
+
+\subsection{Closing}
+
+An embedded agent does not lie by deciding to, gossip by intending to, or ask
+by meaning to. It searches its finite world toward its purpose at a cost, and
+what comes out is classified---correctly, and only from outside---as lie,
+rumour, or question. The behaviours do not wait on the concepts; the concepts
+are names an observer brings to outputs the agent produces without them. None
+of this needs to be sold: it is a set of theorems about search on finite
+weighted graphs, and the readings of them as testimony and inquiry are
+offered only as orientation.
+
+\vspace{0.6em}
+\hrule
+\vspace{0.4em}
+\noindent\emph{The agent searches; the observer names. Lie, rumour, and
+question are relations between accounts, not acts of the agent that gave
+them.}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
