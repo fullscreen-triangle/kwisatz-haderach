@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from backend.routes import health, grocery, chat, bank, jobcenter
+from backend.routes import health, grocery, chat, bank, jobcenter, intent
 
 app = FastAPI(title="Desk Backend", version="1.0.0")
 
@@ -31,6 +31,7 @@ app.include_router(grocery.router,    prefix="/grocery",    tags=["grocery"])
 app.include_router(chat.router,       prefix="/chat",       tags=["chat"])
 app.include_router(bank.router,       prefix="/bank",       tags=["bank"])
 app.include_router(jobcenter.router,  prefix="/jobcenter",  tags=["jobcenter"])
+app.include_router(intent.router,     prefix="/intent",     tags=["intent"])
 
 
 @app.get("/")

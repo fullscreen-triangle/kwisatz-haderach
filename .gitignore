@@ -1,3 +1,9 @@
+# Agent Smith — local orchestrator state (monotone committed count m)
+backend/.agent_smith/
+
+# spraypaint — local search index / lock / count (build artifact, can exceed 100 MB)
+.spraypaint/
+
 # Dependencies
 node_modules/
 npm-debug.log*
