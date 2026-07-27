@@ -174,7 +174,7 @@
           "type": "number",
           "default": 0.7,
           "minimum": 0.5,
-          "maximum": 1.0,
+          "maximum": 1,
           "description": "Minimum consensus threshold for multi-expert validation"
         },
         "kwisatz-haderach.ui.showQualityIndicators": {
@@ -227,8 +227,8 @@
         "kwisatz-haderach.validation.formalVerificationThreshold": {
           "type": "number",
           "default": 0.6,
-          "minimum": 0.0,
-          "maximum": 1.0,
+          "minimum": 0,
+          "maximum": 1,
           "description": "Minimum confidence threshold for triggering formal verification"
         },
         "kwisatz-haderach.proofAssistant.primary": {
@@ -265,8 +265,8 @@
         "kwisatz-haderach.proofAssistant.thresholds.minimumConfidence": {
           "type": "number",
           "default": 0.7,
-          "minimum": 0.0,
-          "maximum": 1.0,
+          "minimum": 0,
+          "maximum": 1,
           "description": "Minimum confidence threshold for proof validation"
         },
         "kwisatz-haderach.performance.enableParallelValidation": {
@@ -333,28 +333,29 @@
     "test:coverage": "jest --config jest.config.js --coverage"
   },
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
-    "@types/node": "^20.0.0",
     "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/vsce": "^2.19.0",
     "eslint": "^8.40.0",
     "jest": "^29.5.0",
+    "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.0",
     "typescript": "^5.1.0",
     "webpack": "^5.85.0",
-    "webpack-cli": "^5.1.0",
-    "rimraf": "^5.0.0",
-    "@vscode/vsce": "^2.19.0"
+    "webpack-cli": "^5.1.0"
   },
   "dependencies": {
     "@huggingface/inference": "^2.6.4",
     "axios": "^1.5.0",
-    "node-fetch": "^3.3.0",
-    "uuid": "^9.0.0",
+    "compromise": "^14.11.0",
     "natural": "^6.10.0",
-    "compromise": "^14.11.0"
+    "node-fetch": "^3.3.0",
+    "railway": "^3.6.0",
+    "uuid": "^9.0.0"
   },
   "extensionDependencies": []
 }

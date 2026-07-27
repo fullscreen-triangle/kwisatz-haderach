@@ -1,0 +1,29 @@
+{
+  "date": "2026-07-25",
+  "sleep": {
+    "duration_seconds": null,
+    "deep_seconds": null,
+    "light_seconds": null,
+    "rem_seconds": null,
+    "awake_seconds": null,
+    "score": null,
+    "start_time": null,
+    "end_time": null
+  },
+  "body_battery_error": "'Garmin' object has no attribute 'get_body_battery_data'",
+  "activity": {
+    "steps": null,
+    "step_goal": null,
+    "active_calories": null,
+    "resting_hr": null,
+    "avg_stress": null,
+    "max_stress": null,
+    "floors_ascended": null,
+    "moderately_active": null,
+    "vigorously_active": null
+  },
+  "spo2": {
+    "average": null,
+    "lowest": null
+  }
+}

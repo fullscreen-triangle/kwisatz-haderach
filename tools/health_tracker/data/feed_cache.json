@@ -1,133 +1,69 @@
 {
-  "_ts": 1781909775.771056,
+  "_ts": 1784955390.2347672,
   "items": [
     {
-      "title": "Children's DNA Methylation and Family Dynamics in a Congo Basin Subsistence Community: Links with Parental Conflict and Fathers' Caregiving",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.15.732362v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Family environments may contribute to children's long-term health through biological processes, including epigenetic regulation such as DNA methylation (DNAm). However, most studies in this area focus on Euro-American po",
+      "title": "MeioBIOME: A snakemake workflow for the parallel analysis of meiofaunal genomes and host-associated bacteria/archaea",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.23.740139v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Microbes closely interact with every living organism, including meiofauna (i.e., microbial eukaryotes 38 m - 1 mm in length), and influence the development, life cycle, and evolution of diverse metazoans. Together, meiof",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "FeatureMSEA: Metabolic Feature-based Metabolite Set Enrichment Analysis",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.15.732313v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Liquid chromatography-mass spectrometry (LC-MS) untargeted metabolomics detects thousands of metabolic features, but converting these chemical signals into metabolite set-level biological knowledge remains challenging. T",
+      "title": "AINN-Express: A Leakage-Aware, Sequence-Only Predictor of VHH Antibody Expression Built on the AINN-P1 Protein Foundation Model",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.21.739256v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Expression -- whether an antibody can be produced at usable yield -- is one of the earliest and most expensive filters in therapeutic discovery. We present AINN-Express, a sequence-only predictor of VHH single-domain ant",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "Perturbation Curve models continuous transcriptional response trajectories and improves prediction of genetic modulations",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.16.732192v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Single-cell CRISPR screens, Perturb-seq, have revolutionized functional genomics by revealing biological causality. However, although perturbation assignments are typically represented as discrete labels, the cell-level",
+      "title": "A new automated pipeline for whole genome shotgun sequencing analysis and hazard characterization of microbial pesticides",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.24.739986v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Microbial pesticides are increasingly important for sustainable crop protection, yet hazard analysis and risk assessment remain challenging and require specific characterization of properties relevant to both safety and",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "ContinuumCellAgent: A Framework-Guided Agent for Long-Horizon Scientific Research",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.15.732409v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "AI-scientist systems are beginning to automate parts of scientific research. We present ContinuumCellAgent, an autonomous agent that executes literature review, hypothesis formation, computational experimentation, manusc",
+      "title": "EXCAVATE-HT: A Bioinformatic Pipeline to Identify Targetable Genomic Variants for Allele-Specific Editing",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.23.739930v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Allele-specific CRISPR/Cas editing is a powerful tool with great potential for treating genetic diseases and for uncovering the effects of allelic diversity. By targeting commonly inherited single nucleotide polymorphism",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "Nickel-Driven Dynamics of Urease in Sporosarcina pasteurii: Integrated Computational and Experimental Insights",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.15.732323v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Urease is a nickel-dependent enzyme that plays an important role in urea hydrolysis and in a process named as microbial-induced calcium carbonate precipitation (MICP), which is widely used in sustainable environmental bi",
+      "title": "GatorPrism: Prototype-Conditioned Routing across Coalition Graph Experts for Spatial Multi-Omics Integration",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.21.739865v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Spatial multi-omics integration requires balancing cross-omics consensus with modality-specific signals whose importance varies across tissue locations. We present GatorPrism, a self-supervised coalition graph mixture-of",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "StickForStats: automated statistical assumption validation for reproducible computational biology",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.15.732278v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Reproducible computational biology depends on statistical decisions that routine workflows often skip: verifying that a differential-expression test's assumptions hold across all genes, that a strategy-comparison ANOVA i",
+      "title": "The Barcode Inference Pipeline (BIP): From Sequencer Output to DNA Barcodes",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.21.739876v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "DNA barcoding involves the recovery of a DNA sequence for a target gene region from its source specimen. This process gains complexity when multiple sequences are recovered from a specimen, as is often the case when data",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "SteerAF: Distogram-based Steering of AlphaFold2 toward Alternative Conformations",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.19.733296v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "End-to-end structure predictors, such as AlphaFold2, typically output only the dominant conformational state of a given protein, which is biased by the training data set. Existing strategies for recovering alternative co",
+      "title": "pyfraglib: An integrated cfDNA fragmentomics platform",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.22.740152v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Summary: Cell-free DNA (cfDNA) fragmentomics is the analysis of a diverse set of cfDNA fragment features, e.g. fragment length profiles, windowed protection scores, and end motifs. As such it requires software tooling fo",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
     },
     {
-      "title": "OmniPath Metabo: chemical structures, interactions and mechanisms to study the metabolome",
-      "link": "https://www.biorxiv.org/content/10.64898/2026.06.18.733117v1?rss=1",
-      "published": "2026-06-19",
-      "summary": "Mechanistic and functional analysis of omics data largely relies on the incorporation of prior knowledge; however, connecting metabolomics data and knowledge is a major methodological challenge. This is largely driven by",
+      "title": "Phenotype-driven de novo molecular design from gene expression signatures",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.07.21.739736v1?rss=1",
+      "published": "2026-07-24",
+      "summary": "Target-based and structure-guided drug design remain central to modern drug discovery, but complementary strategies are needed when predefined targets or binding pockets do not fully capture disease biology. Gene-express",
       "source": "bioRxiv \u00b7 bioinformatics",
       "color": "#fbbf24"
-    },
-    {
-      "title": "Author Correction: Autophagic cell death restricts chromosomal instability during replicative crisis",
-      "link": "https://www.nature.com/articles/s41586-026-10812-0",
-      "published": "2026-06-19",
-      "summary": "<p>Nature, Published online: 19 June 2026; <a href=\"https://www.nature.com/articles/s41586-026-10812-0\">doi:10.1038/s41586-026-10812-0</a></p>Author Correction: Autophagic cell death restricts chromosomal instability dur",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "A long-lived butterfly\u2019s secret to graceful ageing",
-      "link": "https://www.nature.com/articles/d41586-026-01948-0",
-      "published": "2026-06-19",
-      "summary": "<p>Nature, Published online: 19 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01948-0\">doi:10.1038/d41586-026-01948-0</a></p>Species in the Heliconius genus are among the longest-lived butterflies, thank",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "Briefing Chat: Testosterone and sperm might get a boost from obesity drugs",
-      "link": "https://www.nature.com/articles/d41586-026-01963-1",
-      "published": "2026-06-19",
-      "summary": "<p>Nature, Published online: 19 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01963-1\">doi:10.1038/d41586-026-01963-1</a></p>Nature staff discuss preliminary data on the effects of GLP-1 drugs on male fe",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "Stem cells banish severe autoimmune disease for 15 years",
-      "link": "https://www.nature.com/articles/d41586-026-01925-7",
-      "published": "2026-06-19",
-      "summary": "<p>Nature, Published online: 19 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01925-7\">doi:10.1038/d41586-026-01925-7</a></p>Two people were the first to receive the therapy for a condition that damages",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "Clues to the sloth\u2019s sloth found in its genome",
-      "link": "https://www.nature.com/articles/d41586-026-01869-y",
-      "published": "2026-06-18",
-      "summary": "<p>Nature, Published online: 18 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01869-y\">doi:10.1038/d41586-026-01869-y</a></p>Sequencing shows duplication of genes that affect mitochondria, the organelles",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "It slices! It dices! Sashimi-Bot handles seafood with ease",
-      "link": "https://www.nature.com/articles/d41586-026-01871-4",
-      "published": "2026-06-18",
-      "summary": "<p>Nature, Published online: 18 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01871-4\">doi:10.1038/d41586-026-01871-4</a></p>Fillets of raw fish are irregular in shape and floppy in texture, but a robot",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "Is AI ruining our skills? Early results are in \u2014 and they\u2019re not good",
-      "link": "https://www.nature.com/articles/d41586-026-01947-1",
-      "published": "2026-06-18",
-      "summary": "<p>Nature, Published online: 18 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01947-1\">doi:10.1038/d41586-026-01947-1</a></p>Reliance on artificial-intelligence tools degrades the abilities of physicians",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
-    },
-    {
-      "title": "Brexit tore apart European science \u2014 now the research rifts are healing",
-      "link": "https://www.nature.com/articles/d41586-026-01841-w",
-      "published": "2026-06-18",
-      "summary": "<p>Nature, Published online: 18 June 2026; <a href=\"https://www.nature.com/articles/d41586-026-01841-w\">doi:10.1038/d41586-026-01841-w</a></p>The UK\u2019s share of EU research funding is climbing, but lost networks will be h",
-      "source": "Nature \u00b7 news",
-      "color": "#a78bfa"
     }
   ]
 }
