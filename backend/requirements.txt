@@ -11,8 +11,12 @@ requests>=2.31.0
 beautifulsoup4>=4.12.0
 lxml>=5.2.0
 
-# Amazon PA API (optional — only needed if AMAZON_ACCESS_KEY is set)
-paapi5-python-sdk>=1.0.0
+# Amazon PA API (optional — only needed if AMAZON_ACCESS_KEY is set).
+# No wheel exists on some platforms (e.g. ARM/Crostini), so it is NOT listed
+# as a hard requirement — installing it would break the whole file there.
+# If you actually use Amazon pricing, install it separately:
+#     pip install paapi5-python-sdk
+# paapi5-python-sdk>=1.0.0
 
 # Bank CSV parsing — no extra deps (stdlib csv only)
 

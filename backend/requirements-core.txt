@@ -1,0 +1,14 @@
+# Agent Smith — CORE backend deps only.
+#
+# The minimum to run FastAPI and the /intent round-trip. Deliberately excludes
+# the optional desk integrations (Amazon PA API, Garmin, grocery scraping) so a
+# fresh node — especially an ARM/Crostini Chromebook where some of those wheels
+# don't exist — can come up without a single unavailable package breaking it.
+#
+# Full desk stack lives in requirements.txt; install that only where those
+# extra services are actually wired.
+
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+httpx>=0.27.0
+pydantic>=2.7.0

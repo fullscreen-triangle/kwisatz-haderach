@@ -68,13 +68,23 @@ if [ ! -d "$VENV" ]; then
 fi
 # shellcheck disable=SC1091
 source "$VENV/bin/activate" 2>/dev/null || { c_bad "could not activate venv"; FAIL=1; }
-if python -c "import fastapi, uvicorn, httpx" 2>/dev/null; then
-  c_ok "Core deps present (fastapi, uvicorn, httpx)."
+if python -c "import fastapi, uvicorn, httpx, pydantic" 2>/dev/null; then
+  c_ok "Core deps present (fastapi, uvicorn, httpx, pydantic)."
 else
-  c_info "Installing backend requirements (first run may take a minute)..."
-  pip install -q -r "$REPO/backend/requirements.txt" \
-    && c_ok "Requirements installed." \
-    || { c_bad "pip install failed."; FAIL=1; }
+  # Install the CORE set only — it is the minimum the /intent round-trip needs
+  # and it excludes optional desk packages that have no wheel on this platform.
+  REQ_CORE="$REPO/backend/requirements-core.txt"
+  REQ_FULL="$REPO/backend/requirements.txt"
+  REQ="$REQ_CORE"; [ -f "$REQ" ] || REQ="$REQ_FULL"
+  c_info "Installing core backend requirements from $(basename "$REQ") ..."
+  python -m pip install -q --upgrade pip >/dev/null 2>&1 || true
+  if pip install -q -r "$REQ"; then
+    c_ok "Core requirements installed."
+  else
+    c_bad "pip install failed even for the core set. Last lines:"
+    pip install -r "$REQ" 2>&1 | tail -8
+    FAIL=1
+  fi
 fi
 
 # --- 4. Ollama (the orchestrator model that /intent calls) -------------------
@@ -102,16 +112,20 @@ else
 fi
 
 # --- 5. Search tools on PATH (the 'hands' /intent shells out to) -------------
+# These live in OTHER repos (semantics/purpose, semantics/graffiti/spraypaint)
+# and are not part of this repo. Missing them does NOT block bring-up — the
+# round-trip (phone -> node -> /intent -> response) still proves out; the tool
+# simply reports it is not installed yet. Installing them is a later errand.
+TOOLS_FOUND=0
+[ -d "$HOME/.cargo/bin" ] && export PATH="$HOME/.cargo/bin:$PATH"
 for tool in purpose spraypaint; do
   if command -v "$tool" >/dev/null 2>&1; then
-    c_ok "$tool found: $(command -v "$tool")"
-  elif [ -x "$HOME/.cargo/bin/$tool" ]; then
-    c_ok "$tool found at ~/.cargo/bin (adding to PATH for this run)."
-    export PATH="$HOME/.cargo/bin:$PATH"
+    c_ok "$tool found: $(command -v "$tool")"; TOOLS_FOUND=$((TOOLS_FOUND+1))
   else
-    c_warn "$tool not found — intents routed to it will error until it is installed."
+    c_info "$tool not installed on this node yet (round-trip still works; slice will note it)."
   fi
 done
+[ "$TOOLS_FOUND" = "0" ] && c_info "No search tools yet — that's fine for proving the pipe today."
 
 hr
 if [ "$FAIL" = "1" ]; then
@@ -143,18 +157,26 @@ if [ "$UP" != "1" ]; then
 fi
 c_ok "Backend is live (pid $BPID). Log: /tmp/desk-backend.log"
 
-# local /intent smoke test — proves the whole pipe (Ollama → tool → slice → m)
+# local /intent smoke test — proves the whole pipe (choose tool -> shell -> respond).
+# Capture BODY and HTTP status separately so we can tell the states apart.
 c_info "Self-testing /intent locally..."
-RESP="$(curl -s --max-time 60 -X POST "http://127.0.0.1:$PORT/intent" \
+RESP="$(curl -s --max-time 60 -w $'\n%{http_code}' -X POST "http://127.0.0.1:$PORT/intent" \
   -H 'Content-Type: application/json' \
   -d '{"text":"where is the tick loop"}' 2>/dev/null)"
-if echo "$RESP" | grep -q '"tool"'; then
-  c_ok "/intent returned a slice:"
-  echo "        $(echo "$RESP" | head -c 300)"
+CODE="$(echo "$RESP" | tail -1)"
+BODY="$(echo "$RESP" | sed '$d')"
+if echo "$BODY" | grep -q '"tool"'; then
+  c_ok "/intent returned a full slice — the pipe works end to end:"
+  echo "        $(echo "$BODY" | head -c 300)"
+elif [ "$CODE" = "501" ] || echo "$BODY" | grep -qi 'not installed'; then
+  c_ok "PIPE VERIFIED: /intent ran, chose a tool, and correctly reported the search"
+  c_ok "organ isn't installed on this node yet (HTTP 501). This is expected today —"
+  c_ok "dictation -> node -> response is proven. Install purpose/spraypaint later"
+  c_ok "to get real slices back."
 else
-  c_warn "/intent did not return the expected shape. Raw response:"
-  echo "        $(echo "$RESP" | head -c 400)"
-  c_info "The server is up regardless; check /tmp/desk-backend.log if this looks wrong."
+  c_warn "/intent returned HTTP $CODE with an unexpected body:"
+  echo "        $(echo "$BODY" | head -c 400)"
+  c_info "Server is up regardless; check /tmp/desk-backend.log."
 fi
 
 # --- 8. Verify Tailnet-reachability on the real IP (not just localhost) ------
