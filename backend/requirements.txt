@@ -2,6 +2,7 @@ fastapi>=0.111.0
 uvicorn[standard]>=0.29.0
 httpx>=0.27.0
 pydantic>=2.7.0
+python-multipart>=0.0.9   # bank.py UploadFile route; FastAPI needs it at boot
 
 # Health
 garminconnect>=0.3.3

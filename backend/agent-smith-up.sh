@@ -68,8 +68,8 @@ if [ ! -d "$VENV" ]; then
 fi
 # shellcheck disable=SC1091
 source "$VENV/bin/activate" 2>/dev/null || { c_bad "could not activate venv"; FAIL=1; }
-if python -c "import fastapi, uvicorn, httpx, pydantic" 2>/dev/null; then
-  c_ok "Core deps present (fastapi, uvicorn, httpx, pydantic)."
+if python -c "import fastapi, uvicorn, httpx, pydantic, multipart" 2>/dev/null; then
+  c_ok "Core deps present (fastapi, uvicorn, httpx, pydantic, python-multipart)."
 else
   # Install the CORE set only — it is the minimum the /intent round-trip needs
   # and it excludes optional desk packages that have no wheel on this platform.
