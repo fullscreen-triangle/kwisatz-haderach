@@ -160,7 +160,9 @@ c_ok "Backend is live (pid $BPID). Log: /tmp/desk-backend.log"
 # local /intent smoke test — proves the whole pipe (choose tool -> shell -> respond).
 # Capture BODY and HTTP status separately so we can tell the states apart.
 c_info "Self-testing /intent locally..."
-RESP="$(curl -s --max-time 60 -w $'\n%{http_code}' -X POST "http://127.0.0.1:$PORT/intent" \
+# -L so curl follows FastAPI's trailing-slash 307 (POST /intent -> /intent/);
+# without it the redirect looks like an empty-body error but never reaches the handler.
+RESP="$(curl -sL --max-time 60 -w $'\n%{http_code}' -X POST "http://127.0.0.1:$PORT/intent" \
   -H 'Content-Type: application/json' \
   -d '{"text":"where is the tick loop"}' 2>/dev/null)"
 CODE="$(echo "$RESP" | tail -1)"
@@ -173,6 +175,10 @@ elif [ "$CODE" = "501" ] || echo "$BODY" | grep -qi 'not installed'; then
   c_ok "organ isn't installed on this node yet (HTTP 501). This is expected today —"
   c_ok "dictation -> node -> response is proven. Install purpose/spraypaint later"
   c_ok "to get real slices back."
+elif [ "$CODE" = "503" ] || echo "$BODY" | grep -qi 'ollama'; then
+  c_ok "PIPE VERIFIED: /intent ran and reached the tool-choice step, but Ollama isn't"
+  c_ok "up on this node (HTTP 503). dictation -> node -> handler is proven. Start"
+  c_ok "Ollama (ollama serve + a small model) to get real tool-choice + slices back."
 else
   c_warn "/intent returned HTTP $CODE with an unexpected body:"
   echo "        $(echo "$BODY" | head -c 400)"

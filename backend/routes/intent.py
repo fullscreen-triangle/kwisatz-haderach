@@ -219,11 +219,13 @@ async def intent(req: IntentRequest):
     if not text:
         raise HTTPException(status_code=400, detail="Empty intent.")
 
-    # 1. Orchestrator chooses a tool + drafts a query (fall back to purpose on any slip).
+    # 1. Orchestrator chooses a tool + drafts a query. If Ollama is unreachable or
+    #    returns junk, degrade to `purpose` with the raw text — the round-trip must not
+    #    depend on the model being up. Tool-choice is an optimisation, not a gate.
     try:
         raw = await _ollama_json(TOOL_CHOICE_SYSTEM, text)
         choice = Choice(tool=raw.get("tool", "purpose"), query=raw.get("query") or text)
-    except (json.JSONDecodeError, ValueError, KeyError):
+    except (HTTPException, json.JSONDecodeError, ValueError, KeyError):
         choice = Choice(tool="purpose", query=text)
 
     # 2. Run the chosen organ — a fresh search, never a cached answer (Inv 3).
