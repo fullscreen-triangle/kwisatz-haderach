@@ -128,6 +128,55 @@ if command -v spraypaint >/dev/null 2>&1; then
     || c_warn "spraypaint index step skipped — check 'spraypaint --help' for the index verb."
 fi
 
+# --- 4b. spraypaint diagnostic (why does it return nothing on this node?) -----
+# spraypaint installed but /intent gets empty/failed results from it. This block runs
+# ON THE NODE (the only place with the real .spraypaint/ index) and surfaces the cause:
+# missing/empty index, nonzero exit, or empty JSON. Everything below is cwd=$REPO, which
+# is exactly how intent.py::_run_tool shells it (cwd=ROOT) — so we reproduce its view.
+if command -v spraypaint >/dev/null 2>&1; then
+  hr
+  c_info "Diagnosing spraypaint (reproducing intent.py's cwd=$REPO view)..."
+
+  SPRAY_INDEX="$REPO/.spraypaint/index.json"
+  if [ -f "$SPRAY_INDEX" ]; then
+    SZ="$(du -h "$SPRAY_INDEX" 2>/dev/null | cut -f1)"
+    c_ok ".spraypaint/index.json present (${SZ:-unknown size})."
+  else
+    c_bad ".spraypaint/index.json MISSING at $SPRAY_INDEX — 'ask' has nothing to search."
+    c_info "That alone explains empty results. The 'spraypaint index' step above should"
+    c_info "have created it; re-check its output for an error."
+  fi
+
+  # verify / scenes are cheap structural checks; tolerate the verb not existing.
+  c_info "spraypaint verify:"
+  spraypaint verify 2>&1 | head -6 | sed 's/^/        /' || c_warn "  (verify verb unavailable)"
+  c_info "spraypaint scenes (first lines):"
+  spraypaint scenes 2>&1 | head -4 | sed 's/^/        /' || c_warn "  (scenes verb unavailable)"
+
+  # The real smoke test: exactly what intent.py runs — `ask <q> --json`. Capture both the
+  # body and exit code so we can tell "empty results" from "nonzero exit / stderr".
+  c_info "Smoke test: spraypaint ask \"water\" --json  (intent.py's exact invocation)"
+  SMOKE="$(spraypaint ask "water" --json 2>/tmp/spray_err.txt)"; SRC=$?
+  SERR="$(cat /tmp/spray_err.txt 2>/dev/null)"; rm -f /tmp/spray_err.txt
+  if [ "$SRC" != "0" ]; then
+    c_bad "  ask exited $SRC — THIS is what intent.py turns into a 502."
+    [ -n "$SERR" ] && echo "        stderr: $(echo "$SERR" | head -c 300)"
+    c_info "  intent.py now surfaces this stderr to the phone; re-deploy the backend."
+  elif echo "$SMOKE" | grep -q '"results"'; then
+    NRES="$(echo "$SMOKE" | grep -oE '"results"[^]]*' | grep -oE '\{' | wc -l | tr -d ' ')"
+    if [ "${NRES:-0}" -gt 0 ]; then
+      c_ok "  ask returned ${NRES} result(s) — spraypaint is working. If the phone still"
+      c_ok "  shows nothing, the issue is render-side, not the tool."
+    else
+      c_warn "  ask exited 0 but results[] is EMPTY. Index built but matched nothing for"
+      c_warn "  'water' — try a term you KNOW is in this repo, or the index is thin/empty."
+    fi
+  else
+    c_warn "  ask exited 0 but output isn't the expected JSON shape:"
+    echo "        $(echo "$SMOKE" | head -c 200)"
+  fi
+fi
+
 # --- 5. Verify intent.py can resolve them ------------------------------------
 hr
 c_info "Verifying the two organs are where intent.py looks (~/.cargo/bin or PATH)..."

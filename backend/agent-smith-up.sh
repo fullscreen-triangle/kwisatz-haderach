@@ -87,28 +87,60 @@ else
   fi
 fi
 
-# --- 4. Ollama (the orchestrator model that /intent calls) -------------------
+# --- 4. Ollama (required: powers tool-choice refinement + readfile summaries) ----
+# Facts and raw file-reads still work with the model down, but summaries and semantic
+# repo search need it — so we now INSTALL + START + block until the model answers,
+# instead of treating it as best-effort. Only a genuine install/pull failure downgrades
+# to a WARN (the round-trip itself never depends on the model).
 OLLAMA_MODEL="${OLLAMA_MODEL:-llama3.2:3b}"
+OLLAMA_EMBED_MODEL="${OLLAMA_EMBED_MODEL:-nomic-embed-text}"
+
+if ! command -v ollama >/dev/null 2>&1; then
+  c_warn "Ollama not installed — installing it now (summaries + semantic search need it)."
+  if curl -fsSL https://ollama.com/install.sh | sh; then
+    c_ok "Ollama installed."
+  else
+    c_bad "Ollama install failed. facts/readfile raw-reads still work; summaries won't."
+  fi
+fi
+
 if command -v ollama >/dev/null 2>&1; then
   if ! pgrep -x ollama >/dev/null 2>&1; then
     c_info "Starting Ollama daemon..."
-    (ollama serve >/tmp/ollama.log 2>&1 &) ; sleep 3
+    (ollama serve >/tmp/ollama.log 2>&1 &)
   fi
-  if curl -s --max-time 5 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
-    c_ok "Ollama is responding on :11434."
+  # Poll /api/tags up to ~30s instead of a fixed sleep — the daemon takes a variable
+  # moment to bind :11434 on first start.
+  OLLAMA_UP=0
+  for i in $(seq 1 30); do
+    if curl -s --max-time 3 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+      OLLAMA_UP=1; break
+    fi
+    sleep 1
+  done
+  if [ "$OLLAMA_UP" = "1" ]; then
+    c_ok "Ollama is responding on :11434 (after ${i}s)."
+    # Chat model — required for tool-choice refinement + readfile summaries. Block on pull.
     if ollama list 2>/dev/null | grep -q "${OLLAMA_MODEL%%:*}"; then
-      c_ok "Model $OLLAMA_MODEL present."
+      c_ok "Chat model $OLLAMA_MODEL present."
     else
-      c_warn "Model $OLLAMA_MODEL not pulled yet."
-      c_info "Pulling it now (~2 GB, first run only)..."
-      ollama pull "$OLLAMA_MODEL" && c_ok "Pulled $OLLAMA_MODEL." || c_warn "Pull failed — /intent tool-choice will fall back to purpose."
+      c_info "Pulling chat model $OLLAMA_MODEL (~2 GB, first run only)..."
+      ollama pull "$OLLAMA_MODEL" && c_ok "Pulled $OLLAMA_MODEL." \
+        || c_warn "Pull of $OLLAMA_MODEL failed — routing still deterministic; summaries off."
+    fi
+    # Embedding model — powers semantic 'which repo is about X'. Keyword fallback if absent,
+    # so this is a best-effort pull (don't hard-block the whole bring-up on it).
+    if ollama list 2>/dev/null | grep -q "${OLLAMA_EMBED_MODEL%%:*}"; then
+      c_ok "Embedding model $OLLAMA_EMBED_MODEL present."
+    else
+      c_info "Pulling embedding model $OLLAMA_EMBED_MODEL (small; enables semantic repo search)..."
+      ollama pull "$OLLAMA_EMBED_MODEL" && c_ok "Pulled $OLLAMA_EMBED_MODEL." \
+        || c_warn "Embedding pull failed — semantic repo search falls back to keyword match."
     fi
   else
-    c_warn "Ollama daemon not responding — /intent will fall back to purpose (still works)."
+    c_warn "Ollama daemon didn't answer within 30s — /intent still routes deterministically;"
+    c_warn "summaries + semantic search are off until it's up. Check /tmp/ollama.log."
   fi
-else
-  c_warn "Ollama not installed — /intent falls back to purpose (no smart tool-choice)."
-  c_info "Install later from https://ollama.com if you want spraypaint routing."
 fi
 
 # --- 5. Search tools on PATH (the 'hands' /intent shells out to) -------------
@@ -183,6 +215,24 @@ else
   c_warn "/intent returned HTTP $CODE with an unexpected body:"
   echo "        $(echo "$BODY" | head -c 400)"
   c_info "Server is up regardless; check /tmp/desk-backend.log."
+fi
+
+# facts smoke test — the headline new routine, answered from disk with NO model needed.
+# "how many github repositories do I have" should route to facts and return the count (63).
+c_info "Self-testing the facts routine (works with Ollama down)..."
+FRESP="$(curl -sL --max-time 30 -w $'\n%{http_code}' -X POST "http://127.0.0.1:$PORT/intent/" \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"how many github repositories do I have"}' 2>/dev/null)"
+FCODE="$(echo "$FRESP" | tail -1)"
+FBODY="$(echo "$FRESP" | sed '$d')"
+if echo "$FBODY" | grep -q '"kind":"facts"' || echo "$FBODY" | grep -q '"kind": "facts"'; then
+  ANS="$(echo "$FBODY" | grep -oE '"answer":"[^"]*"' | head -1 | sed 's/"answer":"//; s/"$//')"
+  c_ok "FACTS ROUTINE LIVE: \"how many repos\" -> ${ANS:-answered from desk-index.json}"
+elif [ "$FCODE" = "501" ]; then
+  c_warn "facts routine reached but no repo index on this node (docs/data/desk-index.json)."
+  c_info "It ships with the repo — check it exists: ls docs/data/desk-index.json"
+else
+  c_info "facts self-test returned HTTP $FCODE. $(echo "$FBODY" | head -c 200)"
 fi
 
 # --- 8. Verify Tailnet-reachability on the real IP (not just localhost) ------

@@ -77,38 +77,82 @@ COMMAND_PAGE = """<!doctype html>
   .meta { display:flex; gap:14px; font-size:13px; color:#9aa0a6; margin-top:12px; }
   .meta b { color:#e8eaed; font-weight:600; }
   .err { color:#f28b82; }
+  .answer { font-size:19px; line-height:1.4; background:#14171b; border:1px solid #2a2f36;
+            border-radius:12px; padding:16px; margin-top:16px; }
+  .rows { list-style:none; padding:0; margin:12px 0 0; }
+  .rows li { padding:8px 0; border-top:1px solid #22262c; }
+  .rows a { color:#8ab4f8; text-decoration:none; font-weight:600; }
+  .rows .lang { font-size:12px; color:#7a828c; margin-left:8px; }
+  .rows .desc { display:block; font-size:13px; color:#9aa0a6; margin-top:2px; }
+  details { margin-top:12px; } summary { cursor:pointer; color:#8ab4f8; font-size:14px; }
+  .path { font-size:13px; color:#9aa0a6; margin-top:12px; word-break:break-all; }
+  .path b { color:#e8eaed; }
 </style></head><body>
 <h1>AGENT SMITH · say a command</h1>
 <textarea id="t" placeholder="Tap here, then the mic on your keyboard. e.g. where is the tick loop"></textarea>
 <button id="go">Run</button>
 <div class="hint">Uses your keyboard's dictation. Nothing leaves your Tailnet.</div>
 <div id="meta" class="meta" hidden></div>
+<div id="rich"></div>
 <pre id="out" hidden></pre>
 <script>
 const t=document.getElementById('t'), go=document.getElementById('go'),
-      out=document.getElementById('out'), meta=document.getElementById('meta');
+      out=document.getElementById('out'), meta=document.getElementById('meta'),
+      rich=document.getElementById('rich');
+function esc(s){ return String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function repoRows(rows){
+  if(!rows||!rows.length) return '';
+  return '<ul class="rows">'+rows.map(r=>
+    '<li><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.name)+'</a>'
+    +(r.language?'<span class="lang">'+esc(r.language)+'</span>':'')
+    +(r.description?'<span class="desc">'+esc(r.description)+'</span>':'')
+    +'</li>').join('')+'</ul>';
+}
+function render(s){
+  // Returns HTML for the rich panel, or '' to fall back to the <pre> dump.
+  if(s.kind==='facts'){
+    return '<div class="answer">'+esc(s.answer)+'</div>'+repoRows(s.rows);
+  }
+  if(s.kind==='readfile'){
+    let h='<div class="path">read <b>'+esc(s.path)+'</b>'
+         +(s.truncated?' (head only)':'')+'</div>';
+    if(s.answer){ h+='<div class="answer">'+esc(s.answer)+'</div>'; }
+    else{ h+='<div class="answer">Summary needs Ollama (it\\'s down). Raw excerpt below.</div>'; }
+    if(s.excerpt){ h+='<details><summary>show file excerpt</summary>'
+      +'<pre>'+esc(s.excerpt)+'</pre></details>'; }
+    return h;
+  }
+  return ''; // purpose / spraypaint -> handled by the <pre> path
+}
 async function run(){
   const text=t.value.trim(); if(!text) return;
-  go.disabled=true; go.textContent='Running…'; out.hidden=false; meta.hidden=true;
-  out.className=''; out.textContent='…';
+  go.disabled=true; go.textContent='Running…';
+  out.hidden=true; meta.hidden=true; rich.innerHTML='';
+  out.className=''; out.textContent='';
   try{
     // trailing slash -> hits the handler directly, no 307 redirect
     const r=await fetch('/intent/',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text})});
     const body=await r.text(); let j; try{j=JSON.parse(body);}catch{ j=null; }
     if(!r.ok){
-      out.className='err';
+      out.hidden=false; out.className='err';
       out.textContent='HTTP '+r.status+'\\n'+(j?(j.detail||body):body);
     } else {
       const s=j.slice||{};
-      out.textContent = s.kind==='purpose'
-        ? (s.text||'(no results)')
-        : JSON.stringify(s.results||s,null,2);
+      const html=render(s);
+      if(html){ rich.innerHTML=html; }          // facts / readfile: rich panel
+      else{                                       // purpose / spraypaint: text dump
+        out.hidden=false;
+        out.textContent = s.kind==='purpose'
+          ? (s.text||'(no results)')
+          : JSON.stringify(s.results||s,null,2);
+      }
       meta.hidden=false;
-      meta.innerHTML='tool <b>'+j.tool+'</b>'+'&nbsp;·&nbsp;query <b>'+j.query+'</b>'
-                    +'&nbsp;·&nbsp;m <b>'+j.m+'</b>';
+      meta.innerHTML='tool <b>'+esc(j.tool)+'</b>'+'&nbsp;·&nbsp;query <b>'+esc(j.query)+'</b>'
+                    +'&nbsp;·&nbsp;m <b>'+esc(j.m)+'</b>';
     }
-  }catch(e){ out.className='err'; out.textContent='Network error: '+e.message
+  }catch(e){ out.hidden=false; out.className='err'; out.textContent='Network error: '+e.message
       +'\\n\\nIs the backend up and are you on the Tailnet?'; }
   go.disabled=false; go.textContent='Run';
 }

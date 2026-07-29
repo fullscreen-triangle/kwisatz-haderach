@@ -20,6 +20,7 @@ PATH or resolvable at ~/.cargo/bin (they are not on the non-interactive shell PA
 """
 
 import os
+import re
 import json
 import shutil
 import asyncio
@@ -29,6 +30,8 @@ import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Literal
+
+from backend.routes import facts as facts_mod
 
 router = APIRouter()
 ROOT = Path(__file__).parent.parent.parent
@@ -55,16 +58,31 @@ TOOLS = {
     },
 }
 
-TOOL_CHOICE_SYSTEM = """You route a user's request to exactly one code-search tool and write its query.
+TOOL_CHOICE_SYSTEM = """You route a user's request to exactly one routine and write its query.
 
-Tools:
+Routines:
 - "purpose": locate a symbol, function, definition, or document section. Use for "where is X", "find the definition of X", "which file has X".
 - "spraypaint": retrieve passages of prose/content. Use for "what does X say", "find passages about X", "explain X from the docs".
+- "facts": answer a fact about the user's GitHub repositories from local structured data. Use for "how many repos", "list my Rust repos", "which repo is about X".
+- "readfile": find a file, read it, and summarize it. Use for "read FILE", "summarize the X readme", "what's in FILE".
 
 Reply with ONLY a JSON object, no prose:
-{"tool": "purpose" | "spraypaint", "query": "<the search string to run>"}
+{"tool": "purpose" | "spraypaint" | "facts" | "readfile", "query": "<the search string to run>"}
 
 The query should be the salient search terms, not a full sentence."""
+
+# Deterministic keyword rules, tried before Ollama. Each pattern maps an utterance shape to
+# a routine so the router works with the model down (the common case on the node). First
+# match wins; order matters (readfile's "read" must not be shadowed by a looser rule).
+_ROUTE_RULES = [
+    ("facts",    re.compile(r"\bhow many\b|\bnumber of\b|\bhow much\b|\brepo(s|sitor)", re.I)),
+    ("facts",    re.compile(r"\b(list|show|which|what)\b.*\brepo", re.I)),
+    ("readfile", re.compile(r"\b(summari[sz]e|summary of|tldr|read|open|what'?s in)\b", re.I)),
+    ("purpose",  re.compile(r"\bwhere is\b|\bwhere'?s\b|\bfind the definition\b|\bwhich file\b|\blocate\b|\bdefinition of\b", re.I)),
+    ("spraypaint", re.compile(r"\bwhat does\b.*\bsay\b|\bpassages?\b|\bexplain\b", re.I)),
+]
+
+VALID_TOOLS = ("purpose", "spraypaint", "facts", "readfile")
 
 
 class IntentRequest(BaseModel):
@@ -73,7 +91,7 @@ class IntentRequest(BaseModel):
 
 
 class Choice(BaseModel):
-    tool: Literal["purpose", "spraypaint"]
+    tool: Literal["purpose", "spraypaint", "facts", "readfile"]
     query: str
 
 
@@ -179,9 +197,11 @@ async def _run_tool(tool: str, query: str) -> dict:
         raise HTTPException(status_code=502, detail=f"{tool} failed to start: {e}")
 
     text = out.decode("utf-8", "replace").strip()
+    stderr = err.decode("utf-8", "replace").strip()
     if proc.returncode != 0:
-        detail = err.decode("utf-8", "replace").strip() or f"{tool} exited {proc.returncode}"
-        # Most likely: no index yet. Surface it usefully.
+        # Surface the tool's own stderr so the phone shows WHY (e.g. "no index — run
+        # `spraypaint index`") instead of a silent 502. Most common cause: no index yet.
+        detail = stderr or f"{tool} exited {proc.returncode} with no error output"
         raise HTTPException(status_code=502, detail=f"{tool}: {detail}")
 
     if spec["json"]:
@@ -201,14 +221,65 @@ async def _run_tool(tool: str, query: str) -> dict:
 
 
 def _slice_for_answer(slice_: dict) -> str:
-    """Compact the tool slice into a short context block for the explain call."""
-    if slice_["kind"] == "purpose":
-        return slice_["text"][:1500]
+    """Compact the routine slice into a short context block for the explain call."""
+    kind = slice_.get("kind")
+    if kind == "purpose":
+        return slice_.get("text", "")[:1500]
+    if kind in ("facts", "readfile"):
+        # These already carry a phrased answer; hand it (plus any excerpt) to the explainer.
+        parts = [slice_.get("answer") or ""]
+        if slice_.get("excerpt"):
+            parts.append(slice_["excerpt"])
+        return "\n".join(p for p in parts if p)[:1500]
     lines = [
         f"{r['path']}:{r.get('start_line','?')} — {r.get('snippet','')}"
         for r in slice_.get("results", [])[:6]
     ]
     return "\n".join(lines)[:1500]
+
+
+# ------------------------------------------------------------------------------- routing
+
+def _keyword_route(text: str) -> Optional[str]:
+    """Deterministic first pass: which routine does this utterance shape ask for?
+    Returns a routine name, or None if no rule matches (then Ollama may refine)."""
+    for tool, pattern in _ROUTE_RULES:
+        if pattern.search(text):
+            return tool
+    return None
+
+
+async def _route(text: str) -> Choice:
+    """Pick a routine + query. Keyword rules decide first (work with Ollama down); only
+    if no rule matches do we ask the model to disambiguate. The model is a tiebreaker,
+    never a gate — a downed model still routes deterministically."""
+    kw = _keyword_route(text)
+    if kw:
+        # facts/readfile take the whole utterance as their query (they parse it themselves);
+        # the search organs want just the salient terms, but the raw text is a fine default.
+        return Choice(tool=kw, query=text)
+
+    # No deterministic hit — let Ollama choose among all four routines if it's up.
+    try:
+        raw = await _ollama_json(TOOL_CHOICE_SYSTEM, text)
+        tool = raw.get("tool", "purpose")
+        if tool not in VALID_TOOLS:
+            tool = "purpose"
+        return Choice(tool=tool, query=raw.get("query") or text)
+    except (HTTPException, json.JSONDecodeError, ValueError, KeyError):
+        # Model down / junk: default to purpose (always available, no index-less failure
+        # mode as loud as spraypaint's) with the raw text.
+        return Choice(tool="purpose", query=text)
+
+
+async def _dispatch(choice: Choice, want_summary: bool) -> dict:
+    """Run the chosen routine and return its slice. facts/readfile are in-process Python;
+    purpose/spraypaint shell out to the Rust organs. A fresh answer every call (Inv 3)."""
+    if choice.tool == "facts":
+        return await facts_mod.answer_facts(choice.query)
+    if choice.tool == "readfile":
+        return await facts_mod.answer_readfile(choice.query, want_summary=want_summary)
+    return await _run_tool(choice.tool, choice.query)
 
 
 # ------------------------------------------------------------------------------- route
@@ -219,17 +290,14 @@ async def intent(req: IntentRequest):
     if not text:
         raise HTTPException(status_code=400, detail="Empty intent.")
 
-    # 1. Orchestrator chooses a tool + drafts a query. If Ollama is unreachable or
-    #    returns junk, degrade to `purpose` with the raw text — the round-trip must not
-    #    depend on the model being up. Tool-choice is an optimisation, not a gate.
-    try:
-        raw = await _ollama_json(TOOL_CHOICE_SYSTEM, text)
-        choice = Choice(tool=raw.get("tool", "purpose"), query=raw.get("query") or text)
-    except (HTTPException, json.JSONDecodeError, ValueError, KeyError):
-        choice = Choice(tool="purpose", query=text)
+    # 1. Route: deterministic keyword rules first, Ollama refines only when up.
+    choice = await _route(text)
 
-    # 2. Run the chosen organ — a fresh search, never a cached answer (Inv 3).
-    slice_ = await _run_tool(choice.tool, choice.query)
+    # 2. Run the chosen routine — a fresh answer, never cached (Inv 3). readfile summarizes
+    #    when the utterance asked to (or explain was set) and the model is up.
+    want_summary = bool(req.explain) or bool(
+        re.search(r"\bsummari[sz]e|summary|tldr\b", text, re.I))
+    slice_ = await _dispatch(choice, want_summary=want_summary)
 
     # 3. Optional: phrase a one-line natural answer from the slice.
     answer = None
