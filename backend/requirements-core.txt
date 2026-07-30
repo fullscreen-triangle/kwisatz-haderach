@@ -17,3 +17,8 @@ pydantic>=2.7.0
 # every route on boot — so without this the whole app refuses to start, even
 # though /intent never uses it.
 python-multipart>=0.0.9
+
+# The nav routine reads PDFs (e.g. "read cheminformatics-engine.pdf and summarise").
+# Pure-Python, so it installs cleanly on ARM/Crostini with no system deps. If it's
+# absent the routine degrades to a clear 501 instead of crashing.
+pypdf>=4.0.0

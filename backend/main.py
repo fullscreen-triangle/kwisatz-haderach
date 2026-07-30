@@ -109,8 +109,21 @@ function repoRows(rows){
     +(r.description?'<span class="desc">'+esc(r.description)+'</span>':'')
     +'</li>').join('')+'</ul>';
 }
+function navRows(entries){
+  if(!entries||!entries.length) return '<div class="desc" style="margin-top:10px">(empty)</div>';
+  return '<ul class="rows">'+entries.map(e=>{
+    const isDir=e.type==='dir';
+    const icon=isDir?'📁':'📄';
+    const hint=isDir?'<span class="lang">say “open '+esc(e.name)+'”</span>'
+                    :'<span class="lang">say “read '+esc(e.name)+'”</span>';
+    return '<li>'+icon+' '+esc(e.name)+hint+'</li>';
+  }).join('')+'</ul>';
+}
 function render(s){
   // Returns HTML for the rich panel, or '' to fall back to the <pre> dump.
+  if(s.kind==='nav'){
+    return '<div class="answer">'+esc(s.answer)+'</div>'+navRows(s.entries);
+  }
   if(s.kind==='facts'){
     return '<div class="answer">'+esc(s.answer)+'</div>'+repoRows(s.rows);
   }

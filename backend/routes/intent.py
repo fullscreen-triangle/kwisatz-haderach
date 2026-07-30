@@ -32,6 +32,7 @@ from pydantic import BaseModel
 from typing import Optional, Literal
 
 from backend.routes import facts as facts_mod
+from backend.routes import nav as nav_mod
 
 router = APIRouter()
 ROOT = Path(__file__).parent.parent.parent
@@ -64,25 +65,38 @@ Routines:
 - "purpose": locate a symbol, function, definition, or document section. Use for "where is X", "find the definition of X", "which file has X".
 - "spraypaint": retrieve passages of prose/content. Use for "what does X say", "find passages about X", "explain X from the docs".
 - "facts": answer a fact about the user's GitHub repositories from local structured data. Use for "how many repos", "list my Rust repos", "which repo is about X".
-- "readfile": find a file, read it, and summarize it. Use for "read FILE", "summarize the X readme", "what's in FILE".
+- "nav": browse the filesystem step by step and read a file. Use for "what folders are in my documents", "open FOLDER", "go up", "read FILE and summarise it".
 
 Reply with ONLY a JSON object, no prose:
-{"tool": "purpose" | "spraypaint" | "facts" | "readfile", "query": "<the search string to run>"}
+{"tool": "purpose" | "spraypaint" | "facts" | "nav", "query": "<the search string to run>"}
 
 The query should be the salient search terms, not a full sentence."""
 
 # Deterministic keyword rules, tried before Ollama. Each pattern maps an utterance shape to
 # a routine so the router works with the model down (the common case on the node). First
-# match wins; order matters (readfile's "read" must not be shadowed by a looser rule).
+# match wins; order matters.
+#
+# nav is the stateful filesystem browser (ls/open/up/home/read), matched relative to a
+# persisted cursor. Its rules come FIRST so "open borgia" / "read the pdf" / "what folders
+# are here" go to nav, not to facts (repos) or the old stateless readfile. facts stays for
+# GitHub-repo questions; the two are disambiguated by the word "repo" vs "folder/file".
 _ROUTE_RULES = [
-    ("facts",    re.compile(r"\bhow many\b|\bnumber of\b|\bhow much\b|\brepo(s|sitor)", re.I)),
-    ("facts",    re.compile(r"\b(list|show|which|what)\b.*\brepo", re.I)),
-    ("readfile", re.compile(r"\b(summari[sz]e|summary of|tldr|read|open|what'?s in)\b", re.I)),
-    ("purpose",  re.compile(r"\bwhere is\b|\bwhere'?s\b|\bfind the definition\b|\bwhich file\b|\blocate\b|\bdefinition of\b", re.I)),
+    # repo/inventory facts — must mention repos, else "how many files" would steal it
+    ("facts", re.compile(r"\b(how many|number of|list|show|which|what)\b.*\brepo", re.I)),
+    ("facts", re.compile(r"\brepositor(y|ies)\b", re.I)),
+    # filesystem navigation + read (stateful cursor)
+    ("nav",   re.compile(r"\b(open|go (in)?to|enter|cd|navigate to|move to)\b", re.I)),
+    ("nav",   re.compile(r"\b(go )?(up|back|parent)\b|\bone level up\b", re.I)),
+    ("nav",   re.compile(r"\b(go )?home\b|\bstart over\b|\breset\b", re.I)),
+    ("nav",   re.compile(r"\b(read|summari[sz]e|summary of|tldr|what'?s in)\b", re.I)),
+    ("nav",   re.compile(r"\b(what|which|list|show)\b.*\b(folder|file|director|content)", re.I)),
+    ("nav",   re.compile(r"\bwhere am i\b|\bwhat'?s here\b|\bfolders?\b|\bfiles?\b", re.I)),
+    # code search
+    ("purpose",  re.compile(r"\bwhere is\b|\bwhere'?s\b|\bfind the definition\b|\bwhich file has\b|\blocate\b|\bdefinition of\b", re.I)),
     ("spraypaint", re.compile(r"\bwhat does\b.*\bsay\b|\bpassages?\b|\bexplain\b", re.I)),
 ]
 
-VALID_TOOLS = ("purpose", "spraypaint", "facts", "readfile")
+VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav")
 
 
 class IntentRequest(BaseModel):
@@ -91,7 +105,7 @@ class IntentRequest(BaseModel):
 
 
 class Choice(BaseModel):
-    tool: Literal["purpose", "spraypaint", "facts", "readfile"]
+    tool: Literal["purpose", "spraypaint", "facts", "nav"]
     query: str
 
 
@@ -225,7 +239,7 @@ def _slice_for_answer(slice_: dict) -> str:
     kind = slice_.get("kind")
     if kind == "purpose":
         return slice_.get("text", "")[:1500]
-    if kind in ("facts", "readfile"):
+    if kind in ("facts", "readfile", "nav"):
         # These already carry a phrased answer; hand it (plus any excerpt) to the explainer.
         parts = [slice_.get("answer") or ""]
         if slice_.get("excerpt"):
@@ -273,12 +287,13 @@ async def _route(text: str) -> Choice:
 
 
 async def _dispatch(choice: Choice, want_summary: bool) -> dict:
-    """Run the chosen routine and return its slice. facts/readfile are in-process Python;
+    """Run the chosen routine and return its slice. facts/nav are in-process Python;
     purpose/spraypaint shell out to the Rust organs. A fresh answer every call (Inv 3)."""
     if choice.tool == "facts":
         return await facts_mod.answer_facts(choice.query)
-    if choice.tool == "readfile":
-        return await facts_mod.answer_readfile(choice.query, want_summary=want_summary)
+    if choice.tool == "nav":
+        # nav decides ls/open/up/read itself; summary only when the utterance asked to read.
+        return await nav_mod.answer_nav(choice.query, want_summary=want_summary)
     return await _run_tool(choice.tool, choice.query)
 
 
