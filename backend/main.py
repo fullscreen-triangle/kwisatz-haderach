@@ -16,7 +16,13 @@ from fastapi.responses import HTMLResponse
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from backend.routes import health, grocery, chat, bank, jobcenter, intent
+# Load node-local secrets into os.environ BEFORE the routers import — they read
+# credentials with os.getenv at import/call time, and on the Chromebook node there's no
+# Render to export them. A real existing env var always wins; this only fills gaps.
+from backend.routes.secrets import load_into_environ
+_n_secrets = load_into_environ()
+
+from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets
 
 app = FastAPI(title="Desk Backend", version="1.0.0")
 
@@ -33,6 +39,7 @@ app.include_router(chat.router,       prefix="/chat",       tags=["chat"])
 app.include_router(bank.router,       prefix="/bank",       tags=["bank"])
 app.include_router(jobcenter.router,  prefix="/jobcenter",  tags=["jobcenter"])
 app.include_router(intent.router,     prefix="/intent",     tags=["intent"])
+app.include_router(secrets.router,    prefix="/secrets",    tags=["secrets"])
 
 
 @app.get("/")

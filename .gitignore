@@ -30,6 +30,10 @@ build/
 *.pem
 config/secrets.json
 config/api-keys.json
+# Agent Smith node credential store (also covered by backend/.agent_smith/ above —
+# named explicitly because it holds live secrets and must NEVER be committed).
+backend/.agent_smith/secrets.env
+secrets.env
 
 # AI Models and Data
 models/
