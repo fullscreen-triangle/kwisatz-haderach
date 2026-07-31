@@ -33,6 +33,7 @@ from typing import Optional, Literal
 
 from backend.routes import facts as facts_mod
 from backend.routes import nav as nav_mod
+from backend.routes import web as web_mod
 
 router = APIRouter()
 ROOT = Path(__file__).parent.parent.parent
@@ -66,9 +67,10 @@ Routines:
 - "spraypaint": retrieve passages of prose/content. Use for "what does X say", "find passages about X", "explain X from the docs".
 - "facts": answer a fact about the user's GitHub repositories from local structured data. Use for "how many repos", "list my Rust repos", "which repo is about X".
 - "nav": browse the filesystem step by step and read a file. Use for "what folders are in my documents", "open FOLDER", "go up", "read FILE and summarise it".
+- "web": open a Google search in the Chrome browser on the machine. Use for "search Google for X", "google X", "look up X on the web".
 
 Reply with ONLY a JSON object, no prose:
-{"tool": "purpose" | "spraypaint" | "facts" | "nav", "query": "<the search string to run>"}
+{"tool": "purpose" | "spraypaint" | "facts" | "nav" | "web", "query": "<the search string to run>"}
 
 The query should be the salient search terms, not a full sentence."""
 
@@ -84,6 +86,12 @@ _ROUTE_RULES = [
     # repo/inventory facts — must mention repos, else "how many files" would steal it
     ("facts", re.compile(r"\b(how many|number of|list|show|which|what)\b.*\brepo", re.I)),
     ("facts", re.compile(r"\brepositor(y|ies)\b", re.I)),
+    # web/Google search — open Chrome on the node. Requires an explicit web signal so
+    # "search the codebase for X" (a purpose/spraypaint ask) is NOT stolen: either the word
+    # google, or search/look-up paired with google/web/internet/online/chrome.
+    ("web",   re.compile(r"\bgoogle\b", re.I)),
+    ("web",   re.compile(r"\b(search|look ?up|look for)\b.*\b(web|internet|online|chrome)\b", re.I)),
+    ("web",   re.compile(r"\b(on|in) (the )?(web|internet|google|chrome)\b", re.I)),
     # filesystem navigation + read (stateful cursor)
     ("nav",   re.compile(r"\b(open|go (in)?to|enter|cd|navigate to|move to)\b", re.I)),
     ("nav",   re.compile(r"\b(go )?(up|back|parent)\b|\bone level up\b", re.I)),
@@ -96,7 +104,7 @@ _ROUTE_RULES = [
     ("spraypaint", re.compile(r"\bwhat does\b.*\bsay\b|\bpassages?\b|\bexplain\b", re.I)),
 ]
 
-VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav")
+VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav", "web")
 
 
 class IntentRequest(BaseModel):
@@ -105,7 +113,7 @@ class IntentRequest(BaseModel):
 
 
 class Choice(BaseModel):
-    tool: Literal["purpose", "spraypaint", "facts", "nav"]
+    tool: Literal["purpose", "spraypaint", "facts", "nav", "web"]
     query: str
 
 
@@ -239,7 +247,7 @@ def _slice_for_answer(slice_: dict) -> str:
     kind = slice_.get("kind")
     if kind == "purpose":
         return slice_.get("text", "")[:1500]
-    if kind in ("facts", "readfile", "nav"):
+    if kind in ("facts", "readfile", "nav", "web"):
         # These already carry a phrased answer; hand it (plus any excerpt) to the explainer.
         parts = [slice_.get("answer") or ""]
         if slice_.get("excerpt"):
@@ -294,6 +302,9 @@ async def _dispatch(choice: Choice, want_summary: bool) -> dict:
     if choice.tool == "nav":
         # nav decides ls/open/up/read itself; summary only when the utterance asked to read.
         return await nav_mod.answer_nav(choice.query, want_summary=want_summary)
+    if choice.tool == "web":
+        # web opens a Google search in Chrome on the node and returns the link.
+        return await web_mod.answer_web(choice.query)
     return await _run_tool(choice.tool, choice.query)
 
 
