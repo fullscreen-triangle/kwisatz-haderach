@@ -30,6 +30,15 @@ build/
 *.pem
 config/secrets.json
 config/api-keys.json
+# Google OAuth client secrets + tokens (web/ desk Gmail integration). These hold LIVE
+# credentials and must NEVER be committed. The client_secret_*.json was tracked once
+# (commit 016d001) and has been git-rm --cached; the secret it contains is compromised
+# and must be rotated in Google Cloud Console.
+client_secret_*.json
+*client_secret*.apps.googleusercontent.com.json
+credentials.json
+.gmail_token.json
+gmail_token.json
 # Agent Smith node credential store (also covered by backend/.agent_smith/ above —
 # named explicitly because it holds live secrets and must NEVER be committed).
 backend/.agent_smith/secrets.env
