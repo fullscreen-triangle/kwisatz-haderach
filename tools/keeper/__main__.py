@@ -9,6 +9,7 @@ python -m tools.keeper <command>
   add-imap             add a mail account read over IMAP (password asked, never an argument)
   add-chigutiro        generate the memory service's key + token into the vault
   add-laptop           put this laptop's node (Tailscale URL + token) in the vault, then push
+  save-console-login   copy the desk website's login (made on the server) into the vault
   status               value-free table of the vault's Agent Smith entries
   push [--host H]      send them to the server, restart, print the keeper's live verdict
   audit [--repo DIR]   fail if any vault value is in a git-tracked file
@@ -201,6 +202,36 @@ def cmd_add_laptop(a):
         push_items(vault.read_items(kp), a.host)
 
 
+def cmd_save_console_login(a):
+    """The console's browser login (basic auth) was generated on the server at deploy time and
+    lives only in /root/agent-smith.credentials. Copy it into the vault — group "Websites",
+    not the pushed "Agent Smith" group — so KeePassXC fills it in. Never printed."""
+    import subprocess
+    r = subprocess.run(["ssh", a.host, "cat /root/agent-smith.credentials"], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"could not read the login from {a.host}: {r.stderr.strip()[:200]}")
+    fields = {}
+    for line in r.stdout.splitlines():
+        k, sep, v = line.partition(":")
+        if sep:
+            fields[k.strip().lower()] = v.strip()
+    url = next((v for k, v in fields.items() if k.endswith("https")), "")
+    url = ("https:" + url) if url.startswith("//") else (url or "https://smith-91-98-157-147.sslip.io")
+    user, pw = fields.get("user", ""), fields.get("password", "")
+    if not user or not pw:
+        raise SystemExit("the server's credentials file has no user/password lines")
+    kp = vault.open_vault(Path(a.vault), keyfile=a.keyfile)
+    g = kp.find_groups(name="Websites", first=True) or kp.add_group(kp.root_group, "Websites")
+    old = kp.find_entries(title="Agent Smith console", group=g, first=True)
+    if old:
+        kp.delete_entry(old)
+    kp.add_entry(g, "Agent Smith console", user, pw, url=url.rstrip("/") + "/desk/console",
+                 notes="Desk website login (Caddy basic auth). One login per browser; the cookie lasts a year.")
+    kp.save()
+    print(f"Saved 'Agent Smith console' in the Websites group (user {user}, password not shown).")
+    print("Open KeePassXC, select it, Ctrl+C copies the password — or use KeePassXC-Browser to fill it in.")
+
+
 def cmd_status(a):
     items = vault.read_items(vault.open_vault(Path(a.vault), keyfile=a.keyfile))
     if not items:
@@ -372,6 +403,9 @@ def main(argv=None):
     im.add_argument("--label", default="")
     im.set_defaults(fn=cmd_add_imap)
     sub.add_parser("add-chigutiro").set_defaults(fn=cmd_add_chigutiro)
+    sc = sub.add_parser("save-console-login")
+    sc.add_argument("--host", default=DEFAULT_HOST)
+    sc.set_defaults(fn=cmd_save_console_login)
     la = sub.add_parser("add-laptop")
     la.add_argument("--host", default=DEFAULT_HOST)
     la.add_argument("--no-push", action="store_true")
