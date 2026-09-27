@@ -200,6 +200,16 @@ def load_inventory(path: Path) -> List[RepoInfo]:
 
 
 def get_token() -> Optional[str]:
-    """Return GITHUB_TOKEN if set, else None (unauthenticated mode is supported)."""
+    """Return the GitHub App installation token the keeper minted on this node
+    (<AGENT_SMITH_STATE>/minted/GITHUB_TOKEN, renewed hourly), else GITHUB_TOKEN,
+    else None (unauthenticated mode is supported)."""
+    state = os.environ.get("AGENT_SMITH_STATE")
+    if state:
+        try:
+            minted = (Path(state) / "minted" / "GITHUB_TOKEN").read_text(encoding="utf-8").strip()
+            if minted:
+                return minted
+        except OSError:
+            pass
     token = os.environ.get("GITHUB_TOKEN")
     return token if token else None

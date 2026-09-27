@@ -2,8 +2,11 @@ import { google } from 'googleapis';
 import fs from 'fs';
 import path from 'path';
 
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
-const TOKEN_PATH = path.join(process.cwd(), '.gmail_token.json');
+// On the server these live outside the repo tree (/var/lib/agent-smith/gmail), pushed from
+// the KeePassXC vault; the keeper (backend/keeper/probes.py) refreshes the access token in
+// TOKEN_PATH every 30 minutes. Locally they default to web/ as before.
+const CREDENTIALS_PATH = process.env.GMAIL_CREDENTIALS_PATH || path.join(process.cwd(), 'credentials.json');
+const TOKEN_PATH = process.env.GMAIL_TOKEN_PATH || path.join(process.cwd(), '.gmail_token.json');
 
 function getAuthClient() {
   if (!fs.existsSync(CREDENTIALS_PATH) || !fs.existsSync(TOKEN_PATH)) {

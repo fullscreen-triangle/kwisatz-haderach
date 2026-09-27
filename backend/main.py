@@ -6,6 +6,7 @@ Exposes all Python tool results as HTTP endpoints for Vercel to call.
 
 import os
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -22,9 +23,30 @@ sys.path.insert(0, str(ROOT))
 from backend.routes.secrets import load_into_environ
 _n_secrets = load_into_environ()
 
-from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets
+from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets, apartment, projects
+from backend.routes import keeper, mail, planner, plans, individuate
+from backend.keeper import service as keeper_service
+from backend.mail import service as mail_service
+from backend.planner import service as planner_service
+from backend.individuate import service as individuate_service
+from backend.routes import console as console_routes
+from backend.agents import service as agents_service
+from backend.repos import service as repos_service
 
-app = FastAPI(title="Desk Backend", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app):
+    # Background loops for the process lifetime: the credential keeper (probe + renew),
+    # the mail poller/extractor, the planner (re-plans when mail, pins or plans change) and
+    # the depth dial (re-files items under committed distinctions; grows new ones).
+    tasks = [t for t in (keeper_service.start(), mail_service.start(), planner_service.start(),
+                         individuate_service.start(), agents_service.start(), repos_service.start()) if t]
+    yield
+    for t in tasks:
+        t.cancel()
+
+
+app = FastAPI(title="Desk Backend", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +62,15 @@ app.include_router(bank.router,       prefix="/bank",       tags=["bank"])
 app.include_router(jobcenter.router,  prefix="/jobcenter",  tags=["jobcenter"])
 app.include_router(intent.router,     prefix="/intent",     tags=["intent"])
 app.include_router(secrets.router,    prefix="/secrets",    tags=["secrets"])
+app.include_router(apartment.router,  prefix="/apartment",  tags=["apartment"])
+app.include_router(projects.router,   prefix="/projects",   tags=["projects"])
+app.include_router(keeper.router,     prefix="/keeper",     tags=["keeper"])
+app.include_router(mail.router,       prefix="/mail",       tags=["mail"])
+app.include_router(planner.router,    prefix="/planner",    tags=["planner"])
+app.include_router(plans.router,      prefix="/plans",      tags=["plans"])
+app.include_router(individuate.router, prefix="/individuate", tags=["individuate"])
+app.include_router(console_routes.agents, prefix="/agents",  tags=["console"])   # command -> agents -> graph
+app.include_router(console_routes.console, prefix="/console", tags=["console"])  # feed, reader, repos
 
 
 @app.get("/")
@@ -126,8 +157,20 @@ function navRows(entries){
     return '<li>'+icon+' '+esc(e.name)+hint+'</li>';
   }).join('')+'</ul>';
 }
+function doctorRows(checks){
+  if(!checks||!checks.length) return '';
+  return '<ul class="rows">'+checks.map(c=>{
+    const mark=c.ok?'✓':(c.critical?'✕':'○');
+    const soft=(!c.ok&&!c.critical)?'<span class="lang">non-blocking</span>':'';
+    return '<li>'+mark+' '+esc(c.name)+soft
+      +'<span class="desc">'+esc(c.detail)+'</span></li>';
+  }).join('')+'</ul>';
+}
 function render(s){
   // Returns HTML for the rich panel, or '' to fall back to the <pre> dump.
+  if(s.kind==='doctor'){
+    return '<div class="answer">'+esc(s.answer)+'</div>'+doctorRows(s.checks);
+  }
   if(s.kind==='nav'){
     return '<div class="answer">'+esc(s.answer)+'</div>'+navRows(s.entries);
   }

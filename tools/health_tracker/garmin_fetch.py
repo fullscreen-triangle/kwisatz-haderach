@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def _cache_path(day: str) -> Path:
 def _is_fresh(path: Path, max_age_seconds: int = 3600) -> bool:
     if not path.exists():
         return False
-    return (Path().stat().st_mtime - path.stat().st_mtime) < max_age_seconds
+    return (time.time() - path.stat().st_mtime) < max_age_seconds
 
 
 def fetch_day(client: Garmin, day: date) -> dict:
@@ -138,9 +139,15 @@ def main():
         print(json.dumps({"error": "GARMIN_EMAIL and GARMIN_PASSWORD not set in environment"}))
         sys.exit(1)
 
+    # Resume the saved session instead of a password login on every call (Garmin throttles
+    # and locks accounts that log in too often). login(tokenstore) refreshes a lapsing
+    # session and falls back to email/password only when it is rejected, then re-saves.
+    # The keeper (backend/keeper/probes.py) keeps the same store warm.
+    state = os.environ.get("AGENT_SMITH_STATE")
+    tokenstore = os.environ.get("GARMINTOKENS") or (str(Path(state) / "garmin") if state else "~/.garminconnect")
     try:
         client = Garmin(email, password)
-        client.login()
+        client.login(tokenstore)
     except GarminConnectAuthenticationError as e:
         print(json.dumps({"error": f"Garmin authentication failed: {e}"}))
         sys.exit(1)

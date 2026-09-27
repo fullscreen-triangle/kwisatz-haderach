@@ -1,0 +1,70 @@
+/**
+ * Causal propagation table (paper §5, Def 5.3, Thm 5.4). A static
+ * knowledge-index lookup and a generative multi-hop answer are ONE object
+ * evaluated at two settings of the process argument: the trivial process
+ * (single rest-contact) returns the resting catalogue cell; a nontrivial
+ * process returns the accountable terminus of a propagation walk. There is
+ * no architectural seam between "look it up" and "reason it out" (Remark 5.5).
+ *
+ * Thm 5.6 (path opacity): admissibility depends only on the terminal claim
+ * matching the target — interior steps are unconstrained and a strange
+ * intermediate step is not, by itself, evidence of failure (Remark 5.7).
+ * Only non-convergence (the walk never reaching the target) is a failure.
+ */
+import { ContactGraph } from "./graph.js";
+/**
+ * Def 5.3 evaluated at either setting. With no `llm`, this is the trivial
+ * process Proc_rest(v): the single rest-contact from seed to medium, i.e.
+ * exactly the static catalogue lookup (Thm 5.4's forward equality). With an
+ * `llm`, each hop asks the model to propose the next claim to visit, and the
+ * walk is accountable once it reaches `target` within `maxHops`.
+ */
+export async function causalPropagationTable(options) {
+    const { graph, seed, target, llm, maxHops = 6 } = options;
+    if (!graph.has(seed) || !graph.has(target)) {
+        throw new Error(`causalPropagationTable: seed "${seed}" and target "${target}" must both already be claims in the graph`);
+    }
+    if (seed === target) {
+        // Trivial process Proc_rest(v): the resting catalogue cell IS the table
+        // at this setting (Thm 5.4 forward equality) — no walk needed.
+        return { accountable: true, steps: [{ claim: seed, note: "trivial process: resting catalogue cell" }], terminalSeparationCost: graph.separationCost(target) };
+    }
+    if (!llm) {
+        // No generative capability supplied and seed !== target: a lookup-only
+        // table has nothing beyond the resting catalogue, so it cannot connect
+        // two distinct claims without a process. This is a correct decline, not
+        // an error — callers wanting multi-hop reasoning must supply an LLMClient.
+        return { accountable: false, steps: [] };
+    }
+    const steps = [{ claim: seed }];
+    let current = seed;
+    for (let hop = 0; hop < maxHops; hop++) {
+        if (current === target) {
+            return { accountable: true, steps, terminalSeparationCost: graph.separationCost(target) };
+        }
+        const candidates = [...graph.neighbors(current).keys()].filter((v) => typeof v === "string");
+        const next = await proposeNextHop(llm, current, target, candidates);
+        if (!next || !graph.has(next))
+            break;
+        steps.push({ claim: next });
+        current = next;
+    }
+    if (current === target) {
+        return { accountable: true, steps, terminalSeparationCost: graph.separationCost(target) };
+    }
+    // Thm 5.6: non-convergence is the only failure signal — report it as such,
+    // with the full (opaque-interior) trajectory attached for audit.
+    return { accountable: false, steps };
+}
+async function proposeNextHop(llm, current, target, candidates) {
+    if (candidates.length === 0)
+        return null;
+    const response = await llm.complete({
+        system: "You are proposing the next hop in a graph walk toward a target claim. " +
+            "Respond with exactly one candidate id from the list, nothing else.",
+        prompt: `Current claim: ${current}\nTarget claim: ${target}\nCandidates: ${candidates.join(", ")}`,
+    });
+    const trimmed = response.trim();
+    return candidates.includes(trimmed) ? trimmed : null;
+}
+//# sourceMappingURL=table.js.map

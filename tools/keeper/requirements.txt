@@ -1,0 +1,3 @@
+# Laptop side of the credential keeper (python -m tools.keeper). Reads/writes the
+# KeePassXC database (KDBX 4) directly. The server side needs none of this.
+pykeepass>=4.1.0

@@ -6,6 +6,18 @@ import HeaderNormal from '../components/header/HeaderNormal';
 import Footer from '../components/footer/Footer';
 import TitleSection from '../components/heading/TitleSection';
 
+function deriveKeyAlerts(keys) {
+  const alerts = [];
+  for (const c of keys?.credentials || []) {
+    if (c.state === 'dead' || c.state === 'expired') {
+      alerts.push({ level: 'danger', message: `${c.title} credential ${c.state === 'dead' ? 'rejected' : 'expired'} — ${c.used_by} is down.`, action: 'Keys' });
+    } else if (c.state === 'soon') {
+      alerts.push({ level: 'warning', message: `${c.title} credential expires in ${c.days_left} days.`, action: 'Keys' });
+    }
+  }
+  return alerts;
+}
+
 function deriveAlerts(docs) {
   const alerts = [];
   if (!docs) return alerts;
@@ -32,12 +44,21 @@ export default function Desk() {
   const [jobs,     setJobs]     = useState(null);
   const [journals, setJournals] = useState(null);
   const [academic, setAcademic] = useState(null);
+  const [apartment, setApartment] = useState(null);
+  const [keys, setKeys] = useState(null);
+  const [plan, setPlan] = useState(null);
+  const [mail, setMail] = useState(null);
 
   useEffect(() => {
     fetch('/api/desk/documents').then(r => r.json()).then(setDocs);
     fetch('/api/desk/jobs').then(r => r.json()).then(setJobs);
     fetch('/api/desk/journals').then(r => r.json()).then(setJournals);
     fetch('/api/desk/academic').then(r => r.json()).then(setAcademic).catch(() => {});
+    fetch('/api/desk/apartment').then(r => r.json()).then(setApartment).catch(() => {});
+    fetch('/api/desk/keys').then(r => r.json()).then(k => !k.error && setKeys(k)).catch(() => {});
+    fetch('/api/desk/plan/now').then(r => r.json()).then(p => !p.error && setPlan(p)).catch(() => {});
+    fetch('/api/desk/mail/messages?needs_action=true&include_done=0&limit=300').then(r => r.json())
+      .then(m => !m.error && setMail(m)).catch(() => {});
   }, []);
 
   const [today, setToday] = useState('');
@@ -45,14 +66,38 @@ export default function Desk() {
     setToday(new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
   }, []);
 
-  const alerts = deriveAlerts(docs);
+  const alerts = [...deriveKeyAlerts(keys), ...deriveAlerts(docs)];
+  const keysBad = (keys?.credentials || []).filter(c => ['dead', 'expired', 'soon'].includes(c.state)).length;
+  const atRisk = plan?.at_risk?.length ?? 0;
+  const needAction = mail?.messages?.length ?? null;
+  const hhmm = iso => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
   const expiredDocs     = Object.values(docs || {}).filter(d => d.urgency === 'expired' || d.urgency === 'overdue').length;
   const activeJobs      = (jobs  || []).filter(j => !['rejected','withdrawn'].includes(j.status)).length;
   const pendingJournals = (journals || []).filter(e => e.status === 'pending').length;
   const totalCitations  = academic?.author?.cited_by ?? null;
+  // Slow-to-obtain dossier items are the only apartment state worth an amber card:
+  // they block a viewing days before the viewing exists.
+  const apartmentUrgent = (apartment?.dossier?.order_now?.length ?? 0) > 0;
 
   const tools = [
+    {
+      href:    '/desk/plan',
+      title:   'Plan',
+      sub:     plan?.now ? `now: ${plan.now.title}` : 'Every minute, from mail + backlog',
+      stat:    plan ? (plan.next ? `next ${hhmm(plan.next.start)} · ${plan.next.title.slice(0, 32)}` : 'planned') : '…',
+      urgent:  atRisk > 0,
+      urgentLabel: atRisk > 0 ? `${atRisk} at risk` : null,
+      color:   atRisk > 0 ? '#fbbf24' : '#10b981',
+    },
+    {
+      href:    '/desk/inbox',
+      title:   'Inbox',
+      sub:     'Gmail · Uni · webmail — read and extracted',
+      stat:    needAction === null ? '…' : `${needAction} need action`,
+      urgent:  false,
+      color:   '#14bfb5',
+    },
     {
       href:    '/desk/documents',
       title:   'Documents',
@@ -63,9 +108,18 @@ export default function Desk() {
       color:   expiredDocs > 0 ? '#f87171' : '#34d399',
     },
     {
-      href:    '/desk/inbox',
-      title:   'Inbox',
-      sub:     'Email intelligence · Journal tracker',
+      href:    '/desk/keys',
+      title:   'Keys',
+      sub:     'Credentials · expiry · auto-renewal',
+      stat:    keys ? `${keys.credentials.length - keysBad}/${keys.credentials.length} fine` : '…',
+      urgent:  keysBad > 0,
+      urgentLabel: keysBad > 0 ? `${keysBad} need you` : null,
+      color:   keysBad > 0 ? '#f87171' : '#34d399',
+    },
+    {
+      href:    '/desk/inbox-journals',
+      title:   'Journal triage',
+      sub:     'Journal invitations · predatory filter',
       stat:    journals ? `${pendingJournals} pending decisions` : '…',
       urgent:  false,
       color:   '#14bfb5',
@@ -93,6 +147,15 @@ export default function Desk() {
       stat:    '63 repos',
       urgent:  false,
       color:   '#fb923c',
+    },
+    {
+      href:    '/desk/apartment',
+      title:   'Apartment',
+      sub:     'Greifswald · listings · Bewerbermappe',
+      stat:    apartment ? `${apartment.stats.active} active · ${apartment.stats.viewings_upcoming} viewings` : '…',
+      urgent:  apartmentUrgent,
+      urgentLabel: apartmentUrgent ? `${apartment.dossier.order_now.length} to order` : null,
+      color:   apartmentUrgent ? '#fbbf24' : '#f472b6',
     },
     {
       href:    '/desk/travel',

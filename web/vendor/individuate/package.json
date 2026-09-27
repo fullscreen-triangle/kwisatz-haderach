@@ -1,0 +1,23 @@
+{
+  "name": "@four-sided-triangle/individuate",
+  "version": "0.1.0",
+  "description": "Receiver-relative retrieval: individuation against a persistent receiver graph, coherence-triangle grounding, and closure \u2014 the TypeScript reference implementation of the Federated Retrieval-Augmentation paper.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./sources/local-file": {
+      "types": "./dist/sources/localFile.d.ts",
+      "import": "./dist/sources/localFile.js"
+    }
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "_vendored": "Copied from fullscreen-triangle/four-sided-triangle sdk-ts (commit 6090e51) \u2014 not published to npm. Rebuild there (npm run build) and re-copy dist/ to update."
+}

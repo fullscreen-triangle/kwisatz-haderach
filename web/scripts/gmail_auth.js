@@ -4,7 +4,7 @@
  *
  * Prerequisites:
  *   1. Go to console.cloud.google.com
- *   2. Create a project → Enable "Gmail API"
+ *   2. Create a project → Enable "Gmail API" and "Google Calendar API"
  *   3. APIs & Services → Credentials → Create → OAuth 2.0 Client ID → Desktop app
  *   4. Download JSON → save as web/credentials.json
  *   5. Run this script — browser opens → sign in → done.
@@ -16,7 +16,12 @@ const url = require('url');
 const fs = require('fs');
 const path = require('path');
 
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+// Read mail (inbox) + manage calendars: the planner reads busy time from his calendars and
+// writes the plan into its own "Agent Smith" calendar (backend/planner/gcal.py).
+const SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar',
+];
 const CREDENTIALS_PATH = path.join(__dirname, '..', 'credentials.json');
 const TOKEN_PATH = path.join(__dirname, '..', '.gmail_token.json');
 
@@ -25,7 +30,7 @@ async function main() {
     console.error('\nMissing credentials.json in web/ directory.');
     console.error('Steps:');
     console.error('  1. console.cloud.google.com → new project');
-    console.error('  2. Enable Gmail API');
+    console.error('  2. Enable Gmail API and Google Calendar API');
     console.error('  3. Credentials → Create → OAuth 2.0 Client ID → Desktop app');
     console.error('  4. Download JSON → rename to credentials.json → put in web/');
     process.exit(1);
@@ -82,7 +87,8 @@ async function main() {
           const { tokens } = await oAuth2Client.getToken(query.code);
           fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
           console.log('\nSaved .gmail_token.json');
-          console.log('Restart the dev server — Gmail inbox will load automatically.');
+          console.log('Put it on the server through the vault: attach it to the "Gmail OAuth" entry');
+          console.log('as gmail_token.json (or re-run python -m tools.keeper import), then push.');
           resolve();
         } catch (e) {
           reject(e);

@@ -1,303 +1,254 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import Layout from '../../layout/Layout';
 import HeaderNormal from '../../components/header/HeaderNormal';
 import Footer from '../../components/footer/Footer';
 import s from '../../styles/desk.module.css';
 
-// ── Response templates ──────────────────────────────────────────────────────
+// Unified inbox: every account the node reads (Gmail, Uni Greifswald, webmail), each message
+// with what the node extracted from it and where the planner put it. Live over SSE — a new
+// mail appears, then fills in its summary once extracted. Nothing here changes read/unread
+// state at the provider; "done" is the desk's own mark.
 
-const TEMPLATES = {
-  accept_reviewer:   j => `Dear Editors,\n\nThank you for the invitation to review for ${j}. I am happy to serve as a reviewer and will submit my review by the stated deadline.\n\nKind regards,\nKundai Farai Sachikonye`,
-  decline_reviewer:  j => `Dear Editors,\n\nThank you for the review invitation for ${j}. Unfortunately I have conflicting commitments and am unable to take on this review at this time.\n\nKind regards,\nKundai Farai Sachikonye`,
-  accept_editor:     j => `Dear Editorial Team,\n\nThank you for your invitation to join the editorial board of ${j}. I am pleased to accept.\n\nKind regards,\nKundai Farai Sachikonye`,
-  decline_editor:    j => `Dear Editorial Team,\n\nThank you for considering me for the editorial board of ${j}. Due to current commitments I am unable to take on this role at this time.\n\nKind regards,\nKundai Farai Sachikonye`,
-  acknowledge_offer: j => `Dear Editors,\n\nThank you for reaching out. I will keep ${j} in mind for future work.\n\nKind regards,\nKundai Farai Sachikonye`,
-  decline_offer:     j => `Dear Editors,\n\nThank you for your interest. I am not planning a submission at this time.\n\nKind regards,\nKundai Farai Sachikonye`,
+const CAT_COLOR = {
+  work: '#60a5fa', research: '#a78bfa', admin: '#fbbf24', job: '#34d399', finance: '#f472b6',
+  travel: '#14bfb5', personal: '#fb923c', journal: '#c084fc', newsletter: '#6b7280',
+  notification: '#6b7280', spam: '#ef4444',
 };
 
-const RESPONSE_ACTIONS = {
-  reviewer: ['accept_reviewer',  'decline_reviewer'],
-  editor:   ['accept_editor',    'decline_editor'],
-  offer:    ['acknowledge_offer', 'decline_offer'],
+const fmtWhen = iso => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const today = new Date();
+  const same = d.toDateString() === today.toDateString();
+  return same ? d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 };
+const fmtSlot = iso => new Date(iso).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
 
-const CAT_ICON = { reviewer: '🔬', editor: '✏', offer: '📬', uncertain: '❓' };
+const chip = (color, active) => ({
+  display: 'inline-block', padding: '4px 10px', borderRadius: 999, fontSize: 12, cursor: 'pointer',
+  border: `1px solid ${active ? color : 'rgba(255,255,255,0.12)'}`, color: active ? color : 'var(--font-color)',
+  background: active ? 'rgba(255,255,255,0.04)' : 'transparent', marginRight: 6, marginBottom: 6,
+});
+const muted = { fontSize: 12, color: 'var(--font-color)', opacity: 0.5 };
 
-// ── Horizontal bar chart ────────────────────────────────────────────────────
-
-function HBar({ data, color = 'var(--theme-color)' }) {
-  if (!data || data.length === 0) return null;
-  const max = Math.max(...data.map(d => d.count), 1);
+function AccountStrip({ status, account, setAccount }) {
+  const accounts = status?.accounts || [];
+  const counts = status?.counts || {};
   return (
-    <div>
-      {data.map(({ label, count }) => (
-        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <span style={{ width: 160, fontSize: 12, color: 'var(--font-color)', opacity: 0.5, textAlign: 'right', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {label}
+    <div style={{ marginBottom: 12 }}>
+      <span style={chip('#e5e7eb', !account)} onClick={() => setAccount('')}>All</span>
+      {accounts.map(a => {
+        const c = counts[a.id] || {};
+        const color = a.ok === false ? '#f87171' : '#34d399';
+        return (
+          <span key={a.id} style={chip(color, account === a.id)} onClick={() => setAccount(a.id)}
+                title={a.error || `last checked ${fmtWhen(a.last_poll)}`}>
+            {a.label} · {Object.values(c).reduce((x, y) => x + y, 0)}
+            {c.pending ? ` · ${c.pending} to read` : ''}{a.ok === false ? ' · !' : ''}
           </span>
-          <div style={{ flex: 1, height: 5, background: 'var(--assistant-color)', borderRadius: 3 }}>
-            <div style={{ width: `${(count / max) * 100}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.5s' }} />
-          </div>
-          <span style={{ width: 28, fontSize: 13, fontWeight: 600, color: 'var(--font-color)', opacity: 0.5, flexShrink: 0 }}>
-            {count}
-          </span>
+        );
+      })}
+      {accounts.some(a => a.ok === false) && (
+        <div style={{ ...muted, color: '#fca5a5', opacity: 0.9 }}>
+          {accounts.filter(a => a.ok === false).map(a => `${a.label}: ${a.error}`).join(' · ')} — see <Link href="/desk/keys">Keys</Link>
         </div>
-      ))}
+      )}
+      {!accounts.length && <div style={muted}>No mail account connected yet — add them to the vault and push (see Keys).</div>}
     </div>
   );
 }
 
-// ── Inbox intelligence section ──────────────────────────────────────────────
+function Extracted({ m }) {
+  const ex = m.extraction;
+  if (m.status === 'pending') return <div style={muted}>reading…</div>;
+  if (m.status === 'failed') return <div style={{ ...muted, color: '#fca5a5' }}>could not extract: {m.error}</div>;
+  if (!ex) return null;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ fontSize: 14, color: 'var(--heading-color)', lineHeight: 1.5 }}>{ex.summary}</div>
+      {(ex.action_items || []).map((a, i) => (
+        <div key={i} style={{ fontSize: 13 }}>
+          ☐ {a.title} <span style={muted}>· {a.estimated_minutes} min{a.due ? ` · due ${fmtSlot(a.due)}` : ''}{a.priority === 'high' ? ' · high' : ''}</span>
+        </div>
+      ))}
+      {(ex.events || []).map((e, i) => (
+        <div key={i} style={{ fontSize: 13 }}>
+          📅 {e.title} <span style={muted}>· {fmtSlot(e.start)}{e.location ? ` · ${e.location}` : ''}{e.confirmed ? '' : ' · proposed'}</span>
+        </div>
+      ))}
+      {ex.needs_reply && <div style={{ fontSize: 13, color: '#fbbf24' }}>↩ needs a reply{ex.reply_by ? ` by ${fmtSlot(ex.reply_by)}` : ''}</div>}
+      {!!(ex.people || []).length && (
+        <div style={muted}>people: {ex.people.map(p => [p.name, p.role, p.org].filter(Boolean).join(', ')).join(' · ')}</div>
+      )}
+    </div>
+  );
+}
 
-function InboxIntelligence({ existingEntries, onNewEntries }) {
-  const [status,      setStatus]      = useState('idle');
-  const [stats,       setStats]       = useState(null);
-  const [fetchedAt,   setFetchedAt]   = useState(null);
-  const [errorMsg,    setErrorMsg]    = useState('');
-  const [autoTracked, setAutoTracked] = useState(0);
+function MessageCard({ m, onDone }) {
+  const [open, setOpen] = useState(false);
+  const [full, setFull] = useState(null);
+  const color = CAT_COLOR[m.extraction?.category] || '#6b7280';
 
-  const entriesRef = useRef(existingEntries);
-  useEffect(() => { entriesRef.current = existingEntries; }, [existingEntries]);
-
-  const load = useCallback(async (force = false) => {
-    setStatus('loading');
-    setErrorMsg('');
-    try {
-      const res  = await fetch(force ? '/api/desk/inbox?refresh=1' : '/api/desk/inbox');
-      const data = await res.json();
-
-      if (data.error === 'not_configured') { setStatus('not_configured'); return; }
-      if (data.error) { setStatus('error'); setErrorMsg(data.error); return; }
-
-      const emails = data.emails || [];
-      setFetchedAt(data.fetched_at);
-
-      const spam       = emails.filter(e => (e.classification?.score ?? 100) >= 70).length;
-      const likelySpam = emails.filter(e => { const sc = e.classification?.score ?? 100; return sc >= 45 && sc < 70; }).length;
-      const reviewer   = emails.filter(e => e.classification?.category === 'reviewer').length;
-      const editor     = emails.filter(e => e.classification?.category === 'editor').length;
-      const freeOffers = emails.filter(e => e.classification?.freePublicationOffered).length;
-      const legit      = emails.filter(e => (e.classification?.score ?? 100) < 45).length;
-
-      const domainCounts = {};
-      for (const e of emails) {
-        for (const kw of (e.classification?.domainKeywords || [])) {
-          domainCounts[kw] = (domainCounts[kw] || 0) + 1;
-        }
-      }
-      const topDomains = Object.entries(domainCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([label, count]) => ({ label, count }));
-
-      const pubCounts = {};
-      for (const e of emails) {
-        const d = e.classification?.senderDomain;
-        if (d) pubCounts[d] = (pubCounts[d] || 0) + 1;
-      }
-      const topPubs = Object.entries(pubCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([label, count]) => ({ label, count }));
-
-      setStats({ total: emails.length, spam, likelySpam, reviewer, editor, freeOffers, legit, topDomains, topPubs });
-      setStatus('loaded');
-
-      // Auto-track legitimate invitations
-      const current  = entriesRef.current;
-      const toTrack  = emails.filter(e => {
-        const cat   = e.classification?.category;
-        const score = e.classification?.score ?? 100;
-        if (!['reviewer', 'editor', 'offer'].includes(cat) || score >= 45) return false;
-        const jName = (e.classification?.journalName || '').toLowerCase().trim();
-        if (!jName) return false;
-        return !current.some(entry => {
-          const en = (entry.journal_name || '').toLowerCase();
-          return en === jName || en.includes(jName) || jName.includes(en);
-        });
-      });
-
-      if (toTrack.length > 0) {
-        let tracked = 0;
-        for (const email of toTrack) {
-          const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-          const jName = email.classification.journalName;
-          const slug  = jName.toLowerCase().replace(/[^\w]+/g, '_').slice(0, 40);
-          const entry = {
-            id: `${today}_${slug}_auto`,
-            date_received: new Date().toISOString().split('T')[0],
-            category: email.classification.category,
-            journal_name: jName,
-            publisher: email.classification.senderDomain || '',
-            domain: (email.classification.domainKeywords || []).slice(0, 3).join(', '),
-            status: 'pending',
-            role: email.classification.category === 'reviewer' ? 'reviewer' : email.classification.category === 'editor' ? 'associate_editor' : '',
-            email_snippet: email.body.slice(0, 600),
-            is_doaj_listed: null, doaj_subjects: [],
-            free_publication_offered: email.classification.freePublicationOffered || false,
-            deadline: '', notes: 'Auto-tracked from Gmail', response_sent: false,
-          };
-          try {
-            await fetch('/api/desk/journals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'add', entry }) });
-            tracked++;
-          } catch {}
-        }
-        if (tracked > 0) { setAutoTracked(tracked); onNewEntries(); }
-      }
-    } catch (e) {
-      setStatus('error'); setErrorMsg(e.message);
+  async function toggle() {
+    setOpen(o => !o);
+    if (!full) {
+      const r = await fetch(`/api/desk/mail/messages/${encodeURIComponent(m.key)}`);
+      setFull(await r.json());
     }
-  }, [onNewEntries]);
+  }
+
+  return (
+    <div style={{
+      background: 'var(--assistant-color, #101010)', borderRadius: 10, padding: '20px 22px',
+      border: '1px solid rgba(255,255,255,0.07)', borderLeft: `3px solid ${color}`, opacity: m.done ? 0.45 : 1,
+      display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--heading-font)', fontSize: 16, fontWeight: 700, color: 'var(--heading-color)' }}>
+            {m.subject || '(no subject)'}
+          </div>
+          <div style={muted}>
+            {m.owner ? 'you → ' : ''}{m.from_name || m.from_addr} · {m.account}{m.folder === 'Sent' ? ' · sent' : ''} · {fmtWhen(m.date)}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start', flexShrink: 0 }}>
+          {m.extraction?.category && <span className={s.badge} style={{ color, borderColor: color }}>{m.extraction.category}</span>}
+          {m.triage && m.triage !== 'model' && <span className={`${s.badge} ${s.badgeMuted}`}>{m.triage}</span>}
+        </div>
+      </div>
+
+      <Extracted m={m} />
+
+      {!!(m.scheduled || []).length && (
+        <div style={{ fontSize: 12 }}>
+          {m.scheduled.map(b => (
+            <Link key={b.id} href={`/desk/plan?at=${encodeURIComponent(b.start)}`} style={{ marginRight: 10, color: '#34d399' }}>
+              ⏱ {b.kind === 'fixed' ? '' : 'planned '}{fmtSlot(b.start)} · {b.title.slice(0, 40)}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className={s.btnGroup}>
+        <button className={s.btn} onClick={toggle}>{open ? 'Hide' : 'Read'}</button>
+        <button className={s.btn} onClick={() => onDone(m.key, !m.done)}>{m.done ? 'Not done' : 'Done'}</button>
+      </div>
+      {open && (
+        <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.6, margin: 0,
+                      color: 'var(--font-color)', maxHeight: 420, overflow: 'auto' }}>
+          {full ? full.text : 'loading…'}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+function SearchAsk() {
+  const [q, setQ] = useState('');
+  const [mode, setMode] = useState(null);
+  const [out, setOut] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  async function run(which) {
+    if (!q.trim()) return;
+    setBusy(true); setMode(which); setOut(null);
+    const url = which === 'search' ? `/api/desk/mail/search?q=${encodeURIComponent(q)}&k=10`
+      : which === 'ask' ? `/api/desk/mail/ask?q=${encodeURIComponent(q)}`
+      : `/api/desk/mail/memory?q=${encodeURIComponent(q)}`;
+    const r = await fetch(url).catch(() => null);
+    setOut(r ? await r.json() : { error: 'offline' });
+    setBusy(false);
+  }
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && run('search')}
+               placeholder="Find or ask across all mail…" className={s.urlInput} style={{ flex: '1 1 280px' }} />
+        <button className={`${s.btn} ${s.btnPrimary}`} disabled={busy} onClick={() => run('search')}>Search</button>
+        <button className={s.btn} disabled={busy} onClick={() => run('ask')} title="four-sided-triangle: an answer, graded by how many independent sources agree">Ask</button>
+        <button className={s.btn} disabled={busy} onClick={() => run('memory')} title="chigutiro: graded claims from everything it remembers">Memory</button>
+      </div>
+      {busy && <div style={{ ...muted, marginTop: 8 }}>working…</div>}
+      {out?.error && <div style={{ ...muted, color: '#fca5a5', marginTop: 8 }}>{out.error}</div>}
+      {out && !out.error && mode === 'search' && (
+        <div style={{ marginTop: 12 }}>
+          <div style={muted}>spraypaint · price {out.price?.toFixed?.(3)} · {out.allocation?.map(a => `${a.scene} ${a.allocated}`).join(' · ')}</div>
+          {(out.results || []).map((r, i) => (
+            <div key={i} style={{ marginTop: 10, fontSize: 13 }}>
+              <div style={{ color: 'var(--heading-color)' }}>{r.path} <span style={muted}>· {r.scene} · {r.score?.toFixed?.(2)}</span></div>
+              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, opacity: 0.7 }}>{r.snippet?.slice(0, 500)}</pre>
+            </div>
+          ))}
+        </div>
+      )}
+      {out && !out.error && mode === 'ask' && (
+        <div style={{ marginTop: 12, fontSize: 13 }}>
+          <span className={`${s.badge} ${out.status === 'grounded' ? s.badgeOk : out.status === 'declined' ? s.badgeMuted : s.badgeWarning}`}>{out.status}</span>
+          {out.claim && <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 8 }}>{out.claim}</pre>}
+          {out.reason && <div style={muted}>{out.reason}</div>}
+          {out.warning && <div style={muted}>{out.warning}</div>}
+          {!!(out.support || []).length && <div style={muted}>support: {out.support.map(c => `${c.source} (${(c.power * 100).toFixed(0)}%)`).join(' · ')}</div>}
+        </div>
+      )}
+      {out && !out.error && mode === 'memory' && (
+        <div style={{ marginTop: 12, fontSize: 13 }}>
+          <span className={s.badge}>{out.grade}</span>
+          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 8 }}>{out.answer}</pre>
+          {(out.claims || []).map((c, i) => <div key={i} style={muted}>· [{c.receiver}, {c.grade}] {c.text}</div>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function InboxPage() {
+  const [status, setStatus] = useState(null);
+  const [messages, setMessages] = useState(null);
+  const [account, setAccount] = useState('');
+  const [needsAction, setNeedsAction] = useState(false);
+  const [hideDone, setHideDone] = useState(true);
+  const [live, setLive] = useState(false);
+  const pending = useRef(null);
+
+  const load = useCallback(() => {
+    const qs = new URLSearchParams({ limit: '150', include_done: hideDone ? '0' : '1' });
+    if (account) qs.set('account', account);
+    if (needsAction) qs.set('needs_action', 'true');
+    fetch(`/api/desk/mail/messages?${qs}`).then(r => r.json()).then(d => {
+      if (d.error) return;
+      setMessages(d.messages);
+      setStatus(d);
+    }).catch(() => {});
+  }, [account, needsAction, hideDone]);
 
   useEffect(() => { load(); }, [load]);
 
-  if (status === 'not_configured') {
-    return (
-      <div style={{ background: 'var(--assistant-color)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 24, marginBottom: 40 }}>
-        <div style={{ fontWeight: 600, color: 'var(--heading-color)', marginBottom: 8 }}>Gmail — setup required</div>
-        <div style={{ fontSize: 13, color: 'var(--font-color)', opacity: 0.5 }}>
-          Run <code>node scripts/gmail_auth.js</code> from the <code>web/</code> directory to authorise Gmail access.
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    const es = new EventSource('/api/desk/mail/stream');
+    es.addEventListener('status', e => {
+      setStatus(JSON.parse(e.data));
+      clearTimeout(pending.current);                       // debounce bursts of extractions
+      pending.current = setTimeout(load, 800);
+    });
+    es.onopen = () => setLive(true);
+    es.onerror = () => setLive(false);
+    return () => { es.close(); clearTimeout(pending.current); };
+  }, [load]);
+
+  async function markDone(key, done) {
+    await fetch(`/api/desk/mail/messages/${encodeURIComponent(key)}/done`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ done }),
+    });
+    load();
   }
 
-  return (
-    <div style={{ marginBottom: 50 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <h4 style={{ fontFamily: 'var(--heading-font)', color: 'var(--heading-color)', margin: 0 }}>Gmail · last 14 days</h4>
-        {fetchedAt && (
-          <span style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.3 }}>
-            fetched {new Date(fetchedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        )}
-        <button className={s.btn} style={{ marginLeft: 'auto' }} onClick={() => load(true)} disabled={status === 'loading'}>
-          {status === 'loading' ? 'Loading…' : '↻ Refresh'}
-        </button>
-      </div>
-
-      {status === 'error' && <div style={{ color: '#f87171', marginBottom: 16 }}>Error: {errorMsg}</div>}
-      {status === 'loading' && !stats && <div style={{ color: 'var(--font-color)', opacity: 0.4 }}>Reading inbox…</div>}
-
-      {stats && (
-        <>
-          {/* Big stat numbers */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginBottom: 32 }}>
-            {[
-              { n: stats.total,                  label: 'emails read',  color: 'var(--font-color)' },
-              { n: stats.spam + stats.likelySpam, label: 'spam blocked', color: '#f87171' },
-              { n: stats.legit,                   label: 'legitimate',   color: '#34d399' },
-              { n: stats.reviewer + stats.editor, label: 'invitations',  color: 'var(--theme-color)' },
-              { n: stats.freeOffers,              label: 'free pub offers', color: '#fbbf24' },
-            ].map(({ n, label, color }) => (
-              <div key={label} style={{ background: 'var(--assistant-color)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '20px 16px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--heading-font)', fontSize: 36, fontWeight: 700, color, lineHeight: 1 }}>{n}</div>
-                <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.35, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 8 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Breakdown bar */}
-          {stats.total > 0 && (
-            <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', background: 'var(--assistant-color)', marginBottom: 32 }}>
-              <div style={{ width: `${(stats.spam / stats.total) * 100}%`, background: '#f87171' }} title={`spam: ${stats.spam}`} />
-              <div style={{ width: `${(stats.likelySpam / stats.total) * 100}%`, background: '#fbbf24' }} title={`likely spam: ${stats.likelySpam}`} />
-              <div style={{ width: `${(stats.editor / stats.total) * 100}%`, background: '#60a5fa' }} title={`editor: ${stats.editor}`} />
-              <div style={{ width: `${(stats.reviewer / stats.total) * 100}%`, background: 'var(--theme-color)' }} title={`reviewer: ${stats.reviewer}`} />
-              <div style={{ width: `${Math.max(0, (stats.legit - stats.editor - stats.reviewer) / stats.total) * 100}%`, background: '#34d399' }} title={`other legit: ${stats.legit - stats.editor - stats.reviewer}`} />
-            </div>
-          )}
-
-          {autoTracked > 0 && (
-            <div style={{ color: 'var(--theme-color)', marginBottom: 24, fontSize: 13 }}>
-              ✓ {autoTracked} new invitation{autoTracked > 1 ? 's' : ''} automatically added to tracker below
-            </div>
-          )}
-
-          {/* Charts side by side */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginBottom: 16 }}>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--font-color)', opacity: 0.35, marginBottom: 16 }}>
-                Research areas publishers target you in
-              </div>
-              <HBar data={stats.topDomains} color="var(--theme-color)" />
-            </div>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--font-color)', opacity: 0.35, marginBottom: 16 }}>
-                Publishers by email volume
-              </div>
-              <HBar data={stats.topPubs} color="#60a5fa" />
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Pending decision card ───────────────────────────────────────────────────
-
-function PendingCard({ entry, onUpdated }) {
-  const [draft, setDraft]   = useState('');
-  const [copied, setCopied] = useState(false);
-  const actions = RESPONSE_ACTIONS[entry.category] || [];
-  const jName   = entry.journal_name || 'this journal';
-
-  async function copyAndMark(status) {
-    if (draft) { try { await navigator.clipboard.writeText(draft); } catch {} }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    await fetch('/api/desk/journals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', entryId: entry.id, status }) });
-    onUpdated();
-  }
-
-  async function skip() {
-    await fetch('/api/desk/journals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', entryId: entry.id, status: 'declined' }) });
-    onUpdated();
-  }
-
-  return (
-    <div style={{ background: 'var(--assistant-color)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '20px 24px' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
-        <div style={{ fontFamily: 'var(--heading-font)', fontSize: 15, fontWeight: 600, color: 'var(--heading-color)' }}>
-          {CAT_ICON[entry.category] || '❓'} {entry.journal_name || 'Unknown journal'}
-        </div>
-        <span className={`${s.badge} ${entry.category === 'editor' ? s.badgeOk : s.badgeInfo}`}>{entry.category}</span>
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--font-color)', opacity: 0.4, marginBottom: 16 }}>
-        {entry.domain && <>{entry.domain} · </>}{entry.date_received}
-        {entry.notes === 'Auto-tracked from Gmail' && <span style={{ color: 'var(--theme-color)', marginLeft: 8 }}>auto</span>}
-      </div>
-
-      {!draft ? (
-        <div className={s.btnGroup}>
-          {actions[0] && <button className={`${s.btn} ${s.btnPrimary}`} onClick={() => setDraft(TEMPLATES[actions[0]]?.(jName) || '')}>Draft accept</button>}
-          {actions[1] && <button className={s.btn} onClick={() => setDraft(TEMPLATES[actions[1]]?.(jName) || '')}>Draft decline</button>}
-          <button className={s.btn} style={{ marginLeft: 'auto', opacity: 0.4 }} onClick={skip}>Skip</button>
-        </div>
-      ) : (
-        <>
-          <div className={s.draftBox}>{draft}</div>
-          <div className={s.btnGroup} style={{ marginTop: 10 }}>
-            <button className={`${s.btn} ${s.btnPrimary}`}
-              onClick={() => copyAndMark(draft.includes('pleased to accept') || draft.includes('happy to serve') ? 'accepted' : 'declined')}>
-              {copied ? '✓ Copied & done' : 'Copy & mark done'}
-            </button>
-            <button className={s.btn} onClick={() => setDraft('')}>Back</button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Page ───────────────────────────────────────────────────────────────────
-
-export default function InboxPage() {
-  const [entries, setEntries]       = useState(null);
-  const [showResolved, setShowResolved] = useState(false);
-
-  const fetchEntries = useCallback(() => fetch('/api/desk/journals').then(r => r.json()).then(setEntries), []);
-  useEffect(() => { fetchEntries(); }, [fetchEntries]);
-
-  const active  = (entries || []).filter(e => !['spam', 'likely_spam'].includes(e.category));
-  const pending = active.filter(e => e.status === 'pending');
-  const done    = active.filter(e => e.status !== 'pending');
+  const extracting = status?.extracting;
+  const pendingCount = Object.values(status?.counts || {}).reduce((n, c) => n + (c.pending || 0), 0);
 
   return (
     <Layout activeScrollbar={false}>
@@ -311,57 +262,27 @@ export default function InboxPage() {
           <span className="pl-10 pr-10 background-section">Desk · Inbox</span>
         </p>
         <h1 className="title text-uppercase">Inbox</h1>
-        {pending.length > 0 && (
-          <p style={{ color: 'var(--theme-color)', fontSize: 13, marginTop: 12 }}>
-            {pending.length} pending decision{pending.length > 1 ? 's' : ''}
-          </p>
-        )}
+        <p style={{ fontSize: 13, marginTop: 12, opacity: 0.6 }}>
+          <span style={{ color: live ? '#34d399' : '#fbbf24' }}>●</span> {live ? 'live' : 'reconnecting…'}
+          {pendingCount > 0 && ` · reading ${pendingCount} message${pendingCount > 1 ? 's' : ''}${extracting ? '…' : ''}`}
+          {' · '}<Link href="/desk/plan">plan</Link>{' · '}<Link href="/desk/inbox-journals">journal triage</Link>
+        </p>
       </HeaderNormal>
 
-      <section className="container section-margin" data-dsn-title="Email Intelligence">
-        <InboxIntelligence existingEntries={entries || []} onNewEntries={fetchEntries} />
-      </section>
-
-      <section className="container section-margin" data-dsn-title="Pending Decisions">
-        <div style={{ fontFamily: 'var(--heading-font)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--font-color)', opacity: 0.35, marginBottom: 24 }}>
-          Pending decisions {pending.length > 0 && `(${pending.length})`}
+      <section className="container section-margin" data-dsn-title="Inbox">
+        <AccountStrip status={status} account={account} setAccount={setAccount} />
+        <div style={{ marginBottom: 20 }}>
+          <span style={chip('#fbbf24', needsAction)} onClick={() => setNeedsAction(v => !v)}>needs action</span>
+          <span style={chip('#9ca3af', hideDone)} onClick={() => setHideDone(v => !v)}>hide done</span>
+          <span style={chip('#9ca3af', false)} onClick={() => fetch('/api/desk/mail/sync', { method: 'POST' })}>check now</span>
         </div>
-        {!entries ? (
-          <div style={{ color: 'var(--font-color)', opacity: 0.4 }}>Loading…</div>
-        ) : pending.length === 0 ? (
-          <div style={{ color: 'var(--font-color)', opacity: 0.35, fontSize: 14 }}>No pending decisions — all caught up.</div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
-            {pending.map(e => <PendingCard key={e.id} entry={e} onUpdated={fetchEntries} />)}
-          </div>
-        )}
+        <SearchAsk />
+        {!messages && <div style={muted}>Loading…</div>}
+        {messages && !messages.length && <div style={muted}>Nothing here.</div>}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: 18 }}>
+          {(messages || []).map(m => <MessageCard key={m.key} m={m} onDone={markDone} />)}
+        </div>
       </section>
-
-      {done.length > 0 && (
-        <section className="container section-margin" data-dsn-title="History">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <div style={{ fontFamily: 'var(--heading-font)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--font-color)', opacity: 0.35 }}>
-              History ({done.length})
-            </div>
-            <button className={s.btn} style={{ fontSize: 11 }} onClick={() => setShowResolved(v => !v)}>
-              {showResolved ? 'hide' : 'show'}
-            </button>
-          </div>
-          {showResolved && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-              {done.map(e => (
-                <div key={e.id} style={{ background: 'var(--assistant-color)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '14px 18px', opacity: 0.45 }}>
-                  <div style={{ fontFamily: 'var(--heading-font)', fontSize: 13, fontWeight: 600, color: 'var(--heading-color)', marginBottom: 4 }}>
-                    {CAT_ICON[e.category] || '❓'} {e.journal_name}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.4 }}>{e.date_received}</div>
-                  <span className={`${s.badge} ${e.status === 'accepted' ? s.badgeOk : s.badgeMuted}`} style={{ marginTop: 8 }}>{e.status}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
 
       <Footer className="background-section" />
     </Layout>

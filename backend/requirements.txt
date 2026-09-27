@@ -22,3 +22,13 @@ lxml>=5.2.0
 # Bank CSV parsing — no extra deps (stdlib csv only)
 
 # Chat / Ollama — httpx already covers this
+
+# GitHub App installation tokens (backend/keeper/github_app.py): RS256 JWT signing.
+pyjwt[crypto]>=2.8.0
+
+# Depth dial (backend/individuate): okgg engine's pair-status matrices
+numpy>=1.26
+
+# Console agents: Claude escalation (backend/agents/llm.py) and Word attachments (backend/mail/attachments.py).
+anthropic>=0.60.0
+python-docx>=1.1.0

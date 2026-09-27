@@ -2,7 +2,7 @@
   "name": "Agent Smith",
   "short_name": "Agent Smith",
   "description": "Utter a command; your machine runs it.",
-  "start_url": "/command",
+  "start_url": "/desk/console",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

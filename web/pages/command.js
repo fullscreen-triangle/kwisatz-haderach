@@ -24,6 +24,7 @@ const COLORS = {
 };
 
 const EXAMPLES = [
+  'plan: run 3 times a week for 45 minutes',
   'where is the tick loop',
   'find passages about water filling',
   'where is the committed count',
@@ -34,24 +35,35 @@ export default function CommandPage() {
   const [state, setState] = useState('idle'); // idle | running | done | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [keys, setKeys] = useState(null); // {n_set, n_missing_known, missing, keys[]} | 'error' | null
+  const [keys, setKeys] = useState(null); // keeper snapshot {worst, counts, credentials[]} | 'error' | null
+  const [plan, setPlan] = useState(null); // planner snapshot: {now, next, at_risk} | null
   const areaRef = useRef(null);
 
   useEffect(() => {
     if (areaRef.current) areaRef.current.focus();
   }, []);
 
-  // Pull the node's credential status once on load — value-free presence report, so the
-  // strip can flag "your keys are stale" before you waste a command on a dead integration.
+  // Pull the keeper's credential status once on load — value-free, probed against each
+  // provider — so the strip flags a dead key before you waste a command on it.
   useEffect(() => {
     let alive = true;
-    fetch('/api/secrets-status')
+    fetch('/api/desk/keys')
       .then((r) => (r.ok ? r.json() : Promise.reject(r)))
       .then((d) => alive && setKeys(d))
       .catch(() => alive && setKeys('error'));
     return () => {
       alive = false;
     };
+  }, []);
+
+  // What the plan says to do right now — refreshed every minute so the phone stays honest.
+  useEffect(() => {
+    let alive = true;
+    const pull = () => fetch('/api/desk/plan/now').then((r) => (r.ok ? r.json() : null))
+      .then((d) => alive && d && !d.error && setPlan(d)).catch(() => {});
+    pull();
+    const t = setInterval(pull, 60_000);
+    return () => { alive = false; clearInterval(t); };
   }, []);
 
   async function run() {
@@ -106,6 +118,7 @@ export default function CommandPage() {
           </header>
 
           <KeyStrip keys={keys} />
+          <NowStrip plan={plan} />
 
 
           <div style={S.inputCard}>
@@ -158,42 +171,56 @@ export default function CommandPage() {
   );
 }
 
-// KeyStrip — a value-free glance at the node's credentials. Green when all known keys are
-// present, amber when some are missing (so you know an integration is dead before you call
-// it), muted when the node is unreachable. Tap to see WHICH keys are missing — never values.
+// KeyStrip — a value-free glance at the node's credentials, from the keeper (backend/keeper/),
+// which probes each one against its real provider. Green when every credential is fine,
+// amber when one needs you soon, red when one is rejected or expired. Tap for which —
+// never values. The full picture is /desk/keys.
 function KeyStrip({ keys }) {
   const [open, setOpen] = useState(false);
   if (keys == null) return null; // still loading — say nothing
-  if (keys === 'error' || keys.error) {
+  if (keys === 'error' || keys.error || !keys.credentials) {
     return <div style={{ ...S.keyStrip, borderColor: COLORS.line, color: COLORS.inkFaint }}>
       keys · node offline
     </div>;
   }
-  const nSet = keys.n_set ?? 0;
-  const known = (keys.keys || []).filter((k) => k.known);
-  const total = known.length || (nSet + (keys.n_missing_known ?? 0));
-  const missing = keys.missing || [];
-  const allGood = missing.length === 0 && total > 0;
-  const color = allGood ? COLORS.signal : COLORS.warn;
+  const creds = keys.credentials;
+  const bad = creds.filter((c) => ['dead', 'expired', 'soon', 'missing'].includes(c.state));
+  const red = bad.some((c) => c.state === 'dead' || c.state === 'expired');
+  const color = bad.length === 0 ? COLORS.signal : red ? '#FF6B6B' : COLORS.warn;
 
   return (
     <div
-      style={{ ...S.keyStrip, borderColor: color, color, cursor: missing.length ? 'pointer' : 'default' }}
-      onClick={() => missing.length && setOpen((o) => !o)}
+      style={{ ...S.keyStrip, borderColor: color, color, cursor: bad.length ? 'pointer' : 'default' }}
+      onClick={() => bad.length && setOpen((o) => !o)}
     >
       <span>
-        <span style={{ fontWeight: 700 }}>keys</span> · {nSet}/{total} live
-        {allGood ? ' ✓' : ` · ${missing.length} missing`}
+        <span style={{ fontWeight: 700 }}>keys</span> · {creds.length - bad.length}/{creds.length} fine
+        {bad.length === 0 ? ' ✓' : ` · ${bad.length} need you`}
       </span>
-      {open && missing.length > 0 && (
+      {open && bad.length > 0 && (
         <div style={S.keyMissing}>
-          missing on node: {missing.join(', ')}
+          {bad.map((c) => <div key={c.id}>{c.title}: {c.state} — {c.detail}</div>)}
           <div style={{ color: COLORS.inkFaint, marginTop: 4 }}>
-            set on the Chromebook: <code>bash backend/manage-secrets.sh set {missing[0]}</code>
+            details: <a href="/desk/keys" style={{ color: 'inherit' }}>/desk/keys</a>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+// NowStrip — the planner's current block and the next one, one glance, links to /desk/plan.
+function NowStrip({ plan }) {
+  if (!plan || (!plan.now && !plan.next)) return null;
+  const t = (iso) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const risk = plan.at_risk?.length || 0;
+  return (
+    <a href="/desk/plan" style={{ ...S.keyStrip, display: 'block', borderColor: risk ? COLORS.warn : COLORS.line,
+                                  color: 'inherit', textDecoration: 'none' }}>
+      {plan.now && <div><span style={{ fontWeight: 700 }}>now</span> · {plan.now.title} <span style={{ color: COLORS.inkFaint }}>until {t(plan.now.end)}</span></div>}
+      {plan.next && <div style={{ color: COLORS.inkFaint }}>next {t(plan.next.start)} · {plan.next.title}</div>}
+      {risk > 0 && <div style={{ color: COLORS.warn }}>{risk} task{risk > 1 ? 's' : ''} at risk</div>}
+    </a>
   );
 }
 
@@ -203,6 +230,9 @@ const TOOL_COLORS = {
   facts: COLORS.warn,
   nav: '#7FB4FF',
   web: '#8AB4F8',
+  doctor: '#7CD992',
+  pm: COLORS.warn,
+  plan: COLORS.signal,
 };
 
 function ResultView({ result }) {
@@ -220,9 +250,11 @@ function ResultView({ result }) {
       {slice.kind === 'purpose' && <PurposeSlice text={slice.text} />}
       {slice.kind === 'spraypaint' && <SpraypaintSlice slice={slice} />}
       {slice.kind === 'web' && <WebSlice slice={slice} />}
-      {slice.kind === 'facts' && <PhrasedSlice slice={slice} />}
+      {['facts', 'pm', 'plan'].includes(slice.kind) && <PhrasedSlice slice={slice} />}
+      {slice.kind === 'plan' && <a href="/desk/brief" style={S.openBtn}>Open the brief ▸</a>}
       {slice.kind === 'nav' && <NavSlice slice={slice} />}
       {slice.kind === 'readfile' && <ReadfileSlice slice={slice} />}
+      {slice.kind === 'doctor' && <DoctorSlice slice={slice} />}
 
       {answer && <div style={S.answer}>{answer}</div>}
     </section>
@@ -246,6 +278,46 @@ function WebSlice({ slice }) {
           ? `✓ opened in Chrome on your machine (${slice.launch_detail})`
           : `machine didn’t open a window — ${slice.launch_detail}`}
       </div>
+    </div>
+  );
+}
+
+// doctor — the node's self-diagnosis. A phrased verdict + a per-capability checklist, so
+// you see WHICH integration is dead (and why) before you spend a command on it. Value-free:
+// every row is just a name, a pass/fail, and a one-line reason — never a value or result.
+function DoctorSlice({ slice }) {
+  const checks = slice.checks || [];
+  return (
+    <div style={S.slice}>
+      <div
+        style={{
+          ...S.answer,
+          borderColor: slice.ok ? COLORS.doctor : COLORS.warn,
+          color: slice.ok ? COLORS.ink : COLORS.ink,
+        }}
+      >
+        {slice.answer}
+      </div>
+      {checks.map((c, i) => {
+        const color = c.ok ? COLORS.doctor : c.critical ? COLORS.warn : COLORS.inkFaint;
+        const mark = c.ok ? '✓' : c.critical ? '✕' : '○';
+        return (
+          <div key={i} style={S.navRow}>
+            <span style={{ display: 'flex', gap: 8, alignItems: 'baseline', flex: 1, minWidth: 0 }}>
+              <span style={{ color, fontWeight: 700, fontFamily: mono, flex: 'none' }}>{mark}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <span style={{ color: COLORS.ink }}>
+                  {c.name}
+                  {!c.ok && !c.critical && (
+                    <span style={{ ...S.navHint, marginLeft: 8 }}>non-blocking</span>
+                  )}
+                </span>
+                <span style={{ ...S.snippet, marginTop: 2 }}>{c.detail}</span>
+              </span>
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

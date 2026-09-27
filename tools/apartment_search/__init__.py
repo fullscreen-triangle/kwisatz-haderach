@@ -1,0 +1,1 @@
+"""Apartment search tracker — Greifswald."""

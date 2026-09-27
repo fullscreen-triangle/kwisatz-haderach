@@ -34,6 +34,9 @@ from typing import Optional, Literal
 from backend.routes import facts as facts_mod
 from backend.routes import nav as nav_mod
 from backend.routes import web as web_mod
+from backend.routes import doctor as doctor_mod
+from backend.routes import pm as pm_mod
+from backend.routes import plan_intent
 
 router = APIRouter()
 ROOT = Path(__file__).parent.parent.parent
@@ -68,9 +71,12 @@ Routines:
 - "facts": answer a fact about the user's GitHub repositories from local structured data. Use for "how many repos", "list my Rust repos", "which repo is about X".
 - "nav": browse the filesystem step by step and read a file. Use for "what folders are in my documents", "open FOLDER", "go up", "read FILE and summarise it".
 - "web": open a Google search in the Chrome browser on the machine. Use for "search Google for X", "google X", "look up X on the web".
+- "doctor": check whether this node can actually answer — is Ollama serving, are the search organs installed with a built index, can it open a browser. Use for "are you healthy", "run a diagnostic", "self check", "what's broken", "status".
+- "pm": report on a tracked project's progress (milestones, sub-tools, blockers). Use for "how's the X project going", "project status", "what's blocked on Y".
+- "plan": add a personal plan or list upcoming plans. Use for "plan: buy a chicken loop", "add a plan to run 3 times a week", "what are my plans".
 
 Reply with ONLY a JSON object, no prose:
-{"tool": "purpose" | "spraypaint" | "facts" | "nav" | "web", "query": "<the search string to run>"}
+{"tool": "purpose" | "spraypaint" | "facts" | "nav" | "web" | "doctor" | "pm" | "plan", "query": "<the search string to run>"}
 
 The query should be the salient search terms, not a full sentence."""
 
@@ -83,6 +89,19 @@ The query should be the salient search terms, not a full sentence."""
 # are here" go to nav, not to facts (repos) or the old stateless readfile. facts stays for
 # GitHub-repo questions; the two are disambiguated by the word "repo" vs "folder/file".
 _ROUTE_RULES = [
+    # self-diagnosis — FIRST, so "what's broken" / "status" go to doctor not nav. Requires an
+    # explicit health/diagnostic signal so ordinary "what/which" utterances aren't stolen.
+    ("doctor", re.compile(r"\b(doctor|diagnos(e|tic|is)|self[- ]?check|health check|are you (ok|healthy|working|alive)|what'?s (wrong|broken)|is (the )?node (ok|up|healthy)|node status|system status)\b", re.I)),
+    ("doctor", re.compile(r"^\s*(status|diagnostics?|healthcheck)\s*$", re.I)),
+    # project-manager status — must mention project/milestone/sub-tool explicitly, else
+    # "what's broken" (doctor) or general "status" would collide. Comes before facts/nav's
+    # broad what/which/list rules so "how's the project going" isn't stolen by facts.
+    ("pm", re.compile(r"\b(project|milestone|sub-?tool)s?\b.*\b(status|going|progress|update|blocked)\b", re.I)),
+    ("pm", re.compile(r"\bhow'?s (the |my )?(\w+[- ]?)*project\b", re.I)),
+    # personal plans — an explicit "plan:" / "add a plan" / "I plan to", or asking for them.
+    # Before nav, whose bare "open/read/show" verbs would otherwise take "show my plans".
+    ("plan", re.compile(r"^\s*(plan\s*[:,-]|(add|make|create|new)\s+(a\s+)?plan\b|i\s+(plan|intend)\s+to\b)", re.I)),
+    ("plan", re.compile(r"\b(my plans|what'?s planned|upcoming milestones|long[- ]term plans?)\b", re.I)),
     # repo/inventory facts — must mention repos, else "how many files" would steal it
     ("facts", re.compile(r"\b(how many|number of|list|show|which|what)\b.*\brepo", re.I)),
     ("facts", re.compile(r"\brepositor(y|ies)\b", re.I)),
@@ -104,7 +123,7 @@ _ROUTE_RULES = [
     ("spraypaint", re.compile(r"\bwhat does\b.*\bsay\b|\bpassages?\b|\bexplain\b", re.I)),
 ]
 
-VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav", "web")
+VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan")
 
 
 class IntentRequest(BaseModel):
@@ -113,7 +132,7 @@ class IntentRequest(BaseModel):
 
 
 class Choice(BaseModel):
-    tool: Literal["purpose", "spraypaint", "facts", "nav", "web"]
+    tool: Literal["purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan"]
     query: str
 
 
@@ -247,7 +266,7 @@ def _slice_for_answer(slice_: dict) -> str:
     kind = slice_.get("kind")
     if kind == "purpose":
         return slice_.get("text", "")[:1500]
-    if kind in ("facts", "readfile", "nav", "web"):
+    if kind in ("facts", "readfile", "nav", "web", "doctor", "pm", "plan"):
         # These already carry a phrased answer; hand it (plus any excerpt) to the explainer.
         parts = [slice_.get("answer") or ""]
         if slice_.get("excerpt"):
@@ -305,6 +324,15 @@ async def _dispatch(choice: Choice, want_summary: bool) -> dict:
     if choice.tool == "web":
         # web opens a Google search in Chrome on the node and returns the link.
         return await web_mod.answer_web(choice.query)
+    if choice.tool == "doctor":
+        # doctor probes the node's own capability (organs, index, Ollama, display).
+        return await doctor_mod.answer_doctor(choice.query)
+    if choice.tool == "pm":
+        # pm reports tracked project status — read from the tracker, never invented.
+        return await pm_mod.answer_pm(choice.query)
+    if choice.tool == "plan":
+        # plan adds a node to backend/plans (parsed deterministically) or lists what's ahead.
+        return await plan_intent.answer_plan(choice.query)
     return await _run_tool(choice.tool, choice.query)
 
 

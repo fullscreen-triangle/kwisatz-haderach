@@ -203,3 +203,20 @@ typedoc-output/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# purpose: derived caches. The lens is a decision about how this repo should be
+# read and belongs in version control; the index and graph are rebuildable.
+.purpose/*
+!.purpose/lens.toml
+
+# Apartment search store — addresses, viewings, dossier state (personal)
+tools/apartment_search/data/
+
+# Plans seed — personal (housing, residence, payments); imported on the desk, not committed
+tools/plans/data/
+
+# Vendored four-sided-triangle sdk-ts build (not on npm) — the web app imports it.
+!web/vendor/individuate/dist/
+
+# Apartment correspondence — personal
+tools/apartment_search/messages/

@@ -1,4 +1,5 @@
 import https from 'https';
+import { githubToken } from '../../../lib/credentials';
 
 const GITHUB_USER = 'fullscreen-triangle';
 const CACHE_TTL   = 15 * 60 * 1000; // 15 min
@@ -6,7 +7,7 @@ let _cache = null, _cacheTs = 0;
 
 function ghGet(path) {
   return new Promise((resolve, reject) => {
-    const token = process.env.GITHUB_TOKEN || '';
+    const token = githubToken();
     const opts = {
       hostname: 'api.github.com',
       path,

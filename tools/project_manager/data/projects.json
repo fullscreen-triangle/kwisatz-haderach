@@ -1,0 +1,90 @@
+{
+  "projects": [
+    {
+      "id": "greifswald-group-llm",
+      "name": "Greifswald group LLM",
+      "started": "2026-09-15",
+      "context": "First project as staff scientist, NFDI4Cat/Dörr group, Uni Greifswald.",
+      "subtools": [
+        {
+          "id": "model-gen",
+          "name": "Model-gen / acquisition",
+          "role": "Layer 1 (Accountable Compilation): Domain Contract -> extremal-regime sampling -> LoRA adapter",
+          "repo": null,
+          "status": "in_progress"
+        },
+        {
+          "id": "rag",
+          "name": "RAG",
+          "role": "Federated Retrieval-Augmentation: society of agents, triangle-grounding, closure",
+          "repo": null,
+          "status": "in_progress"
+        },
+        {
+          "id": "wind-tunnel",
+          "name": "Wind Tunnel",
+          "role": "code testing (cycle-holonomy defect detection)",
+          "repo": "https://github.com/fullscreen-triangle/wind-tunnel",
+          "status": "available"
+        },
+        {
+          "id": "bloodhound",
+          "name": "Bloodhound",
+          "role": "repo analysis (Triangle language, distributed VM)",
+          "repo": "https://github.com/fullscreen-triangle/bloodhound",
+          "status": "available"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "m1",
+          "layer": "acquisition",
+          "title": "Domain Contract declared for first sub-vocabulary",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "id": "m2",
+          "layer": "acquisition",
+          "title": "Extremal-regime sampler + verifier wired, first LoRA adapter trained",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "id": "m3",
+          "layer": "composition",
+          "title": "Federation + cascade routing across adapters live",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "id": "m4",
+          "layer": "verification",
+          "title": "Four-column quiescence check wired between adapter and structured source",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "id": "m5",
+          "layer": "rag",
+          "title": "Federated contact graph (docs + model + structured records) instantiated",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "id": "m6",
+          "layer": "rag",
+          "title": "Triangle-grounding + closure-not-threshold stopping enforced",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "log": [
+        {
+          "date": "2026-09-15",
+          "entry": "Started staff scientist role; project kicked off."
+        }
+      ]
+    }
+  ]
+}

@@ -124,6 +124,10 @@ function MyApp({Component, pageProps}) {
     }, []);
 
 
+    // A tool page (the desk console) sets `Page.bare = true`: rendered alone, without the
+    // portfolio's loader, hamburger menu and custom cursor, which sit on top of its controls.
+    if (Component.bare) return (<Provider store={store}><Component {...pageProps} /></Provider>);
+
     return (<>
         <Head>
             <title>Fullscreen Triangle</title>
