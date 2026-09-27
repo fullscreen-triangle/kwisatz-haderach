@@ -124,3 +124,62 @@ def test_unconfigured_laptop_is_offline_not_an_error(monkeypatch):
     monkeypatch.delenv("LAPTOP_NODE_URL", raising=False)
     with pytest.raises(laptop.LaptopOffline):
         asyncio.run(laptop.search("x", env={}))
+
+
+# ----------------------------------------------------------------- file commands (no model)
+
+@pytest.mark.parametrize("text,verb,query", [
+    ("summarise my employment contract", "summarize", "my employment contract"),
+    ("open the airbus fragebogen", "open", "the airbus fragebogen"),
+    ("where is my passport scan?", "find", "my passport scan"),
+    ("Fasse den Arbeitsvertrag zusammen", "summarize", "den Arbeitsvertrag"),
+    ("find the cover letter for bonn on my laptop", "find", "the cover letter for bonn"),
+])
+def test_file_commands_are_recognised(text, verb, query):
+    from backend.agents import filecmd
+    fc = filecmd.parse(text)
+    assert (fc.verb, fc.query) == (verb, query)
+
+
+@pytest.mark.parametrize("text", ["find emails from Mark", "read the email from Mark", "show me my plan",
+                                  "how many repos do I have", "what did Mark ask me this week", "deep: plan my week"])
+def test_mail_plan_repo_questions_are_not_file_commands(text):
+    from backend.agents import filecmd
+    assert filecmd.parse(text) is None
+
+
+def test_email_command_keeps_recipients_and_note():
+    from backend.agents import filecmd
+    fc = filecmd.parse("send the refined triples paper to mark.doerr@uni-greifswald.de and a@b.de saying here is the draft")
+    assert (fc.verb, fc.query, fc.to, fc.note) == ("email", "the refined triples paper",
+                                                   "mark.doerr@uni-greifswald.de, a@b.de", "here is the draft")
+
+
+def test_file_command_runs_find_then_acts_on_the_best_file_without_a_planner(monkeypatch):
+    from backend.agents import runner
+    from backend.agents.tools import REGISTRY, Tool, ToolResult
+    calls = []
+    top, second = r"C:\Users\kunda\Documents\contracts\Arbeitsvertrag.pdf", r"C:\Users\kunda\Downloads\Arbeitsvertrag.pdf"
+
+    async def find(query, folder=""):
+        calls.append(("find", query))
+        return ToolResult(summary="2 files", sources=[{"kind": "laptop", "ref": top, "title": "Arbeitsvertrag.pdf"},
+                                                      {"kind": "laptop", "ref": second, "title": "Arbeitsvertrag.pdf"}])
+
+    async def summarize(path):
+        calls.append(("summarize", path))
+        return ToolResult(summary="summary", text="TV-L E13, befristet bis 2028",
+                          sources=[{"kind": "laptop", "ref": path, "title": "Arbeitsvertrag.pdf"}])
+
+    async def no_planner(*a, **k):
+        raise AssertionError("a file command must not ask the planner")
+    monkeypatch.setitem(REGISTRY, "laptop_find", Tool("laptop_find", "", {"query": "", "folder": ""}, find))
+    monkeypatch.setitem(REGISTRY, "summarize_file", Tool("summarize_file", "", {"path": ""}, summarize))
+    monkeypatch.setattr(llm, "local_json", no_planner)
+    run = runner.Run("summarise my Arbeitsvertrag")
+    asyncio.run(runner.execute(run, lambda: None))
+    assert run.status == "done" and run.brain == "rule"
+    assert calls == [("find", "my Arbeitsvertrag"), ("summarize", top)]
+    assert "TV-L E13" in run.answer and "Not this one?" in run.answer and "read:laptop/" in run.answer
+    kinds = {n["kind"] for n in run.nodes.values()}
+    assert {"command", "subtask", "agent", "laptop", "result"} <= kinds

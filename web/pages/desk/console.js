@@ -148,6 +148,13 @@ function RunPanel({ runId, onRead }) {
     es.addEventListener('run', e => setRun(JSON.parse(e.data)));
     return () => es.close();
   }, [runId]);
+  const opened = useRef(null);              // "open the Mietvertrag": show the file itself, once per run
+  useEffect(() => {
+    if (run?.status === 'done' && run.open && opened.current !== run.id) {
+      opened.current = run.id;
+      onRead(run.open.kind, run.open.ref);
+    }
+  }, [run, onRead]);
   if (!runId) return null;
   if (!run) return <div style={{ color: C.faint, fontSize: 13, padding: 12 }}>starting…</div>;
   const busy = run.status === 'planning' || run.status === 'running';

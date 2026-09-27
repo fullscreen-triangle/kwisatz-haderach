@@ -23,15 +23,18 @@ import re
 import time
 import uuid
 from datetime import datetime, timezone
+from pathlib import PurePath
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
-from backend.agents import llm
+from backend.agents import filecmd, llm
 from backend.agents.tools import REGISTRY, ToolResult, catalogue
 
 MAX_SUBTASKS = 8
-FAST_ROUTES = {"facts", "pm", "plan", "doctor", "purpose", "spraypaint"}
+# purpose/spraypaint are NOT here: they search one repo copy and return passages, not files.
+# File commands go to filecmd -> the laptop tools instead.
+FAST_ROUTES = {"facts", "pm", "plan", "doctor"}
 
 
 def _now() -> str:
@@ -127,6 +130,7 @@ class Run:
         self.status = "planning"                 # planning | running | done | failed
         self.brain = ""                          # rule | local | claude
         self.note = ""
+        self.open: Optional[dict] = None           # {kind, ref}: the console opens this in its reader
         self.subtasks: List[dict] = []
         self.results: Dict[str, ToolResult] = {}
         self.sources: List[dict] = []            # numbered for citations
@@ -153,7 +157,7 @@ class Run:
     def to_json(self, full: bool = True) -> dict:
         d = {"id": self.id, "text": self.text, "origin": self.origin, "created": self.created,
              "updated": self.updated, "status": self.status, "brain": self.brain, "note": self.note,
-             "answer": self.answer, "error": self.error,
+             "answer": self.answer, "error": self.error, "open": self.open,
              "subtasks": [{k: v for k, v in s.items()} for s in self.subtasks]}
         if full:
             d.update(sources=self.sources, graph={"nodes": list(self.nodes.values()), "links": self.links})
@@ -164,6 +168,7 @@ class Run:
         r = Run(d["text"], d.get("origin", "command"))
         r.id, r.created, r.updated = d["id"], d["created"], d.get("updated", d["created"])
         r.status, r.brain, r.note = d.get("status", "done"), d.get("brain", ""), d.get("note", "")
+        r.open = d.get("open")
         r.answer, r.error, r.subtasks, r.sources = d.get("answer", ""), d.get("error", ""), d.get("subtasks", []), d.get("sources", [])
         g = d.get("graph") or {}
         r.nodes = {n["id"]: n for n in g.get("nodes", [])} or r.nodes
@@ -244,6 +249,59 @@ async def run_subtask(run: Run, st: dict, changed) -> None:
     changed()
 
 
+async def run_file_command(run: Run, fc: "filecmd.FileCmd", changed) -> None:
+    """find -> (open | read | summarize | email) on the best file; runner-ups always listed."""
+    from backend import feed, laptop
+    run.brain = "rule"
+    run.status = "running"
+
+    async def step(sid: str, tool: str, args: dict, goal: str, needs=()) -> ToolResult:
+        st = {"id": sid, "goal": goal, "tool": tool, "needs": list(needs), "status": "pending",
+              "args": [{"name": k, "value": str(v)} for k, v in args.items()]}
+        run.subtasks.append(st)
+        run.node(sid, kind="subtask", label=goal[:70], tool=tool, status="pending")
+        run.link("cmd", sid, "decomposes")
+        for n in needs:
+            run.link(n, sid, "needs")
+        changed()
+        await run_subtask(run, st, changed)
+        return run.results[sid]
+
+    found = await step("s1", "laptop_find", {"query": fc.query}, f"find “{fc.query}” on the laptop")
+    hits = [s for s in found.sources if s["kind"] == "laptop"]
+    if not found.ok or not hits:
+        run.answer = found.text if not found.ok else f"Nothing on the laptop matches “{fc.query}”."
+        return
+
+    def item(s: dict) -> str:
+        return f"[{s['title']}]({feed.link('laptop', s['ref'])}) · `{laptop.pretty(s['ref'])}`"
+
+    if fc.verb == "find":
+        run.answer = "On the laptop:\n\n" + "\n".join(f"{i}. {item(s)}" for i, s in enumerate(hits[:10], 1))
+        return
+    top, others = hits[0], hits[1:5]
+    if fc.verb == "summarize":
+        r = await step("s2", "summarize_file", {"path": top["ref"]}, f"summarise {top['title']}", ["s1"])
+        body = r.text if r.ok else f"*Could not summarise: {r.summary}*"
+    elif fc.verb == "email":
+        r = await step("s2", "email_draft", {"to": fc.to, "body": fc.note, "attach": top["ref"],
+                                             "subject": PurePath(top["title"]).stem},
+                       f"draft to {fc.to} with {top['title']}", ["s1"])
+        body = (f"**{r.summary}** — nothing was sent; it's in your Drafts to check and send.\n\n{r.text}"
+                if r.ok else f"*{r.summary}*")
+    else:                                                     # open / read
+        r = await step("s2", "laptop_read", {"path": top["ref"]}, f"read {top['title']}", ["s1"])
+        if r.ok and fc.note:
+            body = await llm.local_text(
+                "Answer Kundai's question from this document only; quote the relevant sentences; say plainly if "
+                "the document doesn't say.", f"Question: {fc.note}\n\nDocument {top['title']}:\n{r.text[:20000]}")
+        else:
+            body = (r.text[:1500] + ("…" if len(r.text) > 1500 else "")) if r.ok else f"*{r.summary}*"
+        run.open = {"kind": "laptop", "ref": top["ref"]}         # the console opens it in the reader
+    run.answer = (f"**{item(top)}**\n\n{body}"
+                  + ("\n\n**Not this one?** " + " · ".join(item(s) for s in others) if others else ""))
+
+
 async def synthesize(run: Run) -> str:
     parts = []
     for st in run.subtasks:
@@ -269,8 +327,12 @@ async def synthesize(run: Run) -> str:
 async def execute(run: Run, changed) -> None:
     from backend.routes import intent as intent_mod
     try:
-        route = None if run.text.lower().startswith("deep:") else intent_mod._keyword_route(run.text)
-        if run.direct:
+        deep = run.text.lower().startswith("deep:")
+        route = None if deep else intent_mod._keyword_route(run.text)
+        fcmd = None if (deep or run.direct) else filecmd.parse(run.text)
+        if fcmd:
+            await run_file_command(run, fcmd, changed)
+        elif run.direct:
             if run.direct.get("tool") not in REGISTRY:
                 raise ValueError(f"unknown tool {run.direct.get('tool')}")
             run.brain = "direct"
