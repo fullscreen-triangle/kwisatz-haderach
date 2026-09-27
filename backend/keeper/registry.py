@@ -57,8 +57,8 @@ REGISTRY: List[Credential] = [
 
 
 def build(env: Mapping[str, str]) -> List[Credential]:
-    """The static rows plus one per IMAP mail account found in the environment, and the
-    memory service. Rebuilt at startup — a push restarts the backend, so new accounts appear."""
+    """The static rows plus one per IMAP mail account found in the environment, the
+    memory service and the laptop node. Rebuilt at startup — a push restarts the backend, so new accounts appear."""
     from backend.mail import accounts
     rows = list(REGISTRY)
     for a in accounts.discover(env):
@@ -67,4 +67,6 @@ def build(env: Mapping[str, str]) -> List[Credential]:
                                    probes.probe_imap_for(a.id), "", f"inbox ({a.label}) and the plan"))
     rows.append(Credential("chigutiro", "chigutiro memory", "chigutiro (local)", "static", 10 * 60,
                            probes.probe_chigutiro, "", "memory of mail, contacts, events"))
+    rows.append(Credential("laptop", "Laptop", "laptop node (tailnet)", "static", 5 * 60,
+                           probes.probe_laptop, "", "find / read / attach files on the laptop from the phone"))
     return rows

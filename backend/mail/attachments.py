@@ -23,8 +23,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from backend.keeper.service import state_dir
+from backend.text_extract import MAX_TEXT, text_of  # noqa: F401  (re-exported)
 
-MAX_TEXT = 200_000
 MAX_FILE = 25 * 1024 * 1024
 
 
@@ -35,31 +35,6 @@ def _dir(key: str) -> Path:
 
 def _safe_name(name: str) -> str:
     return re.sub(r"[^\w.\- ()]+", "_", name).strip() or "attachment"
-
-
-def text_of(data: bytes, ctype: str, name: str) -> str:
-    low = name.lower()
-    try:
-        if ctype == "application/pdf" or low.endswith(".pdf"):
-            from pypdf import PdfReader
-            reader = PdfReader(io.BytesIO(data))
-            return "\n\n".join((p.extract_text() or "") for p in reader.pages)[:MAX_TEXT]
-        if low.endswith(".docx") or ctype.endswith("wordprocessingml.document"):
-            import docx  # python-docx
-            doc = docx.Document(io.BytesIO(data))
-            parts = [p.text for p in doc.paragraphs]
-            for t in doc.tables:
-                for row in t.rows:
-                    parts.append(" | ".join(c.text for c in row.cells))
-            return "\n".join(parts)[:MAX_TEXT]
-        if ctype.startswith("text/html") or low.endswith((".html", ".htm")):
-            from backend.mail.parse import html_to_text
-            return html_to_text(data.decode("utf-8", "replace"))[:MAX_TEXT]
-        if ctype.startswith("text/") or low.endswith((".txt", ".md", ".csv", ".tsv", ".json", ".ics", ".tex")):
-            return data.decode("utf-8", "replace")[:MAX_TEXT]
-    except Exception as e:                  # a broken file must not break the mail pipeline
-        return f"(could not extract text: {type(e).__name__})"
-    return ""
 
 
 def save(key: str, raw: bytes) -> List[dict]:
@@ -106,6 +81,12 @@ def listing(key: str) -> Optional[List[dict]]:
 def text(key: str, n: int) -> str:
     p = _dir(key) / f"{n}.txt"
     return p.read_text(encoding="utf-8") if p.exists() else ""
+
+
+def raw(key: str, n: int) -> Optional[bytes]:
+    """The file as received — for forwarding it as an attachment of a new draft."""
+    p = _dir(key) / f"{n}.bin"
+    return p.read_bytes() if p.exists() else None
 
 
 def summary(key: str, n: int) -> Optional[str]:

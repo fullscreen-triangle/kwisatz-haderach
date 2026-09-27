@@ -3,9 +3,10 @@ What agents can do. Each tool: a name, a one-line description the planner reads,
 string arguments, and an async function returning a ToolResult.
 
 Read:   find_mail, read_mail, search, read_attachment, ask, memory, plan_view, repos,
-        repo_facts, notes_list
+        repo_facts, notes_list, laptop_find, laptop_read, laptop_list, summarize_file
 Write (Kundai approved these): plan_add, plan_done, note_write, draft_reply (text only —
-        nothing is ever sent), repo_refresh, summarize_attachment (caches a summary)
+        nothing is ever sent), email_draft (a real draft, attachments included, in his
+        mailbox's Drafts folder — still never sent), repo_refresh, summarize_attachment
 
 A ToolResult carries `text` (what the synthesis step reads, capped), a short `summary`
 (what the graph node shows) and `sources` (what the result cites: mail, notes, plan
@@ -292,6 +293,167 @@ async def draft_reply(key: str, intent: str = "") -> ToolResult:
     return ToolResult(summary=f"draft saved ({len(text.split())} words)", text=text,
                       sources=[{"kind": "note", "ref": n["id"], "title": n["title"]},
                                {"kind": "mail", "ref": m.key, "title": m.subject}])
+
+
+# ----------------------------------------------------------------- the laptop (over the tailnet)
+
+def _laptop_fail(e: Exception) -> ToolResult:
+    return ToolResult(summary=str(e)[:120], text=str(e), ok=False)
+
+
+@tool("laptop_find", "Find files on his laptop (Documents, Desktop, Downloads) by name and by content.",
+      {"query": "words from the file's name or contents, e.g. 'airbus fragebogen'",
+       "folder": "optional folder to search under (a path laptop_find or laptop_list returned)"})
+async def laptop_find(query: str, folder: str = "") -> ToolResult:
+    from backend import laptop
+    try:
+        hits = await laptop.search(query, k=15, under=folder.strip())
+    except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+        return _laptop_fail(e)
+    lines = [f"[{h['path']}] {laptop.pretty(h['path'])} — {h.get('size', 0) // 1024} KB, "
+             f"{datetime.fromtimestamp(h.get('mtime') or 0):%Y-%m-%d}, matched in {h['where']}" for h in hits]
+    return ToolResult(summary=f"{len(hits)} files", text=_cap("\n".join(lines) or "nothing found on the laptop"),
+                      sources=[{"kind": "laptop", "ref": h["path"], "title": h["name"]} for h in hits])
+
+
+@tool("laptop_read", "Read a file on his laptop in full (PDF, Word, text, code).",
+      {"path": "the file's full path, as laptop_find returned it"})
+async def laptop_read(path: str) -> ToolResult:
+    from backend import laptop
+    try:
+        r = await laptop.read(path.strip())
+    except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+        return _laptop_fail(e)
+    return ToolResult(summary=f"{r['name']} ({len(r.get('text', ''))} characters)",
+                      text=_cap(r.get("text") or r.get("note") or "(empty)", 12000),
+                      sources=[{"kind": "laptop", "ref": r["path"], "title": r["name"]}])
+
+
+@tool("laptop_list", "List a folder on his laptop (empty folder = the top-level folders).",
+      {"folder": "the folder's full path, or empty"})
+async def laptop_list(folder: str = "") -> ToolResult:
+    from backend import laptop
+    try:
+        d = await laptop.listing(folder.strip())
+    except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+        return _laptop_fail(e)
+    lines = [f"{'[dir] ' if e['dir'] else ''}[{e['path']}] {e['name']}" for e in d["entries"]]
+    return ToolResult(summary=f"{len(lines)} entries", text=_cap("\n".join(lines) or "(empty folder)"),
+                      sources=[{"kind": "laptop", "ref": e["path"], "title": e["name"]}
+                               for e in d["entries"] if not e["dir"]][:12])
+
+
+def _summary_path(path: str, mtime: float):
+    import hashlib
+    from backend.keeper.service import state_dir
+    d = state_dir() / "laptop" / "summaries"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / (hashlib.sha1(f"{path}|{int(mtime)}".encode()).hexdigest() + ".md")
+
+
+def cached_file_summary(path: str, mtime: float) -> str:
+    p = _summary_path(path, mtime)
+    return p.read_text(encoding="utf-8") if p.exists() else ""
+
+
+@tool("summarize_file", "Summarise a file on his laptop (kept, so reopening it shows the summary).",
+      {"path": "the file's full path, as laptop_find returned it"})
+async def summarize_file(path: str) -> ToolResult:
+    from backend import laptop
+    try:
+        r = await laptop.read(path.strip())
+    except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+        return _laptop_fail(e)
+    src = [{"kind": "laptop", "ref": r["path"], "title": r["name"]}]
+    if not r.get("text"):
+        return ToolResult(summary="nothing to summarise", text=r.get("note", ""), sources=src, ok=False)
+    cached = cached_file_summary(r["path"], r["mtime"])
+    if cached:
+        return ToolResult(summary=f"summary of {r['name']}", text=cached, sources=src)
+    md = await llm.local_text(
+        "Summarise this document for Kundai in clear markdown: what it is, key points, and every date, "
+        "deadline, amount or action it contains. Use the document's language for quoted terms.",
+        r["text"][:24000])
+    _summary_path(r["path"], r["mtime"]).write_text(md, encoding="utf-8")
+    return ToolResult(summary=f"summary of {r['name']}", text=md, sources=src)
+
+
+def _addresses(raw: str) -> List[str]:
+    import re
+    return [a for a in re.split(r"[,;\s]+", raw or "") if "@" in a]
+
+
+async def _attachment(ref: str):
+    """'mail:<key>/<n>' -> a stored mail attachment; anything else -> a file on the laptop."""
+    from backend import laptop
+    from backend.mail import attachments
+    ref = ref.strip().strip('"')
+    if ref.startswith("mail:"):
+        key, _, n = ref[5:].rpartition("/")
+        meta = next((a for a in await attachments.ensure(key) if str(a["n"]) == n), None)
+        data = attachments.raw(key, int(n)) if meta else None
+        if data is None:
+            raise laptop.LaptopRefused(f"no attachment {ref}")
+        return meta["name"], meta.get("type") or "application/octet-stream", data
+    data, ctype, name = await laptop.fetch(ref.removeprefix("laptop:"))
+    return name, ctype, data
+
+
+@tool("email_draft", "Put an email draft, with files attached, in his mailbox's Drafts folder (NOT sent — "
+      "he checks and sends it himself). For a reply give reply_to; the body is written for him from `body` "
+      "when that is an instruction or empty.",
+      {"to": "recipient address(es); empty when replying", "subject": "subject (empty when replying)",
+       "body": "the message text, or what it should say",
+       "attach": "files to attach: laptop paths (from laptop_find) or mail:<key>/<n>, separated by ;",
+       "reply_to": "optional key of the email being answered",
+       "account": "which mailbox (default: the university one)"}, writes=True)
+async def email_draft(to: str = "", subject: str = "", body: str = "", attach: str = "", reply_to: str = "",
+                      account: str = "") -> ToolResult:
+    from backend import laptop
+    from backend.mail import accounts, drafts
+    acct = drafts.pick_account(accounts.discover(_mail().env), account)
+    if acct is None:
+        return ToolResult(summary="no IMAP mailbox to put a draft in", ok=False)
+    original = _mail().store.get_message(reply_to.strip()) if reply_to.strip() else None
+    rcpt = _addresses(to) or ([original.from_addr] if original else [])
+    if not rcpt:
+        return ToolResult(summary="who should it go to? (no address given)", ok=False)
+    if original and not subject:
+        subject = original.subject if original.subject.lower().startswith(("re:", "aw:")) else f"Re: {original.subject}"
+    files, sources = [], []
+    for ref in [r for r in (attach or "").replace("\n", ";").split(";") if r.strip()]:
+        try:
+            name, ctype, data = await _attachment(ref)
+        except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+            return _laptop_fail(e)
+        files.append((name, ctype, data))
+        is_mail = ref.strip().startswith("mail:")
+        sources.append({"kind": "attachment" if is_mail else "laptop",
+                        "ref": ref.strip().removeprefix("mail:").removeprefix("laptop:"), "title": name})
+    if len(body.split()) <= 25 and "\n" not in body.strip():     # an instruction, or nothing: write it
+        ctx = (f"Replying to {original.from_name} <{original.from_addr}>, subject {original.subject}:\n\n"
+               f"{original.text[:5000]}\n\n" if original else f"To: {', '.join(rcpt)}\nSubject: {subject}\n")
+        body = await llm.local_text(
+            "Write an email for Kundai Sachikonye. Match the language of the original if there is one (German "
+            "or English), else English; be concise and concrete; mention the attached files by name if any; "
+            "sign as Kundai. Output only the email body.",
+            f"{ctx}Attached: {', '.join(f[0] for f in files) or 'nothing'}\nWhat it should say: {body or 'appropriate'}")
+    try:
+        msg = drafts.build(acct, rcpt, subject or "(no subject)", body, files,
+                           in_reply_to=original.message_id if original else "")
+        folder = await asyncio.to_thread(drafts.append, acct, msg)
+    except Exception as e:                       # too large, ImapError, network: say so, keep the text
+        n = notes.write(f"Draft (not in mailbox): {subject}", body, kind="draft", ref=reply_to.strip())
+        return ToolResult(summary=f"not put in the mailbox: {str(e)[:90] or type(e).__name__}; kept as a note",
+                          text=body, ok=False, sources=[{"kind": "note", "ref": n["id"], "title": n["title"]}])
+    attached = "".join(f"\n- {f[0]} ({len(f[2]) // 1024} KB)" for f in files)
+    n = notes.write(f"Draft to {', '.join(rcpt)}: {subject}",
+                    f"*In the {acct.label} mailbox, folder {folder} — not sent.*\n\n{body}"
+                    + (f"\n\n**Attached**{attached}" if files else ""), kind="draft", ref=reply_to.strip())
+    return ToolResult(summary=f"draft in {acct.label} › {folder}" + (f", {len(files)} attached" if files else ""),
+                      text=body + (f"\n\nAttached:{attached}" if files else ""),
+                      sources=[{"kind": "note", "ref": n["id"], "title": n["title"]}] + sources
+                      + ([{"kind": "mail", "ref": original.key, "title": original.subject}] if original else []))
 
 
 # ----------------------------------------------------------------- repos

@@ -11,6 +11,7 @@ The console's backend: runs, the live feed, full-text reading, repos.
   GET  /console/repos                             active repos with their latest measurements
   POST /console/repos/refresh                     pull + measure now
   GET|PUT /console/repos/settings                 active window, include/exclude
+  GET  /console/laptop/status|search|file         the laptop over the tailnet (see backend/laptop.py)
 """
 
 import asyncio
@@ -130,3 +131,45 @@ def repos_settings():
 @console.put("/repos/settings")
 def repos_settings_put(body: dict):
     return repos_svc.save_settings(body)
+
+
+# ----------------------------------------------------------------- the laptop (over the tailnet)
+
+@console.get("/laptop/status")
+async def laptop_status():
+    from backend import laptop
+    if not laptop.configured():
+        return {"connected": False, "detail": "not connected yet (python -m tools.keeper add-laptop, then push)"}
+    try:
+        return {"connected": True, **await laptop.health()}
+    except laptop.LaptopOffline as e:
+        return {"connected": False, "detail": str(e)}
+
+
+@console.get("/laptop/search")
+async def laptop_search(q: str, k: int = 12):
+    from backend import laptop
+    try:
+        hits = await laptop.search(q, k=max(1, min(k, 50)))
+    except laptop.LaptopOffline as e:
+        raise HTTPException(503, str(e))
+    except laptop.LaptopRefused as e:
+        raise HTTPException(403, str(e))
+    return {"results": [{**h, "shown": laptop.pretty(h["path"])} for h in hits]}
+
+
+@console.get("/laptop/file")
+async def laptop_file(path: str):
+    """The file's bytes, for opening on the phone (PDF viewer, Word, images)."""
+    from urllib.parse import quote
+    from fastapi.responses import Response
+    from backend import laptop
+    try:
+        data, ctype, name = await laptop.fetch(path, limit=100 * 1024 * 1024)
+    except laptop.LaptopOffline as e:
+        raise HTTPException(503, str(e))
+    except laptop.LaptopRefused as e:
+        raise HTTPException(403, str(e))
+    return Response(data, media_type=ctype,
+                    headers={"Content-Disposition": f"inline; filename*=UTF-8''{quote(name)}",
+                             "Cache-Control": "private, no-store"})

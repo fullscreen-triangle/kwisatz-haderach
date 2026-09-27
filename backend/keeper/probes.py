@@ -280,3 +280,20 @@ async def probe_chigutiro(ctx: ProbeContext) -> ProbeResult:
         return _transient(r, "chigutiro")
     stats = r.json().get("stats", {})
     return ProbeResult(ok=True, detail=f"memory holds {stats.get('committed', 0)} records")
+
+
+async def probe_laptop(ctx: ProbeContext) -> ProbeResult:
+    """The laptop node over the tailnet. A sleeping laptop is not a broken credential:
+    unreachable is ok=None ("waiting"); only a refused token is dead."""
+    from backend import laptop
+    if not laptop.configured(ctx.env):
+        return _missing("laptop not connected — on the laptop: python -m tools.laptop_node install, "
+                        "then python -m tools.keeper add-laptop")
+    try:
+        h = await laptop.health(env=ctx.env)
+        await laptop.listing("", env=ctx.env)             # proves the token, not just liveness
+    except laptop.LaptopRefused as e:
+        return ProbeResult(ok=False, detail=str(e))
+    except laptop.LaptopOffline:
+        return ProbeResult(ok=None, detail="laptop asleep or off the tailnet — files unavailable until it's back")
+    return ProbeResult(ok=True, detail=f"{h.get('host', 'laptop')} answering · {h.get('files', 0):,} files indexed")

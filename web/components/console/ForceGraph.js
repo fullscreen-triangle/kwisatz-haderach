@@ -12,7 +12,7 @@ import * as d3 from 'd3';
 export const KIND_COLOR = {
   command: '#E6EBF2', subtask: '#3FD0C9', agent: '#A78BFA', result: '#5CC98A',
   mail: '#60A5FA', attachment: '#93C5FD', note: '#FBBF24', plan: '#F59E0B', planitem: '#F59E0B',
-  repo: '#FB923C', source: '#94A3B8',
+  repo: '#FB923C', laptop: '#F472B6', source: '#94A3B8',
 };
 const STATUS_RING = { running: '#E0A93E', failed: '#EF6B6B', pending: '#4B5563', done: null };
 const RADIUS = { command: 13, result: 12, subtask: 9, agent: 7 };

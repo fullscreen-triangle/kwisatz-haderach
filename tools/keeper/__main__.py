@@ -8,6 +8,7 @@ python -m tools.keeper <command>
   add-github-app       add the GitHub App entry (App ID, installation ID, private key .pem)
   add-imap             add a mail account read over IMAP (password asked, never an argument)
   add-chigutiro        generate the memory service's key + token into the vault
+  add-laptop           put this laptop's node (Tailscale URL + token) in the vault, then push
   status               value-free table of the vault's Agent Smith entries
   push [--host H]      send them to the server, restart, print the keeper's live verdict
   audit [--repo DIR]   fail if any vault value is in a git-tracked file
@@ -171,6 +172,33 @@ def cmd_add_chigutiro(a):
     add_chigutiro_entry(kp)
     kp.save()
     print("Added 'Chigutiro' (key + token generated, not shown). Push to start the memory service.")
+
+
+def cmd_add_laptop(a):
+    """The laptop node's address on the tailnet and its token (made by
+    `python -m tools.laptop_node install`) into the vault, then push — so server-2 can
+    reach the laptop's files. Re-run after re-installing the node; it replaces the entry."""
+    import subprocess
+    from tools.laptop_node import config as node
+    token = node.token()
+    if not token:
+        raise SystemExit("No laptop-node token yet — run first: python -m tools.laptop_node install")
+    r = subprocess.run([str(node.TAILSCALE), "ip", "-4"], capture_output=True, text=True)
+    ip = (r.stdout or "").strip().splitlines()[0] if r.returncode == 0 and r.stdout.strip() else ""
+    if not ip.startswith("100."):
+        raise SystemExit("This laptop has no Tailscale address — open Tailscale and log in first.")
+    kp = vault.open_vault(Path(a.vault), keyfile=a.keyfile)
+    old = vault.find_entry(kp, "Laptop node")
+    if old:
+        kp.delete_entry(old)
+    vault.add_entry(kp, "Laptop node", keeper_id="laptop", strategy="static",
+                    env_spec="URL=LAPTOP_NODE_URL; Password=LAPTOP_NODE_TOKEN",
+                    fields={"URL": f"http://{ip}:{node.settings()['port']}", "Password": token,
+                            "Notes": "tools/laptop_node on this laptop; reached by server-2 over Tailscale"})
+    kp.save()
+    print(f"{'Replaced' if old else 'Added'} 'Laptop node' (http://{ip}:{node.settings()['port']}, token not shown).")
+    if not a.no_push:
+        push_items(vault.read_items(kp), a.host)
 
 
 def cmd_status(a):
@@ -344,6 +372,10 @@ def main(argv=None):
     im.add_argument("--label", default="")
     im.set_defaults(fn=cmd_add_imap)
     sub.add_parser("add-chigutiro").set_defaults(fn=cmd_add_chigutiro)
+    la = sub.add_parser("add-laptop")
+    la.add_argument("--host", default=DEFAULT_HOST)
+    la.add_argument("--no-push", action="store_true")
+    la.set_defaults(fn=cmd_add_laptop)
     sub.add_parser("status").set_defaults(fn=cmd_status)
     ps = sub.add_parser("push")
     ps.add_argument("--host", default=DEFAULT_HOST)

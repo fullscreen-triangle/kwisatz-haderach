@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import asyncio
 import re
+import urllib.parse
 from datetime import datetime, timedelta, timezone
+from pathlib import PurePath
 from typing import Optional
 
 QUIET = {"newsletter", "spam", "notification"}
@@ -95,6 +97,15 @@ def _ts(iso: str) -> str:
         return iso or ""
 
 
+def link(kind: str, ref: str) -> str:
+    """A read: link. Laptop refs are Windows paths (backslash, colon, spaces) — quoted so markdown keeps them whole."""
+    return f"read:{kind}/{urllib.parse.quote(ref, safe='') if kind == 'laptop' else ref}"
+
+
+CODE_EXT = {".py", ".rs", ".ts", ".tsx", ".js", ".jsx", ".json", ".toml", ".yaml", ".yml", ".sh", ".ps1",
+            ".sql", ".r", ".jl", ".css", ".scss", ".xml", ".ini", ".cfg", ".tex", ".bib", ".csv", ".tsv"}
+
+
 async def read(kind: str, ref: str) -> Optional[dict]:
     from backend.agents import notes
     from backend.agents.service import AGENTS
@@ -137,13 +148,44 @@ async def read(kind: str, ref: str) -> Optional[dict]:
         body = attachments.text(key, int(n)) or "*(this file has no extractable text)*"
         md = ([f"### Summary\n\n{summ}", "---"] if summ else []) + [body]
         return {"kind": kind, "ref": ref, "title": meta["name"], "markdown": "\n\n".join(md),
-                "actions": [] if summ else ["summarize"], "parent": key}
+                "actions": ([] if summ else ["summarize"]) + ["email"], "parent": key}
+
+    if kind == "laptop":
+        from backend import laptop
+        from backend.agents.tools import cached_file_summary
+        if "%" in ref:
+            ref = urllib.parse.unquote(ref)
+        title = laptop.name_of(ref)
+        try:
+            r = await laptop.read(ref)
+        except laptop.LaptopOffline as e:
+            return {"kind": kind, "ref": ref, "title": title, "actions": [],
+                    "markdown": f"**The laptop isn't reachable.** {e}\n\n`{laptop.pretty(ref)}`"}
+        except laptop.LaptopRefused as e:
+            return {"kind": kind, "ref": ref, "title": title, "actions": [], "markdown": f"**Not available:** {e}"}
+        summ = cached_file_summary(r["path"], r["mtime"])
+        ext = PurePath(r["name"]).suffix.lower()
+        text = r.get("text") or ""
+        shown = text[:60_000]
+        if ext in CODE_EXT:
+            shown = f"```{ext.lstrip('.')}\n{shown}\n```"
+        md = [f"`{laptop.pretty(r['path'])}` · {r['size'] // 1024} KB · modified "
+              f"{_ts(datetime.fromtimestamp(r['mtime'], timezone.utc).isoformat())}"]
+        if summ:
+            md += [f"### Summary\n\n{summ}", "---"]
+        md.append(shown or f"*{r.get('note') or 'no text in this file'} — open it to view.*")
+        if len(text) > 60_000:
+            md.append(f"*…showing the first 60 000 of {len(text):,} characters. Open the file for the rest.*")
+        return {"kind": kind, "ref": r["path"], "title": r["name"], "markdown": "\n\n".join(md),
+                "actions": ["open"] + ([] if summ or not text else ["summarize"]) + ["email"]}
 
     if kind in ("note", "draft"):
         n = notes.get(ref)
         if n is None:
             return None
-        head = f"*Reply draft — not sent. Copy it into your mail program to use it.*\n\n" if n["kind"] == "draft" else ""
+        in_mailbox = n["body"].startswith("*In the ")       # email_draft put it in the Drafts folder
+        head = ("*Reply draft — not sent. Copy it into your mail program to use it.*\n\n"
+                if n["kind"] == "draft" and not in_mailbox else "")
         return {"kind": n["kind"], "ref": ref, "title": n["title"], "markdown": head + n["body"],
                 "actions": ["copy"]}
 
@@ -154,7 +196,7 @@ async def read(kind: str, ref: str) -> Optional[dict]:
         md = [run.answer or (f"**Failed:** {run.error}" if run.error else "*working…*")]
         if run.sources:
             md.append("### Sources\n" + "\n".join(
-                f"{i}. [{s['title']}](read:{s['kind']}/{s['ref']})" for i, s in enumerate(run.sources, 1)))
+                f"{i}. [{s['title']}]({link(s['kind'], s['ref'])})" for i, s in enumerate(run.sources, 1)))
         steps = "\n".join(f"- **{s['id']}** {s['goal']} — `{s['tool']}` · {s.get('status', '')}"
                           + (f" · {s['summary']}" if s.get("summary") else "") for s in run.subtasks)
         if steps:

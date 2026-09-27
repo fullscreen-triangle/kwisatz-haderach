@@ -87,7 +87,7 @@ function CommandBar({ onRun, onSearch, busy }) {
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
       <textarea value={text} onChange={e => setText(e.target.value)} rows={2}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
-        placeholder="Say what to do — or ?words to search"
+        placeholder="Say what to do — or ?words to search mail and the laptop"
         style={{ flex: 1, resize: 'none', background: C.panel, color: C.ink, border: `1px solid ${C.line}`,
                  borderRadius: 12, padding: '12px 14px', fontSize: 16, fontFamily: sans, outline: 'none' }} />
       {dict.supported && (
@@ -182,10 +182,44 @@ const linkBtn = { background: 'none', border: 'none', color: C.signal, cursor: '
 const pill = { background: C.panel2, border: `1px solid ${C.line}`, color: C.ink, borderRadius: 18, padding: '8px 14px',
                fontSize: 13, cursor: 'pointer' };
 
+// "Email it": a real draft with this file attached lands in the mailbox's Drafts folder —
+// nothing is sent; he checks and sends it from his mail app.
+function EmailForm({ doc, onRun, onDone }) {
+  const [to, setTo] = useState('');
+  const [note, setNote] = useState('');
+  const attach = doc.kind === 'attachment' ? `mail:${doc.ref}` : doc.ref;
+  const go = () => {
+    if (!to.includes('@')) return;
+    onRun(`Email ${doc.title} to ${to}`, 'email_draft',
+          { to, subject: doc.title.replace(/\.[^.]+$/, ''), body: note, attach });
+    onDone();
+  };
+  const field = { width: '100%', background: C.panel, color: C.ink, border: `1px solid ${C.line}`, borderRadius: 10,
+                  padding: '10px 12px', fontSize: 15, fontFamily: sans, outline: 'none', boxSizing: 'border-box' };
+  return (
+    <div style={{ background: C.panel2, border: `1px solid ${C.line}`, borderRadius: 12, padding: 12, marginBottom: 18,
+                  display: 'grid', gap: 8 }}>
+      <input type="email" inputMode="email" value={to} onChange={e => setTo(e.target.value)} placeholder="to: name@example.org" style={field} />
+      <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} style={{ ...field, resize: 'vertical' }}
+                placeholder="What should the email say? (a line is enough — it gets written for you)" />
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button onClick={go} style={{ ...pill, background: C.signal, color: C.ground, border: 'none', fontWeight: 700 }}>
+          Put in Drafts
+        </button>
+        <span style={{ color: C.faint, fontSize: 12 }}>with {doc.title} attached · not sent</span>
+      </div>
+    </div>
+  );
+}
+
 function Reader({ doc, onClose, onRead, onRun }) {
   const [copied, setCopied] = useState(false);
+  const [emailing, setEmailing] = useState(false);
+  useEffect(() => setEmailing(false), [doc?.ref]);
   if (!doc) return null;
   const act = async a => {
+    if (a === 'open') window.open(`/api/desk/laptop/file?path=${encodeURIComponent(doc.ref)}`, '_blank', 'noopener');
+    if (a === 'email') setEmailing(e => !e);
     if (a === 'copy') {
       await navigator.clipboard.writeText(doc.markdown.replace(/^\*Reply draft[^\n]*\n\n/, ''));
       setCopied(true);
@@ -197,11 +231,13 @@ function Reader({ doc, onClose, onRead, onRun }) {
       if (doc.kind === 'attachment') {
         const [key, n] = [doc.parent, doc.ref.split('/').pop()];
         onRun(`Summarise ${doc.title}`, 'summarize_attachment', { key, name: n });
-      } else onRun(`Summarise “${doc.title}”`, 'read_mail', { key: doc.ref });
+      } else if (doc.kind === 'laptop') onRun(`Summarise ${doc.title}`, 'summarize_file', { path: doc.ref });
+      else onRun(`Summarise “${doc.title}”`, 'read_mail', { key: doc.ref });
     }
     if (a === 'rerun') onRun(doc.title);
   };
-  const label = { reply: 'Draft reply', done: 'Done', summarize: 'Summarise', copy: copied ? 'Copied' : 'Copy', rerun: 'Run again' };
+  const label = { reply: 'Draft reply', done: 'Done', summarize: 'Summarise', copy: copied ? 'Copied' : 'Copy',
+                  rerun: 'Run again', open: 'Open', email: emailing ? 'Cancel email' : 'Email it' };
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,7,10,0.65)', zIndex: 50, display: 'flex',
                   justifyContent: 'flex-end' }} onClick={onClose}>
@@ -218,6 +254,7 @@ function Reader({ doc, onClose, onRead, onRun }) {
             {doc.actions.map(a => <button key={a} style={pill} onClick={() => act(a)}>{label[a] || a}</button>)}
           </div>
         )}
+        {emailing && <EmailForm doc={doc} onRun={onRun} onDone={() => setEmailing(false)} />}
         {doc.graph && <div style={{ marginBottom: 18 }}><ForceGraph graph={doc.graph} height={300}
           onNodeClick={n => n.ref && onRead(n.kind, n.ref)} /></div>}
         <Markdown text={doc.markdown} onRead={onRead} />
@@ -229,8 +266,12 @@ function Reader({ doc, onClose, onRead, onRun }) {
 function SearchResults({ q, onRead, onClose }) {
   const [hits, setHits] = useState(null);
   const [answer, setAnswer] = useState(null);
+  const [files, setFiles] = useState(null);
   useEffect(() => {
-    setHits(null); setAnswer(null);
+    setHits(null); setAnswer(null); setFiles(null);
+    fetch(`/api/desk/console/laptop/search?q=${encodeURIComponent(q)}&k=8`).then(r => r.json())
+      .then(d => setFiles(d.results ? d : { error: d.detail || d.error || 'laptop unavailable' }))
+      .catch(() => setFiles({ error: 'laptop unavailable' }));
     fetch(`/api/desk/mail/search?q=${encodeURIComponent(q)}&k=12`).then(r => r.json()).then(setHits).catch(() => setHits({ error: 'offline' }));
     fetch(`/api/desk/mail/ask?q=${encodeURIComponent(q)}`).then(r => r.json()).then(setAnswer).catch(() => {});
   }, [q]);
@@ -245,6 +286,24 @@ function SearchResults({ q, onRead, onClose }) {
           <span style={{ color: C.faint, fontSize: 12 }}>{answer.status}</span><br />{answer.claim?.slice(0, 400)}
         </div>
       )}
+      <div style={{ color: C.faint, fontSize: 12, marginTop: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        On the laptop</div>
+      {!files && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>asking the laptop…</div>}
+      {files?.error && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>{files.error}</div>}
+      {files?.results?.length === 0 && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>no files match</div>}
+      {(files?.results || []).map(f => (
+        <div key={f.path} onClick={() => onRead('laptop', f.path)}
+             style={{ padding: '9px 0', borderBottom: `1px solid ${C.line}`, cursor: 'pointer', display: 'flex', gap: 10 }}>
+          <span style={{ color: KIND_COLOR.laptop }}>▤</span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: C.ink, fontSize: 14 }}>{f.name}</div>
+            <div style={{ color: C.faint, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {f.shown} · {f.where}</div>
+          </div>
+        </div>
+      ))}
+      <div style={{ color: C.faint, fontSize: 12, marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        In mail</div>
       {!hits && <div style={{ color: C.faint, fontSize: 13, marginTop: 8 }}>searching…</div>}
       {hits?.error && <div style={{ color: C.bad, fontSize: 13, marginTop: 8 }}>{hits.error}</div>}
       {(hits?.results || []).map((r, i) => (
