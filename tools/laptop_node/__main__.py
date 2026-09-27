@@ -1,15 +1,15 @@
 """
 python -m tools.laptop_node <command>
 
-  serve        run the API on the laptop's Tailscale address (what the logon task runs)
+  serve        run the API on the laptop's Tailscale address (what the Startup shortcut runs)
   index        rebuild the filename index now and print its size
-  install      make the token, register the logon task, start it (idempotent)
-  uninstall    remove the logon task (the token and index stay)
-  status       is the task registered, is the node answering, how big is the index
+  install      make the token, add the Startup-folder shortcut, (re)start it (idempotent, no admin)
+  uninstall    remove the shortcut and stop the node (the token and index stay)
+  status       is it installed, is the node answering, how big is the index
   search Q     try a search locally, as the phone would see it (no network)
 
 Run it with the interpreter that has tools/laptop_node/requirements.txt installed; the
-logon task uses that interpreter's pythonw.exe, so no console window ever appears.
+shortcut uses that interpreter's pythonw.exe, so no console window ever appears.
 """
 
 from __future__ import annotations
@@ -50,34 +50,65 @@ def _pythonw() -> str:
     return str(w if w.exists() else exe)
 
 
+def startup_link() -> Path:
+    """The per-user Startup folder: runs at logon, needs no administrator rights (a logon
+    scheduled task does — schtasks answers "Zugriff verweigert" without elevation)."""
+    import os
+    return (Path(os.environ["APPDATA"]) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
+            / f"{TASK}.lnk")
+
+
+def _ps(script: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+                          capture_output=True, text=True, creationflags=NO_WINDOW)
+
+
+def _stop_running() -> bool:
+    """Stop a node started earlier (its PID is in <state>/laptop-node.pid)."""
+    pid_file = config.state_dir() / "laptop-node.pid"
+    try:
+        pid = int(pid_file.read_text().strip())
+    except (OSError, ValueError):
+        return False
+    r = subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True, creationflags=NO_WINDOW)
+    pid_file.unlink(missing_ok=True)
+    return r.returncode == 0
+
+
+def _start() -> None:
+    launcher = REPO / "tools" / "laptop_node" / "run.pyw"
+    flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | NO_WINDOW
+    subprocess.Popen([_pythonw(), str(launcher)], cwd=str(REPO), creationflags=flags, close_fds=True,
+                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def cmd_install(a):
     config.token(create=True)
     launcher = REPO / "tools" / "laptop_node" / "run.pyw"
-    tr = f'"{_pythonw()}" "{launcher}"'
-    r = subprocess.run(["schtasks", "/Create", "/TN", TASK, "/TR", tr, "/SC", "ONLOGON", "/RL", "LIMITED", "/F"],
-                       capture_output=True, text=True, creationflags=NO_WINDOW)
-    if r.returncode != 0:
-        raise SystemExit(f"could not register the logon task: {(r.stderr or r.stdout).strip()}")
-    subprocess.run(["schtasks", "/End", "/TN", TASK], capture_output=True, creationflags=NO_WINDOW)
-    subprocess.run(["schtasks", "/Run", "/TN", TASK], capture_output=True, creationflags=NO_WINDOW)
-    print(f"Logon task '{TASK}' registered and started.")
+    link = startup_link()
+    q = lambda x: str(x).replace("'", "''")
+    r = _ps(f"$s = (New-Object -ComObject WScript.Shell).CreateShortcut('{q(link)}'); "
+            f"$s.TargetPath = '{q(_pythonw())}'; $s.Arguments = '\"{q(launcher)}\"'; "
+            f"$s.WorkingDirectory = '{q(REPO)}'; $s.WindowStyle = 7; "
+            f"$s.Description = 'Agent Smith: laptop files for the phone, over Tailscale'; $s.Save()")
+    if r.returncode != 0 or not link.exists():
+        raise SystemExit(f"could not create the Startup shortcut: {(r.stderr or r.stdout).strip()}")
+    subprocess.run(["schtasks", "/Delete", "/TN", TASK, "/F"], capture_output=True, creationflags=NO_WINDOW)
+    _stop_running()
+    _start()
+    print(f"Starts at every logon (Startup folder: {link.name}); started now.")
     print(f"Token: {config.token_path()} (not shown). Next: python -m tools.keeper add-laptop  (then push)")
 
 
 def cmd_uninstall(a):
-    subprocess.run(["schtasks", "/End", "/TN", TASK], capture_output=True, creationflags=NO_WINDOW)
-    r = subprocess.run(["schtasks", "/Delete", "/TN", TASK, "/F"], capture_output=True, text=True,
-                       creationflags=NO_WINDOW)
-    print("removed" if r.returncode == 0 else (r.stderr or r.stdout).strip())
+    startup_link().unlink(missing_ok=True)
+    print("removed from Startup" + ("; stopped the running node" if _stop_running() else ""))
 
 
 def cmd_status(a):
     import urllib.request
     from tools.laptop_node import index, server
-    r = subprocess.run(["schtasks", "/Query", "/TN", TASK, "/FO", "LIST"], capture_output=True, text=True,
-                       creationflags=NO_WINDOW)
-    state = next((l.split(":", 1)[1].strip() for l in r.stdout.splitlines() if l.startswith(("Status", "Status:"))), "")
-    print(f"task      {'registered' if r.returncode == 0 else 'NOT registered'} {state}")
+    print(f"startup   {'yes' if startup_link().exists() else 'NOT installed'} ({startup_link().name})")
     print(f"token     {'present' if config.token() else 'MISSING'} ({config.token_path()})")
     try:
         ip = server.tailscale_ip(wait=0)
@@ -86,7 +117,7 @@ def cmd_status(a):
             h = json.loads(resp.read())
         print(f"node      answering at {url} — {h.get('files')} files indexed")
     except BaseException as e:                      # SystemExit from tailscale_ip too
-        print(f"node      not answering ({type(e).__name__})")
+        print(f"node      not answering ({type(e).__name__}) — see {config.state_dir() / 'laptop-node.log'}")
     print(f"index     {index.stats()}")
 
 

@@ -1,5 +1,6 @@
-"""Logon-task launcher for the laptop node (pythonw: no console). Logs to <state>/laptop-node.log."""
+"""Startup-folder launcher for the laptop node (pythonw: no console). Logs to <state>/laptop-node.log."""
 
+import os
 import sys
 import traceback
 from pathlib import Path
@@ -11,6 +12,7 @@ from tools.laptop_node import config  # noqa: E402
 
 log = open(config.state_dir() / "laptop-node.log", "a", encoding="utf-8", buffering=1)
 sys.stdout = sys.stderr = log
+(config.state_dir() / "laptop-node.pid").write_text(str(os.getpid()))   # so `install` can restart it
 try:
     from tools.laptop_node.__main__ import main
     main(["serve"])
