@@ -102,6 +102,13 @@ systemd-run --quiet --wait --pipe --collect -p User=$U -p Group=$U \
   -E NEXT_TELEMETRY_DISABLED=1 -E HOME=/home/$U \
   $APP/web/node_modules/.bin/next build --no-lint 2>&1 | tail -4
 
+say "Tailnet"          # the passwordless way in: https://server-2.<tailnet>.ts.net, his devices only
+if command -v tailscale >/dev/null && tailscale status >/dev/null 2>&1; then
+  tailscale set --shields-up=false
+  tailscale serve --bg --https=443 http://127.0.0.1:3002 >/dev/null 2>&1 || true
+  tailscale serve status 2>&1 | head -2
+fi
+
 say "Start"
 systemctl enable agent-smith-backend agent-smith-web >/dev/null 2>&1
 systemctl restart agent-smith-backend agent-smith-web
