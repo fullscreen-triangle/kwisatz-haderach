@@ -150,6 +150,10 @@ def cmd_add_imap(a):
     pw = getpass(f"IMAP password for {a.user}@{a.host}: ")
     if not pw:
         raise SystemExit("No password given.")
+    port = a.port or (143 if a.security == "starttls" else 993)
+    why = imap_login_ok(a.host, port, a.security, a.user, pw)    # a bad password never reaches the vault
+    if why:
+        raise SystemExit(f"Login failed: {why}. Nothing was saved.")
     kp = vault.open_vault(Path(a.vault), keyfile=a.keyfile)
     title = add_imap_entry(kp, acct=a.id, host=a.host, user=a.user, pw=pw, security=a.security,
                            port=a.port, address=a.address, label=a.label)
