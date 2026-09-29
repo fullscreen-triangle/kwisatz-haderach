@@ -22,7 +22,6 @@ State in <state>/okgg/: proposals.json (committed distinctions, in order), setti
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 import os
@@ -37,8 +36,8 @@ import numpy as np
 
 from backend.keeper.service import state_dir
 from backend.individuate import corpus as corpus_mod
-from backend.individuate.calculus import (Facet, descent_tree, is_inert, node_value, propagate_targets,
-                                          statuses, walk)
+from backend.individuate.calculus import Facet, is_inert, statuses
+from backend.individuate.tree import tree_json
 from backend.individuate.engine import Engine, Observations, Proposal
 from backend.individuate.generator import LifeGenerator
 
@@ -79,12 +78,6 @@ def witness_facets(obs: Observations, proposals: List[dict]) -> tuple:
     return facets, kept
 
 
-def _label(F: Facet, mask: int) -> str:
-    if mask == 0:
-        return f"{F.name}: not determined"
-    return f"{F.name}: " + " & ".join(F.values[v] for v in range(len(F.values)) if mask >> v & 1)
-
-
 def graph(corpus: dict, meta: Dict[str, dict], proposals: List[dict], theta: float) -> dict:
     """The committed graph, deterministically — no model. Every observation channel is read."""
     obs = Observations(corpus)
@@ -103,47 +96,16 @@ def graph(corpus: dict, meta: Dict[str, dict], proposals: List[dict], theta: flo
                               "undetermined": int((F.S == 0).sum())})
     if n == 0:
         return out
-    root = descent_tree(facets, n, st["cert"])
-    propagate_targets(root, theta, st["cert"])
 
-    def nid(members) -> str:
-        return hashlib.sha1(",".join(sorted(keys[x] for x in members)).encode()).hexdigest()[:10]
-
-    def earliest(members) -> Optional[str]:
-        dues = [meta.get(keys[x], {}).get("due") for x in members]
-        dues = [str(d) for d in dues if d]
-        return min(dues) if dues else None
-
-    parent_of: Dict[int, object] = {}
-    for node in walk(root):
-        for c in node.children:
-            parent_of[id(c)] = node
-    for node in walk(root):
-        i = nid(node.members)
-        par = parent_of.get(id(node))
-        label = "Everything open"
-        if par is not None:
-            F = facets[par.level - 1]
-            label = _label(F, int(F.S[node.members[0]]))
-        N = node.N
+    def annotate(members) -> dict:
+        dues = [str(d) for d in (meta.get(keys[x], {}).get("due") for x in members) if d]
         kinds: Dict[str, int] = {}
-        for x in node.members:
+        for x in members:
             k = meta.get(keys[x], {}).get("kind", "?")
             kinds[k] = kinds.get(k, 0) + 1
-        out["nodes"][i] = {
-            "id": i, "depth": node.depth, "size": len(node.members), "label": label,
-            "split_by": facets[node.level - 1].name if node.children else None,
-            "children": [nid(c.members) for c in node.children],
-            "parent": nid(par.members) if par is not None else None,
-            "value": round(node_value(node, st["cert"]), 4),
-            "a": round(node.cross_cert / N, 4) if N and node.children else 0.0,
-            "o": round(node.cross_open / N, 4) if N and node.children else 0.0,
-            "w": round(sum(c.N for c in node.children) / N, 4) if N and node.children else 0.0,
-            "target": round(node.target or 0.0, 4), "regime": node.regime,
-            "due": earliest(node.members), "kinds": kinds,
-            "members": [keys[x] for x in node.members],
-        }
-    out["root"] = nid(root.members)
+        return {"due": min(dues) if dues else None, "kinds": kinds}
+
+    out["nodes"], out["root"] = tree_json(facets, keys, st["cert"], theta, "Everything open", annotate)
     return out
 
 
@@ -221,7 +183,8 @@ class IndividuationService:
     def _grow_sync(self, corpus: dict, theta: float) -> dict:
         """Blocking: the engine loop (runs in a worker thread)."""
         url = self.env.get("OLLAMA_URL") or "http://127.0.0.1:11434"
-        model = self.env.get("INDIVIDUATE_MODEL") or "llama3.2:3b"
+        from backend.mail.extract import DEFAULT_MODEL      # one resident model: a second one OOMs the node
+        model = self.env.get("INDIVIDUATE_MODEL") or self.env.get("MAIL_EXTRACT_MODEL") or DEFAULT_MODEL
         saved = self._read("proposals.json", [])
         gen = LifeGenerator(model=model, url=url, temperature=0.4)
         eng = Engine(corpus, gen, theta=theta, budget=GROW_BUDGET)

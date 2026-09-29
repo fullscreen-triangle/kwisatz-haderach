@@ -315,6 +315,253 @@ function Ask() {
   );
 }
 
+// ------------------------------------------------------------------ reading tasks
+
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+const Bar = ({ a, b }) => (
+  <span style={st.rbar}><span style={{ ...st.rbarFill, width: `${pct(a, b)}%` }} /></span>
+);
+const RUN_COLOR = { done: C.ok, running: C.signal, queued: C.signal, failed: C.bad, idle: C.faint };
+
+function NewTask({ onMade }) {
+  const [repos, setRepos] = useState(null);
+  const [q, setQ] = useState('');
+  const [pick, setPick] = useState({});
+  const [extra, setExtra] = useState('');
+  const [title, setTitle] = useState('');
+  const [err, setErr] = useState('');
+  useEffect(() => { api('/api/desk/reading/repos').then(j => setRepos(j.repos || [])); }, []);
+  const chosen = [...Object.keys(pick).filter(k => pick[k]),
+                  ...extra.split(/[\n,]/).map(s => s.trim().replace(/^\/+|\/+$/g, '')).filter(Boolean)];
+  const make = async () => {
+    if (!title.trim() || !chosen.length) return setErr('Give it a title and at least one repo or folder.');
+    const j = await api('/api/desk/reading', { method: 'POST', body: { title, repos: chosen } });
+    if (j.error) return setErr(j.error);
+    onMade(j.id);
+  };
+  const shown = (repos || []).filter(r => !q || r.name.toLowerCase().includes(q.toLowerCase())).slice(0, 60);
+  return (
+    <div style={st.form}>
+      <input style={st.input} placeholder="Task title — e.g. Tracker and spraypaint" value={title} onChange={e => setTitle(e.target.value)} />
+      <input style={st.input} placeholder="Filter repos…" value={q} onChange={e => setQ(e.target.value)} />
+      <div style={{ maxHeight: 260, overflow: 'auto', border: `1px solid ${C.line}`, borderRadius: 8, padding: '4px 8px' }}>
+        {!repos && <div style={st.faint}>loading your repos…</div>}
+        {shown.map(r => (
+          <label key={r.name} style={{ display: 'flex', gap: 8, padding: '5px 0', alignItems: 'baseline' }}>
+            <input type="checkbox" checked={!!pick[r.name]} onChange={e => setPick({ ...pick, [r.name]: e.target.checked })} />
+            <span>{r.name}{r.description && <span style={st.faint}> · {r.description.slice(0, 70)}</span>}</span>
+          </label>
+        ))}
+      </div>
+      <textarea style={{ ...st.input, minHeight: 60 }} value={extra} onChange={e => setExtra(e.target.value)}
+                placeholder={'Or just parts of repos, one per line:\nbloodhound/thrust/tracker\ngraffiti/spraypaint'} />
+      <div style={st.faint}>Whole repos can run to thousands of sections; naming folders keeps a task readable.</div>
+      <button style={st.btn} onClick={make}>Create and build the graph</button>
+      {err && <div style={{ color: C.bad }}>{err}</div>}
+    </div>
+  );
+}
+
+function TaskList({ open }) {
+  const [d, setD] = useState(null);
+  const [adding, setAdding] = useState(false);
+  const load = useCallback(() => api('/api/desk/reading').then(setD), []);
+  useEffect(() => { load(); const t = setInterval(load, 15_000); return () => clearInterval(t); }, [load]);
+  if (!d) return <div style={st.faint}>loading…</div>;
+  return (
+    <div>
+      {d.okgg === false && <div style={{ ...st.card, color: C.warn, marginBottom: 10 }}>okgg isn’t installed on the node yet — graphs can’t be built.</div>}
+      {(d.tasks || []).map(t => (
+        <button key={t.id} style={{ ...st.cell, display: 'block', textAlign: 'left' }} onClick={() => open(t.id)}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+            <b>{t.title}</b>
+            <span style={{ ...st.due, color: RUN_COLOR[t.run?.state] || C.faint }}>{t.run?.state || 'idle'}</span>
+          </div>
+          <div style={{ ...st.faint, margin: '2px 0 6px' }}>
+            {t.repos.join(' · ')}{t.ideas ? ` · ${t.ideas} ideas` : ''}{t.run?.V != null ? ` · V ${t.run.V.toFixed(2)}` : ''}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Bar a={t.read} b={t.sections} /><span style={st.due}>{t.read}/{t.sections}</span>
+          </div>
+          {t.run?.error && <div style={{ color: C.bad, fontSize: 12, marginTop: 4 }}>{t.run.error}</div>}
+        </button>
+      ))}
+      {!adding && <button style={{ ...st.btnSmall, marginTop: 6 }} onClick={() => setAdding(true)}>New reading task</button>}
+      {adding && <NewTask onMade={id => { setAdding(false); load(); open(id); }} />}
+    </div>
+  );
+}
+
+function SectionReader({ tid, k, node, onClose, onNext }) {
+  const [s, setS] = useState(null);
+  const load = useCallback(() => api(`/api/desk/reading/${tid}/section?key=${encodeURIComponent(k)}&node=${node || ''}`).then(setS), [tid, k, node]);
+  useEffect(() => { setS(null); load(); }, [load]);
+  if (!s) return <div style={st.faint}>loading…</div>;
+  if (s.error) return <div style={{ color: C.bad }}>{s.error}</div>;
+  const cueAt = {};
+  for (const c of s.cues) if (c.line) (cueAt[c.line] ||= []).push(c);
+  const mark = async (read) => {
+    await api(`/api/desk/reading/${tid}/read`, { method: 'POST', body: { key: k, read } });
+    if (read && s.next) onNext(s.next); else load();
+  };
+  return (
+    <div>
+      <button style={st.link} onClick={onClose}>‹ back to the graph</button>
+      <div style={{ margin: '8px 0 2px', fontWeight: 700, fontSize: 17 }}>{s.heading || s.path.split('/').pop()}</div>
+      <a href={s.permalink} target="_blank" rel="noopener noreferrer" style={{ ...st.faint, color: C.signal, fontFamily: mono }}>
+        {s.repo}/{s.path}:L{s.lines[0]}–L{s.lines[1]} ↗
+      </a>
+      {s.changed && <div style={{ color: C.warn, fontSize: 13, marginTop: 4 }}>changed since you read it</div>}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '10px 0' }}>
+        {s.cues.map((c, i) => (
+          <span key={i} style={st.cue} title={`witnessed in ${c.channel}`}>
+            {c.value} <span style={{ color: C.faint }}>· “{c.cue}” · {c.line ? `L${c.line}` : 'not located'}</span>
+          </span>
+        ))}
+      </div>
+      <pre style={st.src}>
+        {s.text.map((line, i) => {
+          const n = s.shown[0] + i;
+          const hit = cueAt[n];
+          return (
+            <div key={n} style={hit ? st.srcHit : undefined}>
+              <span style={st.ln}>{n}</span>{line || ' '}
+              {hit && <span style={st.srcTag}>  ◀ {hit.map(c => c.value).join(', ')}</span>}
+            </div>
+          );
+        })}
+      </pre>
+      {s.shown[1] < s.lines[1] && (
+        <a href={s.permalink} target="_blank" rel="noopener noreferrer" style={{ ...st.link, display: 'block', margin: '6px 0' }}>
+          continues to L{s.lines[1]} on GitHub ↗
+        </a>
+      )}
+      {s.cell_mates.length > 0 && (
+        <div style={{ ...st.faint, margin: '8px 0' }}>Not told apart from: {s.cell_mates.join(' · ')}</div>
+      )}
+      <div style={{ display: 'flex', gap: 8, position: 'sticky', bottom: 70, background: C.ground, padding: '8px 0' }}>
+        {s.read
+          ? <button style={st.btnSmall} onClick={() => mark(false)}>Mark unread</button>
+          : <button style={{ ...st.btn, flex: 1 }} onClick={() => mark(true)}>Mark read{s.next ? ' → next' : ''}</button>}
+        {s.next && <button style={st.btnSmall} onClick={() => onNext(s.next)}>Skip →</button>}
+      </div>
+    </div>
+  );
+}
+
+function Ideas({ tid, openSection }) {
+  const [d, setD] = useState(null);
+  const [open, setOpen] = useState(null);
+  useEffect(() => { api(`/api/desk/reading/${tid}/ideas`).then(setD); }, [tid]);
+  if (!d) return <div style={st.faint}>loading…</div>;
+  if (!d.ideas?.length) return <div style={st.faint}>No ideas yet — the graph hasn’t been built.</div>;
+  return d.ideas.map(i => (
+    <div key={i.id} style={st.item}>
+      <div style={st.itemRow} onClick={() => setOpen(open === i.id ? null : i.id)}>
+        <span style={{ flex: 1 }}>{i.names.join(' = ')}{i.broader.length ? <span style={st.faint}> ⊂ {i.broader.join(', ')}</span> : null}</span>
+        <Bar a={i.read} b={i.size} /><span style={st.due}>{i.read}/{i.size}</span>
+      </div>
+      {open === i.id && i.sections.map(k => (
+        <button key={k} style={{ ...st.link, display: 'block', margin: '4px 0 4px 18px', textAlign: 'left' }} onClick={() => openSection(k)}>
+          {k}
+        </button>
+      ))}
+    </div>
+  ));
+}
+
+function TaskView({ tid, nodeId, sectionKey, mode, nav }) {
+  const [d, setD] = useState(null);
+  const load = useCallback(() => api(`/api/desk/reading/${tid}/node${nodeId ? `/${nodeId}` : ''}`).then(j => {
+    if (j.error && nodeId) return nav({ n: '' });
+    setD(j);
+  }), [tid, nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [load, sectionKey]);
+  const rebuild = async gen => { await api(`/api/desk/reading/${tid}/run`, { method: 'POST', body: { generator: gen } }); load(); };
+
+  if (sectionKey) {
+    return <SectionReader tid={tid} k={sectionKey} node={nodeId} onClose={() => nav({ s: '' })} onNext={k => nav({ s: k })} />;
+  }
+  if (!d) return <div style={st.faint}>loading…</div>;
+  if (d.error) return <div style={{ color: C.bad }}>{d.error}</div>;
+  const t = d.task, run = t.run || {}, n = d.node, sum = d.summary || {};
+  return (
+    <div>
+      <button style={st.link} onClick={() => nav({ task: '', n: '', s: '', mode: '' })}>‹ all reading tasks</button>
+      <div style={{ fontSize: 18, fontWeight: 700, margin: '6px 0 2px' }}>{t.title}</div>
+      <div style={st.dialMeta}>
+        <span style={{ color: RUN_COLOR[run.state] || C.faint }}>{run.state || 'idle'}</span>
+        {sum.entities != null && <span>{sum.read}/{sum.entities} read</span>}
+        {sum.changed > 0 && <span style={{ color: C.warn }}>{sum.changed} changed since read</span>}
+        {sum.V != null && <span>V {Number(sum.V).toFixed(2)}</span>}
+        {run.at && <span>built {day(run.at)}</span>}
+      </div>
+      {run.error && <div style={{ color: C.bad, fontSize: 13 }}>{run.error}</div>}
+      {['queued', 'running'].includes(run.state) && <div style={{ ...st.faint, color: C.signal }}>Building the graph on the node — this page updates when it’s done.</div>}
+      <div style={{ display: 'flex', gap: 8, margin: '8px 0 12px' }}>
+        {['graph', 'ideas'].map(m => (
+          <button key={m} style={{ ...st.btnSmall, borderColor: (mode || 'graph') === m ? C.signal : C.line }} onClick={() => nav({ mode: m === 'graph' ? '' : m })}>
+            {m === 'graph' ? 'Graph' : 'Ideas'}
+          </button>
+        ))}
+        <button style={{ ...st.btnSmall, marginLeft: 'auto' }} onClick={() => rebuild('ollama')}>Rebuild</button>
+      </div>
+      {!n && <div style={st.faint}>No graph yet.</div>}
+      {n && mode === 'ideas' && <Ideas tid={tid} openSection={k => nav({ s: k })} />}
+      {n && mode !== 'ideas' && (
+        <>
+          <div style={st.crumbs}>
+            {d.breadcrumb.map((c, i) => (
+              <span key={c.id}><button style={st.link} onClick={() => nav({ n: i === 0 ? '' : c.id })}>{c.label}</button> › </span>
+            ))}
+            <b style={{ color: C.ink }}>{n.label}</b>
+          </div>
+          {d.children.map(c => (
+            <button key={c.id} style={st.cell} onClick={() => nav({ n: c.id })}>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                {c.label.split(': ').slice(1).join(': ') || c.label}
+                <span style={st.faint}> · {c.size}</span>
+              </span>
+              <Bar a={c.read} b={c.size} />
+              <span style={{ color: C.faint, marginLeft: 8 }}>›</span>
+            </button>
+          ))}
+          {d.children.length > 0 && n.split_by && <div style={{ ...st.faint, margin: '4px 2px 10px' }}>split by {n.split_by}</div>}
+          <div style={{ ...st.faint, margin: '10px 0 4px' }}>{d.children.length ? `all ${d.sections.length} sections here` : 'sections'}</div>
+          {d.sections.slice(0, d.children.length ? 12 : 200).map(sct => (
+            <div key={sct.key} style={st.item}>
+              <div style={st.itemRow} onClick={() => nav({ s: sct.key })}>
+                <span style={{ color: sct.read ? C.ok : C.faint, width: 18, flex: 'none' }}>{sct.read ? '✓' : '○'}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  {sct.heading || sct.path.split('/').pop()}
+                  <span style={{ ...st.faint, display: 'block', fontFamily: mono }}>
+                    {sct.repo}/{sct.path}{sct.lines ? `:L${sct.lines[0]}` : ''}{sct.changed ? ' · changed' : ''}
+                  </span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+function Reading() {
+  const router = useRouter();
+  const q = router.query;
+  const nav = patch => {
+    const next = { ...q, tab: 'reading', ...patch };
+    for (const k of Object.keys(next)) if (next[k] === '' || next[k] == null) delete next[k];
+    router.push({ query: next }, undefined, { shallow: true });
+  };
+  if (q.task) {
+    return <TaskView tid={String(q.task)} nodeId={q.n ? String(q.n) : ''} sectionKey={q.s ? String(q.s) : ''}
+                     mode={q.mode ? String(q.mode) : ''} nav={nav} />;
+  }
+  return <TaskList open={id => nav({ task: id })} />;
+}
+
 // ------------------------------------------------------------------ the timeline
 
 const KIND = {
@@ -478,7 +725,7 @@ function Timeline({ plans, view, reloadPlans }) {
 
 // ------------------------------------------------------------------ page
 
-const TABS = [['timeline', 'Timeline'], ['lists', 'Lists'], ['ask', 'Ask']];
+const TABS = [['timeline', 'Timeline'], ['reading', 'Reading'], ['lists', 'Lists'], ['ask', 'Ask']];
 
 export default function Brief() {
   const router = useRouter();
@@ -521,6 +768,8 @@ export default function Brief() {
         </>
       )}
 
+      {tab === 'reading' && <Reading />}
+
       {tab === 'ask' && (
         <Section title="Ask your mail and plans">
           <Ask />
@@ -537,6 +786,14 @@ export default function Brief() {
 }
 
 const st = {
+  rbar: { display: 'inline-block', width: 64, height: 5, background: C.line, borderRadius: 3, flex: 'none', verticalAlign: 'middle' },
+  rbarFill: { display: 'block', height: 5, background: C.ok, borderRadius: 3 },
+  cue: { fontSize: 12, border: `1px solid ${C.line}`, borderRadius: 999, padding: '3px 9px', color: C.ink },
+  src: { fontFamily: mono, fontSize: 12, lineHeight: 1.55, background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8,
+         padding: '8px 0', overflowX: 'auto', whiteSpace: 'pre', margin: 0 },
+  srcHit: { background: 'rgba(63,208,201,.12)' },
+  srcTag: { color: C.signal },
+  ln: { display: 'inline-block', width: 44, textAlign: 'right', paddingRight: 12, color: C.faint, userSelect: 'none' },
   page: { minHeight: '100vh', background: C.ground, color: C.ink, fontFamily: sans, fontSize: 15, lineHeight: 1.45,
           padding: 'max(14px, env(safe-area-inset-top)) 14px calc(76px + env(safe-area-inset-bottom))', maxWidth: 720, margin: '0 auto' },
   tabs: { position: 'fixed', left: 0, right: 0, bottom: 0, display: 'flex', background: C.panel, borderTop: `1px solid ${C.line}`,

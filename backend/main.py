@@ -24,11 +24,12 @@ from backend.routes.secrets import load_into_environ
 _n_secrets = load_into_environ()
 
 from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets, apartment, projects
-from backend.routes import keeper, mail, planner, plans, individuate
+from backend.routes import keeper, mail, planner, plans, individuate, reading
 from backend.keeper import service as keeper_service
 from backend.mail import service as mail_service
 from backend.planner import service as planner_service
 from backend.individuate import service as individuate_service
+import backend.reading as reading_service
 from backend.routes import console as console_routes
 from backend.agents import service as agents_service
 from backend.repos import service as repos_service
@@ -40,7 +41,8 @@ async def lifespan(app):
     # the mail poller/extractor, the planner (re-plans when mail, pins or plans change) and
     # the depth dial (re-files items under committed distinctions; grows new ones).
     tasks = [t for t in (keeper_service.start(), mail_service.start(), planner_service.start(),
-                         individuate_service.start(), agents_service.start(), repos_service.start()) if t]
+                         individuate_service.start(), agents_service.start(), repos_service.start(),
+                         reading_service.start()) if t]
     yield
     for t in tasks:
         t.cancel()
@@ -69,6 +71,7 @@ app.include_router(mail.router,       prefix="/mail",       tags=["mail"])
 app.include_router(planner.router,    prefix="/planner",    tags=["planner"])
 app.include_router(plans.router,      prefix="/plans",      tags=["plans"])
 app.include_router(individuate.router, prefix="/individuate", tags=["individuate"])
+app.include_router(reading.router,   prefix="/reading",    tags=["reading"])       # okgg graph of repos, read on the phone
 app.include_router(console_routes.agents, prefix="/agents",  tags=["console"])   # command -> agents -> graph
 app.include_router(console_routes.console, prefix="/console", tags=["console"])  # feed, reader, repos
 
