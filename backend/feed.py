@@ -216,6 +216,58 @@ async def read(kind: str, ref: str) -> Optional[dict]:
         md = ["\n".join(rows)] + (["### Latest commits\n" + "\n".join(f"- {s}" for s in latest)] if latest else [])
         return {"kind": kind, "ref": ref, "title": ref, "markdown": "\n\n".join(md), "actions": []}
 
+    if kind == "plan":
+        from backend.plans.model import blockers
+        from backend.plans.store import PLANS
+        nodes = PLANS.nodes()
+        n = nodes.get(ref)
+        if n is None:
+            return None
+        md = [f"**Status** {n.status}" + (f" · {n.area}" if n.area else "") + f" · priority {n.priority}"]
+        if n.when:
+            md.append(f"**When** {n.when.date or ' → '.join(n.when.window or [])}")
+        if n.minutes:
+            md.append(f"**Effort** {n.minutes} min")
+        if n.every:
+            md.append(f"**Habit** {n.every.times}× per week, {n.every.minutes} min")
+        if n.cost:
+            md.append(f"**Cost** {n.cost.amount:g} {n.cost.currency}")
+        why = blockers(n, nodes) if n.status != "done" else []
+        if why:
+            md.append("### Blocked by\n" + "\n".join(f"- {w}" for w in why))
+        if n.notes:
+            md.append(n.notes)
+        kids = sorted((k for k in nodes.values() if k.parent == n.id), key=lambda k: k.created)
+        if kids:
+            md.append("### Steps\n" + "\n".join(f"- {'✓' if k.status == 'done' else '○'} [{k.title}](read:plan/{k.id})"
+                                                + (f" — {k.when.date}" if k.when and k.when.date else "") for k in kids))
+        if n.parent and n.parent in nodes:
+            md.append(f"Part of [{nodes[n.parent].title}](read:plan/{n.parent})")
+        return {"kind": kind, "ref": ref, "title": n.title, "markdown": "\n\n".join(md), "actions": []}
+
+    if kind == "project":
+        import json as _json
+        from pathlib import Path
+        try:
+            data = _json.loads((Path(__file__).resolve().parent.parent / "tools" / "project_manager" / "data"
+                                / "projects.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        p = next((x for x in data.get("projects", []) if x.get("id") == ref), None)
+        if p is None:
+            return None
+        md = [p.get("context", "")]
+        if p.get("milestones"):
+            md.append("### Milestones\n" + "\n".join(
+                f"- {'✓' if m.get('status') == 'done' else ('◐' if m.get('status') == 'in_progress' else '○')} "
+                f"{m.get('title')}" + (f" · *{m['layer']}*" if m.get("layer") else "") for m in p["milestones"]))
+        if p.get("subtools"):
+            md.append("### Parts\n" + "\n".join(f"- **{t.get('name')}** — {t.get('role', '')} ({t.get('status', '')})"
+                                                for t in p["subtools"]))
+        if p.get("log"):
+            md.append("### Log\n" + "\n".join(f"- {e.get('date')}: {e.get('entry')}" for e in reversed(p["log"])))
+        return {"kind": kind, "ref": ref, "title": p.get("name", ref), "markdown": "\n\n".join(md), "actions": []}
+
     if kind == "key":
         from backend.keeper.service import KEEPER
         row = next((r for r in KEEPER.snapshot()["credentials"] if r["id"] == ref), None)

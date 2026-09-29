@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   const head = seg[0];
   if (head === 'feed' && seg[1] === 'stream') return proxySSE(req, res, '/console/feed/stream');
   const ok = (head === 'feed' && seg.length === 1)
+    || (head === 'network' && seg.length === 1)
     || (head === 'read' && seg.length >= 3)
     || (head === 'repos' && (seg.length === 1 || ['refresh', 'settings'].includes(seg[1])))
     || (head === 'laptop' && seg.length === 2 && ['search', 'status'].includes(seg[1]));

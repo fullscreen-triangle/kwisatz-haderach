@@ -12,6 +12,7 @@ The console's backend: runs, the live feed, full-text reading, repos.
   POST /console/repos/refresh                     pull + measure now
   GET|PUT /console/repos/settings                 active window, include/exclude
   GET  /console/laptop/status|search|file         the laptop over the tailnet (see backend/laptop.py)
+  GET  /console/network                           the runtime map: lines, stations, interchanges (backend/network.py)
 """
 
 import asyncio
@@ -173,3 +174,11 @@ async def laptop_file(path: str):
     return Response(data, media_type=ctype,
                     headers={"Content-Disposition": f"inline; filename*=UTF-8''{quote(name)}",
                              "Cache-Control": "private, no-store"})
+
+
+# ----------------------------------------------------------------- the runtime network (metro map)
+
+@console.get("/network")
+def network():
+    from backend import network as net
+    return net.build()
