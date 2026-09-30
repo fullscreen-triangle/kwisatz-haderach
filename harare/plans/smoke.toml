@@ -1,0 +1,28 @@
+# A small run using local tools only. Point `repo` at a repository that
+# already has a spraypaint index (`spraypaint index` there first) and holds no
+# secrets: spraypaint indexes everything under the repo root, gitignored
+# files included.
+#
+#   harare run plans/smoke.toml
+#
+# What happens: `note` records a known fact and emits a `query` value.
+# spraypaint wants `query` values, so the engine hands it that one; it answers
+# on harare/ask/passages, and that read is the track from harare/ask to
+# harare/ask/passages on the map. tracker reports what the repository is about.
+
+label = "smoke"
+
+[[chunk]]
+tau = "harare/facts"
+module = "note"
+body = { kind = "known", data = { location = "Greifswald", language = "en" } }
+
+[[chunk]]
+tau = "harare/ask"
+module = "note"
+body = { kind = "query", data = { query = "runtime graph dispatches every chunk", repo = "C:/path/to/a/small/repo" } }
+
+[[chunk]]
+tau = "harare/sense"
+module = "tracker"
+body = { repo = "C:/path/to/a/small/repo" }

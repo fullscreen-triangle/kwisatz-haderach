@@ -1,0 +1,9 @@
+{
+  "name": "@harare/module-claude",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Runs a headless Claude Code session per task, streams its progress onto the map, records the result, and raises the subtasks it proposes.",
+  "type": "module",
+  "bin": { "harare-claude": "dist/src/main.js" },
+  "dependencies": { "@harare/sdk": "0.1.0" }
+}

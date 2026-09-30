@@ -1,0 +1,9 @@
+{
+  "name": "@harare/module-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Runs an existing command-line tool as a harare module: the argv template lives in harare.toml, the chunk body only fills its placeholders.",
+  "type": "module",
+  "bin": { "harare-cli": "dist/src/main.js" },
+  "dependencies": { "@harare/sdk": "0.1.0" }
+}

@@ -1,0 +1,11 @@
+# Rust build cache
+engine/target/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Runs: act logs are the record of your work, but they are local state,
+# not source. Keep them out of git.
+.harare/

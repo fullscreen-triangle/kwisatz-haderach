@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Harare</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">H</span>
+        <div>
+          <h1>Harare</h1>
+          <p class="sub">the run as a transit map</p>
+        </div>
+      </div>
+      <div class="runpick">
+        <select id="run" aria-label="Run"></select>
+        <button id="newrun" type="button">New run</button>
+      </div>
+    </header>
+    <div id="status" class="status"></div>
+    <main class="page">
+      <section class="mapcard" aria-label="Map">
+        <div class="legend" id="legend"></div>
+        <div class="mapscroll"><svg id="map" role="img" aria-label="Run map"></svg></div>
+        <p class="hint">
+          Stations are nodes. Solid track is a read: the line's module read a value at one station and emitted at the next.
+          Dashed track is a raise. Carriages above a station are tasks running there; a dashed ring means work is waiting.
+          A red dot marks an error value — it is a value like any other, and the run went on.
+        </p>
+      </section>
+      <div class="panels">
+        <section class="panel" id="detail"></section>
+        <section class="panel" id="capacity"></section>
+        <section class="panel" id="queue"></section>
+        <section class="panel" id="raise"></section>
+      </div>
+    </main>
+    <script type="module" src="./dist/src/main.js"></script>
+  </body>
+</html>

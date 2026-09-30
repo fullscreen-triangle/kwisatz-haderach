@@ -1,0 +1,16 @@
+{
+  "name": "@harare/sdk",
+  "version": "0.1.0",
+  "description": "Link a Node program to the harare engine: write a module, or drive runs over HTTP.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "files": ["dist/src"],
+  "license": "MIT"
+}

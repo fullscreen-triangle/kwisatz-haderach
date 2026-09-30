@@ -1,0 +1,45 @@
+[package]
+name = "harare"
+version = "0.1.0"
+edition = "2021"
+description = "Harare: a runtime-graph engine. Nodes are subtask addresses carrying a bag of chunks and a growing set of values; the engine dispatches every chunk, records every value, and shares capacity by priority and bandwidth."
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "harare"
+path = "src/main.rs"
+required-features = ["engine"]
+
+[features]
+# `engine` is the runtime itself (process supervision, scheduler loop, HTTP).
+# A module written in Rust depends on this crate with default-features = false
+# and gets only the wire protocol and the blocking module SDK.
+default = ["engine"]
+engine = [
+    "dep:tokio",
+    "dep:axum",
+    "dep:clap",
+    "dep:toml",
+    "dep:tower-http",
+    "dep:futures",
+    "dep:tokio-stream",
+    "dep:anyhow",
+]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "io-util", "sync", "time", "fs", "signal", "net"], optional = true }
+axum = { version = "0.8", optional = true }
+clap = { version = "4", features = ["derive"], optional = true }
+toml = { version = "0.8", optional = true }
+tower-http = { version = "0.6", features = ["fs"], optional = true }
+futures = { version = "0.3", optional = true }
+tokio-stream = { version = "0.1", features = ["sync"], optional = true }
+anyhow = { version = "1", optional = true }
+
+[profile.release]
+opt-level = 3

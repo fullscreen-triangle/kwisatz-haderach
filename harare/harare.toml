@@ -1,0 +1,117 @@
+# harare.toml — what Harare may run, where it may run it, and what the work shares.
+#
+# Only modules declared here can ever start. A chunk names a module and carries
+# data; it never carries a command line.
+
+[engine]
+aging_seconds = 60           # waiting this long doubles a task's priority
+reserve_after_seconds = 300  # after this, smaller work may no longer overtake it
+max_tasks = 512              # per run; beyond it, work is recorded as deferred
+probe_ttl_seconds = 60
+cancel_grace_seconds = 5
+progress_interval_ms = 1000
+
+# ---------------------------------------------------------------- resources
+# slots: whole units held while a task runs. rate: shared by water-filling.
+
+[resources.claude]
+kind = "slots"
+capacity = 2
+label = "concurrent Claude sessions"
+
+[resources.cpu]
+kind = "slots"
+capacity = 4
+label = "CPU-heavy local tools"
+
+[resources.net]
+kind = "rate"
+capacity = 100
+unit = "Mbit/s"
+label = "network bandwidth, split among running tasks by priority"
+
+# ---------------------------------------------------------------- runners
+# `local` (this machine) always exists. A remote runner carries a module's
+# command over `wrap`; its module must be installed on that machine at the
+# same command line. Work that may only run on an unreachable runner waits,
+# visibly, until its probe succeeds.
+
+[runners.local]
+slots = 4
+label = "this machine"
+
+[runners.server2]
+wrap = ["ssh", "-o", "BatchMode=yes", "olduvai", "--"]
+probe = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "olduvai", "true"]
+slots = 2
+label = "Hetzner server-2 (always on)"
+
+# A codespace, for when the laptop is off. Needs the GitHub CLI (`gh`) and a
+# codespace with harare's modules installed (e.g. in the devcontainer's
+# postCreateCommand). `gh codespace ssh` starts a stopped codespace.
+#
+# [runners.codespace]
+# wrap = ["gh", "codespace", "ssh", "-c", "<codespace-name>", "--"]
+# probe = ["gh", "codespace", "view", "-c", "<codespace-name>", "--json", "state"]
+# slots = 1
+# label = "GitHub Codespace"
+
+# ---------------------------------------------------------------- modules
+# mode is the form of transport on the map; bullets are numbered per mode.
+
+[modules.note]
+command = ["node", "./modules/note/dist/src/main.js"]
+mode = "T"
+color = "#5b6770"
+description = "Puts values on the graph: known facts, seeds, your own answers."
+
+[modules.claude]
+command = ["node", "./modules/claude/dist/src/main.js"]
+mode = "RE"
+color = "#d2412a"
+description = "A headless Claude Code session per task; can raise subtasks."
+priority = 1
+demand = { claude = 1 }
+runners = ["local"]
+[modules.claude.config]
+# Headless sessions cannot ask for permission. acceptEdits lets them edit
+# files; add allowed_tools (e.g. ["Bash(cargo test:*)"]) for commands.
+permission_mode = "acceptEdits"
+raise_modules = ["claude", "spraypaint", "note"]
+
+[modules.spraypaint]
+command = ["node", "./modules/cli/dist/src/main.js"]
+mode = "U"
+color = "#1f68b3"
+description = "Passage retrieval over a repository (spraypaint ask). Chunk body or read value: { query, repo }."
+demand = { cpu = 1 }
+# Also reads every `query` value emitted anywhere, and answers it on <node>/passages.
+[[modules.spraypaint.wants]]
+kinds = ["query"]
+[modules.spraypaint.config]
+argv = ["spraypaint", "ask", "{body.query|reading.0.data.query}", "--json"]
+cwd = "{body.repo|reading.0.data.repo}"
+kind = "passages"
+emit_at = "{tau}/passages"
+timeout_s = 300
+
+[modules.tracker]
+command = ["node", "./modules/cli/dist/src/main.js"]
+mode = "U"
+color = "#4f9a2e"
+description = "What a tracked repository is about (tracker repo_sense). Body: { repo, question? }."
+[modules.tracker.config]
+argv = ["tracker", "call", "repo_sense", "{body}"]
+kind = "sense"
+timeout_s = 120
+
+[modules.okgg]
+command = ["node", "./modules/cli/dist/src/main.js"]
+mode = "S"
+color = "#7a4a9e"
+description = "Individuates the sections of a directory or document (okgg run). Body: { path }."
+demand = { cpu = 2 }
+[modules.okgg.config]
+argv = ["okgg", "run", "{body.path}", "--unit", "section"]
+kind = "individuation"
+timeout_s = 1800

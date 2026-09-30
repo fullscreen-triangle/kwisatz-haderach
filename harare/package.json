@@ -1,0 +1,22 @@
+{
+  "name": "harare-workspace",
+  "private": true,
+  "description": "Harare's TypeScript side: the module SDK, the shipped modules, and the metro viewer.",
+  "type": "module",
+  "workspaces": [
+    "sdk-ts",
+    "modules/note",
+    "modules/cli",
+    "modules/claude",
+    "metro"
+  ],
+  "scripts": {
+    "build": "tsc -b sdk-ts modules/note modules/cli modules/claude metro",
+    "clean": "tsc -b --clean sdk-ts modules/note modules/cli modules/claude metro",
+    "test": "node --test \"sdk-ts/dist/test/*.test.js\" \"modules/*/dist/test/*.test.js\" \"metro/dist/test/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3"
+  }
+}

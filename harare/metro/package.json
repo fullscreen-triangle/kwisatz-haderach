@@ -1,0 +1,7 @@
+{
+  "name": "@harare/metro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The run drawn as a transit map: stations are nodes, lines are modules, track exists only where a read happened.",
+  "type": "module"
+}
