@@ -406,8 +406,19 @@ function SpraypaintSlice({ slice }) {
     (acc[r.scene] = acc[r.scene] || []).push(r);
     return acc;
   }, {});
+  const cov = slice.coverage;
+  const covColor = cov && { covered: COLORS.spraypaint, partial: COLORS.warn, declined: COLORS.inkFaint }[cov.verdict];
   return (
     <div style={S.slice}>
+      {cov && (
+        <div style={{ ...S.answer, borderColor: covColor }}>
+          <span style={{ color: covColor, fontFamily: mono, fontWeight: 700 }}>{cov.verdict}</span>
+          {' — '}{cov.reason}
+          {cov.verdict === 'declined' && (
+            <div style={{ ...S.snippet, marginTop: 6 }}>The corpus doesn’t contain these words; the passages below only share a word with the query.</div>
+          )}
+        </div>
+      )}
       {slice.price != null && (
         <div style={S.price}>
           water-filling price p* = {Number(slice.price).toFixed(2)}
@@ -419,8 +430,10 @@ function SpraypaintSlice({ slice }) {
           {rs.map((r, i) => (
             <div key={i} style={S.passage}>
               <div style={S.passageHead}>
-                {r.path}:{r.start_line}
-                <span style={S.score}>{Number(r.score).toFixed(1)}</span>
+                {r.path}:{r.evidence_start_line ? `${r.evidence_start_line}–${r.evidence_end_line}` : r.start_line}
+                <span style={S.score}>
+                  {r.matched_terms?.length ? r.matched_terms.join(' ') : Number(r.score).toFixed(1)}
+                </span>
               </div>
               <div style={S.snippet}>{r.snippet}</div>
             </div>

@@ -252,6 +252,9 @@ async def _run_tool(tool: str, query: str) -> dict:
             raise HTTPException(status_code=502, detail=f"{tool} returned non-JSON output")
         return {
             "kind": "spraypaint",
+            # coverage = spraypaint's own verdict on whether the corpus holds what was asked
+            # (covered / partial / declined); absent from builds before 2026-09-30.
+            "coverage": data.get("coverage"),
             "results": data.get("results", []),
             "price": data.get("price"),
             "tool_committed_count": data.get("committed_count"),
@@ -272,8 +275,9 @@ def _slice_for_answer(slice_: dict) -> str:
         if slice_.get("excerpt"):
             parts.append(slice_["excerpt"])
         return "\n".join(p for p in parts if p)[:1500]
-    lines = [
-        f"{r['path']}:{r.get('start_line','?')} — {r.get('snippet','')}"
+    cov = slice_.get("coverage") or {}
+    lines = ([f"spraypaint verdict: {cov['verdict']} — {cov.get('reason', '')}"] if cov.get("verdict") else []) + [
+        f"{r['path']}:{r.get('evidence_start_line', r.get('start_line', '?'))} — {r.get('snippet','')}"
         for r in slice_.get("results", [])[:6]
     ]
     return "\n".join(lines)[:1500]

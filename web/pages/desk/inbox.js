@@ -177,10 +177,22 @@ function SearchAsk() {
       {out?.error && <div style={{ ...muted, color: '#fca5a5', marginTop: 8 }}>{out.error}</div>}
       {out && !out.error && mode === 'search' && (
         <div style={{ marginTop: 12 }}>
+          {out.coverage && (
+            <div style={{ fontSize: 13, marginBottom: 6 }}>
+              <span className={`${s.badge} ${out.coverage.verdict === 'covered' ? s.badgeOk : out.coverage.verdict === 'declined' ? s.badgeMuted : s.badgeWarning}`}>{out.coverage.verdict}</span>
+              <span style={{ ...muted, marginLeft: 8 }}>{out.coverage.reason}</span>
+              {out.coverage.verdict === 'declined' && (
+                <div style={{ ...muted, marginTop: 4 }}>Your mail doesn’t contain these words — the passages below only share a word with the query.</div>
+              )}
+            </div>
+          )}
           <div style={muted}>spraypaint · price {out.price?.toFixed?.(3)} · {out.allocation?.map(a => `${a.scene} ${a.allocated}`).join(' · ')}</div>
           {(out.results || []).map((r, i) => (
-            <div key={i} style={{ marginTop: 10, fontSize: 13 }}>
-              <div style={{ color: 'var(--heading-color)' }}>{r.path} <span style={muted}>· {r.scene} · {r.score?.toFixed?.(2)}</span></div>
+            <div key={i} style={{ marginTop: 10, fontSize: 13, opacity: out.coverage?.verdict === 'declined' ? 0.6 : 1 }}>
+              <div style={{ color: 'var(--heading-color)' }}>
+                {r.path}{r.evidence_start_line ? `:${r.evidence_start_line}–${r.evidence_end_line}` : ''}
+                <span style={muted}> · {r.scene}{r.matched_terms?.length ? ` · matched: ${r.matched_terms.join(', ')}` : ` · ${r.score?.toFixed?.(2)}`}</span>
+              </div>
               <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, opacity: 0.7 }}>{r.snippet?.slice(0, 500)}</pre>
             </div>
           ))}

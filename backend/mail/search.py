@@ -7,6 +7,11 @@ default, so one busy inbox can't crowd the others out of a result list — that 
 spraypaint's water-filling allocation across scenes.
 
 `ask` commits one act to spraypaint's never-decreasing count; `dry_run` does not.
+
+Results carry spraypaint's `coverage` verdict (covered / partial / declined) and, per passage,
+the at most 5 evidence lines (`evidence_start_line`..`evidence_end_line`) and `matched_terms`
+(graffiti/specifications.md). A `declined` search means the mail does not contain the query's
+words: its passages are look-alikes, and the page must say so.
 """
 
 from __future__ import annotations

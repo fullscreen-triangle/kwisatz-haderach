@@ -123,6 +123,8 @@ async def _probe_organ(name: str, smoke_query: str, json_flag: bool) -> Dict[str
     args = [binary, "ask", smoke_query]
     if json_flag:
         args.append("--json")
+    if name == "spraypaint":
+        args.append("--dry-run")      # a health check is not an answer: never raise the count
     res = await _run(args, timeout=15)
     if not res["ok"]:
         # surface the organ's own stderr — usually "no index; run `<organ> index`"
