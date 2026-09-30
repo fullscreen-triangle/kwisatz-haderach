@@ -1,0 +1,64 @@
+# harare.server2.toml — Harare as it runs on server-2, always on, behind the desk.
+#
+# Used by harare.service (deploy/server2-harare.sh): `harare serve --config` this file,
+# on 127.0.0.1:7470 only — the API starts processes. What it is for today: an uttered
+# request searched on the laptop, in the mail and on the web at once, every source judged
+# by spraypaint (backend/find.py raises the chunks).
+#
+# The laptop is not a runner here: it is reached over the tailnet by the `laptop` module
+# (tools/laptop_node), so a laptop that is off is an `error` value on its branch while
+# the other branches answer. Headless Claude sessions stay on the laptop's harare.toml.
+
+[engine]
+aging_seconds = 60
+reserve_after_seconds = 300
+max_tasks = 512
+probe_ttl_seconds = 60
+cancel_grace_seconds = 5
+progress_interval_ms = 1000
+
+[resources.cpu]
+kind = "slots"
+capacity = 3
+label = "CPU-heavy local tools (the node also runs Ollama)"
+
+[runners.local]
+slots = 6
+label = "server-2"
+
+# ---------------------------------------------------------------- modules
+
+[modules.note]
+command = ["node", "./modules/note/dist/src/main.js"]
+mode = "T"
+color = "#5b6770"
+description = "Puts values on the graph: known facts, seeds, your own answers."
+
+[modules.spraypaint]
+command = ["node", "./modules/cli/dist/src/main.js"]
+mode = "U"
+color = "#1f68b3"
+description = "Judges a corpus for a query (spraypaint ask): coverage verdict, evidence lines. Chunk body or read value: { query, repo }."
+demand = { cpu = 1 }
+# Reads every `query` value emitted anywhere — the gathering modules' corpora — and
+# answers it on <node>/passages. A chunk body { query, repo } asks directly (the mail mirror).
+[[modules.spraypaint.wants]]
+kinds = ["query"]
+[modules.spraypaint.config]
+argv = ["spraypaint", "ask", "{body.query|reading.0.data.query}", "--json"]
+cwd = "{body.repo|reading.0.data.repo}"
+kind = "passages"
+emit_at = "{tau}/passages"
+timeout_s = 120
+
+[modules.laptop]
+command = ["node", "./modules/gather/dist/src/laptop.js"]
+mode = "RE"
+color = "#e07b1f"
+description = "The laptop's files for a query (tools/laptop_node over the tailnet), gathered into a corpus for spraypaint. Body: { query, k? }."
+
+[modules.web]
+command = ["node", "./modules/gather/dist/src/web.js"]
+mode = "S"
+color = "#2e9a6b"
+description = "Web pages for a query (private SearXNG on server-3), fetched into a corpus for spraypaint. Body: { query, k? }."

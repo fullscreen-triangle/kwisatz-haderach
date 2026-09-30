@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import FindRun from '../../components/desk/FindRun';
 
 // The brief — the one screen the phone opens to (PWA start_url). There is no external
 // calendar: this timeline is where the plan is read.
@@ -15,7 +16,8 @@ import { useRouter } from 'next/router';
 //              breadcrumb = coarser, θ = how completely things must be told apart. An item
 //              itself opens in steps: the row → what was extracted → the raw text.
 //              Below it, the plan tree (backend/plans): add, tick off, import.
-//   Ask        four-sided-triangle over mail, projects, todos and plans
+//   Ask        search everywhere (laptop, mail, web as a Harare run, each judged by spraypaint),
+//              and four-sided-triangle over mail, projects, todos and plans
 
 const C = {
   ground: '#0B0E13', panel: '#12161E', panel2: '#171C26', ink: '#E6EBF2', soft: '#B4BECC',
@@ -311,6 +313,29 @@ function Ask() {
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+function SearchEverywhere() {
+  const [q, setQ] = useState('');
+  const [run, setRun] = useState(null);
+  const [err, setErr] = useState('');
+  const go = async () => {
+    if (!q.trim()) return;
+    setRun(null); setErr('');
+    const j = await api('/api/desk/find', { method: 'POST', body: { query: q.trim() } });
+    if (j.run) setRun(j.run); else setErr(j.error || 'the search could not start');
+  };
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <input style={{ ...st.input, flex: 1 }} placeholder="Search the laptop, mail and web…" value={q}
+               onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && go()} />
+        <button style={st.btnSmall} onClick={go}>Search</button>
+      </div>
+      {err && <div style={{ color: C.bad, marginTop: 8 }}>{err}</div>}
+      {run && <div style={{ marginTop: 10 }}><FindRun key={run} run={run} /></div>}
     </div>
   );
 }
@@ -771,9 +796,14 @@ export default function Brief() {
       {tab === 'reading' && <Reading />}
 
       {tab === 'ask' && (
-        <Section title="Ask your mail and plans">
-          <Ask />
-        </Section>
+        <>
+          <Section title="Search everywhere">
+            <SearchEverywhere />
+          </Section>
+          <Section title="Ask your mail and plans">
+            <Ask />
+          </Section>
+        </>
       )}
 
       <nav style={st.tabs}>

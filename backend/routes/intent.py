@@ -73,10 +73,11 @@ Routines:
 - "web": open a Google search in the Chrome browser on the machine. Use for "search Google for X", "google X", "look up X on the web".
 - "doctor": check whether this node can actually answer — is Ollama serving, are the search organs installed with a built index, can it open a browser. Use for "are you healthy", "run a diagnostic", "self check", "what's broken", "status".
 - "pm": report on a tracked project's progress (milestones, sub-tools, blockers). Use for "how's the X project going", "project status", "what's blocked on Y".
+- "find": search for something on his laptop, in his mail and on the internet at once. Use for "search for X", "find X", "look up X".
 - "plan": add a personal plan or list upcoming plans. Use for "plan: buy a chicken loop", "add a plan to run 3 times a week", "what are my plans".
 
 Reply with ONLY a JSON object, no prose:
-{"tool": "purpose" | "spraypaint" | "facts" | "nav" | "web" | "doctor" | "pm" | "plan", "query": "<the search string to run>"}
+{"tool": "purpose" | "spraypaint" | "facts" | "nav" | "web" | "doctor" | "pm" | "plan" | "find", "query": "<the search string to run>"}
 
 The query should be the salient search terms, not a full sentence."""
 
@@ -105,6 +106,11 @@ _ROUTE_RULES = [
     # repo/inventory facts — must mention repos, else "how many files" would steal it
     ("facts", re.compile(r"\b(how many|number of|list|show|which|what)\b.*\brepo", re.I)),
     ("facts", re.compile(r"\brepositor(y|ies)\b", re.I)),
+    # search everywhere — laptop, mail and web at once, as a Harare run (backend/find.py).
+    # A leading search verb; before the Chrome rules so "search for X on the internet" reads
+    # the internet instead of opening a browser. "google X" still opens Chrome, and "find the
+    # definition of X" is still a purpose ask.
+    ("find", re.compile(r"^\s*(please\s+)?(search(\s+everywhere)?(\s+for)?|find(\s+me)?(?!\s+the\s+definition)|look\s*up|look\s+for)\b(?!.*\bgoogle\b)", re.I)),
     # web/Google search — open Chrome on the node. Requires an explicit web signal so
     # "search the codebase for X" (a purpose/spraypaint ask) is NOT stolen: either the word
     # google, or search/look-up paired with google/web/internet/online/chrome.
@@ -123,7 +129,7 @@ _ROUTE_RULES = [
     ("spraypaint", re.compile(r"\bwhat does\b.*\bsay\b|\bpassages?\b|\bexplain\b", re.I)),
 ]
 
-VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan")
+VALID_TOOLS = ("purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan", "find")
 
 
 class IntentRequest(BaseModel):
@@ -132,7 +138,7 @@ class IntentRequest(BaseModel):
 
 
 class Choice(BaseModel):
-    tool: Literal["purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan"]
+    tool: Literal["purpose", "spraypaint", "facts", "nav", "web", "doctor", "pm", "plan", "find"]
     query: str
 
 
@@ -269,7 +275,7 @@ def _slice_for_answer(slice_: dict) -> str:
     kind = slice_.get("kind")
     if kind == "purpose":
         return slice_.get("text", "")[:1500]
-    if kind in ("facts", "readfile", "nav", "web", "doctor", "pm", "plan"):
+    if kind in ("facts", "readfile", "nav", "web", "doctor", "pm", "plan", "find"):
         # These already carry a phrased answer; hand it (plus any excerpt) to the explainer.
         parts = [slice_.get("answer") or ""]
         if slice_.get("excerpt"):
@@ -317,6 +323,31 @@ async def _route(text: str) -> Choice:
         return Choice(tool="purpose", query=text)
 
 
+# "search everywhere for X on my laptop and in my mail" -> "X": the verb and the scope
+# words are not search terms, and spraypaint would count them against coverage.
+_FIND_VERB = re.compile(r"^\s*(please\s+)?(search(\s+(everywhere|(the\s+|my\s+)?(web|internet|laptop|computer|mails?|emails?|inbox)))?"
+                        r"(\s+for)?|find(\s+me)?|look\s*up|look\s+for)\s+", re.I)
+_FIND_SCOPE = re.compile(r"\s*\b(everywhere|(on|in|from)\s+(my\s+|the\s+)?(laptop|computer|pc|mails?|emails?|inbox|web|internet)"
+                         r"|online)\b(\s*(,|and|or)\s*)?", re.I)
+
+
+def find_query(text: str) -> str:
+    q = _FIND_SCOPE.sub(" ", _FIND_VERB.sub("", text))
+    return re.sub(r"\s+", " ", q).strip(" ,.?!") or text.strip()
+
+
+async def find_start(text: str) -> dict:
+    from backend.routes import find as find_routes
+    q = find_query(text)
+    try:
+        run = await find_routes.start(q)
+    except httpx.HTTPError as e:
+        return {"kind": "find", "run": None, "query": q,
+                "answer": f"Harare is not answering on this node ({type(e).__name__})."}
+    return {"kind": "find", "run": run, "query": q,
+            "answer": f"Searching the laptop, mail and web for “{q}”."}
+
+
 async def _dispatch(choice: Choice, want_summary: bool) -> dict:
     """Run the chosen routine and return its slice. facts/nav are in-process Python;
     purpose/spraypaint shell out to the Rust organs. A fresh answer every call (Inv 3)."""
@@ -334,6 +365,9 @@ async def _dispatch(choice: Choice, want_summary: bool) -> dict:
     if choice.tool == "pm":
         # pm reports tracked project status — read from the tracker, never invented.
         return await pm_mod.answer_pm(choice.query)
+    if choice.tool == "find":
+        # find starts a Harare run over laptop, mail and web; the page polls /find/<run>.
+        return await find_start(choice.query)
     if choice.tool == "plan":
         # plan adds a node to backend/plans (parsed deterministically) or lists what's ahead.
         return await plan_intent.answer_plan(choice.query)

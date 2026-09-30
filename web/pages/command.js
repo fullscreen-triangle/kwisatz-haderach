@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
+import FindRun from '../components/desk/FindRun';
 
 // Agent Smith — the command surface.
 //
@@ -24,6 +25,7 @@ const COLORS = {
 };
 
 const EXAMPLES = [
+  'search for Zahnarzt Greifswald',
   'plan: run 3 times a week for 45 minutes',
   'where is the tick loop',
   'find passages about water filling',
@@ -233,6 +235,7 @@ const TOOL_COLORS = {
   doctor: '#7CD992',
   pm: COLORS.warn,
   plan: COLORS.signal,
+  find: '#5CC98A',
 };
 
 function ResultView({ result }) {
@@ -255,6 +258,7 @@ function ResultView({ result }) {
       {slice.kind === 'nav' && <NavSlice slice={slice} />}
       {slice.kind === 'readfile' && <ReadfileSlice slice={slice} />}
       {slice.kind === 'doctor' && <DoctorSlice slice={slice} />}
+      {slice.kind === 'find' && (slice.run ? <FindRun run={slice.run} /> : <PhrasedSlice slice={slice} />)}
 
       {answer && <div style={S.answer}>{answer}</div>}
     </section>

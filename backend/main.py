@@ -24,7 +24,7 @@ from backend.routes.secrets import load_into_environ
 _n_secrets = load_into_environ()
 
 from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets, apartment, projects
-from backend.routes import keeper, mail, planner, plans, individuate, reading
+from backend.routes import keeper, mail, planner, plans, individuate, reading, find
 from backend.keeper import service as keeper_service
 from backend.mail import service as mail_service
 from backend.planner import service as planner_service
@@ -72,6 +72,7 @@ app.include_router(planner.router,    prefix="/planner",    tags=["planner"])
 app.include_router(plans.router,      prefix="/plans",      tags=["plans"])
 app.include_router(individuate.router, prefix="/individuate", tags=["individuate"])
 app.include_router(reading.router,   prefix="/reading",    tags=["reading"])       # okgg graph of repos, read on the phone
+app.include_router(find.router,      prefix="/find",       tags=["find"])          # search everywhere, as a Harare run
 app.include_router(console_routes.agents, prefix="/agents",  tags=["console"])   # command -> agents -> graph
 app.include_router(console_routes.console, prefix="/console", tags=["console"])  # feed, reader, repos
 

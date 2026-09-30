@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Markdown from '../../components/console/Markdown';
+import FindRun from '../../components/desk/FindRun';
 import { C, CSS, Reader, linkBtn, post, sans } from '../../components/console/Reader';
 import { KIND_COLOR } from '../../components/console/ForceGraph';
 
@@ -66,7 +67,7 @@ function CommandBar({ onRun, onSearch, busy }) {
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
       <textarea value={text} onChange={e => setText(e.target.value)} rows={2}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
-        placeholder="Say what to do — or ?words to search mail and the laptop"
+        placeholder="Say what to do — or ?words to search the laptop, mail and web"
         style={{ flex: 1, resize: 'none', background: C.panel, color: C.ink, border: `1px solid ${C.line}`,
                  borderRadius: 12, padding: '12px 14px', fontSize: 16, fontFamily: sans, outline: 'none' }} />
       {dict.supported && (
@@ -149,7 +150,8 @@ function RunPanel({ runId, onRead }) {
         onNodeClick={n => (n.ref ? onRead(n.kind, n.ref) : n.kind === 'result' || n.kind === 'command' ? onRead('run', run.id) : null)} />
       {run.note && <div style={{ color: C.faint, fontSize: 12, marginTop: 8 }}>{run.note}</div>}
       {run.error && <div style={{ color: C.bad, fontSize: 13, marginTop: 8 }}>{run.error}</div>}
-      {run.answer && (
+      {run.find && <div style={{ marginTop: 12 }}><FindRun run={run.find} onRead={onRead} /></div>}
+      {run.answer && !run.find && (
         <div style={{ marginTop: 12 }}>
           <Markdown text={run.answer} onRead={onRead} />
           <button onClick={() => onRead('run', run.id)} style={linkBtn}>sources & steps →</button>
@@ -164,55 +166,33 @@ function RunPanel({ runId, onRead }) {
   );
 }
 
+// ?words: search everywhere (laptop, mail, web) as a Harare run, each source judged by
+// spraypaint (components/desk/FindRun); above it, the mail's phrased answer when it has one.
 function SearchResults({ q, onRead, onClose }) {
-  const [hits, setHits] = useState(null);
+  const [run, setRun] = useState(null);
+  const [err, setErr] = useState('');
   const [answer, setAnswer] = useState(null);
-  const [files, setFiles] = useState(null);
   useEffect(() => {
-    setHits(null); setAnswer(null); setFiles(null);
-    fetch(`/api/desk/console/laptop/search?q=${encodeURIComponent(q)}&k=8`).then(r => r.json())
-      .then(d => setFiles(d.results ? d : { error: d.detail || d.error || 'laptop unavailable' }))
-      .catch(() => setFiles({ error: 'laptop unavailable' }));
-    fetch(`/api/desk/mail/search?q=${encodeURIComponent(q)}&k=12`).then(r => r.json()).then(setHits).catch(() => setHits({ error: 'offline' }));
+    setRun(null); setErr(''); setAnswer(null);
+    post('/api/desk/find', { query: q })
+      .then(j => (j.run ? setRun(j.run) : setErr(j.detail || j.error || 'the search could not start')))
+      .catch(() => setErr('the node did not answer'));
     fetch(`/api/desk/mail/ask?q=${encodeURIComponent(q)}`).then(r => r.json()).then(setAnswer).catch(() => {});
   }, [q]);
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14, margin: '16px 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ color: C.ink, fontWeight: 600 }}>“{q}”</div>
         <button onClick={onClose} style={{ ...linkBtn, padding: 0 }}>close</button>
       </div>
       {answer && !answer.error && answer.status !== 'declined' && (
-        <div style={{ color: C.soft, fontSize: 14, margin: '10px 0', borderLeft: `3px solid ${C.signal}`, paddingLeft: 10 }}>
+        <div style={{ color: C.soft, fontSize: 14, margin: '0 0 10px', borderLeft: `3px solid ${C.signal}`, paddingLeft: 10 }}>
           <span style={{ color: C.faint, fontSize: 12 }}>{answer.status}</span><br />{answer.claim?.slice(0, 400)}
         </div>
       )}
-      <div style={{ color: C.faint, fontSize: 12, marginTop: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        On the laptop</div>
-      {!files && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>asking the laptop…</div>}
-      {files?.error && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>{files.error}</div>}
-      {files?.results?.length === 0 && <div style={{ color: C.faint, fontSize: 13, marginTop: 6 }}>no files match</div>}
-      {(files?.results || []).map(f => (
-        <div key={f.path} onClick={() => onRead('laptop', f.path)}
-             style={{ padding: '9px 0', borderBottom: `1px solid ${C.line}`, cursor: 'pointer', display: 'flex', gap: 10 }}>
-          <span style={{ color: KIND_COLOR.laptop }}>▤</span>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ color: C.ink, fontSize: 14 }}>{f.name}</div>
-            <div style={{ color: C.faint, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {f.shown} · {f.where}</div>
-          </div>
-        </div>
-      ))}
-      <div style={{ color: C.faint, fontSize: 12, marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        In mail</div>
-      {!hits && <div style={{ color: C.faint, fontSize: 13, marginTop: 8 }}>searching…</div>}
-      {hits?.error && <div style={{ color: C.bad, fontSize: 13, marginTop: 8 }}>{hits.error}</div>}
-      {(hits?.results || []).map((r, i) => (
-        <div key={i} onClick={() => r.key && onRead('mail', r.key)} style={{ padding: '10px 0', borderBottom: `1px solid ${C.line}`, cursor: 'pointer' }}>
-          <div style={{ color: C.faint, fontSize: 12 }}>{r.scene} · {r.path}</div>
-          <div style={{ color: C.soft, fontSize: 14, whiteSpace: 'pre-wrap' }}>{(r.snippet || '').slice(0, 260)}</div>
-        </div>
-      ))}
+      {err && <div style={{ color: C.bad, fontSize: 13 }}>{err}</div>}
+      {!run && !err && <div style={{ color: C.faint, fontSize: 13 }}>starting…</div>}
+      {run && <FindRun run={run} onRead={onRead} />}
     </div>
   );
 }

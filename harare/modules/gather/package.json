@@ -1,0 +1,9 @@
+{
+  "name": "@harare/module-gather",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gathers candidate documents for a query from one source (the laptop, the web) into a small corpus that spraypaint judges.",
+  "type": "module",
+  "bin": { "harare-laptop": "dist/src/laptop.js", "harare-web": "dist/src/web.js" },
+  "dependencies": { "@harare/sdk": "0.1.0" }
+}

@@ -131,6 +131,7 @@ class Run:
         self.brain = ""                          # rule | local | claude
         self.note = ""
         self.open: Optional[dict] = None           # {kind, ref}: the console opens this in its reader
+        self.find: Optional[str] = None            # a search-everywhere Harare run the console draws as cards
         self.subtasks: List[dict] = []
         self.results: Dict[str, ToolResult] = {}
         self.sources: List[dict] = []            # numbered for citations
@@ -157,7 +158,7 @@ class Run:
     def to_json(self, full: bool = True) -> dict:
         d = {"id": self.id, "text": self.text, "origin": self.origin, "created": self.created,
              "updated": self.updated, "status": self.status, "brain": self.brain, "note": self.note,
-             "answer": self.answer, "error": self.error, "open": self.open,
+             "answer": self.answer, "error": self.error, "open": self.open, "find": self.find,
              "subtasks": [{k: v for k, v in s.items()} for s in self.subtasks]}
         if full:
             d.update(sources=self.sources, graph={"nodes": list(self.nodes.values()), "links": self.links})
@@ -249,6 +250,40 @@ async def run_subtask(run: Run, st: dict, changed) -> None:
     changed()
 
 
+# "find X" / "search for X" with no narrower scope searches everywhere (laptop, mail, web) as
+# a Harare run (backend/find.py). "where is X", "find X on my laptop" and open/read/summarise/
+# send stay file commands; "find emails from Mark" and other mail/plan/repo questions go to
+# the planner, whose tools can filter by sender or date.
+SEARCH_VERB = re.compile(r"^\s*(please\s+|pls\s+|can you\s+|could you\s+|bitte\s+)?"
+                         r"(find|search|look\s+for|look\s*up|such\w*|finde)\b", re.I)
+LAPTOP_SCOPE = re.compile(r"\b(on|from|auf)\s+(my|the|meinem|dem)\s+(laptop|computer|pc)\b", re.I)
+NARROW_SUBJECT = re.compile(r"\b(e-?mails?\s+from|mails?\s+from|messages?\s+from|plans?|planned|meetings?|"
+                            r"repos?|repositor\w+|commits?)\b", re.I)
+
+
+def searches_everywhere(text: str) -> bool:
+    return bool(SEARCH_VERB.match(text)) and not LAPTOP_SCOPE.search(text) and not NARROW_SUBJECT.search(text)
+
+
+async def run_find(run: Run, changed) -> None:
+    from backend.routes import intent as intent_mod
+    q = intent_mod.find_query(run.text)
+    run.brain = "rule"
+    run.subtasks = [{"id": "s1", "goal": f"search the laptop, mail and web for {q}", "tool": "find",
+                     "args": [{"name": "query", "value": q}], "needs": [], "status": "running", "started": _now()}]
+    run.node("s1", kind="subtask", label=f"find · {q}"[:70], tool="find", status="running")
+    run.link("cmd", "s1", "decomposes")
+    run.status = "running"
+    changed()
+    slice_ = await intent_mod.find_start(run.text)
+    if not slice_.get("run"):
+        raise RuntimeError(slice_.get("answer") or "the search could not start")
+    run.find = slice_["run"]
+    run.answer = f"Searching the laptop, mail and web for “{q}”; each source is judged below."
+    run.subtasks[0].update(status="done", summary=run.answer, finished=_now())
+    run.node("s1", status="done")
+
+
 async def run_file_command(run: Run, fc: "filecmd.FileCmd", changed) -> None:
     """find -> (open | read | summarize | email) on the best file; runner-ups always listed."""
     from backend import feed, laptop
@@ -330,7 +365,10 @@ async def execute(run: Run, changed) -> None:
         deep = run.text.lower().startswith("deep:")
         route = None if deep else intent_mod._keyword_route(run.text)
         fcmd = None if (deep or run.direct) else filecmd.parse(run.text)
-        if fcmd:
+        if not deep and not run.direct and searches_everywhere(run.text) and (
+                (fcmd and fcmd.verb == "find") or (not fcmd and route == "find")):
+            await run_find(run, changed)
+        elif fcmd:
             await run_file_command(run, fcmd, changed)
         elif run.direct:
             if run.direct.get("tool") not in REGISTRY:
