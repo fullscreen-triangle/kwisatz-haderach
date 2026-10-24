@@ -1,0 +1,17 @@
+{
+  "version": "martial/v0",
+  "profile": "manuscript",
+  "sources": "sources",
+  "evidence": [
+    {
+      "claim": "Caching was shown to reduce read latency",
+      "source": "smith2020",
+      "quote": "caching reduced the median read latency by 30 percent"
+    },
+    {
+      "claim": "Lee proved that LRU eviction is optimal",
+      "source": "smith2020",
+      "quote": "LRU eviction is optimal for every workload we tried"
+    }
+  ]
+}

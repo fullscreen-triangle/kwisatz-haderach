@@ -1,0 +1,4 @@
+Caching and read latency. A. Smith, 2020.
+
+Across the twelve services we instrumented, caching reduced the median read
+latency by 30 percent, and the reduction was largest for repeated reads.

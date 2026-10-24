@@ -1,0 +1,22 @@
+[package]
+name = "martial"
+version = "0.1.0"
+edition = "2021"
+description = "A deterministic reviewer for prose that AI agents edit: it reads a manuscript or software document and reports, by location and stable code, what is unclear, unsupported or no longer true."
+license = "MIT"
+authors = ["Kundai Farai Sachikonye"]
+repository = "https://github.com/fullscreen-triangle/kwisatz-haderach"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "martial"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3

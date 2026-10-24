@@ -1,0 +1,19 @@
+\documentclass{article}
+\begin{document}
+
+\begin{abstract}
+We prove that the cache bound is tight.
+The cache uses 40\% less energy than a disk.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+Caching was shown to reduce read latency by 30\%~\cite{smith2020}.
+Lee proved that LRU eviction is optimal for stack workloads~\cite{lee2021}.
+It is well known that larger caches always help.
+In \cref{sec:results} we show that the bound is tight.
+The method outperforms every baseline.
+
+\input{sections/results}
+
+\bibliography{refs}
+\end{document}

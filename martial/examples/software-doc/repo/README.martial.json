@@ -1,0 +1,8 @@
+{
+  "version": "martial/v0",
+  "profile": "software-doc",
+  "terms": { "WAL": "write-ahead log; the audience runs databases" },
+  "waivers": [
+    { "code": "path_missing", "text": "data/wal/", "reason": "toyd creates it on first run" }
+  ]
+}

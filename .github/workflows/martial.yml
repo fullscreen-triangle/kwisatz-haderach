@@ -1,0 +1,49 @@
+name: martial
+
+on:
+  push:
+    paths: ["martial/**", ".github/workflows/martial.yml"]
+  pull_request:
+    paths: ["martial/**", ".github/workflows/martial.yml"]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: martial
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: martial
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: martial
+      - run: cargo test --locked
+      - name: martial reviews its own documents
+        shell: bash
+        run: |
+          cargo build --release --locked
+          for doc in README.md CLAUDE.md; do
+            ./target/release/martial check "$doc"
+          done
