@@ -44,6 +44,42 @@ jobs:
         shell: bash
         run: |
           cargo build --release --locked
-          for doc in README.md CLAUDE.md; do
+          for doc in README.md CLAUDE.md AGENT_GUIDE.md; do
             ./target/release/martial check "$doc"
           done
+          ./target/release/martial check integrations/claude-skill/SKILL.md --profile software-doc --repo .
+
+  # The action other repositories use, run the way they run it.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clean documents pass
+        id: pass
+        uses: ./martial
+        with:
+          files: martial/README.md martial/AGENT_GUIDE.md
+      - name: A clean note passes under a given profile
+        uses: ./martial
+        with:
+          files: martial/examples/clean/note.md
+          profile: general
+      - name: An edit with drift fails
+        id: drift
+        continue-on-error: true
+        uses: ./martial
+        with:
+          files: martial/examples/drift/after.md
+          profile: general
+          args: --against martial/examples/drift/before.md
+      - name: The action reported what it should
+        working-directory: .
+        env:
+          PASS: ${{ steps.pass.outputs.verdict }}
+          DRIFT: ${{ steps.drift.outcome }}
+          DRIFT_VERDICT: ${{ steps.drift.outputs.verdict }}
+        run: |
+          echo "pass=$PASS drift=$DRIFT drift_verdict=$DRIFT_VERDICT"
+          test "$PASS" = clean
+          test "$DRIFT" = failure
+          test "$DRIFT_VERDICT" = violated

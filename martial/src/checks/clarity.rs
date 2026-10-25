@@ -85,6 +85,9 @@ pub fn clarity(ctx: &Ctx, out: &mut Out) {
 /// least two capitals, not a Roman numeral. Hyphenated compounds (`DCAT-AP`, `SHA-256`)
 /// are one name.
 fn acronym(t: &str) -> Option<String> {
+    if t.contains(['_', '.']) {
+        return None;
+    }
     let mut parts: Vec<&str> = t.split('-').collect();
     if parts.iter().any(|p| p.is_empty()) {
         return None;
@@ -135,7 +138,9 @@ fn raw_tokens(text: &str) -> Vec<String> {
             }
             continue;
         }
-        let joins = c == '-' && !cur.is_empty() && cs.get(k + 1).is_some_and(|n| n.is_alphanumeric());
+        // Hyphens join compounds (DCAT-AP); underscores and inner dots join file names
+        // (AGENT_GUIDE.md), which are then not acronyms.
+        let joins = matches!(c, '-' | '_' | '.') && !cur.is_empty() && cs.get(k + 1).is_some_and(|n| n.is_alphanumeric());
         if !in_code && (c.is_alphanumeric() || joins) {
             cur.push(c);
         } else if !cur.is_empty() {
@@ -248,6 +253,14 @@ mod tests {
         assert_eq!(acronym("SHA-256").as_deref(), Some("SHA"));
         assert_eq!(acronym("IC-12").as_deref(), Some("IC"));
         assert_eq!(acronym("StatDCAT-AP"), None);
+    }
+
+    #[test]
+    fn file_names_are_one_token_and_not_acronyms() {
+        let t = super::raw_tokens("See AGENT_GUIDE.md and CLAUDE.md, then use SQL.");
+        assert_eq!(t, ["See", "AGENT_GUIDE.md", "and", "CLAUDE.md", "then", "use", "SQL"]);
+        let acr: Vec<String> = t.iter().filter_map(|t| acronym(t)).collect();
+        assert_eq!(acr, ["SQL"]);
         assert_eq!(acronym("III"), None);
         assert_eq!(acronym("A"), None);
         assert_eq!(acronym("GHz"), None);

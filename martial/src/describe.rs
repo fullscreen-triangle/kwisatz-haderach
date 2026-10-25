@@ -7,6 +7,10 @@ use crate::codes::CODES;
 use crate::lexicon;
 use crate::profile::{Profile, ALL_CHECKS};
 
+/// The guide for AI agents, `AGENT_GUIDE.md`, built into the binary so every installed
+/// copy can explain itself (`martial guide`, MCP tool `martial_guide`).
+pub const GUIDE: &str = include_str!("../AGENT_GUIDE.md");
+
 pub const PURPOSE: &str = "martial reviews prose that you (an AI agent) are asked to improve. You write; martial judges. It reads a manuscript or a software document and reports, by file:line:col and stable code, what is unclear, unsupported, unresolved, or no longer true after your edit. It has no model inside: the same text always gets the same report.";
 
 pub const WORKFLOW: &[&str] = &[
@@ -42,8 +46,10 @@ pub fn json() -> Value {
         "martial": crate::VERSION,
         "purpose": PURPOSE,
         "workflow": WORKFLOW,
+        "guide": "`martial guide` (MCP: martial_guide) prints the full guide for AI agents",
         "commands": {
-            "check": "martial check FILE|- [--profile P] [--format md|tex] [--sidecar F] [--no-sidecar] [--sources DIR] [--repo DIR] [--against OLD] [--json]",
+            "check": "martial check FILE|- [--profile P] [--format md|tex] [--sidecar F] [--no-sidecar] [--sources DIR] [--repo DIR] [--against OLD] [--json | --annotate github]",
+            "guide": "martial guide",
             "claims": "martial claims FILE|- [--profile P] [--format md|tex] [--skeleton] [--json]",
             "describe": "martial describe [--json]",
             "mcp": "martial mcp   (Model Context Protocol server on stdin/stdout: tools martial_check, martial_claims, martial_describe)",

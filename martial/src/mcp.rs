@@ -52,6 +52,13 @@ fn tools() -> Value {
             "annotations": {"readOnlyHint": true, "openWorldHint": false},
         },
         {
+            "name": "martial_guide",
+            "title": "Guide for AI agents",
+            "description": "Read this first. When to use martial, the review loop, what to do with every problem code, the rules an agent must not break, and how to report the result to the user.",
+            "inputSchema": {"type": "object", "properties": {}},
+            "annotations": {"readOnlyHint": true, "openWorldHint": false},
+        },
+        {
             "name": "martial_describe",
             "title": "How to use martial",
             "description": "The workflow, profiles, every problem code, the sidecar schema and every word list martial uses.",
@@ -96,6 +103,7 @@ fn call(name: &str, args: &Value) -> Result<Value, String> {
             serde_json::to_value(crate::claims(&request(args)?, skeleton)?).map_err(|e| e.to_string())
         }
         "martial_describe" => Ok(crate::describe::json()),
+        "martial_guide" => Ok(Value::String(crate::describe::GUIDE.to_string())),
         _ => Err(format!("unknown tool {name}")),
     }
 }
@@ -112,7 +120,7 @@ pub fn handle(msg: &Value) -> Option<Value> {
                 "protocolVersion": version,
                 "capabilities": {"tools": {}},
                 "serverInfo": {"name": "martial", "version": crate::VERSION},
-                "instructions": format!("{}\n\n{}", crate::describe::PURPOSE, crate::describe::WORKFLOW.join("\n")),
+                "instructions": format!("{}\n\n{}\n\nCall martial_guide for the full guide.", crate::describe::PURPOSE, crate::describe::WORKFLOW.join("\n")),
             }))
         }
         "ping" => Ok(json!({})),
@@ -121,6 +129,7 @@ pub fn handle(msg: &Value) -> Option<Value> {
             let name = msg.pointer("/params/name").and_then(Value::as_str).unwrap_or("");
             let args = msg.pointer("/params/arguments").cloned().unwrap_or(json!({}));
             Ok(match call(name, &args) {
+                Ok(Value::String(t)) => json!({"content": [{"type": "text", "text": t}], "isError": false}),
                 Ok(v) => json!({"content": [{"type": "text", "text": v.to_string()}], "structuredContent": v, "isError": false}),
                 Err(e) => json!({"content": [{"type": "text", "text": e}], "isError": true}),
             })
@@ -165,7 +174,10 @@ mod tests {
         assert!(handle(&json!({"jsonrpc":"2.0","method":"notifications/initialized"})).is_none());
         let list = handle(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list"})).unwrap();
         let names: Vec<&str> = list["result"]["tools"].as_array().unwrap().iter().map(|t| t["name"].as_str().unwrap()).collect();
-        assert_eq!(names, ["martial_check", "martial_claims", "martial_describe"]);
+        assert_eq!(names, ["martial_check", "martial_claims", "martial_guide", "martial_describe"]);
+        let guide =
+            handle(&json!({"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"martial_guide","arguments":{}}})).unwrap();
+        assert_eq!(guide["result"]["content"][0]["text"], crate::describe::GUIDE);
         let call = handle(&json!({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"martial_check","arguments":{"text":"This is clearly fine.","format":"md","profile":"general"}}})).unwrap();
         let r = &call["result"];
         assert_eq!(r["isError"], false);

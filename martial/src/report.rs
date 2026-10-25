@@ -183,4 +183,55 @@ impl Report {
         }
         o
     }
+
+    /// GitHub Actions workflow commands: violated problems as errors, undecided ones and
+    /// checks that did not run as warnings, each on its file and line, then a summary.
+    pub fn github(&self) -> String {
+        let mut o = String::new();
+        for p in &self.problems {
+            let level = if p.status == Status::Violated { "error" } else { "warning" };
+            let by = if p.by == By::Agent { "agent" } else { "author" };
+            let mut props = vec![format!("file={}", prop(&p.file))];
+            if p.line > 0 {
+                props.push(format!("line={}", p.line));
+                props.push(format!("col={}", p.col));
+                if p.end_line >= p.line {
+                    props.push(format!("endLine={}", p.end_line));
+                }
+            }
+            props.push(format!("title={}", prop(&format!("martial {} [{by}]", p.code))));
+            let msg = if p.line == 0 { format!("{}: {}", p.at, p.message) } else { p.message.clone() };
+            o.push_str(&format!("::{level} {}::{}\n", props.join(","), data(&msg)));
+        }
+        for n in &self.not_checked {
+            o.push_str(&format!(
+                "::warning file={},title={}::{}\n",
+                prop(&self.file),
+                prop(&format!("martial: {} not checked", n.check)),
+                data(&n.reason)
+            ));
+        }
+        let s = &self.summary;
+        o.push_str(&format!(
+            "martial {}: {} {} ({} violated, {} undecided, {} for the author, {} waived)\n",
+            self.martial,
+            self.file,
+            self.verdict.name(),
+            s.violated,
+            s.undecided,
+            s.for_author,
+            s.waived
+        ));
+        o
+    }
+}
+
+/// Escaping for a workflow command's message.
+fn data(s: &str) -> String {
+    s.replace('%', "%25").replace('\r', "%0D").replace('\n', "%0A")
+}
+
+/// Escaping for a workflow command's property value.
+fn prop(s: &str) -> String {
+    data(s).replace(':', "%3A").replace(',', "%2C")
 }

@@ -8,13 +8,15 @@ use martial::Request;
 
 const USAGE: &str = "usage:
   martial check FILE|- [--profile manuscript|software-doc|general] [--format md|tex]
-                [--sidecar FILE] [--no-sidecar] [--sources DIR] [--repo DIR] [--against OLD] [--json]
+                [--sidecar FILE] [--no-sidecar] [--sources DIR] [--repo DIR] [--against OLD]
+                [--json | --annotate github]
   martial claims FILE|- [--profile P] [--format md|tex] [--skeleton] [--json]
+  martial guide
   martial describe [--json]
   martial mcp
   martial --version
 
-Start with `martial describe`.";
+AI agents: start with `martial guide`.";
 
 fn fail(msg: &str) -> ExitCode {
     eprintln!("martial: {msg}");
@@ -25,11 +27,12 @@ struct Args {
     file: Option<String>,
     req: Request,
     json: bool,
+    github: bool,
     skeleton: bool,
 }
 
 fn parse(args: &[String], command: &str) -> Result<Args, String> {
-    let mut a = Args { file: None, req: Request::default(), json: false, skeleton: false };
+    let mut a = Args { file: None, req: Request::default(), json: false, github: false, skeleton: false };
     let mut i = 0;
     let value = |i: &mut usize, flag: &str| -> Result<String, String> {
         *i += 1;
@@ -53,11 +56,18 @@ fn parse(args: &[String], command: &str) -> Result<Args, String> {
             "--sources" if command == "check" => a.req.sources = Some(PathBuf::from(value(&mut i, arg)?)),
             "--repo" if command == "check" => a.req.repo = Some(PathBuf::from(value(&mut i, arg)?)),
             "--against" if command == "check" => a.req.against = Some(PathBuf::from(value(&mut i, arg)?)),
+            "--annotate" if command == "check" => match value(&mut i, arg)?.as_str() {
+                "github" => a.github = true,
+                v => return Err(format!("unknown annotation format {v:?}; github")),
+            },
             _ if arg.starts_with("--") => return Err(format!("unknown option {arg} for {command}")),
             _ if a.file.is_none() => a.file = Some(arg.to_string()),
             _ => return Err(format!("unexpected argument {arg:?}")),
         }
         i += 1;
+    }
+    if a.json && a.github {
+        return Err("give either --json or --annotate github, not both".into());
     }
     match a.file.as_deref() {
         None => return Err(format!("{command} needs a FILE (or - for stdin)")),
@@ -88,6 +98,10 @@ fn main() -> ExitCode {
             println!("{USAGE}");
             ExitCode::SUCCESS
         }
+        "guide" => {
+            print!("{}", martial::describe::GUIDE);
+            ExitCode::SUCCESS
+        }
         "describe" => {
             if rest.iter().any(|a| a == "--json") {
                 println!("{}", serde_json::to_string_pretty(&martial::describe::json()).unwrap());
@@ -109,6 +123,8 @@ fn main() -> ExitCode {
                 Ok(r) => {
                     if a.json {
                         println!("{}", serde_json::to_string_pretty(&r).unwrap());
+                    } else if a.github {
+                        print!("{}", r.github());
                     } else {
                         print!("{}", r.text());
                     }

@@ -57,6 +57,24 @@ fn json_and_stdin() {
 }
 
 #[test]
+fn github_annotations() {
+    let out = martial().args(["check", "examples/manuscript/paper.tex", "--annotate", "github"]).output().unwrap();
+    assert_eq!(out.status.code(), Some(1), "annotations keep the verdict's exit code");
+    let text = String::from_utf8(out.stdout).unwrap();
+    let lines: Vec<&str> = text.lines().collect();
+    assert_eq!(lines.iter().filter(|l| l.starts_with("::error ")).count(), 9);
+    assert_eq!(lines.iter().filter(|l| l.starts_with("::warning ")).count(), 5);
+    assert!(lines.contains(
+        &"::error file=examples/manuscript/sections/results.tex,line=10,col=13,endLine=10,title=martial unknown_citation [agent]::\"smith2021\" is not a key in the bibliography; did you mean \"smith2020\"?"
+    ));
+    // A sidecar problem has no line; its pointer goes into the message.
+    assert!(lines.iter().any(|l| l.starts_with("::error file=examples/manuscript/paper.martial.json,title=martial quote_not_found [agent]::examples/manuscript/paper.martial.json#/evidence/1/quote: ")));
+    assert!(lines.last().unwrap().starts_with("martial ") && lines.last().unwrap().contains(" violated (9 violated, 5 undecided"));
+    assert_eq!(code(&["check", "examples/clean/note.md", "--json", "--annotate", "github"]), 2);
+    assert_eq!(code(&["check", "examples/clean/note.md", "--annotate", "sarif"]), 2);
+}
+
+#[test]
 fn describe_json_lists_every_code() {
     let out = martial().args(["describe", "--json"]).output().unwrap();
     let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();

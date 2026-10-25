@@ -84,21 +84,42 @@ It sits beside the document as `<stem>.martial.json`; for example `paper.martial
 
 ## Calling it from an agent
 
+[AGENT_GUIDE.md](AGENT_GUIDE.md) is written for an agent that has never seen martial.
+It covers when to use it, the loop, what to do with every code, the rules an agent must not break, and how to report to the user.
+The binary carries it: `martial guide` prints it, and the Model Context Protocol (MCP) tool `martial_guide` returns it.
+
 The binary has no network access and opens no port.
-`martial mcp` serves the Model Context Protocol (MCP) on stdin and stdout with three tools: `martial_check`, `martial_claims` and `martial_describe`.
+`martial mcp` serves MCP on stdin and stdout with four tools: `martial_check`, `martial_claims`, `martial_guide` and `martial_describe`.
 Register it with an agent:
 
 ```bash
-claude mcp add martial -- martial mcp
+claude mcp add --scope user martial -- martial mcp
 ```
 
-or in any client's server list:
+or in any client's server list, as in [integrations/vscode/mcp.json](integrations/vscode/mcp.json):
 
 ```json
 { "mcpServers": { "martial": { "command": "martial", "args": ["mcp"] } } }
 ```
 
+[integrations/claude-skill/SKILL.md](integrations/claude-skill/SKILL.md) is a Claude Code skill that tells an agent when to reach for martial; copy it to `~/.claude/skills/martial/`.
 Agents without MCP call the command line with `--json`. A document can also arrive on stdin with `-` and `--format md` or `--format tex`.
+
+## In CI
+
+`--annotate github` prints GitHub Actions annotations, so each problem appears on its line in a pull request.
+Other repositories can use the action in [action.yml](action.yml):
+
+```yaml
+- uses: fullscreen-triangle/kwisatz-haderach/martial@main
+  with:
+    files: README.md docs/guide.md
+    profile: software-doc
+    fail-on: violated
+```
+
+It builds martial from the referenced version, annotates every problem, and writes each report to the job summary.
+It fails the step when a file reaches the `fail-on` verdict, and sets the output `verdict` to the worst verdict over all files.
 
 ## Install and develop
 
@@ -119,7 +140,9 @@ The examples are part of the contract. Each one in [examples](examples) must pro
 | [drift](examples/drift/after.md) | an edit that strengthened claims, changed numbers and added a citation |
 | [clean](examples/clean/note.md) | a clean verdict |
 
-CI runs the tests on Linux, macOS and Windows, and runs martial on this README.
+CI runs the tests on Linux, macOS and Windows, and runs martial on this README, the agent guide and the skill.
+It also runs the action on clean documents, which must pass, and on the drift example, which must fail.
+`tests/guide.rs` fails when the agent guide's code table disagrees with the binary's codes.
 
 ## Status
 

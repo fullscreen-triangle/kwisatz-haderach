@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "martial": {
+      "type": "stdio",
+      "command": "martial",
+      "args": ["mcp"]
+    }
+  }
+}

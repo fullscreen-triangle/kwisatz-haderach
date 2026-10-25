@@ -1,0 +1,69 @@
+name: martial
+description: Review prose with martial, a deterministic reviewer. Annotates each problem on its line, writes the reports to the job summary, and fails at the chosen verdict.
+
+inputs:
+  files:
+    description: Documents to check, separated by spaces (.md or .tex).
+    required: true
+  profile:
+    description: manuscript, software-doc or general. Empty means the sidecar's profile, else one chosen from the file type.
+    required: false
+    default: ""
+  args:
+    description: Extra arguments for `martial check`, for example `--sources refs --repo .`.
+    required: false
+    default: ""
+  fail-on:
+    description: "`violated` fails on violated problems; `undecided` also fails on undecided and incomplete verdicts."
+    required: false
+    default: violated
+
+outputs:
+  verdict:
+    description: The worst verdict over all files (clean, undecided, incomplete or violated).
+    value: ${{ steps.check.outputs.verdict }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install martial
+      shell: bash
+      run: |
+        cargo install --locked --quiet --path "$GITHUB_ACTION_PATH" --root "$RUNNER_TEMP/martial"
+        echo "$RUNNER_TEMP/martial/bin" >> "$GITHUB_PATH"
+
+    - name: Check
+      id: check
+      shell: bash
+      env:
+        FILES: ${{ inputs.files }}
+        PROFILE: ${{ inputs.profile }}
+        ARGS: ${{ inputs.args }}
+        FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        case "$FAIL_ON" in violated|undecided) ;; *) echo "::error title=martial::fail-on must be violated or undecided, not '$FAIL_ON'"; exit 2 ;; esac
+        status=0
+        worst=clean
+        rank() { case "$1" in clean) echo 0 ;; undecided) echo 1 ;; incomplete) echo 2 ;; *) echo 3 ;; esac; }
+        for f in $FILES; do
+          profile=()
+          if [ -n "$PROFILE" ]; then profile=(--profile "$PROFILE"); fi
+          set +e
+          # shellcheck disable=SC2086
+          martial check "$f" "${profile[@]}" $ARGS --annotate github
+          code=$?
+          # shellcheck disable=SC2086
+          report=$(martial check "$f" "${profile[@]}" $ARGS)
+          set -e
+          { echo "### martial: \`$f\`"; echo; echo '```text'; echo "$report"; echo '```'; echo; } >> "$GITHUB_STEP_SUMMARY"
+          verdict=$(echo "$report" | sed -n 's/^verdict \([a-z]*\):.*/\1/p' | head -n 1)
+          case "$code" in
+            0) ;;
+            1) status=1 ;;
+            3) if [ "$FAIL_ON" = undecided ]; then status=1; fi ;;
+            *) echo "::error title=martial::could not check $f (exit $code)"; status=1; verdict=violated ;;
+          esac
+          if [ "$(rank "$verdict")" -gt "$(rank "$worst")" ]; then worst=$verdict; fi
+        done
+        echo "verdict=$worst" >> "$GITHUB_OUTPUT"
+        exit $status

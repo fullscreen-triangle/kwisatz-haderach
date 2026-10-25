@@ -13,6 +13,9 @@ martial is a deterministic reviewer for prose that other agents edit. The README
 - `src/lib.rs`: `check` and `claims`, the profile and input resolution, waivers, weights and ranking.
 - `src/mcp.rs`: the Model Context Protocol (MCP) server on stdio. `src/main.rs`: the command line.
 - `examples/`: the contract examples. `tests/examples.rs` asserts their exact problem lists, in order.
+- `AGENT_GUIDE.md`: the guide for calling agents, compiled into the binary (`martial guide`). Its code table must match `src/codes.rs` row for row; `tests/guide.rs` enforces it. Change both together.
+- `action.yml`: the GitHub Action other repositories use. The `action` job in CI runs it on passing and failing inputs.
+- `integrations/`: the Claude Code skill and an MCP client config.
 
 ## Rules
 
@@ -23,5 +26,5 @@ martial is a deterministic reviewer for prose that other agents edit. The README
 
 ## Checks before calling something done
 
-`cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, and `cargo run --release -- check README.md`, whose verdict must be clean.
+`cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, and `martial check` on README.md, CLAUDE.md and AGENT_GUIDE.md, whose verdicts must be clean.
 CI (`../.github/workflows/martial.yml`, at the repository root) runs them on Linux, macOS and Windows.
