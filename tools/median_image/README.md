@@ -27,8 +27,9 @@ Photos-preview/
 ```
 
 Each folder that directly contains images gets one copy, and subfolders count as separate
-folders (`--no-recurse` turns that off). The tool skips hidden folders and the output
-folder itself. Unreadable files are reported and skipped. It never modifies the originals.
+folders (`--no-recurse` turns that off). The tool skips hidden files and folders (including
+the macOS `._` copies that appear on drives shared with a Mac) and the output folder
+itself. Unreadable files are reported and skipped. It never modifies the originals.
 
 Formats: jpg, jpeg, png, gif, bmp, tif, tiff and webp. It also reads heic and heif when
 `pillow-heif` is installed.

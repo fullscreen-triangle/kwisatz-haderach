@@ -57,8 +57,10 @@ def image_folders(roots: list[Path], recurse: bool, skip: Path):
                 d for d in dirnames
                 if not d.startswith(".") and (folder / d).resolve() != skip
             )
+            # Hidden files include macOS "._IMG.jpg" metadata twins, which are not images.
             images = sorted(
-                (folder / f for f in filenames if Path(f).suffix.lower() in EXTENSIONS),
+                (folder / f for f in filenames
+                 if not f.startswith(".") and Path(f).suffix.lower() in EXTENSIONS),
                 key=lambda p: p.name.lower(),
             )
             if images:
