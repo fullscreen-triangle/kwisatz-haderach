@@ -37,6 +37,14 @@ python -m tools.staging_assistant job \
 
 Outputs land in `tools/staging_assistant/output/`.
 
+### [`median_image/`](median_image/README.md)
+
+Walks image folders and copies one representative image per folder (the one nearest the folder's pixel-wise median) into a single preview folder, named after its source path, plus an `index.csv`.
+
+```bash
+python -m tools.median_image "D:/Photos" --out "D:/Photos-preview"
+```
+
 ## Why these are rule-based, not LLM-driven
 
 Both tools use explicit, auditable rules — concept vocabularies, audience profiles, bundling tables. When a submission gets rejected or a pull request gets ignored, you want to be able to look at the package and see exactly which rule produced the wrong framing or the wrong bundle, then update it. LLM-generated output would be fluent but opaque; you couldn't debug a rejection.
