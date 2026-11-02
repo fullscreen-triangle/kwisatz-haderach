@@ -50,11 +50,15 @@ def group(kp, create: bool = False):
     return g
 
 
-def read_items(kp) -> List[Item]:
+def read_items(kp, forges: bool = True) -> List[Item]:
+    """The Agent Smith group's entries, plus (unless `forges=False`) your forge tokens from
+    tracker's Git group (tools/keeper/forges.py), so every push and audit covers them."""
+    from tools.keeper import forges as forge_tokens
+    extra = forge_tokens.items(kp) if forges else []
     g = group(kp)
     if g is None:
-        return []
-    items = []
+        return extra
+    items = list(extra)
     for e in kp.find_entries(group=g, recursive=True) or []:
         fields = {"Title": e.title or "", "UserName": e.username or "", "Password": e.password or "",
                   "URL": e.url or "", "Notes": e.notes or ""}

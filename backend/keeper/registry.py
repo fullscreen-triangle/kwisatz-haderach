@@ -65,6 +65,10 @@ def build(env: Mapping[str, str]) -> List[Credential]:
         if a.kind == "imap":
             rows.append(Credential(f"mail-{a.id}", f"Mail · {a.label}", a.host, "static", 15 * 60,
                                    probes.probe_imap_for(a.id), "", f"inbox ({a.label}) and the plan"))
+    from backend import forges
+    for a in forges.discover(env):
+        rows.append(Credential(f"forge-{a.id}", f"Forge · {a.id}", a.host, "static", 6 * 3600,
+                               forges.probe_for(a.id), a.renew_url, "your repositories across forges"))
     rows.append(Credential("chigutiro", "chigutiro memory", "chigutiro (local)", "static", 10 * 60,
                            probes.probe_chigutiro, "", "memory of mail, contacts, events"))
     rows.append(Credential("laptop", "Laptop", "laptop node (tailnet)", "static", 5 * 60,

@@ -86,6 +86,13 @@ def get_feed(limit: int = 80):
     return feed.build(limit)
 
 
+@console.get("/forges")
+async def get_forges(refresh: bool = False):
+    import os
+    from backend import forges
+    return await forges.listing(os.environ, refresh=refresh)
+
+
 @console.get("/briefing")
 def get_briefing():
     from backend import briefing

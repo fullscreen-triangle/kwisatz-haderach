@@ -345,7 +345,7 @@ export default function Console() {
             <span style={{ color: live ? C.ok : C.warn }}>●</span> Agent Smith
           </div>
           <div style={{ display: 'flex', gap: 14, fontSize: 13 }}>
-            {[['forms', '/desk/forms'], ['runtime', '/desk/runtime'], ['brief', '/desk/brief'], ['plan', '/desk/plan'], ['inbox', '/desk/inbox'], ['keys', '/desk/keys']].map(([l, h]) => (
+            {[['forms', '/desk/forms'], ['repos', '/desk/forges'], ['runtime', '/desk/runtime'], ['brief', '/desk/brief'], ['plan', '/desk/plan'], ['inbox', '/desk/inbox'], ['keys', '/desk/keys']].map(([l, h]) => (
               <Link key={h} href={h} style={{ color: C.faint, textDecoration: 'none' }}>{l}</Link>
             ))}
           </div>
