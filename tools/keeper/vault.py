@@ -7,12 +7,12 @@ it is never stored, logged, or passed on a command line.
 from __future__ import annotations
 
 import os
-from datetime import timezone
+from datetime import datetime, timezone
 from getpass import getpass
 from pathlib import Path
 from typing import List, Optional
 
-from tools.keeper.render import GROUP, STANDARD_FIELDS, Item
+from tools.keeper.render import GROUP, STANDARD_FIELDS, Item, parse_pairs
 
 DEFAULT_VAULT = Path(os.environ.get("KEEPER_VAULT") or Path.home() / "Documents" / "vault.kdbx")
 
@@ -72,6 +72,41 @@ def read_items(kp) -> List[Item]:
 def find_entry(kp, title: str):
     g = group(kp)
     return kp.find_entries(group=g, title=title, first=True) if g else None
+
+
+def find_for(kp, keeper_id: str, env_names=()):
+    """The entry that holds a credential: by KeeperId, else by an Env attribute that already
+    exports one of `env_names` (an entry `import` made before the credential had an id)."""
+    g = group(kp)
+    if g is None:
+        return None
+    entries = kp.find_entries(group=g, recursive=True) or []
+    for e in entries:
+        if keeper_id and (e.get_custom_property("KeeperId") or "").strip() == keeper_id:
+            return e
+    for e in entries:
+        exported = {v for _, v in parse_pairs(e.get_custom_property("Env") or "")}
+        if exported & set(env_names):
+            return e
+    return None
+
+
+def adopt(e, *, keeper_id: str, strategy: str, env_spec: str, renew_url: str = "") -> None:
+    """Give an existing entry the convention's attributes, leaving its secret alone."""
+    for k, v in (("KeeperId", keeper_id), ("Strategy", strategy), ("Env", env_spec), ("RenewURL", renew_url)):
+        if v:
+            e.set_custom_property(k, v)
+
+
+def replace_secret(e, value: str, expires_at: Optional[datetime] = None) -> None:
+    """New Password; the old one stays in the entry's history, where KeePassXC shows it.
+    The expiry belongs to the key, so a new key without a known end date clears it."""
+    e.save_history()
+    e.password = value
+    e.expires = expires_at is not None
+    if expires_at is not None:
+        e.expiry_time = expires_at
+    e.touch(modify=True)
 
 
 def add_entry(kp, title: str, *, keeper_id: str, strategy: str, env_spec: str,

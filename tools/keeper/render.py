@@ -179,8 +179,6 @@ def parse_env_text(text: str) -> Dict[str, str]:
 # Known credentials in web/.env.local -> vault entries. Anything else that looks secret
 # gets its own static entry; anything else is a plain setting.
 IMPORT_MAP = [
-    {"id": "anthropic", "title": "Anthropic API", "strategy": "static",
-     "fields": {"Password": "ANTHROPIC_API_KEY"}},
     {"id": "garmin", "title": "Garmin Connect", "strategy": "refresh",
      "fields": {"UserName": "GARMIN_EMAIL", "Password": "GARMIN_PASSWORD"}},
     {"id": "amazon", "title": "Amazon PA API", "strategy": "static",
@@ -194,8 +192,18 @@ SECRETISH = re.compile(r"SECRET|TOKEN|PASSWORD|API_KEY|ACCESS_KEY|CLIENT_ID", re
 
 
 def plan_import(env: Dict[str, str]) -> List[dict]:
-    """Turn a .env.local dict into entry specs: {title, id, strategy, fields, env_spec}."""
+    """Turn a .env.local dict into entry specs: {title, id, strategy, fields, env_spec, env_names,
+    renew_url}. Plain API keys come from the shared catalogue, under whichever of their
+    names the file uses (CLAUDE_API_KEY still becomes ANTHROPIC_API_KEY on the server)."""
+    from backend.keeper import apikeys
     specs, used = [], set()
+    for k in apikeys.KEYS:
+        value = k.key(env)
+        used.update(k.env)
+        if value:
+            specs.append({"title": k.title, "id": k.id, "strategy": "static",
+                          "fields": {"Password": value}, "env_spec": k.env_spec,
+                          "env_names": k.env, "renew_url": k.renew_url})
     for m in IMPORT_MAP:
         present = {fld: env[var] for fld, var in m["fields"].items() if env.get(var)}
         if not present:

@@ -27,7 +27,7 @@ from typing import Mapping, Optional
 import httpx
 
 from backend import google_oauth
-from backend.keeper import github_app
+from backend.keeper import apikeys, github_app
 
 @dataclass
 class ProbeContext:
@@ -214,18 +214,26 @@ async def _probe_github_pat(ctx: ProbeContext, pat: str) -> ProbeResult:
 
 # --------------------------------------------------------------------------- Anthropic
 
-async def probe_anthropic(ctx: ProbeContext) -> ProbeResult:
-    key = ctx.env.get("ANTHROPIC_API_KEY")
-    if not key:
-        return _missing("ANTHROPIC_API_KEY not on the node")
-    resp = await ctx.client.get("https://api.anthropic.com/v1/models", params={"limit": 1},
-                                headers={"x-api-key": key, "anthropic-version": "2023-06-01"})
-    if resp.status_code == 200:
-        return ProbeResult(ok=True, detail="key accepted")
-    if resp.status_code in (401, 403):
-        return ProbeResult(ok=False, detail="Anthropic rejected the key — make a new one in the Console, "
-                                            "put it in the vault, push")
-    return _transient(resp, "Anthropic")
+def probe_apikey(spec: apikeys.Spec):
+    """A probe for one plain API key from the shared catalogue (apikeys.py)."""
+    async def probe(ctx: ProbeContext) -> ProbeResult:
+        key = spec.key(ctx.env)
+        if not key:
+            return _missing(apikeys.missing_detail(spec))
+        r = spec.request(key, ctx.env)
+        resp = await ctx.client.request(r.method, r.url, params=r.params or None,
+                                        headers=r.headers, json=r.body)
+        try:
+            body = resp.json()
+        except ValueError:
+            body = resp.text
+        v = spec.judge(resp.status_code, body)
+        detail = v.detail if v.ok is not False else f"{v.detail} — renew: python -m tools.keeper renew {spec.id}"
+        return ProbeResult(ok=v.ok, detail=detail, expires_at=v.expires_at)
+    return probe
+
+
+probe_anthropic = probe_apikey(apikeys.BY_ID["anthropic"])
 
 
 # --------------------------------------------------------------------------- Amazon

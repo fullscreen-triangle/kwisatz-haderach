@@ -11,6 +11,12 @@ python -m tools.keeper <command>
   add-laptop           put this laptop's node (Tailscale URL + token) in the vault, then push
   save-console-login   copy the desk website's login (made on the server) into the vault
   status               value-free table of the vault's Agent Smith entries
+  check [ID…]          ask each API key's provider, live, whether it works; show expiries;
+                       exit 1 if one needs you (--env-file web/.env.local checks that file)
+  renew ID… | --from-env
+                       replace keys: opens the provider's key page, takes the new key at a
+                       hidden prompt (or from web/.env.local), stores it only if the provider
+                       accepts it (old key kept in the entry's history), then pushes
   push [--host H]      send them to the server, restart, print the keeper's live verdict
   audit [--repo DIR]   fail if any vault value is in a git-tracked file
   selftest             exercise render/vault/audit against a throwaway vault
@@ -60,11 +66,23 @@ def import_into(kp):
     env = render.parse_env_text(env_path.read_text(encoding="utf-8")) if env_path.exists() else {}
     added, skipped = [], []
     for spec in render.plan_import(env):
+        names = spec.get("env_names", ())
+        held = vault.find_for(kp, spec["id"], names) if names else None
+        if held is not None:
+            # Already in the vault (maybe as "Imported · X" from an earlier run): give it the
+            # id and every export name, but never overwrite its key — `renew` does that,
+            # and only after the provider has accepted the new one.
+            vault.adopt(held, keeper_id=spec["id"], strategy=spec["strategy"], env_spec=spec["env_spec"],
+                        renew_url=spec.get("renew_url", ""))
+            differs = held.password != spec["fields"].get("Password")
+            skipped.append(f"{held.title}" + (f" (web/.env.local has a different key: "
+                                               f"renew {spec['id']} --from-env)" if differs else ""))
+            continue
         if vault.find_entry(kp, spec["title"]):
             skipped.append(spec["title"])
             continue
         vault.add_entry(kp, spec["title"], keeper_id=spec["id"], strategy=spec["strategy"],
-                        env_spec=spec["env_spec"], fields=spec["fields"])
+                        env_spec=spec["env_spec"], fields=spec["fields"], renew_url=spec.get("renew_url", ""))
         added.append(spec["title"])
 
     gmail = {name: (REPO / "web" / src).read_bytes()
@@ -253,6 +271,140 @@ def cmd_status(a):
               f"{exp:12} {names}{' | ' + files if files else ''}")
 
 
+SOON_DAYS = 14          # the server keeper's SOON (backend/keeper/service.py)
+ENV_LOCAL = REPO / "web" / ".env.local"
+
+
+def _verdict_row(spec, key, env, declared):
+    """(state, expires_at, detail) for one catalogue key, asked live from this machine."""
+    from backend.keeper import apikeys
+    if not key:
+        return "missing", declared, "not set"
+    v = apikeys.check(spec, key, env)
+    exp = min(filter(None, [v.expires_at, declared]), default=None)
+    if v.ok is False:
+        return "dead", exp, v.detail
+    if v.ok is None:
+        return "unknown", exp, v.detail
+    d = _days(exp)
+    if d is not None and d < 0:
+        return "expired", exp, v.detail
+    return ("soon" if d is not None and d <= SOON_DAYS else "ok"), exp, v.detail
+
+
+def cmd_check(a):
+    """Every plain API key, asked live from the laptop. Values never printed; exit 1 when one
+    needs you (rejected, expired, or within SOON_DAYS of its expiry)."""
+    from concurrent.futures import ThreadPoolExecutor
+    from backend.keeper import apikeys
+    if a.env_file:
+        env, declared, where = render.parse_env_text(Path(a.env_file).read_text(encoding="utf-8")), {}, a.env_file
+    else:
+        items = vault.read_items(vault.open_vault(Path(a.vault), keyfile=a.keyfile))
+        env = render.build(items).env
+        declared, where = {it.keeper_id: it.expires_at for it in items if it.keeper_id}, "the vault"
+    specs = [s for s in apikeys.KEYS if not a.ids or s.id in a.ids]
+    with ThreadPoolExecutor(max_workers=len(specs) or 1) as pool:
+        rows = list(pool.map(lambda s: (s, *_verdict_row(s, s.key(env), env, declared.get(s.id))), specs))
+    print(f"Keys in {where}, checked live with each provider:\n")
+    print(f"{'':9} {'id':12} {'expires':12} detail")
+    for s, state, exp, detail in rows:
+        d = _days(exp)
+        when = "—" if d is None else ("EXPIRED" if d < 0 else f"{d} days")
+        print(f"{STATE_MARK.get(state, state):9} {s.id:12} {when:12} {detail}")
+    todo = [(s, st) for s, st, _, _ in rows if st in ("dead", "expired", "soon")]
+    for s, st in todo:
+        print(f"\n  {s.title}: python -m tools.keeper renew {s.id}   ({s.renew_url})")
+    if not any(exp for _, _, exp, _ in rows):
+        print("\nNone of these providers reports an expiry. To be warned ahead of one, set Expires on the "
+              "vault entry (KeePassXC) or pass --expires to renew.")
+    print("\nGmail, Garmin, GitHub, mail accounts and the laptop are checked on the server: /desk/keys")
+    sys.exit(1 if todo else 0)
+
+
+def _parse_date(text: str):
+    t = datetime.fromisoformat(text)
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def cmd_renew(a):
+    """Replace keys in the vault, each only after its provider accepts the new one."""
+    import webbrowser
+    from backend.keeper import apikeys
+    env_file = render.parse_env_text(ENV_LOCAL.read_text(encoding="utf-8")) if a.from_env and ENV_LOCAL.exists() else {}
+    if a.from_env and not env_file:
+        raise SystemExit(f"--from-env: {ENV_LOCAL} is missing or empty")
+    unknown = [i for i in a.ids if i not in apikeys.BY_ID]
+    if unknown:
+        raise SystemExit(f"Unknown id(s) {', '.join(unknown)}; one of: {', '.join(apikeys.BY_ID)}")
+    if not a.ids and not a.from_env:
+        raise SystemExit("Name the key(s) to renew, e.g. renew openai — or --from-env for every key "
+                         "in web/.env.local that differs from the vault.")
+    expires = _parse_date(a.expires) if a.expires else None
+
+    kp = vault.open_vault(Path(a.vault), keyfile=a.keyfile)
+    specs = [apikeys.BY_ID[i] for i in a.ids] or [s for s in apikeys.KEYS if s.key(env_file)]
+    replaced = []                          # (spec, had an old key)
+    for spec in specs:
+        entry = vault.find_for(kp, spec.id, spec.env)
+        current = entry.password if entry is not None else None
+        print(f"{spec.title}:")
+        if a.from_env:
+            new = spec.key(env_file)
+            if not new:
+                print(f"  web/.env.local has none of {', '.join(spec.env)} — skipped.")
+                continue
+            if new == current:
+                print("  the vault already holds this key — nothing to do.")
+                continue
+            candidates = [new]
+        else:
+            if not a.no_browser:
+                print(f"  opening {spec.renew_url} — make a new key there, then paste it here.")
+                webbrowser.open(spec.renew_url)
+            candidates = (getpass(f"  new {spec.provider} key (not shown, Enter to skip): ").strip()
+                          for _ in range(3))
+        for new in candidates:
+            if not new:
+                break
+            if new == current:
+                print("  that is the key the vault already holds.")
+                continue
+            v = apikeys.check(spec, new, env_file)
+            if v.ok is False:
+                print(f"  not stored: {v.detail}.")
+                continue
+            if v.ok is None and _ask(f"  {v.detail} — store it unchecked? y/N", "n").lower() != "y":
+                continue
+            exp = expires or v.expires_at
+            if entry is None:
+                entry = vault.add_entry(kp, spec.title, keeper_id=spec.id, strategy="static",
+                                        env_spec=spec.env_spec, fields={"Password": new},
+                                        renew_url=spec.renew_url)
+                if exp:
+                    entry.expires, entry.expiry_time = True, exp
+            else:
+                vault.adopt(entry, keeper_id=spec.id, strategy="static", env_spec=spec.env_spec,
+                            renew_url=spec.renew_url)
+                vault.replace_secret(entry, new, exp)
+            print(f"  {v.detail} — stored" + (" (the old key is in the entry's history)" if current else "") + ".")
+            replaced.append((spec, bool(current)))
+            break
+    if not replaced:
+        print("\nNothing changed.")
+        return
+    kp.save()
+    if a.no_push:
+        print("\nSaved in the vault. Send it with: python -m tools.keeper push")
+    else:
+        push_items(vault.read_items(kp), a.host)
+    revoke = [s for s, had_old in replaced if had_old]
+    if revoke:
+        print("\nRevoke the old key(s) once the server shows the new one working:")
+        for s in revoke:
+            print(f"  {s.title}: {s.renew_url}")
+
+
 def cmd_push(a):
     push_items(vault.read_items(vault.open_vault(Path(a.vault), keyfile=a.keyfile)), a.host)
 
@@ -376,6 +528,11 @@ def cmd_selftest(a):
     selftest.run()
 
 
+def _key_ids():
+    from backend.keeper import apikeys
+    return list(apikeys.BY_ID)
+
+
 def main(argv=None):
     try:                                   # Windows consoles default to a legacy code page
         sys.stdout.reconfigure(encoding="utf-8")
@@ -415,6 +572,19 @@ def main(argv=None):
     la.add_argument("--no-push", action="store_true")
     la.set_defaults(fn=cmd_add_laptop)
     sub.add_parser("status").set_defaults(fn=cmd_status)
+    ck = sub.add_parser("check")
+    ck.add_argument("ids", nargs="*", help="only these keys (default: all)")
+    ck.add_argument("--env-file", default=None, help="check a .env file instead of the vault, e.g. web/.env.local")
+    ck.set_defaults(fn=cmd_check)
+    rn = sub.add_parser("renew")
+    rn.add_argument("ids", nargs="*", help="keys to replace: " + ", ".join(_key_ids()))
+    rn.add_argument("--from-env", action="store_true",
+                    help="take the new key(s) from web/.env.local; with no ids, every key there that differs")
+    rn.add_argument("--expires", default=None, help="YYYY-MM-DD the new key(s) stop working, if the provider set one")
+    rn.add_argument("--no-browser", action="store_true")
+    rn.add_argument("--no-push", action="store_true")
+    rn.add_argument("--host", default=DEFAULT_HOST)
+    rn.set_defaults(fn=cmd_renew)
     ps = sub.add_parser("push")
     ps.add_argument("--host", default=DEFAULT_HOST)
     ps.set_defaults(fn=cmd_push)

@@ -204,3 +204,69 @@ def test_snapshot_is_value_free(tmp_path):
                "detail", "expires_at", "days_left", "auto_expires_at", "last_checked", "last_ok",
                "last_renewed", "next_check"}
     assert set(k.snapshot()["credentials"][0]) == allowed
+
+
+# ---------------------------------------------------------------- plain API keys (apikeys.py)
+
+from backend.keeper import apikeys
+
+
+def probe_key(kid, code, body, env, tmp_path, seen=None):
+    def handler(req):
+        if seen is not None:
+            seen.append(req)
+        return httpx.Response(code, json=body)
+    return run(probes.probe_apikey(apikeys.BY_ID[kid])(ctx_with(handler, env, tmp_path)))
+
+
+def test_anthropic_accepts_claude_alias(tmp_path):
+    seen = []
+    r = probe_key("anthropic", 200, {}, {"CLAUDE_API_KEY": "ck"}, tmp_path, seen)
+    assert r.ok is True and seen[0].headers["x-api-key"] == "ck"
+
+
+@pytest.mark.parametrize("kid,code,body,ok,word", [
+    ("openai", 200, {"data": []}, True, "accepted"),
+    ("openai", 401, {"error": {"message": "Incorrect API key provided: sk-ab***yz"}}, False, "rejected"),
+    ("openai", 429, {}, None, "retry"),
+    ("gemini", 400, {"error": {"details": [{"reason": "API_KEY_INVALID"}]}}, False, "rejected"),
+    ("gemini", 400, {"error": {"message": "API key expired. Please renew the API key."}}, False, "expired"),
+    ("gemini", 403, {}, False, "restricted"),
+    ("gemini", 503, {}, None, "retry"),
+    ("you", 402, {}, False, "credit"),
+    ("you", 200, {"results": {}}, True, "accepted"),
+    ("mapbox", 200, {"code": "TokenExpired"}, False, "expired"),
+    ("mapbox", 401, {"code": "TokenInvalid"}, False, "rejected"),
+    ("openweather", 401, {}, False, "activate"),
+])
+def test_apikey_verdicts(kid, code, body, ok, word, tmp_path):
+    spec = apikeys.BY_ID[kid]
+    r = probe_key(kid, code, body, {spec.env[0]: "k"}, tmp_path)
+    assert r.ok is ok and word in r.detail
+    assert "sk-ab" not in r.detail                       # provider error text is never echoed
+    if ok is False:
+        assert f"renew {kid}" in r.detail
+
+
+def test_huggingface_reads_role_and_expiry(tmp_path):
+    body = {"name": "someone", "auth": {"type": "access_token",
+            "accessToken": {"role": "fineGrained", "expiresAt": "2027-01-31T00:00:00.000Z"}}}
+    r = probe_key("huggingface", 200, body, {"HUGGINGFACE_API_KEY": "hf"}, tmp_path)
+    assert r.ok and "fineGrained" in r.detail and r.expires_at == datetime(2027, 1, 31, tzinfo=timezone.utc)
+
+
+def test_apikey_missing_names_the_fix(tmp_path):
+    r = probe_key("openai", 200, {}, {}, tmp_path)
+    assert r.missing and "OPENAI_API_KEY" in r.detail and "renew openai" in r.detail
+
+
+def test_you_probe_posts_a_search(tmp_path):
+    seen = []
+    probe_key("you", 200, {}, {"YOU_API_KEY": "y"}, tmp_path, seen)
+    assert seen[0].method == "POST" and seen[0].headers["x-api-key"] == "y"
+
+
+def test_registry_has_every_catalogue_key_once():
+    from backend.keeper.registry import REGISTRY
+    ids = [c.id for c in REGISTRY]
+    assert len(ids) == len(set(ids)) and set(apikeys.BY_ID) <= set(ids)
