@@ -332,3 +332,8 @@ def test_a_task_runs_in_the_service_and_saves_its_record(tmp_path):
     lines = (tmp_path / "tasks" / t["id"] / "record.jsonl").read_text().splitlines()
     assert [json.loads(l)["kind"] for l in lines][:2] == ["raise", "propose"]
     assert json.loads((tmp_path / "tasks" / t["id"] / "task.json").read_text())["status"] == "answered"
+
+
+def test_agents_that_answer_are_told_how_to_draw_a_view_and_checks_are_not():
+    from backend.primitive.proposal import render
+    assert "```spectacular" in render(ctx("tabulate it")) and "```spectacular" not in render(ctx("check it", "e"))

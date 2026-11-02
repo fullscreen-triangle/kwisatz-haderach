@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Markdown from './Markdown';
+import View, { viewsIn } from './View';
 import { C, linkBtn } from './Reader';
 
 // One primitive task (backend/primitive) as it grows: the answer with its grade, then the
@@ -55,7 +56,8 @@ export default function TaskPanel({ taskId, onRead, onClose }) {
 
       {o?.kind === 'convergent' && (
         <div style={{ borderLeft: `3px solid ${(GRADE[o.grade] || GRADE.unconfirmed).color}`, paddingLeft: 12 }}>
-          <Markdown text={o.value} onRead={onRead} />
+          <Markdown text={viewsIn(o.value).text} onRead={onRead} />
+          {viewsIn(o.value).views.map((v, i) => <View key={i} spec={v.spec} error={v.error} />)}
           <div style={{ color: C.faint, fontSize: 12, marginTop: 6 }}>
             {o.grade} — {(GRADE[o.grade] || GRADE.unconfirmed).says}
           </div>

@@ -108,6 +108,18 @@ A check must be honest and specific: holds=false when the work does not \
 satisfy what it was meant to do, or contains an error you can name."""
 
 
+# The console draws a spectacular view (web/components/console/View.js) for any such block
+# in an answer; its spec is the one in spectacular-specifications.md §4, rows inline.
+VIEWS = (
+    "If a table of numbers is part of your answer and a picture would make it clearer, you may put a view "
+    "inside the answer text as a block that starts with ```spectacular and ends with ```, holding one JSON "
+    'spec: {"version":"spectacular/v0","title":"...","data":{"values":[{...},...]},'
+    '"fields":{"<column>":{"type":"quantitative"|"nominal"}},"views":[{"id":"...","type":'
+    '"scatter"|"histogram"|"bars"|"density"|"scatter3d", ...}]} — scatter takes x and y (and color), '
+    "histogram and bars take field. Codes and identifiers are nominal. Use only rows you computed.\n\n"
+)
+
+
 def render(ctx: Context) -> str:
     s = f"OVERALL TASK:\n{ctx.task}\n\n"
     if ctx.path:
@@ -120,6 +132,8 @@ def render(ctx: Context) -> str:
     if ctx.foreclosed:
         s += "RULED OUT (already tried here or above you; do not propose these again):\n"
         s += "".join(f"  - {f.what} — {f.why}\n" for f in ctx.foreclosed) + "\n"
+    if ctx.role != "e":
+        s += VIEWS
     if ctx.role == "e":
         s += "You are a CHECK: realise with a verdict on the [do] result above.\n"
     elif ctx.must_realise():
