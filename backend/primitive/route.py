@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Protocol, Set
+from typing import Dict, List, Optional, Protocol, Set, Tuple
 
 from backend.primitive.proposal import SYSTEM, Context, Proposal, ReplyError, parse_reply, render
 from backend.primitive.trie import clip
@@ -253,19 +253,47 @@ class RoutedProposer:
             p = parse_reply(reply, ctx.role)
         except (ChatError, ReplyError) as e:
             u.failures += 1
-            msg = str(e)
             if isinstance(e, ChatError) and label == model:
-                kind = refusal(msg)
-                if kind == "account":
-                    credit = msg.startswith("HTTP 402") or any(w in msg.lower() for w in NO_CREDIT)
-                    self.blocked[provider_of(model)] = ("the account has no credits left" if credit
-                                                        else clip(msg, 200))
-                elif kind == "model":
-                    self.dead.add(model)
+                self._note(model, str(e))
             raise
         for c in p.chunks:
             c.by = label
         return p
+
+    def _note(self, model: str, msg: str) -> None:
+        kind = refusal(msg)
+        if kind == "account":
+            credit = msg.startswith("HTTP 402") or any(w in msg.lower() for w in NO_CREDIT)
+            self.blocked[provider_of(model)] = "the account has no credits left" if credit else clip(msg, 200)
+        elif kind == "model":
+            self.dead.add(model)
+
+    async def ask_json(self, spec: str, system: str, user: str) -> Tuple[str, dict]:
+        """One JSON object from the pool for a non-trie caller (e.g. reading a form), with the
+        same order, failover and refusals as `propose`; the local model last."""
+        from backend.primitive.proposal import extract_json, strip_thinking
+        errors: List[str] = []
+        models = self.candidates(spec, set())[:self.max_tries] + ([self.local] if self.local else [])
+        for m in models:
+            if provider_of(m) in self.blocked:
+                continue
+            u = self.usage.setdefault(m, Usage())
+            u.calls += 1
+            try:
+                v = extract_json(strip_thinking(await self.backend.chat(m, system, user)))
+            except ChatError as e:
+                u.failures += 1
+                self._note(m, str(e))
+                errors.append(f"{m}: {clip(str(e), 160)}")
+                continue
+            if v is None:
+                u.failures += 1
+                errors.append(f"{m}: no JSON object in the reply")
+                continue
+            self.last = m
+            return m, v
+        errors += [f"{p} refused the account: {why}" for p, why in self.blocked.items()]
+        raise ChatError("; ".join(errors) or "no usable model in the pool")
 
     async def propose(self, ctx: Context) -> Proposal:
         spec = classify(ctx)

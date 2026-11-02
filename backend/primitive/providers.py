@@ -32,6 +32,7 @@ from backend.primitive.trie import clip
 CALL_TIMEOUT = 300.0          # reasoning models can think for minutes
 CATALOG_TTL = 30 * 60
 REFUSED_TTL = 60 * 60         # a refused account (no credit) sits out this long, across tasks
+OLLAMA_CTX = 8192             # tokens; one model fits the node's 7.6 GB at this size (deploy notes)
 
 
 @dataclass(frozen=True)
@@ -145,9 +146,21 @@ class Providers:
         except httpx.HTTPError as e:
             raise ChatError(f"unreachable: {type(e).__name__}") from e
 
+    async def _ollama(self, name: str, system: str, user: str) -> str:
+        """Ollama's own API, so the context window can be set: its OpenAI endpoint keeps the
+        server default and cuts a long prompt without saying so."""
+        resp = await self.client().post(_ollama_base(self.env)[:-3] + "/api/chat", json={
+            "model": name, "stream": False, "options": {"num_ctx": OLLAMA_CTX},
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}, timeout=900)
+        if resp.status_code != 200:
+            raise _error(resp)
+        return (resp.json().get("message") or {}).get("content") or ""
+
     async def _openai(self, p: Provider, name: str, system: str, user: str) -> str:
-        base = _ollama_base(self.env) if p.id == "ollama" else p.base
-        headers = {"Authorization": f"Bearer {p.key(self.env)}"} if p.keeper_id else {}
+        if p.id == "ollama":
+            return await self._ollama(name, system, user)
+        base = p.base
+        headers = {"Authorization": f"Bearer {p.key(self.env)}"}
         resp = await self.client().post(f"{base}/chat/completions", headers=headers, json={
             "model": name, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]})
         if resp.status_code != 200:
