@@ -215,6 +215,41 @@ function RunPanel({ runId, onRead }) {
   );
 }
 
+// The brief (backend/briefing.py): at most three things first, then what else waits for you,
+// each with one thing to do and where it was read. Nothing waiting → nothing shown.
+function Brief({ version }) {
+  const [b, setB] = useState(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    fetch('/api/desk/console/briefing').then(r => r.json()).then(d => d.first && setB(d)).catch(() => {});
+  }, [version]);
+  if (!b || (!b.first.length && !b.needs_you.length)) return null;
+  const Item = ({ it, big }) => (
+    <div style={{ padding: '8px 0', borderBottom: `1px solid ${C.line}` }}>
+      <div style={{ color: C.ink, fontSize: big ? 15 : 14 }}>{it.title}</div>
+      {big && it.why && <div style={{ color: C.soft, fontSize: 13, margin: '2px 0' }}>{it.why}</div>}
+      <div style={{ display: 'flex', gap: 12, fontSize: 12, color: C.faint, alignItems: 'baseline' }}>
+        {it.do?.href && <a href={it.do.href} target={it.do.href.startsWith('http') ? '_blank' : undefined}
+          rel="noreferrer" style={{ color: C.signal, textDecoration: 'none', fontSize: 13 }}>{it.do.label} →</a>}
+        <span>{it.source}</span>
+      </div>
+    </div>
+  );
+  return (
+    <div style={{ background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: '10px 14px', margin: '14px 0' }}>
+      <div style={{ color: C.faint, fontSize: 12, marginBottom: 2 }}>First</div>
+      {b.first.map((it, i) => <Item key={i} it={it} big />)}
+      {b.needs_you.length > 0 && (
+        <button onClick={() => setMore(!more)} style={{ ...linkBtn, paddingBottom: 0 }}>
+          {more ? 'less' : `${b.needs_you.length} more waiting for you`}
+        </button>
+      )}
+      {more && b.needs_you.map((it, i) => <Item key={i} it={it} />)}
+      {b.unread_sources?.length > 0 && <div style={{ color: C.faint, fontSize: 11, marginTop: 6 }}>not read: {b.unread_sources.join(', ')}</div>}
+    </div>
+  );
+}
+
 // ?words: search everywhere (laptop, mail, web) as a Harare run, each source judged by
 // spraypaint (components/desk/FindRun); above it, the mail's phrased answer when it has one.
 function SearchResults({ q, onRead, onClose }) {
@@ -284,6 +319,13 @@ export default function Console() {
     if (d && !d.error && !d.detail) setDoc(d);
   }, []);
 
+  useEffect(() => {                       // links from the brief: ?task=<id>, ?read=<kind>/<ref>
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('task')) setTaskId(q.get('task'));
+    const r = q.get('read');
+    if (r && r.includes('/')) read(r.split('/')[0], r.slice(r.indexOf('/') + 1));
+  }, [read]);
+
   const open = item => (item.kind === 'run' ? setRunId(item.ref) : read(item.kind === 'draft' ? 'note' : item.kind, item.ref));
 
   return (
@@ -311,6 +353,7 @@ export default function Console() {
 
         <CommandBar onRun={run} onSearch={setQuery} onAsk={ask} busy={busy} />
         <NowNext feed={feed} />
+        <Brief version={feed?.version?.join('.')} />
 
         {query && <SearchResults q={query} onRead={read} onClose={() => setQuery('')} />}
         {taskId && <TaskPanel taskId={taskId} onRead={read} onClose={() => setTaskId(null)} />}

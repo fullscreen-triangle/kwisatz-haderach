@@ -86,6 +86,12 @@ def get_feed(limit: int = 80):
     return feed.build(limit)
 
 
+@console.get("/briefing")
+def get_briefing():
+    from backend import briefing
+    return briefing.build()
+
+
 @console.get("/feed/stream")
 async def stream_feed(request: Request):
     async def events():
