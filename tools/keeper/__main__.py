@@ -392,6 +392,8 @@ def cmd_renew(a):
             break
     if not replaced:
         print("\nNothing changed.")
+        if a.push_anyway:
+            push_items(vault.read_items(kp), a.host)
         return
     kp.save()
     if a.no_push:
@@ -583,6 +585,8 @@ def main(argv=None):
     rn.add_argument("--expires", default=None, help="YYYY-MM-DD the new key(s) stop working, if the provider set one")
     rn.add_argument("--no-browser", action="store_true")
     rn.add_argument("--no-push", action="store_true")
+    rn.add_argument("--push-anyway", action="store_true",
+                    help="push even when no key changed (e.g. to send forge tokens), with one password prompt")
     rn.add_argument("--host", default=DEFAULT_HOST)
     rn.set_defaults(fn=cmd_renew)
     ps = sub.add_parser("push")

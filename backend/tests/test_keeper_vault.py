@@ -68,7 +68,7 @@ def _renew(kp, tmp_path, monkeypatch, verdict, expires=None):
     monkeypatch.setattr(apikeys, "check", lambda spec, key, env={}: verdict)
     pushed = []
     monkeypatch.setattr(cli, "push_items", lambda items, host: pushed.append(items))
-    a = type("A", (), dict(vault="x", keyfile=None, ids=["anthropic"], from_env=True, expires=expires,
+    a = type("A", (), dict(vault="x", keyfile=None, ids=["anthropic"], from_env=True, expires=expires, push_anyway=False,
                            no_browser=True, no_push=False, host="h"))()
     cli.cmd_renew(a)
     return pushed
