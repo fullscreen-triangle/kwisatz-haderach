@@ -238,6 +238,10 @@ def test_anthropic_accepts_claude_alias(tmp_path):
     ("mapbox", 200, {"code": "TokenExpired"}, False, "expired"),
     ("mapbox", 401, {"code": "TokenInvalid"}, False, "rejected"),
     ("openweather", 401, {}, False, "activate"),
+    ("deepseek", 200, {"is_available": True, "balance_infos": [{"currency": "USD", "total_balance": "49.75"}]},
+     True, "49.75 USD"),
+    ("deepseek", 200, {"is_available": False, "balance_infos": [{"currency": "USD", "total_balance": "0.00"}]},
+     False, "no balance"),
 ])
 def test_apikey_verdicts(kid, code, body, ok, word, tmp_path):
     spec = apikeys.BY_ID[kid]

@@ -55,23 +55,25 @@ PROVIDERS: Dict[str, Provider] = {p.id: p for p in [
     Provider("anthropic", "Claude", "https://api.anthropic.com/v1", "anthropic", "anthropic"),
     Provider("openai", "OpenAI", "https://api.openai.com/v1", "openai"),
     Provider("gemini", "Gemini", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini"),
+    Provider("deepseek", "DeepSeek", "https://api.deepseek.com", "deepseek"),
     Provider("hf", "Hugging Face", "https://router.huggingface.co/v1", "huggingface"),
     Provider("ollama", "Ollama (this node)", "", None),
 ]}
 
 # Strongest for the job first; families mixed in `verify` so a check can always leave the
-# producer's family. Checked against the live catalogs on 2026-11-02.
+# producer's family. Accounts with credit lead (2026-11-02: OpenAI paid, DeepSeek with a
+# balance, Gemini Flash free tier); an account that refuses for lack of credit is switched
+# off for an hour on its first refusal, so its entries cost one call.
 CURATED = Pool(
-    code=["anthropic/claude-sonnet-5-5", "openai/gpt-5.5", "hf/deepseek-ai/DeepSeek-V4-Flash",
-          "hf/Qwen/Qwen2.5-Coder-32B-Instruct", "gemini/gemini-3.5-flash"],
-    reasoning=["openai/gpt-5.5", "anthropic/claude-opus-5-5", "gemini/gemini-3.1-pro-preview",
-               "hf/deepseek-ai/DeepSeek-R1-0528", "hf/Qwen/Qwen3-235B-A22B-Thinking-2507",
-               "gemini/gemini-3.5-flash"],
-    general=["anthropic/claude-sonnet-5-5", "openai/gpt-5.5", "gemini/gemini-3.5-flash",
-             "hf/deepseek-ai/DeepSeek-V4-Flash", "hf/Qwen/Qwen3-235B-A22B-Instruct-2507"],
-    verify=["gemini/gemini-3.5-flash", "openai/gpt-5.4-mini", "anthropic/claude-haiku-5-5",
-            "hf/deepseek-ai/DeepSeek-V4-Flash", "hf/Qwen/Qwen3-235B-A22B-Instruct-2507",
-            "hf/meta-llama/Llama-3.3-70B-Instruct", "hf/google/gemma-4-31B-it", "hf/zai-org/GLM-5.3-Flash"],
+    code=["openai/gpt-5.5", "deepseek/deepseek-v4-pro", "anthropic/claude-sonnet-5-5",
+          "hf/deepseek-ai/DeepSeek-V4-Flash", "hf/Qwen/Qwen2.5-Coder-32B-Instruct", "gemini/gemini-3.5-flash"],
+    reasoning=["openai/gpt-5.5", "deepseek/deepseek-v4-pro", "anthropic/claude-opus-5-5",
+               "gemini/gemini-3.1-pro-preview", "hf/deepseek-ai/DeepSeek-R1-0528", "gemini/gemini-3.5-flash"],
+    general=["openai/gpt-5.5", "deepseek/deepseek-flash", "anthropic/claude-sonnet-5-5", "gemini/gemini-3.5-flash",
+             "hf/Qwen/Qwen3-235B-A22B-Instruct-2507"],
+    verify=["deepseek/deepseek-flash", "gemini/gemini-3.5-flash", "openai/gpt-5.4-mini", "anthropic/claude-haiku-5-5",
+            "hf/Qwen/Qwen3-235B-A22B-Instruct-2507", "hf/meta-llama/Llama-3.3-70B-Instruct",
+            "hf/google/gemma-4-31B-it", "hf/zai-org/GLM-5.3-Flash"],
 )
 
 

@@ -166,6 +166,20 @@ def _hf_judge(code, body):
     return Verdict(True, f"token accepted for {who} ({role})", _find_expiry(token))
 
 
+def _deepseek_req(key, env):
+    # The balance, not just the key: an empty account is the failure the other probes miss.
+    return Request("GET", "https://api.deepseek.com/user/balance", headers={"Authorization": f"Bearer {key}"})
+
+
+def _deepseek_judge(code, body):
+    if code != 200 or not isinstance(body, dict):
+        return _common(code, "DeepSeek")
+    left = ", ".join(f"{b.get('total_balance')} {b.get('currency')}" for b in body.get("balance_infos") or [])
+    if body.get("is_available") is False:
+        return Verdict(False, f"DeepSeek accepted the key but the account has no balance left ({left or 'none'})")
+    return Verdict(True, f"key accepted · balance {left or 'unknown'}")
+
+
 def _you_req(key, env):
     # No free key check exists: this is one real search, hence the 12 h interval.
     return Request("POST", "https://ydc-index.io/v1/search", headers={"X-API-Key": key},
@@ -213,6 +227,8 @@ KEYS: List[Spec] = [
          "https://platform.openai.com/api-keys", "console models", 30 * 60, _openai_req, _openai_judge),
     Spec("gemini", "Gemini API", "Google AI Studio", ("GEMINI_API_KEY", "GOOGLE_API_KEY"),
          "https://aistudio.google.com/apikey", "console models", 30 * 60, _gemini_req, _gemini_judge),
+    Spec("deepseek", "DeepSeek API", "DeepSeek", ("DEEPSEEK_API_KEY",),
+         "https://platform.deepseek.com/api_keys", "console models", 30 * 60, _deepseek_req, _deepseek_judge),
     Spec("huggingface", "Hugging Face", "Hugging Face", ("HF_TOKEN", "HUGGINGFACE_API_KEY"),
          "https://huggingface.co/settings/tokens", "console models (Inference Providers)", 30 * 60,
          _hf_req, _hf_judge),

@@ -27,7 +27,7 @@ const STRATEGY = {
 const PUSH_HINT = 'Update the entry in KeePassXC, then run: python -m tools.keeper push';
 // Plain API keys (backend/keeper/apikeys.py): `renew` checks the new key with the provider,
 // stores it and pushes, in one step.
-const RENEWABLE = new Set(['anthropic', 'openai', 'gemini', 'huggingface', 'you', 'mapbox', 'openweather']);
+const RENEWABLE = new Set(['anthropic', 'openai', 'gemini', 'deepseek', 'huggingface', 'you', 'mapbox', 'openweather']);
 
 function ago(iso, now) {
   if (!iso) return '—';
