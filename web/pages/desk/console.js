@@ -4,12 +4,15 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Markdown from '../../components/console/Markdown';
 import FindRun from '../../components/desk/FindRun';
+import TaskPanel from '../../components/console/TaskPanel';
 import { C, CSS, Reader, linkBtn, post, sans } from '../../components/console/Reader';
 import { KIND_COLOR } from '../../components/console/ForceGraph';
 
 // The console — the phone's home screen (PWA start_url).
 //
 //   Say it       type or dictate a command; agents perform it. "?words" searches instead.
+//   Models       the same box, switched to "models": the task goes to primitive's trie of
+//                agents, each routed to a model, checks put to other families (TaskPanel)
 //   Now / next   what the plan says to be doing
 //   Feed         one line per thing that moved: runs, mail, notes, drafts, repos, keys
 //   Reader       tap anything → it opens in full, as clean text; links inside open in place
@@ -54,20 +57,64 @@ function useDictation(onText) {
   return { supported, listening, toggle };
 }
 
-function CommandBar({ onRun, onSearch, busy }) {
+// Models mode: the task goes to primitive (backend/primitive) — routed to the model that
+// suits each agent, checks put to other families — or to one model picked here.
+function useModels(enabled) {
+  const [models, setModels] = useState(null);
+  useEffect(() => {
+    if (!enabled || models) return;
+    fetch('/api/desk/primitive/models').then(r => r.json()).then(d => !d.error && setModels(d)).catch(() => {});
+  }, [enabled, models]);
+  return models;
+}
+
+function ModelPicker({ models, value, onChange }) {
+  const ids = [];
+  for (const s of ['general', 'reasoning', 'code', 'verify']) {
+    for (const m of models?.pool?.[s] || []) if (m.served && !ids.includes(m.id)) ids.push(m.id);
+  }
+  if (models?.local && !ids.includes(models.local)) ids.push(models.local);
+  const off = Object.entries(models?.providers || {}).filter(([, p]) => !p.available);
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 8, fontSize: 13, color: C.faint, flexWrap: 'wrap' }}>
+      <select value={value} onChange={e => onChange(e.target.value)} style={{
+        background: C.panel, color: C.ink, border: `1px solid ${C.line}`, borderRadius: 8, padding: '6px 8px', fontSize: 13 }}>
+        <option value="">routed — each agent to the model that suits it</option>
+        {ids.map(id => <option key={id} value={id}>{id}</option>)}
+      </select>
+      {off.length > 0 && <span>off: {off.map(([id, p]) => `${p.label} (${p.why})`).join(', ')}</span>}
+    </div>
+  );
+}
+
+function CommandBar({ onRun, onSearch, onAsk, busy }) {
   const [text, setText] = useState('');
+  const [mode, setMode] = useState('desk');
+  const [model, setModel] = useState('');
+  const models = useModels(mode === 'models');
   const dict = useDictation(setText);
   const submit = () => {
     const t = text.trim();
     if (!t) return;
-    if (t.startsWith('?')) onSearch(t.slice(1).trim()); else onRun(t);
+    if (t.startsWith('?')) onSearch(t.slice(1).trim());
+    else if (mode === 'models') onAsk(t, model);
+    else onRun(t);
     setText('');
   };
+  const tab = m => ({ ...linkBtn, padding: '2px 10px', borderRadius: 8, color: mode === m ? C.ink : C.faint,
+                      background: mode === m ? C.panel2 : 'transparent' });
   return (
+    <div>
+    <div style={{ display: 'flex', gap: 4, marginBottom: 8, fontSize: 13 }}>
+      <button onClick={() => setMode('desk')} style={tab('desk')}>desk</button>
+      <button onClick={() => setMode('models')} style={tab('models')}>models</button>
+    </div>
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-      <textarea value={text} onChange={e => setText(e.target.value)} rows={2}
+      <textarea value={text} onChange={e => setText(e.target.value)} rows={mode === 'models' ? 4 : 2}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
-        placeholder="Say what to do — or ?words to search the laptop, mail and web"
+        placeholder={mode === 'models'
+          ? 'Ask the models — a question or a task; checks go to other model families'
+          : 'Say what to do — or ?words to search the laptop, mail and web'}
         style={{ flex: 1, resize: 'none', background: C.panel, color: C.ink, border: `1px solid ${C.line}`,
                  borderRadius: 12, padding: '12px 14px', fontSize: 16, fontFamily: sans, outline: 'none' }} />
       {dict.supported && (
@@ -79,6 +126,8 @@ function CommandBar({ onRun, onSearch, busy }) {
       <button onClick={submit} disabled={busy} style={{
         height: 48, padding: '0 18px', borderRadius: 12, border: 'none', background: C.signal, color: C.ground,
         fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>Go</button>
+    </div>
+    {mode === 'models' && <ModelPicker models={models} value={model} onChange={setModel} />}
     </div>
   );
 }
@@ -204,6 +253,7 @@ export default function Console() {
   const [doc, setDoc] = useState(null);
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
+  const [taskId, setTaskId] = useState(null);
 
   useEffect(() => {
     fetch('/api/desk/console/feed').then(r => r.json()).then(d => !d.error && setFeed(d)).catch(() => {});
@@ -219,6 +269,13 @@ export default function Console() {
     const r = await post('/api/desk/agents/runs', tool ? { text, tool, args } : { text }).catch(() => null);
     setBusy(false);
     if (r?.id) { setRunId(r.id); setDoc(null); setQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  }, []);
+
+  const ask = useCallback(async (task, model) => {
+    setBusy(true);
+    const r = await post('/api/desk/primitive/tasks', model ? { task, model } : { task }).catch(() => null);
+    setBusy(false);
+    if (r?.id) { setTaskId(r.id); setDoc(null); setQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   }, []);
 
   const read = useCallback(async (kind, ref) => {
@@ -252,10 +309,11 @@ export default function Console() {
           </div>
         </div>
 
-        <CommandBar onRun={run} onSearch={setQuery} busy={busy} />
+        <CommandBar onRun={run} onSearch={setQuery} onAsk={ask} busy={busy} />
         <NowNext feed={feed} />
 
         {query && <SearchResults q={query} onRead={read} onClose={() => setQuery('')} />}
+        {taskId && <TaskPanel taskId={taskId} onRead={read} onClose={() => setTaskId(null)} />}
         {runId && <RunPanel runId={runId} onRead={read} />}
 
         <div style={{ marginTop: 12 }}>

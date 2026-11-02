@@ -31,6 +31,7 @@ from backend.planner import service as planner_service
 from backend.individuate import service as individuate_service
 import backend.reading as reading_service
 from backend.routes import console as console_routes
+from backend.routes import primitive as primitive_routes
 from backend.agents import service as agents_service
 from backend.repos import service as repos_service
 
@@ -75,6 +76,7 @@ app.include_router(reading.router,   prefix="/reading",    tags=["reading"])    
 app.include_router(find.router,      prefix="/find",       tags=["find"])          # search everywhere, as a Harare run
 app.include_router(console_routes.agents, prefix="/agents",  tags=["console"])   # command -> agents -> graph
 app.include_router(console_routes.console, prefix="/console", tags=["console"])  # feed, reader, repos
+app.include_router(primitive_routes.router, prefix="/primitive", tags=["primitive"])  # models: task trie, routed
 
 
 @app.get("/")
