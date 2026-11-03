@@ -17,7 +17,7 @@ cd "$(dirname "$0")/.."
 PATHS=(
   backend/keeper/apikeys.py backend/keeper/probes.py backend/keeper/registry.py
   backend/primitive backend/memory backend/forms backend/tasks backend/forges.py backend/briefing.py
-  backend/mail/store.py
+  backend/mail/store.py backend/mail/imap.py backend/text_extract.py
   backend/routes/primitive.py backend/routes/forms.py backend/routes/tasks.py backend/routes/console.py backend/main.py
   web/pages/desk/console.js web/pages/desk/forms.js web/pages/desk/forges.js web/pages/desk/keys.js
   web/components/console/TaskPanel.js web/components/console/View.js web/components/console/AgentTaskPanel.js
@@ -29,7 +29,7 @@ HOST="${KEEPER_HOST:-olduvai}"
 echo "1/3  copying the code to $HOST"
 tar -cf - --exclude='__pycache__' "${PATHS[@]}" | ssh "$HOST" 'set -e; cd /srv/agent-smith
   B=/root/agent-smith-before-desk-tools-$(date +%Y%m%d-%H%M%S).tgz; tar -czf $B backend/main.py backend/keeper backend/routes/console.py \
-      backend/mail/store.py web/pages/desk/console.js web/pages/desk/keys.js
+      backend/mail/store.py backend/mail/imap.py backend/text_extract.py web/pages/desk/console.js web/pages/desk/keys.js
   tar -xf - --no-same-owner
   chown -R smith:smith backend web/pages web/components web/public/vendor
   echo "     copied; the replaced files are in $B"'

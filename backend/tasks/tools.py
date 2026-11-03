@@ -81,6 +81,107 @@ async def search_mail(run: Run, sender: str = "", words="", since_days: int = 0,
             or "no mail matches (the node holds mail since mid-September 2026 only)"), g
 
 
+async def search_mailbox(run: Run, words="", sender: str = "", account: str = "", limit: int = 10) -> Result:
+    """Every date, on the mail server itself (the node keeps only recent mail). What it finds
+    is stored like polled mail, so read_mail and add_source take its keys."""
+    import asyncio
+    from backend.mail import accounts, imap
+    from backend.mail.service import MAIL
+    if isinstance(words, (list, tuple)):
+        words = " ".join(map(str, words))
+    ascii_words = [w for w in str(words).split() if w.isascii()]
+    skipped = [w for w in str(words).split() if not w.isascii()]
+    accts = [a for a in accounts.discover(MAIL.env) if a.kind == "imap" and (not account or a.id == account)]
+    if not accts:
+        return f"no IMAP mailbox {account!r} on the node (connected: uni, webmail = Bitspark)", []
+    own = accounts.owner_addresses(accounts.discover(MAIL.env))
+    rows, notes = [], []
+    for a in accts:
+        try:
+            msgs = await asyncio.to_thread(imap.search_all, a, ascii_words, sender, min(int(limit), 25), own)
+        except imap.ImapError as e:
+            notes.append(f"{a.id}: {e}")
+            continue
+        MAIL.store.add(msgs)
+        rows += [{"key": m.key, "mailbox": a.id, "date": m.date.isoformat()[:16], "from": f"{m.from_name} <{m.from_addr}>",
+                  "subject": m.subject, "preview": " ".join((m.text or "").split())[:200]} for m in msgs]
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    out = {"found": rows[:int(limit)] or "nothing matches in these mailboxes"}
+    if skipped:
+        out["note"] = f"words with umlauts are not searched on the server: {', '.join(skipped)} — use a plain spelling"
+    if notes:
+        out["errors"] = notes
+    return out, [node(f"mail:{r['key']}", "mail", r["subject"] or "(no subject)", ref=r["key"]) for r in rows[:int(limit)]]
+
+
+async def list_laptop_folder(run: Run, path: str) -> Result:
+    from backend import laptop
+    try:
+        d = await laptop.listing(path)
+    except Exception as e:
+        return f"the laptop did not answer ({type(e).__name__})", []
+    items = d.get("entries") or d.get("items") or d.get("files") or d
+    return clip(json_compact(items), 6000), []
+
+
+async def read_laptop_file(run: Run, path: str) -> Result:
+    """The text of a document on the laptop. A scan has none: add_source reads scans."""
+    from backend import laptop
+    try:
+        d = await laptop.read(path)
+    except Exception as e:
+        return f"could not read {path} ({type(e).__name__})", []
+    text = d.get("text") or d.get("content") or ""
+    if not str(text).strip():
+        return {"path": path, "text": "", "note": "no text in it — probably a scan; add_source with this laptop_path reads it with a vision model"}, []
+    return {"path": path, "text": clip(text, 6000)}, [node(f"laptop:{path}", "laptop", path.rsplit(chr(92), 1)[-1])]
+
+
+def json_compact(x) -> str:
+    import json
+    return json.dumps(x, ensure_ascii=False)
+
+
+async def draft_reply(run: Run, mail_key: str, body: str, form_ids: List[str] = (), files: List[str] = ()) -> Result:
+    """A reply to a mail, with the filled forms (and saved files) attached, put in the Drafts
+    folder of the mailbox the mail came to. Never sent: Kundai checks, signs and sends."""
+    import asyncio
+    from backend.forms.service import service as forms
+    from backend.mail import accounts, drafts
+    from backend.mail.service import MAIL
+    m = MAIL.store.get_message(mail_key)
+    if m is None:
+        return f"no mail {mail_key}", []
+    acct = drafts.pick_account(accounts.discover(MAIL.env), m.account)
+    if acct is None:
+        return "no IMAP mailbox to put a draft in", []
+    atts, names = [], []
+    for fid in form_ids or []:
+        try:
+            data, fname, ctype = forms().filled(fid)
+        except KeyError:
+            return f"no form {fid}", []
+        atts.append((fname, ctype.split(";")[0], data))
+        names.append(fname)
+    for f in files or []:
+        info = run.files.get(f)
+        if info:
+            atts.append((info["name"], "application/pdf" if info["name"].lower().endswith(".pdf") else "application/octet-stream",
+                         Path(info["path"]).read_bytes()))
+            names.append(info["name"])
+    subject = m.subject if (m.subject or "").lower().startswith("re:") else f"Re: {m.subject}"
+    try:
+        msg = drafts.build(acct, [m.from_addr], subject, body, atts, in_reply_to=m.message_id)
+        folder = await asyncio.to_thread(drafts.append, acct, msg)
+    except Exception as e:
+        return f"could not put the draft in the mailbox: {type(e).__name__}: {clip(str(e), 200)}", []
+    run.task.setdefault("drafts", []).append({"to": m.from_addr, "subject": subject, "mailbox": acct.id,
+                                              "folder": folder, "attachments": names})
+    return {"draft": f"in {acct.id}/{folder}", "to": m.from_addr, "subject": subject, "attachments": names,
+            "note": "not sent — Kundai checks, signs where needed and sends it"}, \
+        [node(f"draft:{len(run.task['drafts'])}", "note", f"draft to {m.from_addr}"), link(f"mail:{mail_key}", f"draft:{len(run.task['drafts'])}")]
+
+
 async def read_mail(run: Run, key: str) -> Result:
     from backend.mail import attachments
     from backend.mail.service import MAIL
@@ -283,5 +384,11 @@ TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
                                  {"form_id": S}, ["form_id"])),
     "form_status": (form_status, _fn("form_status", "What a form has filled and what still needs Kundai.", {"form_id": S}, ["form_id"])),
     "known_facts": (known_facts, _fn("known_facts", "Facts about Kundai that he has confirmed before (name, address, numbers …).", {})),
-    "search_laptop": (search_laptop, _fn("search_laptop", "Search file names and contents on Kundai's laptop (if it is on).", {"query": S}, ["query"])),
+    "search_laptop": (search_laptop, _fn("search_laptop", "Search file names and contents on Kundai's laptop (if it is on). One word or name per search works best.", {"query": S}, ["query"])),
+    "search_mailbox": (search_mailbox, _fn("search_mailbox", "Search a whole mailbox on its mail server, every date (search_mail sees only mail since mid-September 2026). Mailboxes: uni (Greifswald), webmail (Bitspark). Plain ASCII words.",
+                                           {"words": S, "sender": S, "account": S, "limit": {"type": "integer"}})),
+    "list_laptop_folder": (list_laptop_folder, _fn("list_laptop_folder", "List the files in a folder on Kundai's laptop.", {"path": S}, ["path"])),
+    "read_laptop_file": (read_laptop_file, _fn("read_laptop_file", "Read the text of a document on Kundai's laptop (to see whether it holds what a form needs).", {"path": S}, ["path"])),
+    "draft_reply": (draft_reply, _fn("draft_reply", "Write the reply to a mail with the filled forms (form_ids) and saved files attached, as a DRAFT in the mailbox it came to. Never sent: Kundai checks, signs and sends.",
+                                     {"mail_key": S, "body": S, "form_ids": {"type": "array", "items": S}, "files": {"type": "array", "items": S}}, ["mail_key", "body"])),
 }

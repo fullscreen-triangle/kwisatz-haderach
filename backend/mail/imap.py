@@ -152,6 +152,45 @@ def fetch_new(acct: Account, states: Dict[str, dict], backfill_days: int,
         _close(conn)
 
 
+def search_all(acct: Account, words: List[str], sender: str = "", limit: int = 15,
+               owner_addrs=()) -> List[Message]:
+    """Search the whole mailbox on the server — every date, INBOX and Sent — for messages
+    whose text holds all `words` (and that come from `sender`), newest first. Read-only like
+    everything here (EXAMINE, BODY.PEEK). The node keeps only recent mail; this reaches the
+    rest. Non-ASCII words are left to the caller: IMAP SEARCH without a literal is ASCII."""
+    criteria: List[str] = []
+    for w in words:
+        criteria += ["TEXT", '"' + w.replace('"', "") + '"']
+    if sender:
+        criteria += ["FROM", '"' + sender.replace('"', "") + '"']
+    if not criteria:
+        return []
+    conn = connect(acct)
+    try:
+        found: List[Message] = []
+        for folder in folders(conn):
+            typ, _ = conn.select(_quote(folder), readonly=True)
+            if typ != "OK":
+                continue
+            typ, data = conn.uid("SEARCH", None, *criteria)
+            uids = sorted((int(u) for u in (data[0].split() if typ == "OK" and data and data[0] else [])), reverse=True)
+            for uid in uids[:limit]:
+                typ, got = conn.uid("FETCH", str(uid), "(UID BODY.PEEK[])")
+                for item in got or []:
+                    if isinstance(item, tuple) and item[1]:
+                        raw = item[1]
+                        m = parse_bytes(raw, account=acct.id, folder="Sent" if folder != "INBOX" else "INBOX",
+                                        uid=f"{folder}/{uid}", owner_addrs=owner_addrs)
+                        attachments.save(m.key, raw)
+                        found.append(m)
+        found.sort(key=lambda m: m.date, reverse=True)
+        return found[:limit]
+    except (OSError, imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
+        raise ImapError("transient", f"{acct.host}: {type(e).__name__}")
+    finally:
+        _close(conn)
+
+
 def check_login(acct: Account) -> None:
     """Keeper probe: log in, NOOP, log out. Raises ImapError."""
     conn = connect(acct)

@@ -40,10 +40,24 @@ How you work:
   plainly — do not work around it. Follow links you were shown; do not guess web addresses.
 - Files on his laptop can be used directly: make_form and add_source take a laptop_path. A form
   he filled in before (e.g. a scanned or saved earlier version) is a good source for a new one.
+- Where his details are. His documents for the university job are in
+  C:\\Users\\kunda\\Documents\\portfolio\\kwisatz-haderach\\employment\\greifswald
+  (STATUS.md describes the hiring; Unterlagen_KundaiSachikonye holds payslips, insurance
+  certificates, ID, contracts — list it with list_laptop_folder). Payslips (Gehaltsabrechnung,
+  Payslip) carry the tax ID, social insurance number, health insurer and bank account;
+  insurance certificates carry the insurer and insurance number. Add every document that may
+  hold a field's value as a source — scans too; add_source reads them.
+- Mail: search_mail sees the node's copy (since mid-September 2026); search_mailbox searches the
+  whole uni and Bitspark mailboxes on their servers, every date. Use it for older details.
+- Search one word at a time: a search with many words finds only what holds all of them.
+- When the forms are filled as far as the evidence goes, prepare the answer: draft_reply to the
+  mail that asked for them, with the filled forms attached, in German if the mail was German.
+  It is a draft — Kundai checks, signs and sends it. Never claim anything was sent.
 - The mails are mostly German. Answer in English.
 
 End with a short report: what you found (with the mails' subjects and dates), each form you
-made with its page link (/desk/forms?id=…), what was filled, and what still needs Kundai."""
+made with its page link (/desk/forms?id=…), what was filled, the draft you prepared, and what
+still needs Kundai (fields no document holds, signatures)."""
 
 
 def _summary(result) -> str:

@@ -152,3 +152,54 @@ def test_a_task_resumes_from_its_conversation_with_its_files(tmp_path, monkeypat
     r = Run(t, tmp_path / t["id"], cloud=True)
     r.restore_files()
     assert r.files["f1"]["path"].endswith("f1-form.pdf")
+
+
+class FakeImap:
+    """Enough of imaplib for search_all: two folders, one match in INBOX."""
+    def __init__(self, raw):
+        self.raw, self.sel, self.searched = raw, None, []
+
+    def select(self, folder, readonly=False):
+        assert readonly
+        self.sel = folder.strip("\"")
+        return "OK", [b"1"]
+
+    def uid(self, cmd, *args):
+        if cmd == "SEARCH":
+            self.searched.append(args)
+            return "OK", [b"7" if self.sel == "INBOX" else b""]
+        return "OK", [(b"1 (UID 7 BODY[] {10}", self.raw)]
+
+
+def test_search_all_reads_every_date_without_touching_flags(monkeypatch):
+    from backend.mail import imap, attachments
+    raw = b"From: LAF <laf@mv.de>\r\nSubject: Steuer-ID\r\nMessage-ID: <a@b>\r\nDate: Mon, 3 Mar 2025 10:00:00 +0000\r\n\r\nIhre Steuer-ID ist bekannt."
+    fake = FakeImap(raw)
+    monkeypatch.setattr(imap, "connect", lambda acct: fake)
+    monkeypatch.setattr(imap, "folders", lambda conn: ["INBOX", "Sent"])
+    monkeypatch.setattr(imap, "_close", lambda conn: None)
+    monkeypatch.setattr(attachments, "save", lambda key, raw: [])
+    acct = type("A", (), {"id": "uni"})()
+    got = imap.search_all(acct, ["Steuer-ID"], sender="laf", limit=5)
+    assert len(got) == 1 and got[0].subject == "Steuer-ID" and got[0].date.year == 2025
+    assert fake.searched[0] == (None, "TEXT", '"Steuer-ID"', "FROM", '"laf"')
+
+
+def test_draft_reply_attaches_filled_forms_and_never_sends(tmp_path, monkeypatch):
+    import backend.mail.service as ms
+    from backend.mail import accounts, drafts
+    from backend.forms import service as fs
+    msg = type("M", (), {"account": "uni", "from_addr": "mandy.sadewasser@uni-greifswald.de",
+                         "subject": "fehlende Unterlagen", "message_id": "<m@uni>"})()
+    monkeypatch.setattr(ms, "MAIL", type("X", (), {"store": type("S", (), {"get_message": lambda self, k: msg})(), "env": {}})())
+    acct = type("A", (), {"id": "uni", "kind": "imap", "addresses": ["kundai@uni"], "user": "k"})()
+    monkeypatch.setattr(accounts, "discover", lambda env: [acct])
+    put = []
+    monkeypatch.setattr(drafts, "append", lambda a, m: put.append(m) or "Drafts")
+    monkeypatch.setattr(fs, "service", lambda: type("F", (), {"filled": lambda self, fid: (b"%PDF", "Personalfragebogen-filled.pdf", "application/pdf")})())
+    task = {}
+    res, g = run(tools.draft_reply(Run(task, tmp_path, cloud=True), "uni:x", "Anbei die Formulare.", ["f1"]))
+    assert res["draft"] == "in uni/Drafts" and res["attachments"] == ["Personalfragebogen-filled.pdf"]
+    m = put[0]
+    assert m["To"] == "mandy.sadewasser@uni-greifswald.de" and m["Subject"] == "Re: fehlende Unterlagen"
+    assert m["In-Reply-To"] == "<m@uni>" and task["drafts"][0]["mailbox"] == "uni"

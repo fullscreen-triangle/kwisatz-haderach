@@ -96,6 +96,17 @@ export default function AgentTaskPanel({ taskId, onRead, onClose }) {
           {t.forms.map(f => <FormRow key={f.id} id={f.id} title={f.title} />)}
         </div>
       )}
+      {t.drafts?.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <div style={{ color: C.faint, fontSize: 12 }}>Drafts in your mailbox — not sent; check, sign and send them yourself</div>
+          {t.drafts.map((d, i) => (
+            <div key={i} style={{ fontSize: 14, color: C.ink, padding: '6px 0', borderBottom: `1px solid ${C.line}` }}>
+              ✉ {d.subject} <span style={{ color: C.faint }}>→ {d.to} · {d.mailbox}/{d.folder}</span>
+              {d.attachments?.length > 0 && <div style={{ color: C.soft, fontSize: 12 }}>attached: {d.attachments.join(', ')}</div>}
+            </div>
+          ))}
+        </div>
+      )}
       {t.answer && <div style={{ marginTop: 12 }}><Markdown text={t.answer} onRead={onRead} /></div>}
       {!running && <Continue taskId={t.id} onStarted={() => setSub(s => s + 1)} />}
 
