@@ -133,3 +133,18 @@ def test_a_pdf_without_fields_needs_labels(tmp_path):
     w.write(buf)
     with pytest.raises(ValueError, match="no fillable fields"):
         s.create("Scan", buf.getvalue())
+
+
+def test_your_word_publishes_on_a_large_form_and_quoted_fields_confirm_in_one_act(tmp_path):
+    s, _ = svc(tmp_path, {"fields": [{"field": f"f{i}", "value": "v", "source": "s1", "quote": "Wert: v"}
+                                     for i in range(150)]})
+    f = s.create("Personalfragebogen", labels=[f"f{i}" for i in range(300)])
+    s.add_source(f["id"], "alt.txt", b"Wert: v", "text/plain")
+    run(s.read(f["id"]))
+    v = s.answer(f["id"], "f299", "typed by you")
+    rows = {r["name"]: r for r in v["rows"]}
+    # θ = log(151/0.05) = 8.01 nats, above the 6.9 a confirmation was worth at r = 0.999
+    assert v["theta"] > 6.91 and rows["f299"]["status"] == "solved"
+    assert rows["f0"]["status"] == "undecided"
+    v = s.confirm_quoted(f["id"])
+    assert v["counts"]["solved"] == 151 and v["counts"]["assumed"] == 149

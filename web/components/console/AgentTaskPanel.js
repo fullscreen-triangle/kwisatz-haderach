@@ -32,9 +32,30 @@ function FormRow({ id, title }) {
   );
 }
 
+// Go on with a task: from its conversation so far, with an optional hint ("use the forms on
+// the Referat Personal page"). The panel re-subscribes, so the graph keeps growing.
+function Continue({ taskId, onStarted }) {
+  const [hint, setHint] = useState('');
+  const go = async () => {
+    const r = await fetch(`/api/desk/tasks/${encodeURIComponent(taskId)}/continue`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: hint }) })
+      .then(x => x.json()).catch(() => null);
+    if (r?.id) { setHint(''); onStarted(); }
+  };
+  return (
+    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+      <input value={hint} onChange={e => setHint(e.target.value)} onKeyDown={e => e.key === 'Enter' && go()}
+        placeholder="continue — optionally tell it what to do next"
+        style={{ flex: 1, background: C.panel2, color: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: '8px 10px', fontSize: 14 }} />
+      <button onClick={go} style={{ ...linkBtn, padding: '0 6px' }}>continue →</button>
+    </div>
+  );
+}
+
 export default function AgentTaskPanel({ taskId, onRead, onClose }) {
   const [t, setT] = useState(null);
   const [showSteps, setShowSteps] = useState(false);
+  const [sub, setSub] = useState(0);                 // bumped to re-subscribe after Continue
   useEffect(() => {
     if (!taskId) return undefined;
     setT(null);
@@ -45,7 +66,7 @@ export default function AgentTaskPanel({ taskId, onRead, onClose }) {
       if (d.status !== 'running') es.close();
     });
     return () => es.close();
-  }, [taskId]);
+  }, [taskId, sub]);
   if (!taskId) return null;
   const box = { background: C.panel, border: `1px solid ${C.line}`, borderRadius: 14, padding: 14, margin: '16px 0' };
   if (!t) return <div style={{ ...box, color: C.faint, fontSize: 13 }}>starting…</div>;
@@ -76,6 +97,7 @@ export default function AgentTaskPanel({ taskId, onRead, onClose }) {
         </div>
       )}
       {t.answer && <div style={{ marginTop: 12 }}><Markdown text={t.answer} onRead={onRead} /></div>}
+      {!running && <Continue taskId={t.id} onStarted={() => setSub(s => s + 1)} />}
 
       <button onClick={() => setShowSteps(!showSteps)} style={{ ...linkBtn, paddingBottom: 0 }}>
         {showSteps ? 'hide' : 'show'} the {t.steps.length} steps →

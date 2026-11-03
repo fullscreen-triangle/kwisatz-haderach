@@ -20,7 +20,11 @@ from typing import Dict
 from backend.memory.structure import BOT, Node, Observation
 
 RELIABILITY: Dict[str, float] = {
-    "person": 0.999,      # you typed or confirmed it
+    # You typed or confirmed a fact about yourself: the owner of the fact is the authority on
+    # it. 1e-5 for a slip gives 11.5 nats, enough to publish alone on forms up to ~5,000
+    # alternatives (θ = log(A/α)); at 0.999 (6.9 nats) your own word failed on forms of more
+    # than ~50 fields, which the university's 273-field Personalfragebogen showed.
+    "person": 0.99999,
     "document": 0.9,      # a quote found verbatim in a document you supplied, containing the value
     "facts": 0.9,         # a quote from your published facts (themselves published by margin)
 }

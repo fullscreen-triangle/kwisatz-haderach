@@ -93,15 +93,43 @@ class TaskService:
         asyncio.get_running_loop().create_task(self._run(t))
         return t
 
-    async def _run(self, t: dict) -> None:
+    def _messages_path(self, tid: str) -> Path:
+        return self.root / tid / "messages.json"         # kept apart: the console never needs it
+
+    async def _run(self, t: dict, messages: Optional[list] = None) -> None:
         run = Run(task=t, dir=self.root / t["id"], cloud=True)
+        run.restore_files()
         try:
-            await run_agent(t, run, self.providers, lambda: self._changed(t))
+            messages = await run_agent(t, run, self.providers, lambda: self._changed(t), messages=messages)
             t["status"] = "done"
+            tmp = self.root / t["id"] / ".messages.json.tmp"
+            tmp.write_text(json.dumps(messages, ensure_ascii=False), encoding="utf-8")
+            tmp.replace(self._messages_path(t["id"]))
         except Exception as e:
             log.warning("task %s failed: %s", t["id"], e)
             t["status"], t["note"] = "failed", str(e)[:500]
         await self._changed(t)
+
+    def resume(self, tid: str, text: str = "") -> dict:
+        """Go on with a task from its conversation so far, with an optional new instruction."""
+        t = self.tasks.get(tid)
+        if t is None:
+            raise KeyError(tid)
+        if t["status"] == "running":
+            return t
+        try:
+            messages = json.loads(self._messages_path(tid).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            messages = None                              # an older task: start over, files kept
+        hint = text.strip() or "Continue the task from where you stopped; do not repeat what is done."
+        if messages is not None:
+            messages.append({"role": "user", "content": hint})
+        else:
+            t["text"] = f"{t['text']}\n\n{hint}"
+        t.update(status="running", note="", answer="", stopped=False)
+        self._save(t)
+        asyncio.get_running_loop().create_task(self._run(t, messages))
+        return t
 
     def get(self, tid: str) -> Optional[dict]:
         return self.tasks.get(tid)

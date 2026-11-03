@@ -18,7 +18,9 @@ from backend.primitive.route import ChatError, provider_of, refusal
 from backend.tasks.tools import TOOLS, Run, clip
 
 AGENT_MODELS = ["openai/gpt-5.5", "deepseek/deepseek-v4-pro", "gemini/gemini-3.5-flash"]
-MAX_STEPS = 30
+MAX_STEPS = 40            # model turns per run; a turn may call several tools
+KEEP_FULL = 6             # the latest tool results stay whole; older ones shrink to KEEP_CHARS
+KEEP_CHARS = 600          # (every turn resends the conversation, so this is what a long run costs)
 
 SYSTEM = """\
 You are Agent Smith, Kundai's assistant on his own server. You do the task he gives you by
@@ -35,7 +37,9 @@ How you work:
   with quotes from the sources; a value is written only when the evidence is strong enough or
   Kundai confirms it on the form's page.
 - If a page needs a login, a document cannot be found, or something needs his decision, say so
-  plainly — do not work around it.
+  plainly — do not work around it. Follow links you were shown; do not guess web addresses.
+- Files on his laptop can be used directly: make_form and add_source take a laptop_path. A form
+  he filled in before (e.g. a scanned or saved earlier version) is a good source for a new one.
 - The mails are mostly German. Answer in English.
 
 End with a short report: what you found (with the mails' subjects and dates), each form you
@@ -47,8 +51,19 @@ def _summary(result) -> str:
     return clip(s, 300)
 
 
+def compact(messages: List[dict]) -> None:
+    """Shrink all but the latest KEEP_FULL tool results, in place."""
+    tool_idx = [i for i, m in enumerate(messages) if m["role"] == "tool"]
+    for i in tool_idx[:-KEEP_FULL]:
+        c = messages[i]["content"]
+        if len(c) > KEEP_CHARS + 60:
+            messages[i]["content"] = c[:KEEP_CHARS] + " … [shortened; call the tool again for the full result]"
+
+
 async def run_agent(task: dict, run: Run, providers, on_step: Callable[[], Awaitable[None]],
-                    max_steps: int = MAX_STEPS) -> None:
+                    max_steps: int = MAX_STEPS, messages: Optional[List[dict]] = None) -> List[dict]:
+    """Run until the model answers or max_steps turns pass. `messages` continues an earlier
+    conversation (with the new instruction already appended). Returns the conversation."""
     graph = task.setdefault("graph", {"nodes": [], "links": []})
     seen = {n["id"] for n in graph["nodes"]}
 
@@ -77,10 +92,12 @@ async def run_agent(task: dict, run: Run, providers, on_step: Callable[[], Await
     if not models:
         raise RuntimeError("no model that can call tools is usable (OpenAI, DeepSeek or Gemini): check /desk/keys")
     tools = [spec for _, spec in TOOLS.values()]
-    messages: List[dict] = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": task["text"]}]
+    if messages is None:
+        messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": task["text"]}]
     steps = task.setdefault("steps", [])
 
     for _ in range(max_steps):
+        compact(messages)
         msg, errors = None, []
         for m in list(models):
             try:
@@ -102,7 +119,7 @@ async def run_agent(task: dict, run: Run, providers, on_step: Callable[[], Await
             task["answer"] = msg.get("content") or ""
             add([{"node": {"id": "answer", "kind": "result", "label": "report"}}], "task")
             await on_step()
-            return
+            return messages
         for c in calls:
             fn_name = c.get("function", {}).get("name", "")
             try:
@@ -126,5 +143,7 @@ async def run_agent(task: dict, run: Run, providers, on_step: Callable[[], Await
             messages.append({"role": "tool", "tool_call_id": c.get("id", cid),
                              "content": result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)[:12000]})
             await on_step()
-    task["answer"] = (f"I stopped after {max_steps} steps without finishing. What I did is listed below; "
-                      "give the task again with more detail, or continue from the forms already made.")
+    task["answer"] = (f"I stopped after {max_steps} turns without finishing. What I did is listed below; "
+                      "press Continue (optionally with a hint), and I go on from here with everything found so far.")
+    task["stopped"] = True
+    return messages

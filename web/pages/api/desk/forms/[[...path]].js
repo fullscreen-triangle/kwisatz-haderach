@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const seg = [].concat(req.query.path || []);
   const ok = seg.length === 0
     || (seg.length === 1)
-    || (seg.length === 2 && ['sources', 'read', 'answer', 'filled'].includes(seg[1]));
+    || (seg.length === 2 && ['sources', 'read', 'answer', 'filled', 'confirm-quoted'].includes(seg[1]));
   if (!ok) return res.status(404).json({ error: 'unknown forms route' });
   const path = seg.map(encodeURIComponent).join('/');
   if (seg[1] !== 'filled') return proxyJSON(req, res, `/forms${path ? `/${path}` : ''}`, { timeoutMs: 120_000 });

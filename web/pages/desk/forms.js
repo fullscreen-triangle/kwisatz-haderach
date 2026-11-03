@@ -153,6 +153,12 @@ function Form({ id, onBack }) {
       <a href={`/api/desk/forms/${id}/filled`} style={{ ...pill, display: 'inline-block', textDecoration: 'none', margin: '6px 0 12px' }}>
         Download {f.kind === 'pdf' ? 'the filled PDF' : 'the value sheet'} ({f.counts.solved} field{f.counts.solved === 1 ? '' : 's'})
       </a>
+      {open.some(r => r.evidence.some(e => e.channel !== 'person')) && (
+        <button onClick={async () => { const v = await post(`/api/desk/forms/${id}/confirm-quoted`, {}).catch(() => null); if (v?.id) setF(v); }}
+          style={{ ...pill, margin: '4px 0 8px' }}>
+          ✓ Confirm the {open.filter(r => r.evidence.some(e => e.channel !== 'person')).length} fields a document quote supports
+        </button>
+      )}
       {open.length > 0 && <div style={{ color: C.warn, fontWeight: 600, marginTop: 8 }}>Needs you</div>}
       {open.map(r => <Row key={r.name} form={f} r={r} onChange={setF} />)}
       {f.rows.some(r => r.status === 'solved' || r.status === 'declined') && <div style={{ color: C.faint, fontWeight: 600, marginTop: 16 }}>Settled</div>}

@@ -117,6 +117,14 @@ def answer(fid: str, body: Answer):
         raise HTTPException(404, "no such form or field")
 
 
+@router.post("/{fid}/confirm-quoted")
+def confirm_quoted(fid: str):
+    try:
+        return service().confirm_quoted(fid)
+    except KeyError:
+        raise HTTPException(404, "no such form")
+
+
 @router.get("/{fid}/filled")
 def filled(fid: str):
     _view(fid)

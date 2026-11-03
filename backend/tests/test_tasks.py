@@ -120,3 +120,35 @@ def test_fetch_saves_pdfs_and_reads_pages(monkeypatch):
     page = run(web.fetch("https://uni.example/personal", client=c))
     assert page.title == "Personal" and page.links[0]["pdf"]
     assert run(web.fetch("https://uni.example/login", client=c)).login
+
+
+def test_old_tool_results_shrink_and_the_latest_stay_whole():
+    msgs = [{"role": "system", "content": "s"}] + [{"role": "tool", "content": "x" * 5000} for _ in range(10)]
+    agent.compact(msgs)
+    lens = [len(m["content"]) for m in msgs[1:]]
+    assert all(n < 800 for n in lens[:4]) and all(n == 5000 for n in lens[4:])
+
+
+def test_a_task_resumes_from_its_conversation_with_its_files(tmp_path, monkeypatch):
+    from backend.tasks.service import TaskService
+    prov = FakeProviders([{"role": "assistant", "content": "first"}, {"role": "assistant", "content": "second"}])
+
+    async def go():
+        svc = TaskService(prov, root=tmp_path)
+        t = svc.start("do it", model="openai/gpt-5.5")
+        while svc.get(t["id"])["status"] == "running":
+            await asyncio.sleep(0.01)
+        (tmp_path / t["id"] / "files").mkdir(exist_ok=True)
+        (tmp_path / t["id"] / "files" / "f1-form.pdf").write_bytes(b"%PDF-1.7")
+        svc.get(t["id"])["files"] = [{"id": "f1", "name": "form.pdf"}]          # saved before paths were kept
+        svc.resume(t["id"], "now fill the form")
+        while svc.get(t["id"])["status"] == "running":
+            await asyncio.sleep(0.01)
+        return svc.get(t["id"])
+    t = run(go())
+    assert t["answer"] == "second"
+    roles, last = prov.seen[-1]
+    assert last == ["system", "user", "assistant", "user"]              # the earlier turn, then the hint
+    r = Run(t, tmp_path / t["id"], cloud=True)
+    r.restore_files()
+    assert r.files["f1"]["path"].endswith("f1-form.pdf")

@@ -236,6 +236,17 @@ class FormService:
 
     # ----------------------------------------------------------------- your answers
 
+    def confirm_quoted(self, fid: str, remember: bool = True) -> dict:
+        """You confirm, in one act, every waiting field whose leader a document quote supports.
+        Each becomes your own statement — what you accept, you accept field by field in the
+        record; fields with no quote behind them still wait."""
+        v = self.view(fid)
+        for r in v["rows"]:
+            quoted = any(e["channel"] != "person" for e in r["evidence"])
+            if r["status"] == "undecided" and quoted and r["leader"] not in (None, BOT):
+                self.answer(fid, r["name"], r["leader"], remember)
+        return self.view(fid)
+
     def answer(self, fid: str, field: str, value: Optional[str], remember: bool = True) -> dict:
         """You confirm or type a value (a person observation), or say leave it blank (⊥)."""
         f = self._need(fid)

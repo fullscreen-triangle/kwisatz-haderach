@@ -6,7 +6,7 @@ export const config = { api: { responseLimit: false } };
 
 export default async function handler(req, res) {
   const seg = [].concat(req.query.path || []);
-  const ok = seg.length <= 1 || (seg.length === 2 && seg[1] === 'stream');
+  const ok = seg.length <= 1 || (seg.length === 2 && ['stream', 'continue'].includes(seg[1]));
   if (!ok) return res.status(404).json({ error: 'unknown tasks route' });
   const path = seg.map(encodeURIComponent).join('/');
   if (seg[1] === 'stream') return proxySSE(req, res, `/tasks/${path}`);

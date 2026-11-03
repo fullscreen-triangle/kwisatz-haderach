@@ -41,8 +41,15 @@ class Run:
             except Exception:
                 info["fillable_fields"] = 0
         self.files[fid] = info
-        self.task.setdefault("files", []).append({k: v for k, v in info.items() if k != "path"})
+        self.task.setdefault("files", []).append(dict(info))
         return info
+
+    def restore_files(self) -> None:
+        """The files of an earlier run of this task, so a continued run can use f1, f2 …"""
+        for info in self.task.get("files") or []:
+            path = info.get("path") or next((str(p) for p in (self.dir / "files").glob(f"{info['id']}-*")), "")
+            if path and Path(path).exists():
+                self.files[info["id"]] = {**info, "path": path}
 
 
 def node(nid: str, kind: str, label: str, **kw) -> dict:
@@ -149,11 +156,18 @@ def _file_view(info: dict) -> dict:
 
 # --------------------------------------------------------------------------- forms
 
-async def make_form(run: Run, file: str, title: str = "", labels: List[str] = ()) -> Result:
+async def make_form(run: Run, file: str = "", title: str = "", labels: List[str] = (), laptop_path: str = "") -> Result:
     from backend.forms.service import service as forms
+    if laptop_path and not file:
+        from backend import laptop
+        try:
+            data, _, name = await laptop.fetch(laptop_path)
+        except Exception as e:
+            return f"could not fetch {laptop_path} from the laptop ({type(e).__name__})", []
+        file = run.save_file(name, data, f"laptop {laptop_path}")["id"]
     info = run.files.get(file)
     if info is None:
-        return f"no file {file} in this task", []
+        return f"no file {file} in this task — give a file id (f1, f2 …) or laptop_path", []
     try:
         f = forms().create(title or info["name"], Path(info["path"]).read_bytes() if not labels else None, list(labels) or None)
     except ValueError as e:
@@ -259,8 +273,8 @@ TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
                                              {"key": S, "index": {"type": "integer"}}, ["key", "index"])),
     "open_link": (open_link, _fn("open_link", "Open a web link. A PDF is saved as a file of this task; a page returns its text and links (PDF links listed first).",
                                  {"url": S}, ["url"])),
-    "make_form": (make_form, _fn("make_form", "Make a form from a saved PDF file. For a PDF without fillable fields, give the field labels as printed on it.",
-                                 {"file": S, "title": S, "labels": {"type": "array", "items": S}}, ["file"])),
+    "make_form": (make_form, _fn("make_form", "Make a form from a PDF: a file this task saved (file: f1, f2 …) or a file on Kundai's laptop (laptop_path). For a PDF without fillable fields, give the field labels as printed on it.",
+                                 {"file": S, "title": S, "labels": {"type": "array", "items": S}, "laptop_path": S})),
     "add_source": (add_source, _fn("add_source", "Add a document the form's values may come from: a mail (with its attachments), a saved file, or a file on Kundai's laptop.",
                                    {"form_id": S, "mail_key": S, "file": S, "laptop_path": S}, ["form_id"])),
     "fill_form": (fill_form, _fn("fill_form", "Fill the form from its sources. Values are written only when quotes in the sources support them strongly enough; the rest waits for Kundai.",

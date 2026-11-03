@@ -28,16 +28,20 @@ HOST="${KEEPER_HOST:-olduvai}"
 
 echo "1/3  copying the code to $HOST"
 tar -cf - --exclude='__pycache__' "${PATHS[@]}" | ssh "$HOST" 'set -e; cd /srv/agent-smith
-  tar -czf /root/agent-smith-before-desk-tools.tgz backend/main.py backend/keeper backend/routes/console.py \
+  B=/root/agent-smith-before-desk-tools-$(date +%Y%m%d-%H%M%S).tgz; tar -czf $B backend/main.py backend/keeper backend/routes/console.py \
       backend/mail/store.py web/pages/desk/console.js web/pages/desk/keys.js
   tar -xf - --no-same-owner
   chown -R smith:smith backend web/pages web/components web/public/vendor
-  echo "     copied; the replaced files are in /root/agent-smith-before-desk-tools.tgz"'
+  echo "     copied; the replaced files are in $B"'
 
 echo "2/3  rebuilding and restarting the services (a few minutes: next build)"
 ssh "$HOST" 'bash -s' < deploy/server2-services.sh
 
-echo "3/3  keys: web/.env.local -> vault (checked with each provider) -> server"
-python -m tools.keeper renew --from-env --no-browser --push-anyway --host "$HOST"
+if [ -n "${SKIP_KEYS:-}" ]; then
+  echo "3/3  keys: skipped (deploy-code.cmd); push-keys.cmd moves new keys when you add some"
+else
+  echo "3/3  keys: web/.env.local -> vault (checked with each provider) -> server"
+  python -m tools.keeper renew --from-env --no-browser --push-anyway --host "$HOST"
+fi
 echo
 echo "Done. Open https://server-2.tail48bcc9.ts.net/desk/console — models, forms (/desk/forms), repos (/desk/forges)."

@@ -32,6 +32,18 @@ async def start(body: TaskBody):
     return service().start(body.text.strip(), body.model or None)
 
 
+class ResumeBody(BaseModel):
+    text: str = Field(default="", max_length=8000)
+
+
+@router.post("/{tid}/continue")
+async def resume(tid: str, body: ResumeBody):
+    try:
+        return service().resume(tid, body.text)
+    except KeyError:
+        raise HTTPException(404, "no such task")
+
+
 @router.get("")
 def recent(limit: int = 30):
     return service().recent(limit)
