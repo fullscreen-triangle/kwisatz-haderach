@@ -131,23 +131,48 @@ class FormService:
 
     def add_source(self, fid: str, name: str, data: bytes, ctype: str = "") -> dict:
         from backend.text_extract import text_of
-        f = self._need(fid)
         text = text_of(data, ctype, name) or ""
         if not text.strip():
-            raise ValueError(f"no text could be read from {name} (a scan needs OCR first)")
+            raise ValueError(f"no text could be read from {name} (a scan: allow cloud models to have it read)")
+        return self._store_source(fid, name, data, text, "document")
+
+    async def add_document(self, fid: str, name: str, data: bytes, ctype: str = "", allow_ocr: bool = False) -> dict:
+        """As add_source, but a scanned PDF (no text) is transcribed by a vision model when
+        `allow_ocr` — the scan then leaves the server (backend/forms/scan.py)."""
+        from backend.text_extract import text_of
+        text = text_of(data, ctype, name) or ""
+        if text.strip() or not allow_ocr or not (name.lower().endswith(".pdf") or "pdf" in ctype):
+            return self.add_source(fid, name, data, ctype)
+        from backend.forms import scan
+        from backend.primitive.service import service as primitive
+        text, how = await scan.transcribe(data, primitive().providers)
+        if not text.strip():
+            raise ValueError(f"no text could be read from {name}: it is a scan, and reading it failed ({how})")
+        return self._store_source(fid, name, data, text, "scan", read_by=how)
+
+    def _store_source(self, fid: str, name: str, data: bytes, text: str, kind: str, read_by: str = "") -> dict:
+        f = self._need(fid)
         sha = hashlib.sha256(data).hexdigest()
-        if any(s["sha"] == sha for s in f["sources"]):
-            return f
         (self._dir(fid) / "sources").mkdir(exist_ok=True)
+        old = next((s for s in f["sources"] if s["sha"] == sha), None)
+        if old is not None:
+            # The same file again: keep its id (its quotes keep counting once), but take the new
+            # text when it reads more — e.g. a filled form's values, read since an update.
+            if len(text) > old.get("chars", 0):
+                (self._dir(fid) / "sources" / f"{sha}.txt").write_text(text, encoding="utf-8")
+                old.update(chars=len(text), kind=kind, **({"read_by": read_by} if read_by else {}))
+                self._save(f)
+            return f
         (self._dir(fid) / "sources" / f"{sha}.txt").write_text(text, encoding="utf-8")
-        f["sources"].append({"id": f"s{len(f['sources']) + 1}", "name": name, "sha": sha, "chars": len(text)})
+        f["sources"].append({"id": f"s{len(f['sources']) + 1}", "name": name, "sha": sha, "chars": len(text),
+                             "kind": kind, **({"read_by": read_by} if read_by else {})})
         self._save(f)
         return f
 
-    async def add_laptop_source(self, fid: str, path: str) -> dict:
+    async def add_laptop_source(self, fid: str, path: str, allow_ocr: bool = False) -> dict:
         from backend import laptop
         data, ctype, name = await laptop.fetch(path)
-        return self.add_source(fid, name, data, ctype)
+        return await self.add_document(fid, name, data, ctype, allow_ocr)
 
     def _need(self, fid: str) -> dict:
         f = self.forms.get(fid)
@@ -212,6 +237,7 @@ class FormService:
     def _admit(self, f: dict, srcs, items: list, model: str) -> dict:
         mem = self.memory(f["id"])
         texts = {i: t for i, _, t in srcs}
+        kinds = {s["id"]: s.get("kind", "document") for s in f["sources"]} | {"facts": "facts"}
         names = {fl["name"]: fl for fl in f["fields"]}
         counts = {"proposed": 0, "witnessed": 0, "unwitnessed": 0}
         for it in items:
@@ -227,7 +253,7 @@ class FormService:
             node = mem.nodes[nid]
             already = any(o.node == nid and o.source == src for o in mem.observations)
             if src in texts and witnessed(value, quote, texts[src]) and not already:
-                mem.observe(statement(node, value, "facts" if src == "facts" else "document", src, cue=quote))
+                mem.observe(statement(node, value, kinds.get(src, "document"), src, cue=quote))
                 counts["witnessed"] += 1
             else:
                 counts["unwitnessed"] += 0 if already else 1

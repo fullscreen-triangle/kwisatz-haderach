@@ -27,6 +27,7 @@ RELIABILITY: Dict[str, float] = {
     "person": 0.99999,
     "document": 0.9,      # a quote found verbatim in a document you supplied, containing the value
     "facts": 0.9,         # a quote from your published facts (themselves published by margin)
+    "scan": 0.8,          # a quote from a scan a vision model transcribed (it can misread a digit)
 }
 
 

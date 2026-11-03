@@ -148,3 +148,37 @@ def test_your_word_publishes_on_a_large_form_and_quoted_fields_confirm_in_one_ac
     assert rows["f0"]["status"] == "undecided"
     v = s.confirm_quoted(f["id"])
     assert v["counts"]["solved"] == 151 and v["counts"]["assumed"] == 149
+
+
+def test_a_filled_pdf_reads_with_its_values_and_re_adding_updates_the_text(tmp_path):
+    from backend.text_extract import text_of
+    filled = pdf.fill(make_form(), {"name": "Sachikonye", "dob": "12.03.1992"})
+    text = text_of(filled, "application/pdf", "alt.pdf")
+    assert "Familienname: Sachikonye" in text and "Geburtsdatum: 12.03.1992" in text
+    s, _ = svc(tmp_path, {})
+    f = s.create("Neu", make_form())
+    s._store_source(f["id"], "alt.pdf", filled, "short", "document")        # as read before the update
+    s.add_source(f["id"], "alt.pdf", filled, "application/pdf")
+    src = s.forms[f["id"]]["sources"]
+    assert len(src) == 1 and src[0]["chars"] == len(text) and src[0]["id"] == "s1"
+
+
+def test_a_scan_is_transcribed_only_when_cloud_models_are_allowed(tmp_path, monkeypatch):
+    from backend.forms import scan
+    s, _ = svc(tmp_path, {"fields": [{"field": "dob", "value": "12.03.1992", "source": "s1", "quote": "Geburtsdatum: 12.03.1992"}]})
+    f = s.create("Neu", make_form())
+    blank = io.BytesIO()
+    w = PdfWriter(); w.add_blank_page(100, 100); w.write(blank)
+    with pytest.raises(ValueError, match="allow cloud"):
+        run(s.add_document(f["id"], "scan.pdf", blank.getvalue(), "application/pdf", allow_ocr=False))
+
+    async def fake(data, providers):
+        return "Arbeitsvertrag\nGeburtsdatum: 12.03.1992", "openai/gpt-5.5"
+    monkeypatch.setattr(scan, "transcribe", fake)
+    import backend.primitive.service as ps
+    monkeypatch.setattr(ps, "service", lambda: type("S", (), {"providers": None})())
+    run(s.add_document(f["id"], "scan.pdf", blank.getvalue(), "application/pdf", allow_ocr=True))
+    assert s.forms[f["id"]]["sources"][0]["kind"] == "scan"
+    run(s.read(f["id"]))
+    row = next(r for r in s.view(f["id"])["rows"] if r["name"] == "dob")
+    assert row["evidence"][0]["channel"] == "scan" and row["witnesses"] == 1

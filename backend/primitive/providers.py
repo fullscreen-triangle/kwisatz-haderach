@@ -168,6 +168,25 @@ class Providers:
         except (ValueError, KeyError, IndexError):
             raise ChatError("HTTP 200: no message in the reply")
 
+    async def chat_images(self, model: str, prompt: str, images: List[Tuple[str, bytes]]) -> str:
+        """A prompt with images (mime, bytes) to an OpenAI-style vision model; its text answer."""
+        import base64
+        pid, _, name = model.partition("/")
+        p = PROVIDERS.get(pid)
+        if p is None or p.style != "openai" or pid == "ollama":
+            raise ChatError(f"HTTP 400: {model} does not read images here")
+        content = [{"type": "text", "text": prompt}] + [
+            {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{base64.b64encode(b).decode()}"}}
+            for mime, b in images]
+        try:
+            resp = await self.client().post(f"{p.base}/chat/completions", headers={"Authorization": f"Bearer {p.key(self.env)}"},
+                                            json={"model": name, "messages": [{"role": "user", "content": content}]})
+        except httpx.HTTPError as e:
+            raise ChatError(f"unreachable: {type(e).__name__}") from e
+        if resp.status_code != 200:
+            raise _error(resp)
+        return (resp.json()["choices"][0]["message"].get("content") or "")
+
     async def _ollama(self, name: str, system: str, user: str) -> str:
         """Ollama's own API, so the context window can be set: its OpenAI endpoint keeps the
         server default and cuts a long prompt without saying so."""

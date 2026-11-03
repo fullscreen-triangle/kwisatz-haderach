@@ -67,8 +67,10 @@ def clip(s: str, n: int) -> str:
 
 # --------------------------------------------------------------------------- mail
 
-async def search_mail(run: Run, sender: str = "", words: str = "", since_days: int = 0, limit: int = 15) -> Result:
+async def search_mail(run: Run, sender: str = "", words="", since_days: int = 0, limit: int = 15) -> Result:
     from backend.mail.service import MAIL
+    if isinstance(words, (list, tuple)):          # models sometimes send ["a", "b"] for "a b"
+        words = " ".join(map(str, words))
     since = (datetime.now(timezone.utc) - timedelta(days=since_days)).isoformat() if since_days else ""
     rows = MAIL.store.find(sender=sender, words=words, since=since, limit=limit)
     g = []
@@ -199,10 +201,10 @@ async def add_source(run: Run, form_id: str, mail_key: str = "", file: str = "",
             info = run.files.get(file)
             if info is None:
                 return f"no file {file}", []
-            svc.add_source(form_id, info["name"], Path(info["path"]).read_bytes(), "")
+            await svc.add_document(form_id, info["name"], Path(info["path"]).read_bytes(), "", allow_ocr=run.cloud)
             src = f"file:{file}"
         elif laptop_path:
-            await svc.add_laptop_source(form_id, laptop_path)
+            await svc.add_laptop_source(form_id, laptop_path, allow_ocr=run.cloud)
             src = f"laptop:{laptop_path}"
             return {"form_id": form_id, "sources": len(svc.forms[form_id]["sources"])}, \
                 [node(src, "laptop", laptop_path.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]), link(src, f"form:{form_id}", "cites")]

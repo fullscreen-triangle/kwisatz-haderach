@@ -19,13 +19,35 @@ def is_texty(name: str) -> bool:
     return low.endswith(TEXT_SUFFIXES + (".pdf", ".docx", ".html", ".htm"))
 
 
+def form_values(reader) -> str:
+    """What was typed into a fillable PDF. Field values live in the form's fields, not in the
+    page text, so a filled form reads as blank without this. One line per filled field:
+    `label: value` (the field's tooltip as label when it has one)."""
+    try:
+        fields = reader.get_fields() or {}
+    except Exception:
+        return ""
+    lines = []
+    for name, f in fields.items():
+        v = f.get("/V")
+        if v is None:
+            continue
+        v = str(v).strip()
+        if not v or v in ("/Off", "Off"):
+            continue
+        label = str(f.get("/TU") or "").strip() or name
+        lines.append(f"{label}: {v.lstrip('/')}")
+    return ("\n\n--- values filled into this form ---\n" + "\n".join(lines)) if lines else ""
+
+
 def text_of(data: bytes, ctype: str, name: str) -> str:
     low = name.lower()
     try:
         if ctype == "application/pdf" or low.endswith(".pdf"):
             from pypdf import PdfReader
             reader = PdfReader(io.BytesIO(data))
-            return "\n\n".join((p.extract_text() or "") for p in reader.pages)[:MAX_TEXT]
+            text = "\n\n".join((p.extract_text() or "") for p in reader.pages)
+            return (text + form_values(reader))[:MAX_TEXT]
         if low.endswith(".docx") or ctype.endswith("wordprocessingml.document"):
             import docx  # python-docx
             doc = docx.Document(io.BytesIO(data))
