@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Markdown from '../../components/console/Markdown';
 import FindRun from '../../components/desk/FindRun';
 import TaskPanel from '../../components/console/TaskPanel';
+import AgentTaskPanel from '../../components/console/AgentTaskPanel';
 import { C, CSS, Reader, linkBtn, post, sans } from '../../components/console/Reader';
 import { KIND_COLOR } from '../../components/console/ForceGraph';
 
@@ -87,9 +88,9 @@ function ModelPicker({ models, value, onChange }) {
   );
 }
 
-function CommandBar({ onRun, onSearch, onAsk, busy }) {
+function CommandBar({ onRun, onSearch, onAsk, onTask, busy }) {
   const [text, setText] = useState('');
-  const [mode, setMode] = useState('desk');
+  const [mode, setMode] = useState('task');
   const [model, setModel] = useState('');
   const models = useModels(mode === 'models');
   const dict = useDictation(setText);
@@ -97,6 +98,7 @@ function CommandBar({ onRun, onSearch, onAsk, busy }) {
     const t = text.trim();
     if (!t) return;
     if (t.startsWith('?')) onSearch(t.slice(1).trim());
+    else if (mode === 'task') onTask(t);
     else if (mode === 'models') onAsk(t, model);
     else onRun(t);
     setText('');
@@ -106,14 +108,17 @@ function CommandBar({ onRun, onSearch, onAsk, busy }) {
   return (
     <div>
     <div style={{ display: 'flex', gap: 4, marginBottom: 8, fontSize: 13 }}>
+      <button onClick={() => setMode('task')} style={tab('task')}>task</button>
+      <button onClick={() => setMode('models')} style={tab('models')}>ask the models</button>
       <button onClick={() => setMode('desk')} style={tab('desk')}>desk</button>
-      <button onClick={() => setMode('models')} style={tab('models')}>models</button>
     </div>
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-      <textarea value={text} onChange={e => setText(e.target.value)} rows={mode === 'models' ? 4 : 2}
+      <textarea value={text} onChange={e => setText(e.target.value)} rows={mode === 'desk' ? 2 : 4}
         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
-        placeholder={mode === 'models'
-          ? 'Ask the models — a question or a task; checks go to other model families'
+        placeholder={mode === 'task'
+          ? 'Give a task — e.g. find the forms Mandy Sadewasser sent me for my salary and fill them in from my mail'
+          : mode === 'models'
+          ? 'Ask the models — a question; checks go to other model families'
           : 'Say what to do — or ?words to search the laptop, mail and web'}
         style={{ flex: 1, resize: 'none', background: C.panel, color: C.ink, border: `1px solid ${C.line}`,
                  borderRadius: 12, padding: '12px 14px', fontSize: 16, fontFamily: sans, outline: 'none' }} />
@@ -289,6 +294,11 @@ export default function Console() {
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
   const [taskId, setTaskId] = useState(null);
+  const [agentTaskId, setAgentTaskId] = useState(null);
+  const [recentTasks, setRecentTasks] = useState([]);
+  useEffect(() => {
+    fetch('/api/desk/tasks').then(r => r.json()).then(d => Array.isArray(d) && setRecentTasks(d)).catch(() => {});
+  }, [agentTaskId]);
 
   useEffect(() => {
     fetch('/api/desk/console/feed').then(r => r.json()).then(d => !d.error && setFeed(d)).catch(() => {});
@@ -304,6 +314,13 @@ export default function Console() {
     const r = await post('/api/desk/agents/runs', tool ? { text, tool, args } : { text }).catch(() => null);
     setBusy(false);
     if (r?.id) { setRunId(r.id); setDoc(null); setQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  }, []);
+
+  const giveTask = useCallback(async text => {
+    setBusy(true);
+    const r = await post('/api/desk/tasks', { text }).catch(() => null);
+    setBusy(false);
+    if (r?.id) { setAgentTaskId(r.id); setDoc(null); setQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   }, []);
 
   const ask = useCallback(async (task, model) => {
@@ -351,9 +368,21 @@ export default function Console() {
           </div>
         </div>
 
-        <CommandBar onRun={run} onSearch={setQuery} onAsk={ask} busy={busy} />
+        <CommandBar onRun={run} onSearch={setQuery} onAsk={ask} onTask={giveTask} busy={busy} />
         <NowNext feed={feed} />
+        {agentTaskId && <AgentTaskPanel taskId={agentTaskId} onRead={read} onClose={() => setAgentTaskId(null)} />}
         <Brief version={feed?.version?.join('.')} />
+        {recentTasks.length > 0 && (
+          <div style={{ margin: '10px 0', fontSize: 13 }}>
+            <div style={{ color: C.faint, fontSize: 12, marginBottom: 4 }}>Your tasks</div>
+            {recentTasks.slice(0, 6).map(rt => (
+              <div key={rt.id} onClick={() => setAgentTaskId(rt.id)} style={{ cursor: 'pointer', padding: '5px 0', display: 'flex', justifyContent: 'space-between', gap: 10, borderBottom: `1px solid ${C.line}` }}>
+                <span style={{ color: rt.id === agentTaskId ? C.signal : C.soft, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rt.text}</span>
+                <span style={{ color: rt.status === 'failed' ? C.bad : C.faint, flexShrink: 0 }}>{rt.status}{rt.forms ? ` · ${rt.forms} form${rt.forms > 1 ? 's' : ''}` : ''}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {query && <SearchResults q={query} onRead={read} onClose={() => setQuery('')} />}
         {taskId && <TaskPanel taskId={taskId} onRead={read} onClose={() => setTaskId(null)} />}

@@ -148,6 +148,26 @@ class Providers:
         except httpx.HTTPError as e:
             raise ChatError(f"unreachable: {type(e).__name__}") from e
 
+    async def chat_tools(self, model: str, messages: List[dict], tools: List[dict]) -> dict:
+        """One turn of a tool-calling conversation (OpenAI function-calling format): the
+        assistant message, with `tool_calls` when it wants tools run. OpenAI-style providers
+        only — the Anthropic account has no credit and the node's model calls tools unreliably."""
+        pid, _, name = model.partition("/")
+        p = PROVIDERS.get(pid)
+        if p is None or p.style != "openai" or pid == "ollama":
+            raise ChatError(f"HTTP 400: {model} cannot drive the task agent")
+        try:
+            resp = await self.client().post(f"{p.base}/chat/completions", headers={"Authorization": f"Bearer {p.key(self.env)}"},
+                                            json={"model": name, "messages": messages, "tools": tools, "tool_choice": "auto"})
+        except httpx.HTTPError as e:
+            raise ChatError(f"unreachable: {type(e).__name__}") from e
+        if resp.status_code != 200:
+            raise _error(resp)
+        try:
+            return resp.json()["choices"][0]["message"]
+        except (ValueError, KeyError, IndexError):
+            raise ChatError("HTTP 200: no message in the reply")
+
     async def _ollama(self, name: str, system: str, user: str) -> str:
         """Ollama's own API, so the context window can be set: its OpenAI endpoint keeps the
         server default and cuts a long prompt without saying so."""

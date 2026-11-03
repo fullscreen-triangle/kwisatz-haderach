@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Run from the repo root on the laptop (Git Bash):   bash deploy/desk-tools.sh
+# Double-click deploy-desk-tools.cmd in the repo root (it runs this in Git Bash — a plain
+# `bash` typed in PowerShell or cmd starts WSL, which has neither the olduvai ssh alias nor
+# this Python, and fails before copying anything).
 #
 # Puts the desk's tools on server-2 and its keys in place, in one go:
 #   1. copies the code of the keeper, models (primitive), working memory, forms, brief,
@@ -14,11 +16,12 @@ cd "$(dirname "$0")/.."
 
 PATHS=(
   backend/keeper/apikeys.py backend/keeper/probes.py backend/keeper/registry.py
-  backend/primitive backend/memory backend/forms backend/forges.py backend/briefing.py
-  backend/routes/primitive.py backend/routes/forms.py backend/routes/console.py backend/main.py
+  backend/primitive backend/memory backend/forms backend/tasks backend/forges.py backend/briefing.py
+  backend/mail/store.py
+  backend/routes/primitive.py backend/routes/forms.py backend/routes/tasks.py backend/routes/console.py backend/main.py
   web/pages/desk/console.js web/pages/desk/forms.js web/pages/desk/forges.js web/pages/desk/keys.js
-  web/components/console/TaskPanel.js web/components/console/View.js
-  web/pages/api/desk/primitive web/pages/api/desk/forms web/pages/api/desk/console
+  web/components/console/TaskPanel.js web/components/console/View.js web/components/console/AgentTaskPanel.js
+  web/pages/api/desk/primitive web/pages/api/desk/forms web/pages/api/desk/tasks web/pages/api/desk/console
   web/public/vendor/spectacular
 )
 HOST="${KEEPER_HOST:-olduvai}"
@@ -26,7 +29,7 @@ HOST="${KEEPER_HOST:-olduvai}"
 echo "1/3  copying the code to $HOST"
 tar -cf - --exclude='__pycache__' "${PATHS[@]}" | ssh "$HOST" 'set -e; cd /srv/agent-smith
   tar -czf /root/agent-smith-before-desk-tools.tgz backend/main.py backend/keeper backend/routes/console.py \
-      web/pages/desk/console.js web/pages/desk/keys.js
+      backend/mail/store.py web/pages/desk/console.js web/pages/desk/keys.js
   tar -xf - --no-same-owner
   chown -R smith:smith backend web/pages web/components web/public/vendor
   echo "     copied; the replaced files are in /root/agent-smith-before-desk-tools.tgz"'

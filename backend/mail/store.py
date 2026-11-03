@@ -194,6 +194,26 @@ class MailStore:
         return [{**dict(r), "owner": bool(r["owner"]), "done": bool(r["done"]),
                  "extraction": json.loads(r["data"])} for r in rows]
 
+    def find(self, *, sender: str = "", words: str = "", since: str = "", limit: int = 20) -> List[dict]:
+        """Mail by sender (name or address, a fragment) and/or words that must ALL occur in the
+        subject or text — newest first. For the task agent's search_mail tool."""
+        q = ("SELECT key, account, date, from_name, from_addr, subject, substr(coalesce(text,''), 1, 300) AS preview"
+             " FROM messages WHERE 1=1")
+        args: list = []
+        if sender:
+            q += " AND (from_name LIKE ? OR from_addr LIKE ?)"
+            args += [f"%{sender}%"] * 2
+        for w in words.split():
+            q += " AND (subject LIKE ? OR text LIKE ?)"
+            args += [f"%{w}%"] * 2
+        if since:
+            q += " AND date>=?"
+            args.append(since)
+        q += " ORDER BY date DESC LIMIT ?"
+        args.append(max(1, min(int(limit), 50)))
+        with self._lock:
+            return [dict(r) for r in self._db.execute(q, args).fetchall()]
+
     def bodies(self, keys: List[str], limit: int = 2000) -> Dict[str, str]:
         """Raw message text (head only) — the individuation witness reads observations,
         never a model's summary of them."""

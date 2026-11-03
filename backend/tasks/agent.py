@@ -1,0 +1,130 @@
+"""
+The task agent's loop: the model reads the task, calls tools, reads their results, and
+stops when it answers without calling one. Every call, its arguments and a short form of
+its result are kept as steps; what the tools found grows the run's graph.
+
+The model is the first of AGENT_MODELS whose provider is usable, or the one the task names.
+A refused account (no credit) moves the run to the next model and is remembered by the
+providers for an hour, as everywhere else in the desk.
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Awaitable, Callable, List, Optional
+
+from backend.primitive.providers import PROVIDERS
+from backend.primitive.route import ChatError, provider_of, refusal
+from backend.tasks.tools import TOOLS, Run, clip
+
+AGENT_MODELS = ["openai/gpt-5.5", "deepseek/deepseek-v4-pro", "gemini/gemini-3.5-flash"]
+MAX_STEPS = 30
+
+SYSTEM = """\
+You are Agent Smith, Kundai's assistant on his own server. You do the task he gives you by
+calling tools; you see his mail, the web pages and files the tools return, and forms.
+
+How you work:
+- Find before you act. Read the mails that matter; follow the links in them; download the
+  documents they point to.
+- To fill in a form: make_form from the PDF, then add_source for every mail or file that may
+  hold his details (search the mail for the words such details appear with: Steuer-ID,
+  Identifikationsnummer, Krankenkasse, Versicherung, IBAN, Sozialversicherung, Geburtsdatum,
+  Anschrift …; known_facts lists what he confirmed before), then fill_form.
+- You never write a value into a form yourself and never guess one. fill_form proposes values
+  with quotes from the sources; a value is written only when the evidence is strong enough or
+  Kundai confirms it on the form's page.
+- If a page needs a login, a document cannot be found, or something needs his decision, say so
+  plainly — do not work around it.
+- The mails are mostly German. Answer in English.
+
+End with a short report: what you found (with the mails' subjects and dates), each form you
+made with its page link (/desk/forms?id=…), what was filled, and what still needs Kundai."""
+
+
+def _summary(result) -> str:
+    s = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)
+    return clip(s, 300)
+
+
+async def run_agent(task: dict, run: Run, providers, on_step: Callable[[], Awaitable[None]],
+                    max_steps: int = MAX_STEPS) -> None:
+    graph = task.setdefault("graph", {"nodes": [], "links": []})
+    seen = {n["id"] for n in graph["nodes"]}
+
+    def add(items: List[dict], parent: str) -> None:
+        for it in items:
+            if "node" in it:
+                n = it["node"]
+                if n["id"] in seen:
+                    for old in graph["nodes"]:
+                        if old["id"] == n["id"]:
+                            old.update(n)
+                else:
+                    seen.add(n["id"])
+                    graph["nodes"].append(n)
+                    graph["links"].append({"source": parent, "target": n["id"], "kind": "produces"})
+            elif "link" in it and it["link"]["source"] in seen and it["link"]["target"] in seen:
+                graph["links"].append(it["link"])
+
+    if "task" not in seen:
+        seen.add("task")
+        graph["nodes"].append({"id": "task", "kind": "command", "label": task["text"][:60]})
+
+    refused = providers.refused()
+    models = [task["model"]] if task.get("model") else [
+        m for m in AGENT_MODELS if providers.available(PROVIDERS[provider_of(m)])[0] and provider_of(m) not in refused]
+    if not models:
+        raise RuntimeError("no model that can call tools is usable (OpenAI, DeepSeek or Gemini): check /desk/keys")
+    tools = [spec for _, spec in TOOLS.values()]
+    messages: List[dict] = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": task["text"]}]
+    steps = task.setdefault("steps", [])
+
+    for _ in range(max_steps):
+        msg, errors = None, []
+        for m in list(models):
+            try:
+                msg = await providers.chat_tools(m, messages, tools)
+                task["ran_on"] = m
+                models = [m] + [x for x in models if x != m]       # stay with the one that answers
+                break
+            except ChatError as e:
+                errors.append(f"{m}: {clip(str(e), 200)}")
+                if refusal(str(e)) == "account":
+                    providers.remember_refusals({provider_of(m): "the account refused the call (no credit?)"})
+                if refusal(str(e)) is not None:
+                    models.remove(m)
+        if msg is None:
+            raise RuntimeError("no model answered: " + "; ".join(errors))
+        calls = msg.get("tool_calls") or []
+        messages.append({"role": "assistant", "content": msg.get("content") or "", **({"tool_calls": calls} if calls else {})})
+        if not calls:
+            task["answer"] = msg.get("content") or ""
+            add([{"node": {"id": "answer", "kind": "result", "label": "report"}}], "task")
+            await on_step()
+            return
+        for c in calls:
+            fn_name = c.get("function", {}).get("name", "")
+            try:
+                args = json.loads(c["function"].get("arguments") or "{}")
+            except ValueError:
+                args = {}
+            entry = TOOLS.get(fn_name)
+            cid = f"call:{len(steps) + 1}"
+            if entry is None:
+                result, g = f"there is no tool {fn_name}", []
+            else:
+                try:
+                    result, g = await entry[0](run, **args)
+                except TypeError as e:
+                    result, g = f"wrong arguments for {fn_name}: {e}", []
+                except Exception as e:                       # a tool's failure is a result, not a crash
+                    result, g = f"{fn_name} failed: {type(e).__name__}: {clip(str(e), 200)}", []
+            steps.append({"n": len(steps) + 1, "tool": fn_name, "args": args, "result": _summary(result)})
+            add([{"node": {"id": cid, "kind": "agent", "label": fn_name.replace("_", " ")}}], "task")
+            add(g, cid)
+            messages.append({"role": "tool", "tool_call_id": c.get("id", cid),
+                             "content": result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)[:12000]})
+            await on_step()
+    task["answer"] = (f"I stopped after {max_steps} steps without finishing. What I did is listed below; "
+                      "give the task again with more detail, or continue from the forms already made.")
