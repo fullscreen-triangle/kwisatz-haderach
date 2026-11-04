@@ -22,6 +22,10 @@ python-multipart>=0.0.9
 # Pure-Python, so it installs cleanly on ARM/Crostini with no system deps. If it's
 # absent the routine degrades to a clear 501 instead of crashing.
 pypdf>=4.0.0
+# Scanned pages for the vision reader (backend/forms/scan.py): pypdf decodes images other
+# than plain JPEG (fax-encoded CCITT pages, JPEG 2000) only with Pillow. Wheels exist for
+# every platform the node runs on.
+pillow>=10.0
 
 # The depth dial (backend/individuate — the vendored okgg engine) computes pair statuses
 # as numpy bit-mask matrices.

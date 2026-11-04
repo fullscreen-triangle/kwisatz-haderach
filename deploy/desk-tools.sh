@@ -17,7 +17,7 @@ cd "$(dirname "$0")/.."
 PATHS=(
   backend/keeper/apikeys.py backend/keeper/probes.py backend/keeper/registry.py
   backend/primitive backend/memory backend/forms backend/tasks backend/forges.py backend/briefing.py
-  backend/mail/store.py backend/mail/imap.py backend/text_extract.py
+  backend/mail/store.py backend/mail/imap.py backend/text_extract.py backend/requirements-core.txt
   backend/routes/primitive.py backend/routes/forms.py backend/routes/tasks.py backend/routes/console.py backend/main.py
   web/pages/desk/console.js web/pages/desk/forms.js web/pages/desk/forges.js web/pages/desk/keys.js
   web/components/console/TaskPanel.js web/components/console/View.js web/components/console/AgentTaskPanel.js

@@ -24,10 +24,40 @@ MIME = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "jp2": "i
         "tiff": "image/tiff", "webp": "image/webp"}
 
 
+def _jpeg_xobjects(page) -> List[bytes]:
+    """The JPEG images a page draws, as the bytes stored in the PDF: a DCTDecode stream IS a
+    JPEG file, so no decoder (Pillow) is needed — the node has none."""
+    out = []
+    try:
+        xobjects = page["/Resources"].get_object().get("/XObject")
+        xobjects = xobjects.get_object() if xobjects is not None else {}
+    except Exception:
+        return out
+    for ref in xobjects.values():
+        try:
+            x = ref.get_object()
+            if x.get("/Subtype") != "/Image":
+                continue
+            filt = x.get("/Filter")
+            filters = [str(f) for f in (filt if isinstance(filt, list) else [filt])]
+            if filters == ["/DCTDecode"]:
+                out.append(x._data)
+            elif filters == ["/FlateDecode", "/DCTDecode"]:      # a JPEG, zipped once more
+                import zlib
+                out.append(zlib.decompress(x._data))
+        except Exception:
+            continue
+    return out
+
+
 def page_images(data: bytes) -> List[Tuple[str, bytes]]:
     from pypdf import PdfReader
     out = []
     for page in PdfReader(io.BytesIO(data)).pages[:MAX_PAGES]:
+        jpegs = sorted(_jpeg_xobjects(page), key=len, reverse=True)
+        if jpegs and len(jpegs[0]) >= MIN_IMAGE:
+            out.append(("image/jpeg", jpegs[0]))
+            continue
         try:
             imgs = sorted(page.images, key=lambda im: len(im.data), reverse=True)
         except Exception:

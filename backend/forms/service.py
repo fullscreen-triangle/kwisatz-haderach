@@ -34,7 +34,7 @@ SOURCE_CHARS = {"local": 16000, "cloud": 80000}     # all sources together; the 
 READ_SYSTEM = """\
 You read documents to fill in a form. You never guess and never invent.
 For each field you can answer FROM THE SOURCES, give:
-  field  — the field's name exactly as listed
+  field  — the field's id as listed (F1, F2 …)
   value  — the value exactly as it should be written into the form
   source — the id of the source it comes from
   quote  — a passage copied character for character from that source, containing the value
@@ -208,14 +208,17 @@ class FormService:
             srcs = self._sources(f, SOURCE_CHARS["cloud" if allow_cloud else "local"])
             if not srcs:
                 raise ValueError("attach at least one document first")
-            user = f"FORM: {f['title']}\n\nFIELDS:\n" + "".join(
-                f"- {fl['name']} | {fl['label']} | {fl['kind']}" + (f" | options: {', '.join(fl['options'])}" if fl["options"] else "") + "\n"
-                for fl in f["fields"]) + "\nSOURCES:\n" + "".join(f"=== source {i}: {n} ===\n{t}\n\n" for i, n, t in srcs)
+            # Fields go to the model as short ids (F1, F2 …): an AcroForm's own names are paths
+            # like Formular1[0].#subform[0].Textfeld2[3], which a model does not copy exactly.
+            user = f"FORM: {f['title']}\n\nFIELDS (id | label | kind):\n" + "".join(
+                f"- F{i} | {fl['label']} | {fl['kind']}" + (f" | options: {', '.join(fl['options'])}" if fl["options"] else "") + "\n"
+                for i, fl in enumerate(f["fields"], 1)) + "\nSOURCES:\n" + "".join(f"=== source {i}: {n} ===\n{t}\n\n" for i, n, t in srcs)
             model, reply = await proposer.ask_json(GENERAL, READ_SYSTEM, user)
             counts = self._admit(f, srcs, reply.get("fields") or [], model)
             f["reads"].append({"at": _now(), "model": model, **counts})
             f["note"] = (f"{model} proposed {counts['proposed']} value(s); {counts['witnessed']} quote(s) were found "
-                         f"in their sources, {counts['unwitnessed']} were not and count for nothing")
+                         f"in their sources, {counts['unwitnessed']} were not and count for nothing"
+                         + (f"; {counts['unknown_field']} named no field of this form" if counts["unknown_field"] else ""))
         except (ChatError, ValueError, RuntimeError, OSError) as e:
             f["note"] = clip(str(e), 400)
         f["status"] = "ready"
@@ -238,14 +241,26 @@ class FormService:
         mem = self.memory(f["id"])
         texts = {i: t for i, _, t in srcs}
         kinds = {s["id"]: s.get("kind", "document") for s in f["sources"]} | {"facts": "facts"}
-        names = {fl["name"]: fl for fl in f["fields"]}
-        counts = {"proposed": 0, "witnessed": 0, "unwitnessed": 0}
+        by_id = {f"f{i}": fl["name"] for i, fl in enumerate(f["fields"], 1)}
+        by_name = {fl["name"]: fl["name"] for fl in f["fields"]}
+        labels: Dict[str, List[str]] = {}
+        for fl in f["fields"]:
+            labels.setdefault(norm(fl["label"]), []).append(fl["name"])
+        counts = {"proposed": 0, "witnessed": 0, "unwitnessed": 0, "unknown_field": 0}
         for it in items:
             if not isinstance(it, dict):
                 continue
-            name, value = str(it.get("field", "")), str(it.get("value", "")).strip()
+            ref, value = str(it.get("field", "")).strip(), str(it.get("value", "")).strip()
             src, quote = str(it.get("source", "")), str(it.get("quote", ""))
-            if name not in names or not value:
+            if not value:
+                continue
+            # the field's own name, else the short id it was given, else a label only one field has
+            name = by_name.get(ref) or by_id.get(ref.lower())
+            if name is None:
+                same_label = labels.get(norm(ref)) or []
+                name = same_label[0] if len(same_label) == 1 else None
+            if name is None:
+                counts["unknown_field"] += 1
                 continue
             nid = node_id(f"form:{f['id']}", name)
             counts["proposed"] += 1

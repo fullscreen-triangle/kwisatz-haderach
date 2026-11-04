@@ -182,3 +182,19 @@ def test_a_scan_is_transcribed_only_when_cloud_models_are_allowed(tmp_path, monk
     run(s.read(f["id"]))
     row = next(r for r in s.view(f["id"])["rows"] if r["name"] == "dob")
     assert row["evidence"][0]["channel"] == "scan" and row["witnesses"] == 1
+
+
+def test_the_model_answers_by_short_id_or_unique_label(tmp_path):
+    reply = {"fields": [
+        {"field": "F2", "value": "12.03.1992", "source": "s1", "quote": "Geboren am 12.03.1992"},     # dob is field 2
+        {"field": "Familienname", "value": "Sachikonye", "source": "s1", "quote": "Name: Sachikonye"},  # by label
+        {"field": "F99", "value": "x", "source": "s1", "quote": "x"},                                  # no such field
+    ]}
+    s, fp = svc(tmp_path, reply)
+    f = s.create("Anmeldung", make_form())
+    s.add_source(f["id"], "pass.txt", "Name: Sachikonye\nGeboren am 12.03.1992".encode(), "text/plain")
+    run(s.read(f["id"]))
+    assert "- F1 | Familienname | text" in fp.user and "Formular" not in fp.user
+    rows = {r["name"]: r for r in s.view(f["id"])["rows"]}
+    assert rows["dob"]["witnesses"] == 1 and rows["name"]["witnesses"] == 1
+    assert "1 named no field" in s.forms[f["id"]]["note"]
