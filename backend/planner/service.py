@@ -103,7 +103,7 @@ class PlannerService:
     async def _gcal_busy(self, client, start, end) -> List[Block]:
         if not gcal.enabled(self.env):
             self.gcal_status = {"enabled": False,
-                                "detail": "no Calendar permission — re-consent with node web/scripts/gmail_auth.js"
+                                "detail": "no Calendar permission — re-consent with python -m tools.keeper reconnect-gmail"
                                 if google_oauth.configured(self.env) else "Google account not connected"}
             return []
         if _time.time() - self._busy_at > GCAL_BUSY_TTL:

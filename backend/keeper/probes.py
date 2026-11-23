@@ -92,7 +92,7 @@ async def probe_gmail(ctx: ProbeContext) -> ProbeResult:
         detail += (" · consent screen is in Testing, so the refresh token itself expires — "
                    "set it to 'In production' to make it permanent")
     if google_oauth.CALENDAR_SCOPE not in google_oauth.granted_scopes(ctx.env):
-        detail += " · no Calendar permission yet: re-consent with node web/scripts/gmail_auth.js"
+        detail += " · no Calendar permission yet: re-consent with python -m tools.keeper reconnect-gmail"
     return ProbeResult(ok=True, renewed=True, detail=detail, expires_at=r["root_expires_at"],
                        auto_expires_at=r["expires_at"])
 

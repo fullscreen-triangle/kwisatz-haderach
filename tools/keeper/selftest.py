@@ -90,4 +90,81 @@ def run():
         check(len(found) == 1 and found[0].startswith("notes.md:2"), "audit finds the planted key at notes.md:2")
         check(FAKE_KEY not in found[0], "audit report does not echo the value")
         check(not any("city.md" in f for f in found), "settings values are not reported as leaks")
+
+        gmail_reconnect(tmp)
     print("selftest passed")
+
+
+FAKE_CLIENT = b'{"installed": {"client_id": "cid.apps.googleusercontent.com", "client_secret": "FAKE-SECRET", "project_id": "agent-smith-test"}}'
+
+
+def gmail_reconnect(tmp: Path):
+    """reconnect-gmail end to end, offline: a fake browser follows the loopback redirect,
+    Google's token and Gmail endpoints are mocked, the vault is a throwaway."""
+    import json
+    import urllib.parse
+    import urllib.request
+
+    import httpx
+
+    from tools.keeper import gmail
+
+    cfg = gmail.client_config(FAKE_CLIENT)
+    seen = {}
+
+    def browser(url):                      # what the person's browser does after "Allow"
+        q = urllib.parse.parse_qs(urllib.parse.urlsplit(url).query)
+        seen.update({k: v[0] for k, v in q.items()})
+        back = f"{q['redirect_uri'][0]}/?state={q['state'][0]}&code=FAKE-CODE&scope=x"
+        urllib.request.urlopen(back, timeout=5).read()
+
+    code, redirect, verifier = gmail.consent(cfg, opener=browser, timeout=10, say=lambda _: None)
+    check(code == "FAKE-CODE" and redirect.startswith("http://127.0.0.1:"), "loopback redirect caught the code")
+    check(seen["access_type"] == "offline" and seen["prompt"] == "consent", "consent asks for a refresh token every time")
+    check(seen["code_challenge_method"] == "S256" and len(verifier) >= 43, "PKCE S256 with a long verifier")
+    check(set(seen["scope"].split()) == set(gmail.SCOPES), "asks for Gmail read + Calendar")
+
+    def bad_state(url):
+        q = urllib.parse.parse_qs(urllib.parse.urlsplit(url).query)
+        urllib.request.urlopen(f"{q['redirect_uri'][0]}/?state=forged&code=X", timeout=5).read()
+    try:
+        gmail.consent(cfg, opener=bad_state, timeout=10, say=lambda _: None)
+        check(False, "a forged state is refused")
+    except SystemExit:
+        check(True, "a forged state is refused")
+
+    def google(request: httpx.Request):
+        if request.url.host == "oauth2.googleapis.com":
+            form = urllib.parse.parse_qs(request.content.decode())
+            ok = form["code_verifier"][0] == verifier and form["redirect_uri"][0] == redirect
+            return httpx.Response(200 if ok else 400, json={
+                "access_token": "ya29.FAKE", "refresh_token": "1//FAKE-REFRESH", "expires_in": 3599,
+                "scope": " ".join(gmail.SCOPES), "token_type": "Bearer",
+                "refresh_token_expires_in": 604799} if ok else {"error": "invalid_grant"})
+        return httpx.Response(200, json={"emailAddress": "me@example.org"})
+
+    with httpx.Client(transport=httpx.MockTransport(google)) as client:
+        body = gmail.exchange(client, cfg, code, redirect, verifier)
+        grant = gmail.grant_from(body, datetime.now(timezone.utc))
+        check(gmail.mailbox(client, grant.token) == "me@example.org", "new token checked against Gmail")
+    check(set(grant.token) >= {"access_token", "refresh_token", "expiry_date", "scope"},
+          "token file in web/lib/gmail.js format")
+    check(grant.testing_until is not None and 6 <= (grant.testing_until - datetime.now(timezone.utc)).days <= 7,
+          "Testing-mode refresh token diagnosed with its end date")
+    check("project=agent-smith-test" in gmail.publish_url(cfg), "publish link names the Cloud project")
+
+    kp = vault.create_vault(tmp / "g.kdbx", "correct horse battery staple")
+    entry, created = gmail.store(kp, grant, FAKE_CLIENT)
+    check(created and entry.expires, "first reconnect creates 'Gmail OAuth' with Google's end date")
+    published = {k: v for k, v in body.items() if k != "refresh_token_expires_in"}  # app now "In production"
+    later = gmail.grant_from({**published, "refresh_token": "1//NEW"}, datetime.now(timezone.utc))
+    entry, created = gmail.store(kp, later, FAKE_CLIENT)
+    kp.save()
+    items = vault.read_items(vault.open_vault(tmp / "g.kdbx", password="correct horse battery staple"), forges=False)
+    files = render.build(items).files
+    token = json.loads(files["gmail/token.json"])
+    check(not created and token["refresh_token"] == "1//NEW", "second reconnect replaces the token on the entry")
+    check(files["gmail/credentials.json"] == FAKE_CLIENT, "OAuth client still pushed beside it")
+    check([a.filename for a in entry.attachments].count("gmail_token.json") == 1, "exactly one token attached")
+    check(len(entry.history) == 1, "previous token kept in the entry's history")
+    check(not entry.expires, "a permanent token clears the vault expiry")

@@ -79,8 +79,8 @@ async def refresh(client: httpx.AsyncClient, env: Mapping[str, str]) -> dict:
     only known when Google time-limits it, i.e. a consent screen still in Testing)."""
     client_cfg, token, tok_path = _read(env)
     if not token.get("refresh_token"):
-        raise GoogleAuthError("rejected", "token file has no refresh token — run "
-                                          "node web/scripts/gmail_auth.js once to re-consent")
+        raise GoogleAuthError("rejected", "token file has no refresh token — on the laptop run "
+                                          "python -m tools.keeper reconnect-gmail")
     resp = await client.post(TOKEN_URL, data={
         "client_id": client_cfg.get("client_id", ""),
         "client_secret": client_cfg.get("client_secret", ""),
@@ -92,14 +92,14 @@ async def refresh(client: httpx.AsyncClient, env: Mapping[str, str]) -> dict:
                else {}).get("error", "")
         if err == "invalid_grant":
             raise GoogleAuthError("rejected", (
-                "Google refused the refresh token (invalid_grant). If the consent screen is in "
-                "'Testing', tokens die every 7 days — set it to 'In production', then run "
-                "node web/scripts/gmail_auth.js once"))
+                "Google refused the refresh token (invalid_grant) — on the laptop run "
+                "python -m tools.keeper reconnect-gmail (or double-click reconnect-gmail.cmd). If the consent screen is in "
+                "'Testing', tokens die every 7 days — set it to 'In production' to stop that"))
         if err in ("invalid_client", "unauthorized_client"):
             raise GoogleAuthError("rejected", (
                 f"Google refused the OAuth client itself ({err}) — the client in credentials.json "
                 "was deleted or its secret rotated. Download the current client JSON from Google "
-                "Cloud → Credentials, attach it to the vault entry, re-consent, push"))
+                "Cloud → Credentials, attach it to the vault entry, then run python -m tools.keeper reconnect-gmail"))
     if resp.status_code != 200:
         raise GoogleAuthError("transient", f"Google answered HTTP {resp.status_code}; will retry")
 

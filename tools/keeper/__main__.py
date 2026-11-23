@@ -17,6 +17,10 @@ python -m tools.keeper <command>
                        replace keys: opens the provider's key page, takes the new key at a
                        hidden prompt (or from web/.env.local), stores it only if the provider
                        accepts it (old key kept in the entry's history), then pushes
+  reconnect-gmail      Gmail shows REJECTED/dead: consent in the browser with the vault's
+                       OAuth client, check the token against Gmail, replace it in the
+                       vault, push; says when Google will kill it again and how to stop
+                       that (also: renew gmail, or double-click reconnect-gmail.cmd)
   push [--host H]      send them to the server, restart, print the keeper's live verdict
   audit [--repo DIR]   fail if any vault value is in a git-tracked file
   selftest             exercise render/vault/audit against a throwaway vault
@@ -331,6 +335,11 @@ def cmd_renew(a):
     """Replace keys in the vault, each only after its provider accepts the new one."""
     import webbrowser
     from backend.keeper import apikeys
+    if "gmail" in a.ids:                   # an OAuth grant, not a pasted key
+        if len(a.ids) > 1:
+            raise SystemExit("Renew gmail on its own: python -m tools.keeper renew gmail")
+        a.credentials, a.timeout = None, 300
+        return cmd_reconnect_gmail(a)
     env_file = render.parse_env_text(ENV_LOCAL.read_text(encoding="utf-8")) if a.from_env and ENV_LOCAL.exists() else {}
     if a.from_env and not env_file:
         raise SystemExit(f"--from-env: {ENV_LOCAL} is missing or empty")
@@ -405,6 +414,11 @@ def cmd_renew(a):
         print("\nRevoke the old key(s) once the server shows the new one working:")
         for s in revoke:
             print(f"  {s.title}: {s.renew_url}")
+
+
+def cmd_reconnect_gmail(a):
+    from tools.keeper import gmail
+    gmail.reconnect(a, push_items)
 
 
 def cmd_push(a):
@@ -579,7 +593,7 @@ def main(argv=None):
     ck.add_argument("--env-file", default=None, help="check a .env file instead of the vault, e.g. web/.env.local")
     ck.set_defaults(fn=cmd_check)
     rn = sub.add_parser("renew")
-    rn.add_argument("ids", nargs="*", help="keys to replace: " + ", ".join(_key_ids()))
+    rn.add_argument("ids", nargs="*", help="keys to replace: " + ", ".join(_key_ids()) + ", gmail")
     rn.add_argument("--from-env", action="store_true",
                     help="take the new key(s) from web/.env.local; with no ids, every key there that differs")
     rn.add_argument("--expires", default=None, help="YYYY-MM-DD the new key(s) stop working, if the provider set one")
@@ -589,6 +603,14 @@ def main(argv=None):
                     help="push even when no key changed (e.g. to send forge tokens), with one password prompt")
     rn.add_argument("--host", default=DEFAULT_HOST)
     rn.set_defaults(fn=cmd_renew)
+    rg = sub.add_parser("reconnect-gmail")
+    rg.add_argument("--credentials", default=None,
+                    help="OAuth client JSON to use when the vault entry has none (default web/credentials.json)")
+    rg.add_argument("--no-browser", action="store_true", help="print the consent URL instead of opening it")
+    rg.add_argument("--no-push", action="store_true")
+    rg.add_argument("--timeout", type=float, default=300, help="seconds to wait for the browser (default 300)")
+    rg.add_argument("--host", default=DEFAULT_HOST)
+    rg.set_defaults(fn=cmd_reconnect_gmail)
     ps = sub.add_parser("push")
     ps.add_argument("--host", default=DEFAULT_HOST)
     ps.set_defaults(fn=cmd_push)

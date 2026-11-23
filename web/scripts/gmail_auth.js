@@ -87,8 +87,8 @@ async function main() {
           const { tokens } = await oAuth2Client.getToken(query.code);
           fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
           console.log('\nSaved .gmail_token.json');
-          console.log('Put it on the server through the vault: attach it to the "Gmail OAuth" entry');
-          console.log('as gmail_token.json (or re-run python -m tools.keeper import), then push.');
+          console.log('This copy is for local development only. To reconnect the server, run');
+          console.log('python -m tools.keeper reconnect-gmail from the repo root instead: it stores the token in the vault and pushes it.');
           resolve();
         } catch (e) {
           reject(e);

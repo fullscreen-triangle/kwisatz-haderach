@@ -151,7 +151,7 @@ function InboxIntelligence({ existingEntries, onNewEntries }) {
       <div style={{ background: 'var(--assistant-color)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 24, marginBottom: 40 }}>
         <div style={{ fontWeight: 600, color: 'var(--heading-color)', marginBottom: 8 }}>Gmail — setup required</div>
         <div style={{ fontSize: 13, color: 'var(--font-color)', opacity: 0.5 }}>
-          Run <code>node scripts/gmail_auth.js</code> from the <code>web/</code> directory to authorise Gmail access.
+          On the laptop, run <code>python -m tools.keeper reconnect-gmail</code> from the repo root (or double-click <code>reconnect-gmail.cmd</code>).
         </div>
       </div>
     );
