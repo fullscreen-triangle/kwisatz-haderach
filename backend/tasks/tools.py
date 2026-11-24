@@ -430,6 +430,45 @@ async def parcels(run: Run) -> Result:
     return found or "no parcels recorded (the Money page's Scan mail reads them from the mail)", []
 
 
+async def work_desk(run: Run, project: str = "") -> Result:
+    """The work desk (backend/work): every project in short, or one project in full."""
+    from backend.work.service import WORK
+    snap = WORK.snapshot()
+    if not snap.get("as_of"):
+        return "the work desk has not been read yet (the node reads it every 30 minutes)", []
+    head = {"read_from": snap.get("source"), "as_of": snap.get("as_of"), "stale": snap.get("stale"),
+            "notes": snap.get("notes")}
+    projects = snap.get("projects") or []
+    if project:
+        p = next((x for x in projects if x["name"].lower() == project.lower()), None)
+        if p is None:
+            return f"no project {project} on the desk; it has {', '.join(x['name'] for x in projects)}", []
+        return {**head, **p}, [node(f"work:{p['name']}", "repo", p["name"])]
+    brief = snap.get("brief") or {}
+    short = [{"name": p["name"], "about": p.get("about"), "open_items": len(p.get("open") or []),
+              "latest_write_up": (p.get("log") or [{}])[0].get("title"),
+              "newest_commit": (p.get("commits") or [{}])[0] if p.get("commits") else None,
+              "commits_not_written_up": p.get("unwritten")} for p in projects]
+    return {**head, "projects": short,
+            "brief": {k: brief.get(k) for k in ("date", "title", "file", "needs_you")} if brief else None,
+            "threads_waiting_for_kundai": snap.get("needs_you"),
+            "plan": snap.get("plan"), "decisions": snap.get("decisions"), "inbox": snap.get("inbox"),
+            "documents": snap.get("documents"), "desk_log": (snap.get("desk_log") or [])[:5]}, \
+        [node("work", "result", f"work desk · {len(projects)} projects")]
+
+
+async def read_work_document(run: Run, doc: str) -> Result:
+    from backend import laptop
+    from backend.work.service import WORK
+    try:
+        text = await WORK.file(doc)
+    except ValueError as e:
+        return str(e), []
+    except laptop.LaptopOffline as e:
+        return str(e), []
+    return (clip(text, 20000) if text is not None else f"no desk document {doc}"), []
+
+
 # --------------------------------------------------------------------------- registry
 
 def _fn(name, desc, props, required=()):
@@ -472,6 +511,8 @@ TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
     "list_laptop_folder": (list_laptop_folder, _fn("list_laptop_folder", "List the files in a folder on Kundai's laptop.", {"path": S}, ["path"])),
     "read_laptop_file": (read_laptop_file, _fn("read_laptop_file", "Read the text of a document on Kundai's laptop (to see whether it holds what a form needs).", {"path": S}, ["path"])),
     "plan_file_work": (plan_file_work, _fn("plan_file_work", PLAN_HELP, {"plan": S}, ["plan"])),
+    "work_desk": (work_desk, _fn("work_desk", "Kundai's work at the University of Greifswald, from his work desk (currentValue, shared with Mark Dörr): the projects (scilang, artefacts, raw2dcat, decisions, coalition …), the newest brief, threads that wait for him, plan, decisions and his working documents. Give project for one project in full: what is witnessed, what is open, against the plan, newest commits.", {"project": S})),
+    "read_work_document": (read_work_document, _fn("read_work_document", "Read one document of the work desk by its desk path, as work_desk lists them (e.g. sides/kundai/brief/2026-11-10.md, projects/scilang/status.md, plan/scheduling-algorithms.md).", {"doc": S}, ["doc"])),
     "money_position": (money_position, _fn("money_position", "Kundai's money as he recorded it: what he is owed (with due dates and claim deadlines), invests and owes, net, monthly picture, and alerts (a claim about to run out, an assumed interest rate). Reads only.", {})),
     "afford": (afford, _fn("afford", "What buying something for PRICE (euros, e.g. \"300\" or \"1.234,56\") now really costs: days later debt-free and the extra interest, from his debt plan. Reads only.", {"price": S}, ["price"])),
     "parcels": (parcels, _fn("parcels", "His parcels found in mail: carrier, tracking link, status, and the date to send it back by once delivered. Reads only.", {})),

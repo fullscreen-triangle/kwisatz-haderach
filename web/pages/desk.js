@@ -166,6 +166,14 @@ export default function Desk() {
       color:   '#60a5fa',
     },
     {
+      href:    '/desk/work',
+      title:   'Work',
+      sub:     'currentValue · projects · brief · threads with Mark',
+      stat:    'what waits for you at work',
+      urgent:  false,
+      color:   '#14bfb5',
+    },
+    {
       href:    '/desk/finance',
       title:   'Money',
       sub:     'Owed to you · debts · plan · parcels',
