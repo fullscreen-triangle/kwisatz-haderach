@@ -26,7 +26,10 @@ _n_secrets = load_into_environ()
 from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets, apartment, projects
 from backend.routes import keeper, mail, planner, plans, individuate, reading, find
 from backend.routes import finance
-from backend.routes import trip as trip_routes
+try:  # walking + transit bands (backend/trip); a node that was not sent these files starts without them
+    from backend.routes import trip as trip_routes
+except ImportError:
+    trip_routes = None
 from backend.keeper import service as keeper_service
 from backend.mail import service as mail_service
 from backend.planner import service as planner_service
@@ -91,7 +94,8 @@ app.include_router(primitive_routes.router, prefix="/primitive", tags=["primitiv
 app.include_router(forms_routes.router, prefix="/forms", tags=["forms"])      # filling in documents, by margin
 app.include_router(tasks_routes.router, prefix="/tasks", tags=["tasks"])      # a job in plain words → tool agent
 app.include_router(work_routes.router, prefix="/work", tags=["work"])         # the work desk (currentValue), read only
-app.include_router(trip_routes.router, prefix="/trip", tags=["trip"])         # walking + transit legs as time bands
+if trip_routes:
+    app.include_router(trip_routes.router, prefix="/trip", tags=["trip"])     # walking + transit legs as time bands
 if estimate_routes:
     app.include_router(estimate_routes.router, prefix="/estimate", tags=["estimate"])  # time and resource estimates (decisions)
 
