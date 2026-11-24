@@ -166,6 +166,14 @@ export default function Desk() {
       color:   '#60a5fa',
     },
     {
+      href:    '/desk/finance',
+      title:   'Money',
+      sub:     'Owed to you · debts · plan · parcels',
+      stat:    'net position and deadlines',
+      urgent:  false,
+      color:   '#34d399',
+    },
+    {
       href:    '/desk/groceries',
       title:   'Groceries',
       sub:     'Rewe · Kaufland · Penny · Amazon',

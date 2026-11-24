@@ -25,6 +25,7 @@ _n_secrets = load_into_environ()
 
 from backend.routes import health, grocery, chat, bank, jobcenter, intent, secrets, apartment, projects
 from backend.routes import keeper, mail, planner, plans, individuate, reading, find
+from backend.routes import finance
 from backend.keeper import service as keeper_service
 from backend.mail import service as mail_service
 from backend.planner import service as planner_service
@@ -64,6 +65,7 @@ app.include_router(health.router,     prefix="/health",     tags=["health"])
 app.include_router(grocery.router,    prefix="/grocery",    tags=["grocery"])
 app.include_router(chat.router,       prefix="/chat",       tags=["chat"])
 app.include_router(bank.router,       prefix="/bank",       tags=["bank"])
+app.include_router(finance.router,    prefix="/finance",    tags=["finance"])   # position, debts, money owed, parcels
 app.include_router(jobcenter.router,  prefix="/jobcenter",  tags=["jobcenter"])
 app.include_router(intent.router,     prefix="/intent",     tags=["intent"])
 app.include_router(secrets.router,    prefix="/secrets",    tags=["secrets"])

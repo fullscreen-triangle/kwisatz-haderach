@@ -47,6 +47,8 @@ WorkingDirectory=$APP
 Environment=PYTHONPATH=$APP
 Environment=HOME=/home/$U
 Environment=AGENT_SMITH_STATE=$STATE
+# tools/finance keeps its figures beside the rest of the node's state, not in a home folder
+Environment=FINANCE_HOME=$STATE/finance
 # Credentials, pushed from the KeePassXC vault by tools/keeper. '-' = start even before
 # the first push; the keeper then reports every credential as "not set".
 EnvironmentFile=-$ENVF
