@@ -17,11 +17,13 @@ cd "$(dirname "$0")/.."
 PATHS=(
   backend/keeper/apikeys.py backend/keeper/probes.py backend/keeper/registry.py
   backend/primitive backend/memory backend/forms backend/tasks backend/forges.py backend/briefing.py
+  backend/estimate.py backend/routes/estimate.py
   backend/mail/store.py backend/mail/imap.py backend/text_extract.py backend/requirements-core.txt
   backend/routes/primitive.py backend/routes/forms.py backend/routes/tasks.py backend/routes/console.py backend/main.py
   web/pages/desk/console.js web/pages/desk/forms.js web/pages/desk/forges.js web/pages/desk/keys.js
   web/components/console/TaskPanel.js web/components/console/View.js web/components/console/AgentTaskPanel.js
   web/pages/api/desk/primitive web/pages/api/desk/forms web/pages/api/desk/tasks web/pages/api/desk/console
+  web/pages/api/desk/estimate
   web/public/vendor/spectacular
 )
 HOST="${KEEPER_HOST:-olduvai}"

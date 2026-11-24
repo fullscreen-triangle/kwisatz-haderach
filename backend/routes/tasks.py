@@ -3,6 +3,8 @@
 
   POST /tasks                 {text, model?} → the task (runs in the background)
   GET  /tasks                 recent tasks
+  GET  /tasks/effort          what a new task is forecast to take (seconds, steps), from past
+                              runs, and how the forecasts made so far have held
   GET  /tasks/{id}            one task: steps, graph, forms, files, report
   GET  /tasks/{id}/stream     the same over Server-Sent Events, as it grows
   POST /tasks/{id}/plans/{pid}/preview   preview a file plan the agent wrote, again (changes nothing)
@@ -66,6 +68,11 @@ async def plan(tid: str, pid: str, action: str):
 @router.get("")
 def recent(limit: int = 30):
     return service().recent(limit)
+
+
+@router.get("/effort")
+def effort():
+    return service().effort()
 
 
 @router.get("/{tid}")

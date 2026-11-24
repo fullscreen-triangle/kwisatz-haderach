@@ -469,6 +469,29 @@ async def read_work_document(run: Run, doc: str) -> Result:
     return (clip(text, 20000) if text is not None else f"no desk document {doc}"), []
 
 
+async def estimate_effort(run: Run, algorithm: str, input: str = "", budget: float = None, unit: str = "") -> Result:
+    """An interval from the decisions tool (backend/estimate.py); never a number of our own."""
+    import asyncio
+    import json
+    from backend import estimate
+    try:
+        body = json.loads(input) if input.strip() else {}
+    except ValueError as e:
+        return f"input is not JSON: {e}", []
+    if not isinstance(body, dict):
+        return "input must be a JSON object", []
+    try:
+        out = await asyncio.to_thread(estimate.ask, algorithm, body, budget, unit or None)
+    except estimate.EstimateError as e:
+        return f"no estimate ({e.code}): {e.message}", []
+    detail = out.get("detail") or {}
+    res = {k: out.get(k) for k in ("algorithm", "unit", "estimate", "sentence", "fit")}
+    res.update({k: detail[k] for k in ("median", "expected", "needs", "replaced") if detail.get(k) is not None})
+    est = out.get("estimate")
+    label = f"{est['low']:g}–{est['high']:g} {out.get('unit') or ''}".strip() if est and est.get("high") is not None else "no estimate"
+    return res, [node(f"estimate:{len(run.task.get('steps') or []) + 1}", "result", label)]
+
+
 # --------------------------------------------------------------------------- registry
 
 def _fn(name, desc, props, required=()):
@@ -489,7 +512,15 @@ Language, one command per line, every path a full Windows path in straight doubl
 SUBJECT is a path or a SELECTION: files|folders|items in FOLDER [matching "*.pdf"] [recursively]
   (pattern relative to FOLDER: * stays in a folder, ** crosses folders, {pdf,docx} alternatives).
 In a path: name of p, stem of p, extension of p, folder of p, "a" + "b". Never overwrites: a step whose target exists is a problem. Deletes go to the Recycle Bin. Only the folders the laptop serves can change, never a credential."""
+ESTIMATE_HELP = """Estimate how long something takes, or how much of a resource it needs, as an interval {low, high} whose ends say what they rest on (bound, observed, forecast with a coverage, declared). Nothing is fetched: it computes from the input. Give algorithm and input (a JSON object as text):
+  three-point       {"optimistic": 20, "likely": 30, "pessimistic": 70}                values stated by hand
+  reference-class   {"past": [34, 51, 28, 45], "alpha": 0.2, "sides": "upper"}         from what similar tasks took; alpha is the chance it may miss
+  travel-time       {"from": {"lat": 54.09, "lon": 13.39}, "to": {"lat": 52.52, "lon": 13.41}, "mode": "walk|cycle|car-urban|car-road|transit|rail"}   seconds; add "observed": seconds from a timetable when one is known
+  count-times-cost  {"count": {"low": 6, "high": 62}, "cost": {"low": 2, "high": 5}}   steps left times the cost of a step
+  series-parallel   {"combine": "series|parallel", "parts": [{"low": 600, "high": 900}, ...]}   several estimates together
+unit names the unit (minutes, seconds, euros, tokens); budget, in that unit, adds whether the estimate fits. Report the interval and what it rests on. When the tool gives none, say what it needs (sentence, needs): never put a number of your own in its place."""
 TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
+    "estimate": (estimate_effort, _fn("estimate", ESTIMATE_HELP, {"algorithm": S, "input": S, "budget": {"type": "number"}, "unit": S}, ["algorithm", "input"])),
     "search_mail": (search_mail, _fn("search_mail", "Find Kundai's mail by sender (part of a name or address) and/or words that must all occur. Newest first.",
                                      {"sender": S, "words": S, "since_days": {"type": "integer"}, "limit": {"type": "integer"}})),
     "read_mail": (read_mail, _fn("read_mail", "Read one mail: its text, the links in it, and its attachments.", {"key": S}, ["key"])),

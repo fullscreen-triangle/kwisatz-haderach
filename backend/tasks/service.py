@@ -7,6 +7,9 @@ Tasks on the node.
 A task runs in the background and is saved after every tool call, so the console can draw
 it as it grows. One found `running` at startup was cut off by a restart: it is marked
 `interrupted` and its forms and files stay.
+
+Before its first run a task is given a forecast of the time and steps it will take
+(`estimate`), and every run notes what it took (`runs`); see effort.py.
 """
 
 from __future__ import annotations
@@ -15,11 +18,13 @@ import asyncio
 import json
 import logging
 import secrets
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from backend.keeper.service import state_dir
+from backend.tasks import effort
 from backend.tasks.agent import run_agent
 from backend.tasks.tools import Run
 
@@ -90,24 +95,35 @@ class TaskService:
              "note": "", "steps": [], "graph": {"nodes": [], "links": []}, "forms": [], "files": [], "answer": ""}
         self.tasks[tid] = t
         self._save(t)
-        asyncio.get_running_loop().create_task(self._run(t))
+        asyncio.get_running_loop().create_task(self._run(t, first=True))
         return t
 
     def _messages_path(self, tid: str) -> Path:
         return self.root / tid / "messages.json"         # kept apart: the console never needs it
 
-    async def _run(self, t: dict, messages: Optional[list] = None) -> None:
+    async def _run(self, t: dict, messages: Optional[list] = None, first: bool = False) -> None:
         run = Run(task=t, dir=self.root / t["id"], cloud=True)
         run.restore_files()
+        if first:                                        # a forecast from what earlier tasks took
+            try:
+                others = [x for x in self.tasks.values() if x is not t]
+                t["estimate"] = await asyncio.to_thread(effort.forecast, others)
+            except Exception as e:                       # a forecast never stops a task
+                log.warning("no forecast for task %s: %s", t["id"], e)
+        t["run_started"] = _now()
+        await self._changed(t)
+        began, steps_before, ended = time.monotonic(), len(t.get("steps") or []), "failed"
         try:
             messages = await run_agent(t, run, self.providers, lambda: self._changed(t), messages=messages)
             t["status"] = "done"
+            ended = "stopped" if t.get("stopped") else "done"
             tmp = self.root / t["id"] / ".messages.json.tmp"
             tmp.write_text(json.dumps(messages, ensure_ascii=False), encoding="utf-8")
             tmp.replace(self._messages_path(t["id"]))
         except Exception as e:
             log.warning("task %s failed: %s", t["id"], e)
             t["status"], t["note"] = "failed", str(e)[:500]
+        effort.record(t, time.monotonic() - began, len(t.get("steps") or []) - steps_before, ended, first)
         await self._changed(t)
 
     def resume(self, tid: str, text: str = "") -> dict:
@@ -169,6 +185,11 @@ class TaskService:
 
     def get(self, tid: str) -> Optional[dict]:
         return self.tasks.get(tid)
+
+    def effort(self) -> dict:
+        """What a new task would be forecast to take now, and how past forecasts held."""
+        tasks = list(self.tasks.values())
+        return {"forecast": effort.forecast(tasks), "held": effort.held(tasks)}
 
     def recent(self, limit: int = 30) -> List[dict]:
         ts = sorted(self.tasks.values(), key=lambda t: t["created"], reverse=True)[:limit]

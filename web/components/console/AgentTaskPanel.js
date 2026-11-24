@@ -10,6 +10,44 @@ import { C, linkBtn } from './Reader';
 const ForceGraph = dynamic(() => import('./ForceGraph'), { ssr: false });
 const STATUS_COLOR = { running: C.warn, done: C.ok, failed: C.bad, interrupted: C.faint };
 
+const dur = s => (s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`);
+
+// What the task was forecast to take (backend/tasks/effort.py, from the decisions tool) beside
+// what it has taken. The forecast is an upper end that held for past runs with at least the
+// stated share; with too few past runs there is none, and the line says how many are missing.
+function Effort({ t }) {
+  const [now, setNow] = useState(Date.now());
+  const running = t.status === 'running';
+  useEffect(() => {
+    if (!running) return undefined;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [running]);
+  const e = t.estimate || {};
+  const run = (t.runs || [])[(t.runs || []).length - 1];
+  const high = e.seconds?.high;
+  const parts = [];
+  if (high != null) {
+    const share = e.seconds.coverage ? `, as at least ${Math.round(e.seconds.coverage * 100)}% of runs do` : '';
+    parts.push(`forecast: within ${dur(high)}${e.steps?.high != null ? ` and ${e.steps.high} steps` : ''}${share} (from ${e.records} past runs)`);
+  } else if (e.needs) {
+    parts.push(`no forecast yet: ${e.needs.more} more finished ${e.needs.more === 1 ? 'run' : 'runs'} needed`);
+  }
+  const first = (t.runs || []).length === (running ? 0 : 1);     // the forecast is for a first run
+  let over = false;
+  if (running && t.run_started) {
+    const el = Math.max(0, (now - new Date(t.run_started).getTime()) / 1000);
+    over = first && high != null && el > high;
+    parts.push(`${dur(el)} so far${over ? ' — past the forecast' : ''}`);
+  } else if (run) {
+    over = first && high != null && run.seconds > high;
+    const verdict = first && high != null ? (over ? ' — longer than forecast' : ' — within the forecast') : '';
+    parts.push(`took ${dur(run.seconds)}, ${run.steps} steps${verdict}`);
+  }
+  if (!parts.length) return null;
+  return <div style={{ color: over ? C.warn : C.faint, fontSize: 12, marginBottom: 8 }}>{parts.join(' · ')}</div>;
+}
+
 function FormRow({ id, title }) {
   const [v, setV] = useState(null);
   useEffect(() => { fetch(`/api/desk/forms/${id}`).then(r => r.json()).then(d => d.id && setV(d)).catch(() => {}); }, [id]);
@@ -135,6 +173,7 @@ export default function AgentTaskPanel({ taskId, onRead, onClose }) {
           {t.ran_on && <div style={{ color: C.faint }}>on {t.ran_on} — what it reads goes to that provider</div>}
         </div>
       </div>
+      <Effort t={t} />
 
       <ForceGraph graph={t.graph} height={340}
         onNodeClick={n => (n.kind === 'mail' && n.ref ? onRead('mail', n.ref)
