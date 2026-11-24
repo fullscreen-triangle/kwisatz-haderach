@@ -44,12 +44,16 @@ def _client(env, timeout: float) -> httpx.AsyncClient:
 
 
 async def _get(path: str, params: dict, timeout: float = 30, env=None) -> httpx.Response:
+    return await _request("GET", path, timeout, env, params=params)
+
+
+async def _request(method: str, path: str, timeout: float, env, **kw) -> httpx.Response:
     try:
         async with _client(env, timeout) as c:
-            r = await c.get(path, params=params)
+            r = await c.request(method, path, **kw)
     except httpx.HTTPError as e:
         raise LaptopOffline(f"the laptop isn't answering ({type(e).__name__}) — asleep, or off the tailnet")
-    if r.status_code in (403, 404, 400, 413):
+    if r.status_code in (403, 404, 400, 413, 503):
         raise LaptopRefused(r.json().get("detail", r.text) if r.headers.get("content-type", "").startswith(
             "application/json") else r.text)
     if r.status_code == 401:
@@ -81,6 +85,17 @@ async def fetch(path: str, limit: int = MAX_ATTACH, env=None) -> Tuple[bytes, st
     if len(r.content) > limit:
         raise LaptopRefused(f"{name_of(path)} is larger than {limit // 1024 // 1024} MB")
     return r.content, r.headers.get("content-type", "application/octet-stream"), name_of(path)
+
+
+async def plan_preview(plan: str, env=None) -> dict:
+    """A drogba file plan against the laptop's disk: steps, problems, digest. Changes nothing."""
+    return (await _request("POST", "/plan/preview", 660, env, json={"plan": plan})).json()
+
+
+async def plan_run(plan: str, digest: str, env=None) -> dict:
+    """Run a previewed plan on the laptop. The laptop refuses unless its own settings allow
+    runs, and drogba refuses unless the plan and the disk still give `digest`."""
+    return (await _request("POST", "/plan/run", 660, env, json={"plan": plan, "digest": digest})).json()
 
 
 def name_of(path: str) -> str:

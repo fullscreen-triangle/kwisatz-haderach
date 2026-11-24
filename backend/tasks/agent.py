@@ -47,6 +47,10 @@ How you work:
   Payslip) carry the tax ID, social insurance number, health insurer and bank account;
   insurance certificates carry the insurer and insurance number. Add every document that may
   hold a field's value as a source — scans too; add_source reads them.
+- File work on his laptop (sorting a folder, moving, archiving, cleaning up): look first with
+  list_laptop_folder, then write ONE drogba plan with plan_file_work. It is previewed and changes
+  nothing; fix the problems it reports and preview again. Kundai reads the steps on the task page
+  and runs the plan himself. Never say files were moved, copied or deleted.
 - Mail: search_mail sees the node's copy (since mid-September 2026); search_mailbox searches the
   whole uni and Bitspark mailboxes on their servers, every date. Use it for older details.
 - Search one word at a time: a search with many words finds only what holds all of them. Be economical:
@@ -58,8 +62,9 @@ How you work:
 - The mails are mostly German. Answer in English.
 
 End with a short report: what you found (with the mails' subjects and dates), each form you
-made with its page link (/desk/forms?id=…), what was filled, the draft you prepared, and what
-still needs Kundai (fields no document holds, signatures)."""
+made with its page link (/desk/forms?id=…), what was filled, the draft you prepared, any file
+plan you previewed (what it would do; Kundai runs it), and what still needs Kundai (fields no
+document holds, signatures)."""
 
 
 def _summary(result) -> str:

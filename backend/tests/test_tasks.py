@@ -203,3 +203,92 @@ def test_draft_reply_attaches_filled_forms_and_never_sends(tmp_path, monkeypatch
     m = put[0]
     assert m["To"] == "mandy.sadewasser@uni-greifswald.de" and m["Subject"] == "Re: fehlende Unterlagen"
     assert m["In-Reply-To"] == "<m@uni>" and task["drafts"][0]["mailbox"] == "uni"
+
+
+# --------------------------------------------------------------------------- file plans
+
+PREVIEW = {"task": "tidy", "runnable": True, "digest": "ab" * 32, "runs_allowed": True, "problems": [],
+           "summary": {"moves": 1, "deletes": 1},
+           "steps": [{"op": "move", "from": "C:/d/a.pdf", "to": "C:/d/pdf/a.pdf", "line": 3},
+                     {"op": "delete", "path": "C:/d/b.tmp", "permanent": False, "line": 4}]}
+
+
+def test_the_agent_only_previews_and_keeps_only_runnable_plans(tmp_path, monkeypatch):
+    from backend import laptop
+    answers = [{**PREVIEW, "runnable": False, "steps": [],
+                "problems": [{"severity": "error", "line": 3, "message": "C:/d/x already exists; drogba never overwrites"}]},
+               PREVIEW]
+    sent = []
+
+    async def preview(plan, env=None):
+        sent.append(plan)
+        return answers.pop(0)
+
+    async def never(*a, **k):
+        raise AssertionError("the agent must not run a plan")
+    monkeypatch.setattr(laptop, "plan_preview", preview)
+    monkeypatch.setattr(laptop, "plan_run", never)
+    r = Run({"id": "t"}, tmp_path, cloud=False)
+    bad, g = run(tools.plan_file_work(r, "move …"))
+    assert bad["runnable"] is False and "never overwrites" in bad["problems"][0] and not r.task.get("plans") and g == []
+    good, g = run(tools.plan_file_work(r, "move fixed"))
+    assert good["plan_id"] == "p1" and "cannot run it" in good["note"]
+    assert good["steps"] == ["move C:/d/a.pdf → C:/d/pdf/a.pdf", "delete C:/d/b.tmp (to the Recycle Bin)"]
+    assert r.task["plans"][0]["plan"] == "move fixed" and r.task["plans"][0]["status"] == "previewed"
+    assert g[0]["node"]["id"] == "plan:p1"
+    assert "plan_file_work" in tools.TOOLS and not any("run" in n and "plan" in n for n in tools.TOOLS)
+
+
+def test_kundai_runs_a_plan_as_previewed_and_a_changed_disk_needs_a_new_preview(tmp_path, monkeypatch):
+    from backend import laptop
+    from backend.tasks.service import TaskService
+    runs = []
+
+    async def plan_run(plan, digest, env=None):
+        runs.append(digest)
+        if len(runs) == 1:
+            return {"plan": PREVIEW, "error": "the plan or the disk changed since that preview (digest differs); preview again"}
+        return {"plan": PREVIEW, "report": {"completed": True, "executed": 2, "total": 2,
+                                            "results": [{"ok": True}, {"ok": True}], "can_retry_elevated": False}}
+
+    async def preview(plan, env=None):
+        return {**PREVIEW, "digest": "cd" * 32}
+    monkeypatch.setattr(laptop, "plan_run", plan_run)
+    monkeypatch.setattr(laptop, "plan_preview", preview)
+
+    async def go():
+        svc = TaskService(FakeProviders([]), root=tmp_path)
+        svc.tasks["t1"] = {"id": "t1", "status": "done", "plans": [tools.plan_record("p1", "move x", PREVIEW)]}
+        p = await svc.plan("t1", "p1", "run")
+        assert p["status"] == "stale" and "digest" in p["error"] and runs == ["ab" * 32]
+        with pytest.raises(ValueError):
+            await svc.plan("t1", "p1", "run")                    # stale: not again until previewed
+        p = await svc.plan("t1", "p1", "preview")
+        assert p["status"] == "previewed" and p["digest"] == "cd" * 32 and p["error"] == ""
+        p = await svc.plan("t1", "p1", "run")
+        assert p["status"] == "ran" and p["report"]["executed"] == 2 and runs[-1] == "cd" * 32
+        with pytest.raises(ValueError):
+            await svc.plan("t1", "p1", "run")                    # a second click does nothing
+        with pytest.raises(KeyError):
+            await svc.plan("t1", "p9", "run")
+        return json.loads((tmp_path / "t1" / "task.json").read_text(encoding="utf-8"))
+    saved = run(go())
+    assert saved["plans"][0]["status"] == "ran"
+
+
+def test_an_offline_laptop_leaves_the_plan_runnable(tmp_path, monkeypatch):
+    from backend import laptop
+    from backend.tasks.service import TaskService
+
+    async def offline(*a, **k):
+        raise laptop.LaptopOffline("the laptop isn't answering")
+    monkeypatch.setattr(laptop, "plan_run", offline)
+
+    async def go():
+        svc = TaskService(FakeProviders([]), root=tmp_path)
+        svc.tasks["t1"] = {"id": "t1", "status": "done", "plans": [tools.plan_record("p1", "move x", PREVIEW)]}
+        with pytest.raises(laptop.LaptopOffline):
+            await svc.plan("t1", "p1", "run")
+        return svc.get("t1")["plans"][0]
+    p = run(go())
+    assert p["status"] == "previewed" and "answering" in p["error"]

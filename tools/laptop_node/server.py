@@ -7,6 +7,8 @@ every path goes through config.servable (inside a served root, never a credentia
   GET /list?path=                   a folder's entries
   GET /read?path=&max=              a file's text (PDF/Word/HTML/text), for reading and summaries
   GET /file?path=                   the file's bytes, for opening on the phone or attaching to mail
+  POST /plan/preview {plan}         a drogba file plan: every step it would take, its digest (reads only)
+  POST /plan/run {plan, digest}     run that plan as previewed — only if laptop-node.json says "plans": true
 """
 
 from __future__ import annotations
@@ -20,8 +22,9 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
 
-from tools.laptop_node import config, index, winsearch
+from tools.laptop_node import config, index, plans, winsearch
 
 MAX_FILE = 100 * 1024 * 1024
 MAX_READ = 30 * 1024 * 1024
@@ -119,6 +122,32 @@ def file(path: str):
         raise HTTPException(413, "file larger than 100 MB")
     return FileResponse(p, filename=p.name, content_disposition_type="inline",
                         media_type=mimetypes.guess_type(p.name)[0] or "application/octet-stream")
+
+
+class PlanBody(BaseModel):
+    plan: str = Field(min_length=1, max_length=plans.MAX_PLAN)
+    digest: str = Field(default="", max_length=64)
+
+
+def _plan_call(fn, *args):
+    try:
+        return fn(*args)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except plans.PlanError as e:
+        raise HTTPException(503, str(e))
+
+
+@app.post("/plan/preview", dependencies=[Depends(auth)])
+def plan_preview(body: PlanBody):
+    return _plan_call(plans.preview, body.plan)
+
+
+@app.post("/plan/run", dependencies=[Depends(auth)])
+def plan_run(body: PlanBody):
+    return _plan_call(plans.run, body.plan, body.digest)
 
 
 def start_indexer() -> None:

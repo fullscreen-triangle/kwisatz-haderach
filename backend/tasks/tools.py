@@ -360,6 +360,49 @@ async def search_laptop(run: Run, query: str) -> Result:
         [node(f"laptop:{h.get('path')}", "laptop", h.get("name") or "") for h in hits[:6]]
 
 
+def step_line(s: dict) -> str:
+    r"""One drogba step as a short line: `move C:\a.pdf → C:\pdf\a.pdf`."""
+    op = (s.get("op") or "?").replace("_", " ")
+    where = " → ".join(x for x in (s.get("from"), s.get("to")) if x) or s.get("path") or ""
+    tail = " (permanently)" if s.get("permanent") else " (to the Recycle Bin)" if s.get("op") == "delete" else ""
+    return f"{op} {where}{tail}".strip()
+
+
+def plan_record(pid: str, plan: str, pv: dict) -> dict:
+    """What a task keeps of a previewed plan (the console draws it; a run uses plan + digest)."""
+    steps = pv.get("steps") or []
+    probs = pv.get("problems") or []
+    return {"id": pid, "name": pv.get("task") or "", "plan": plan, "digest": pv.get("digest") or "",
+            "summary": pv.get("summary") or {}, "steps": [step_line(x) for x in steps[:500]], "step_count": len(steps),
+            "problems": [f"line {x.get('line')}: {x.get('message')}" for x in probs if x.get("severity") == "error"][:30],
+            "warnings": [f"line {x.get('line')}: {x.get('message')}" for x in probs if x.get("severity") != "error"][:30],
+            "runs_allowed": bool(pv.get("runs_allowed")),
+            "status": "previewed" if pv.get("runnable") else "has problems",
+            "previewed": datetime.now().astimezone().isoformat(timespec="seconds"), "error": "", "report": None}
+
+
+async def plan_file_work(run: Run, plan: str) -> Result:
+    from backend import laptop
+    try:
+        pv = await laptop.plan_preview(plan)
+    except laptop.LaptopOffline as e:
+        return str(e), []
+    except laptop.LaptopRefused as e:
+        return f"the laptop refused the plan: {e}", []
+    plans = run.task.setdefault("plans", [])
+    rec = plan_record(f"p{len(plans) + 1}", plan, pv)
+    if rec["status"] != "previewed":
+        return {"runnable": False, "problems": rec["problems"], "note": "nothing kept; fix these lines and call plan_file_work again"}, []
+    plans.append(rec)
+    note = ("Previewed only: nothing on the laptop changed. Kundai reads these steps on the task page and runs the "
+            "plan himself; you cannot run it and must not say files were moved.")
+    if not rec["runs_allowed"]:
+        note += ' Running plans is switched off on the laptop ("plans": true in laptop-node.json turns it on).'
+    return {"plan_id": rec["id"], "step_count": rec["step_count"], "steps": rec["steps"][:40],
+            "summary": rec["summary"], "warnings": rec["warnings"], "note": note}, \
+        [node(f"plan:{rec['id']}", "result", f"file plan · {rec['step_count']} steps")]
+
+
 # --------------------------------------------------------------------------- registry
 
 def _fn(name, desc, props, required=()):
@@ -368,6 +411,18 @@ def _fn(name, desc, props, required=()):
 
 
 S = {"type": "string"}
+PLAN_HELP = r"""Plan file work on Kundai's laptop (sort, move, copy, rename, archive, delete) as a drogba plan. It is PREVIEWED against the disk and changes nothing; Kundai reads the steps and runs it himself. Returns every step, or the problems to fix.
+Language, one command per line, every path a full Windows path in straight double quotes (raw: backslashes as written):
+  task "name"                                   (optional first line)
+  let docs = "C:\Users\kunda\Downloads"          names a value; docs / "pdf" joins a path part
+  make folder PATH
+  move SUBJECT to FOLDER        copy SUBJECT to FOLDER        rename PATH to "new name"        delete SUBJECT
+  archive SUBJECT as zip to FOLDER
+  protect PATH                                   nothing in the plan may change it (top level only)
+  for each f in SELECTION ... end               if exists PATH ... else ... end     (not, nested if; no else if)
+SUBJECT is a path or a SELECTION: files|folders|items in FOLDER [matching "*.pdf"] [recursively]
+  (pattern relative to FOLDER: * stays in a folder, ** crosses folders, {pdf,docx} alternatives).
+In a path: name of p, stem of p, extension of p, folder of p, "a" + "b". Never overwrites: a step whose target exists is a problem. Deletes go to the Recycle Bin. Only the folders the laptop serves can change, never a credential."""
 TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
     "search_mail": (search_mail, _fn("search_mail", "Find Kundai's mail by sender (part of a name or address) and/or words that must all occur. Newest first.",
                                      {"sender": S, "words": S, "since_days": {"type": "integer"}, "limit": {"type": "integer"}})),
@@ -389,6 +444,7 @@ TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
                                            {"words": S, "sender": S, "account": S, "limit": {"type": "integer"}})),
     "list_laptop_folder": (list_laptop_folder, _fn("list_laptop_folder", "List the files in a folder on Kundai's laptop.", {"path": S}, ["path"])),
     "read_laptop_file": (read_laptop_file, _fn("read_laptop_file", "Read the text of a document on Kundai's laptop (to see whether it holds what a form needs).", {"path": S}, ["path"])),
+    "plan_file_work": (plan_file_work, _fn("plan_file_work", PLAN_HELP, {"plan": S}, ["plan"])),
     "draft_reply": (draft_reply, _fn("draft_reply", "Write the reply to a mail with the filled forms (form_ids) and saved files attached, as a DRAFT in the mailbox it came to. Never sent: Kundai checks, signs and sends.",
                                      {"mail_key": S, "body": S, "form_ids": {"type": "array", "items": S}, "files": {"type": "array", "items": S}}, ["mail_key", "body"])),
 }

@@ -32,6 +32,59 @@ function FormRow({ id, title }) {
   );
 }
 
+// A file plan the agent wrote (drogba, run on the laptop): every step it would take. The agent
+// only previews; this is the one place a plan runs, and only as last previewed — drogba
+// refuses a run if the plan or the disk changed since (status "stale": preview again).
+const PLAN_COLOR = { previewed: C.warn, running: C.warn, ran: C.ok, stopped: C.bad, stale: C.bad, 'has problems': C.bad };
+
+function PlanRow({ taskId, plan }) {
+  const [p, setP] = useState(plan);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState('');
+  useEffect(() => setP(plan), [plan]);
+  const s = p.summary || {};
+  const counts = [['folders_made', 'new folders'], ['moves', 'moves'], ['copies', 'copies'], ['renames', 'renames'],
+    ['archives', 'archives'], ['deletes', 'deletes']].filter(([k]) => s[k]).map(([k, l]) => `${s[k]} ${l}`).join(' · ');
+  const act = async action => {
+    if (action === 'run' && !window.confirm(`Run "${p.name || p.id}" on the laptop?\n\n${p.step_count} steps: ${counts}`
+      + `${s.deletes ? '\nDeleted items go to the Recycle Bin.' : ''}`)) return;
+    setBusy(action);
+    const r = await fetch(`/api/desk/tasks/${encodeURIComponent(taskId)}/plans/${p.id}/${action}`, { method: 'POST' })
+      .then(x => x.json()).catch(() => null);
+    setBusy('');
+    if (r?.id) setP(r); else setP({ ...p, error: r?.detail || r?.error || 'no answer from the desk' });
+  };
+  return (
+    <div style={{ padding: '8px 0', borderBottom: `1px solid ${C.line}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 14, color: C.ink }}>
+        <span>🗂 {p.name || p.id} <span style={{ color: C.faint, fontSize: 12 }}>{p.step_count} steps{counts ? ` · ${counts}` : ''}</span></span>
+        <span style={{ color: PLAN_COLOR[p.status] || C.faint, fontSize: 12, flexShrink: 0 }}>{busy ? `${busy}…` : p.status}</span>
+      </div>
+      {p.error && <div style={{ color: C.bad, fontSize: 12, marginTop: 4 }}>{p.error}</div>}
+      {p.problems?.length > 0 && p.problems.map((x, i) => <div key={i} style={{ color: C.bad, fontSize: 12 }}>{x}</div>)}
+      {!p.runs_allowed && p.status === 'previewed' && (
+        <div style={{ color: C.faint, fontSize: 12, marginTop: 4 }}>running plans is off on the laptop — set "plans": true in its laptop-node.json</div>)}
+      {p.report && (
+        <div style={{ color: p.report.completed ? C.ok : C.bad, fontSize: 12, marginTop: 4 }}>
+          {p.report.executed} of {p.report.total} steps done{p.report.completed ? '' : ' — stopped at the first failure'}
+          {p.report.needs_admin ? '; the rest needs administrator rights (finish it in drogba on the laptop)' : ''}
+        </div>)}
+      <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+        <button onClick={() => setOpen(!open)} style={{ ...linkBtn, padding: 0 }}>{open ? 'hide' : 'show'} steps</button>
+        {['previewed', 'stale', 'has problems', 'stopped'].includes(p.status) && !busy && (
+          <button onClick={() => act('preview')} style={{ ...linkBtn, padding: 0 }}>preview again</button>)}
+        {p.status === 'previewed' && p.runs_allowed && !busy && (
+          <button onClick={() => act('run')} style={{ ...linkBtn, padding: 0, color: C.warn }}>run on the laptop →</button>)}
+      </div>
+      {open && (
+        <div style={{ fontSize: 12, color: C.soft, marginTop: 6, fontFamily: 'ui-monospace, monospace', wordBreak: 'break-all' }}>
+          {p.steps.map((x, i) => <div key={i}>{i + 1}. {x}</div>)}
+          {p.step_count > p.steps.length && <div style={{ color: C.faint }}>… and {p.step_count - p.steps.length} more</div>}
+        </div>)}
+    </div>
+  );
+}
+
 // Go on with a task: from its conversation so far, with an optional hint ("use the forms on
 // the Referat Personal page"). The panel re-subscribes, so the graph keeps growing.
 function Continue({ taskId, onStarted }) {
@@ -105,6 +158,12 @@ export default function AgentTaskPanel({ taskId, onRead, onClose }) {
               {d.attachments?.length > 0 && <div style={{ color: C.soft, fontSize: 12 }}>attached: {d.attachments.join(', ')}</div>}
             </div>
           ))}
+        </div>
+      )}
+      {t.plans?.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <div style={{ color: C.faint, fontSize: 12 }}>File plans for the laptop — previewed only; nothing changes until you run one</div>
+          {t.plans.map(p => <PlanRow key={p.id} taskId={t.id} plan={p} />)}
         </div>
       )}
       {t.answer && <div style={{ marginTop: 12 }}><Markdown text={t.answer} onRead={onRead} /></div>}

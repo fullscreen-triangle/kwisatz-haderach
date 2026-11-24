@@ -131,6 +131,42 @@ class TaskService:
         asyncio.get_running_loop().create_task(self._run(t, messages))
         return t
 
+    async def plan(self, tid: str, pid: str, action: str) -> dict:
+        """A file plan the agent previewed: `preview` it again (new steps, new digest), or `run`
+        it on the laptop exactly as last previewed. Only Kundai calls this — the agent has no
+        tool that runs a plan. LaptopOffline/LaptopRefused pass through to the route."""
+        from backend import laptop
+        from backend.tasks.tools import plan_record
+        t = self.tasks.get(tid)
+        p = next((x for x in (t or {}).get("plans") or [] if x["id"] == pid), None)
+        if p is None:
+            raise KeyError(pid)
+        if action == "preview":
+            p.update(plan_record(pid, p["plan"], await laptop.plan_preview(p["plan"])))
+        elif action == "run":
+            if p["status"] != "previewed":
+                raise ValueError(f"the plan is {p['status']}; preview it again before running")
+            p["status"] = "running"
+            await self._changed(t)
+            try:
+                out = await laptop.plan_run(p["plan"], p["digest"])
+            except (laptop.LaptopOffline, laptop.LaptopRefused) as e:
+                p.update(status="previewed", error=str(e))
+                await self._changed(t)
+                raise
+            if out.get("error"):
+                p.update(status="stale", error=out["error"])
+            else:
+                r = out.get("report") or {}
+                failed = [x for x in r.get("results") or [] if not x.get("ok")]
+                p.update(status="ran" if r.get("completed") else "stopped", error="", ran=_now(),
+                         report={"executed": r.get("executed"), "total": r.get("total"), "completed": bool(r.get("completed")),
+                                 "failed": failed[:20], "needs_admin": bool(r.get("can_retry_elevated"))})
+        else:
+            raise ValueError(f"unknown plan action {action}")
+        await self._changed(t)
+        return p
+
     def get(self, tid: str) -> Optional[dict]:
         return self.tasks.get(tid)
 

@@ -5,6 +5,8 @@
   GET  /tasks                 recent tasks
   GET  /tasks/{id}            one task: steps, graph, forms, files, report
   GET  /tasks/{id}/stream     the same over Server-Sent Events, as it grows
+  POST /tasks/{id}/plans/{pid}/preview   preview a file plan the agent wrote, again (changes nothing)
+  POST /tasks/{id}/plans/{pid}/run       run it on the laptop as last previewed (Kundai's button)
 """
 
 from __future__ import annotations
@@ -42,6 +44,23 @@ async def resume(tid: str, body: ResumeBody):
         return service().resume(tid, body.text)
     except KeyError:
         raise HTTPException(404, "no such task")
+
+
+@router.post("/{tid}/plans/{pid}/{action}")
+async def plan(tid: str, pid: str, action: str):
+    from backend import laptop
+    if action not in ("preview", "run"):
+        raise HTTPException(404, "unknown plan action")
+    try:
+        return await service().plan(tid, pid, action)
+    except KeyError:
+        raise HTTPException(404, "no such task or plan")
+    except ValueError as e:
+        raise HTTPException(409, str(e))
+    except laptop.LaptopOffline as e:
+        raise HTTPException(503, str(e))
+    except laptop.LaptopRefused as e:
+        raise HTTPException(409, str(e))
 
 
 @router.get("")
