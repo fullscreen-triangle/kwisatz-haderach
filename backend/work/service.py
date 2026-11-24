@@ -162,15 +162,21 @@ async def activity(projects: List[dict], acct, client: Optional[httpx.AsyncClien
         return
     own = client is None
     client = client or httpx.AsyncClient(timeout=20, headers=acct.headers)
+    anon = None                                  # Gitea refuses a dead token even on a public repo
     try:
         for p in projects:
             ore = _owner_repo(p.get("repo", ""))
             if not ore or host_of(p.get("repo", "")) != acct.host:
                 continue
+            url = f"{acct.api}/repos/{ore[0]}/{ore[1]}/commits"
+            params = {"sha": p.get("branch") or "main", "limit": 10, "stat": "false", "verification": "false", "files": "false"}
             try:
-                r = await client.get(f"{acct.api}/repos/{ore[0]}/{ore[1]}/commits",
-                                     params={"sha": p.get("branch") or "main", "limit": 10, "stat": "false",
-                                             "verification": "false", "files": "false"})
+                r = await client.get(url, params=params)
+                if r.status_code == 401:
+                    mock = getattr(client, "_transport", None)
+                    anon = anon or httpx.AsyncClient(timeout=20, transport=mock if isinstance(mock, httpx.MockTransport) else None)
+                    r = await anon.get(url, params=params)
+                    p["activity_note"] = "the uni forge token was rejected; read as a public repository"
             except httpx.HTTPError as e:
                 p["activity_error"] = type(e).__name__
                 continue
@@ -187,6 +193,8 @@ async def activity(projects: List[dict], acct, client: Optional[httpx.AsyncClien
     finally:
         if own:
             await client.aclose()
+        if anon is not None:
+            await anon.aclose()
 
 
 # --------------------------------------------------------------------------- the service

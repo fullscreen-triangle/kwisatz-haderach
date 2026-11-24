@@ -206,3 +206,19 @@ def test_the_agent_tools_summarise_and_read(monkeypatch, tmp_path, tree):
     text, _ = run(tools.read_work_document(r, "projects/scilang/status.md"))
     assert text.startswith("# scilang: status")
     assert "only the desk" in run(tools.read_work_document(r, "projects/scilang/seen"))[0]
+
+
+def test_a_rejected_token_falls_back_to_reading_a_public_repo():
+    from backend import forges
+    acct = forges.Account("uni", "gitea", "git.uni-greifswald.de", "sachikonyk", "DEAD")
+    auths = []
+
+    def gitea(request: httpx.Request):
+        auths.append(request.headers.get("authorization"))
+        if request.headers.get("authorization"):
+            return httpx.Response(401, json={"message": "invalid token"})
+        return httpx.Response(200, json=[{"sha": "abc1234567", "commit": {"message": "x", "committer": {"date": "2026-11-23T00:00:00Z"}}}])
+    projects = [{"name": "scilang", "repo": "https://git.uni-greifswald.de/sachikonyk/scilang.git", "branch": "main", "seen": ""}]
+    run(service.activity(projects, acct, client=httpx.AsyncClient(transport=httpx.MockTransport(gitea), headers=acct.headers)))
+    assert auths == ["token DEAD", None] and projects[0]["commits"][0]["sha"] == "abc1234567"
+    assert "rejected" in projects[0]["activity_note"]
