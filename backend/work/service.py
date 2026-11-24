@@ -181,7 +181,10 @@ async def activity(projects: List[dict], acct, client: Optional[httpx.AsyncClien
                 p["activity_error"] = type(e).__name__
                 continue
             if r.status_code != 200:
-                p["activity_error"] = f"Gitea answered {r.status_code}"
+                p["activity_error"] = ("a private repository, and the uni forge token was rejected: renew it "
+                                       "(tracker tokens set uni, then python -m tools.keeper push)"
+                                       if p.get("activity_note") and r.status_code == 404 else f"Gitea answered {r.status_code}")
+                p.pop("activity_note", None)
                 continue
             commits = [{"sha": c.get("sha", "")[:10], "date": (c.get("commit", {}).get("committer", {}).get("date") or "")[:10],
                         "subject": (c.get("commit", {}).get("message") or "").splitlines()[0][:160] if c.get("commit", {}).get("message") else ""}

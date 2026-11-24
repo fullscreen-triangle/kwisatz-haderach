@@ -57,6 +57,7 @@ function Project({ p, onOpen }) {
           <div style={{ color: p.open?.length ? AMBER : 'inherit' }}>{p.open?.length || 0} open</div>
           {behind && <div style={{ color: AMBER }}>{behind}</div>}
           {newest && <div style={faint}>newest {newest.date} · {newest.subject.slice(0, 60)}</div>}
+          {!newest && p.activity_error && <div style={{ ...faint, maxWidth: 320 }}>commits: {p.activity_error}</div>}
         </div>
       </div>
       {p.log?.[0] && (
