@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
@@ -9,10 +9,9 @@ const INDEX_FILE = path.join(REPO_ROOT, 'tools', 'job_assistant', 'output', 'ind
 
 function runAnalysis(url) {
   return new Promise((resolve, reject) => {
-    // Sanitise: only allow http/https, strip quotes
-    const safe = url.replace(/"/g, '').replace(/'/g, '');
-    const cmd = `python -m tools.job_assistant apply --url "${safe}"`;
-    exec(cmd, {
+    // The URL goes to Python as one argument, with no shell in between, so characters
+    // such as $( ) or backticks in it are only text.
+    execFile('python', ['-m', 'tools.job_assistant', 'apply', '--url', url], {
       cwd: REPO_ROOT,
       env: { ...process.env },
       timeout: 150_000,
@@ -30,7 +29,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { url } = req.body || {};
-  if (!url || !url.startsWith('http')) {
+  if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) {
     return res.status(400).json({ error: 'A valid http/https URL is required.' });
   }
 

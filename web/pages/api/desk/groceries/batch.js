@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import path from 'path';
 
 const REPO_ROOT = path.join(process.cwd(), '..');
@@ -17,8 +17,8 @@ const FIXED_ITEMS = [
 
 function searchOne(query) {
   return new Promise((resolve) => {
-    const cmd = `python -m tools.grocery_tracker.price_lookup --query "${query.replace(/"/g, '')}" --stores rewe,kaufland,penny --limit 3`;
-    exec(cmd, { cwd: REPO_ROOT, timeout: 25_000 }, (err, stdout) => {
+    const args = ['-m', 'tools.grocery_tracker.price_lookup', '--query', query, '--stores', 'rewe,kaufland,penny', '--limit', '3'];
+    execFile('python', args, { cwd: REPO_ROOT, timeout: 25_000 }, (err, stdout) => {
       try {
         const data = JSON.parse(stdout);
         // Extract the single cheapest result across all stores
