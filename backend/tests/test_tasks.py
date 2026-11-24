@@ -292,3 +292,25 @@ def test_an_offline_laptop_leaves_the_plan_runnable(tmp_path, monkeypatch):
         return svc.get("t1")["plans"][0]
     p = run(go())
     assert p["status"] == "previewed" and "answering" in p["error"]
+
+
+def test_money_tools_read_the_finance_figures_and_change_nothing(tmp_path, monkeypatch, capsys):
+    from tools.finance import cli
+    monkeypatch.setenv("FINANCE_HOME", str(tmp_path / "fin"))
+    r = Run({"id": "t"}, tmp_path, cloud=False)
+    empty, g = run(tools.money_position(r))
+    assert "no figures entered yet" in empty and g == []
+    for argv in (["debt", "card", "--name", "Card", "--balance", "3000", "--rate", "0.19", "--min-fixed", "100"],
+                 ["owed", "deposit", "--debtor", "Landlord", "--what", "Deposit", "--amount", "1200",
+                  "--due", "2026-01-31", "--deadline", "2026-12-01"],
+                 ["setting", "monthly_to_debt", "500"]):
+        assert cli.main(argv) == 0
+    capsys.readouterr()
+    before = sorted((p.name, p.read_bytes()) for p in (tmp_path / "fin").iterdir())
+    pos, g = run(tools.money_position(r))
+    assert pos["you_owe"] == "3000.00" and pos["owed_to_you"] == "1200.00" and g[0]["node"]["id"] == "money"
+    cost, _ = run(tools.afford(r, "300"))
+    assert isinstance(cost, dict) and "could not" not in str(cost)
+    assert "could not" in run(tools.afford(r, "a lot"))[0]
+    assert "no parcels" in run(tools.parcels(r))[0]
+    assert sorted((p.name, p.read_bytes()) for p in (tmp_path / "fin").iterdir()) == before

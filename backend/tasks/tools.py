@@ -403,6 +403,33 @@ async def plan_file_work(run: Run, plan: str) -> Result:
         [node(f"plan:{rec['id']}", "result", f"file plan · {rec['step_count']} steps")]
 
 
+async def money_position(run: Run) -> Result:
+    """tools/finance's overview: owed to him, invested, owed by him, net, and the alerts
+    (claims about to run out, assumed rates). Reads only."""
+    from tools.finance import plan
+    from tools.finance.store import Store
+    o = plan.overview(Store().position())
+    if not (o.get("receivables") or o.get("debts") or o.get("investments") or (o.get("monthly") or {}).get("net_income")):
+        return "no figures entered yet: the Money page (/desk/finance) or `python -m tools.finance` records them", []
+    return o, [node("money", "result", f"money · net {o.get('net')} {o.get('currency', '')}".strip())]
+
+
+async def afford(run: Run, price: str) -> Result:
+    from tools.finance import plan
+    from tools.finance.store import Store
+    try:
+        return plan.afford(Store().position(), price), []
+    except ValueError as e:
+        return f"could not work it out: {e}", []
+
+
+async def parcels(run: Run) -> Result:
+    from tools.finance import deliveries
+    from tools.finance.store import Store
+    found = deliveries.listing(Store().deliveries())
+    return found or "no parcels recorded (the Money page's Scan mail reads them from the mail)", []
+
+
 # --------------------------------------------------------------------------- registry
 
 def _fn(name, desc, props, required=()):
@@ -445,6 +472,9 @@ TOOLS: Dict[str, Tuple[Callable[..., Awaitable[Result]], dict]] = {
     "list_laptop_folder": (list_laptop_folder, _fn("list_laptop_folder", "List the files in a folder on Kundai's laptop.", {"path": S}, ["path"])),
     "read_laptop_file": (read_laptop_file, _fn("read_laptop_file", "Read the text of a document on Kundai's laptop (to see whether it holds what a form needs).", {"path": S}, ["path"])),
     "plan_file_work": (plan_file_work, _fn("plan_file_work", PLAN_HELP, {"plan": S}, ["plan"])),
+    "money_position": (money_position, _fn("money_position", "Kundai's money as he recorded it: what he is owed (with due dates and claim deadlines), invests and owes, net, monthly picture, and alerts (a claim about to run out, an assumed interest rate). Reads only.", {})),
+    "afford": (afford, _fn("afford", "What buying something for PRICE (euros, e.g. \"300\" or \"1.234,56\") now really costs: days later debt-free and the extra interest, from his debt plan. Reads only.", {"price": S}, ["price"])),
+    "parcels": (parcels, _fn("parcels", "His parcels found in mail: carrier, tracking link, status, and the date to send it back by once delivered. Reads only.", {})),
     "draft_reply": (draft_reply, _fn("draft_reply", "Write the reply to a mail with the filled forms (form_ids) and saved files attached, as a DRAFT in the mailbox it came to. Never sent: Kundai checks, signs and sends.",
                                      {"mail_key": S, "body": S, "form_ids": {"type": "array", "items": S}, "files": {"type": "array", "items": S}}, ["mail_key", "body"])),
 }
