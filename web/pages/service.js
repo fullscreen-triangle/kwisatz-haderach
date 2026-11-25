@@ -40,7 +40,7 @@ function Service() {
                     {getPortfolioData().map(p => (
                         <div key={p.id} className="border-top pt-30">
                             <h4 className="mb-10">
-                                <a href={p.href} target="_blank" rel="noreferrer">{p.title}</a>
+                                <a href={p.url} target="_blank" rel="noreferrer">{p.title}</a>
                             </h4>
                             <p className="mb-10" style={{opacity: 0.6}}>{p.category.join(' · ')}</p>
                             <p>{p.description}</p>

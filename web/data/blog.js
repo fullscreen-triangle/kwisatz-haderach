@@ -1,4 +1,4 @@
-// Kundai's papers (applications/publications/publication-list.md). `href` is set only where
+// Kundai's papers (applications/publications/publication-list.md). `url` is set only where
 // the paper has a link the desk knows (a DOI); the others show without one rather than
 // pointing at a page that is not theirs. The images are the theme's placeholders.
 
@@ -7,7 +7,7 @@ const data = [
         id: 1,
         title: "Therapeutic effect as loop-closure restoration: a first-principles framework using GPU ray tracing for real-time prediction of drug outcomes",
         slug: 'loop-closure-restoration',
-        href: 'https://doi.org/10.35242/ijamhs.00046',
+        url: 'https://doi.org/10.35242/ijamhs.00046',
         author: "Kundai Farai Sachikonye",
         date: "2026",
         category: ['Pharmacology'],
@@ -74,7 +74,7 @@ export const getBlogItem = (value, whereName = "slug") => {
 };
 export const getBlogLink = (item) => {
     if (item)
-        return item.href || '';
+        return item.url || '';
 
     return '';
 };
