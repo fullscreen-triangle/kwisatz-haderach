@@ -39,6 +39,18 @@ def _host(url: str) -> str:
     return (urlparse(url if "://" in url else f"https://{url}").hostname or "").lower()
 
 
+def entry(kp, aid: str, accts: Optional[Dict[str, dict]] = None):
+    """The Git-group entry that holds account `aid`'s token (the one tracker uses too)."""
+    accts = accounts() if accts is None else accts
+    a = accts.get(aid)
+    g = kp.find_groups(name=GIT_GROUP, first=True)
+    if a is None or g is None:
+        return None
+    entries = [e for e in (kp.find_entries(group=g, recursive=True) or []) if (e.username or "") != "api-key"]
+    same_host = [e for e in entries if _host(e.url) == a["host"].lower() and e.password]
+    return next((e for e in same_host if (e.username or "") == a["user"]), None) or (same_host[0] if len(same_host) == 1 else None)
+
+
 def items(kp, accts: Optional[Dict[str, dict]] = None) -> List[Item]:
     accts = accounts() if accts is None else accts
     g = kp.find_groups(name=GIT_GROUP, first=True)

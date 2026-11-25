@@ -24,7 +24,7 @@ const STRATEGY = {
   static:  'you renew it',
 };
 
-const PUSH_HINT = 'Update the entry in KeePassXC, then run: python -m tools.keeper push';
+const PUSH_HINT = 'Not renewable on the desk: update the entry in KeePassXC, then run: python -m tools.keeper push';
 // Plain API keys (backend/keeper/apikeys.py): `renew` checks the new key with the provider,
 // stores it and pushes, in one step.
 const RENEWABLE = new Set(['anthropic', 'openai', 'gemini', 'deepseek', 'huggingface', 'you', 'mapbox', 'openweather']);
@@ -60,7 +60,143 @@ const label = { fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em'
 const value = { fontSize: 14, fontWeight: 600, color: 'var(--heading-color)' };
 const sub   = { fontSize: 12, color: 'var(--font-color)', opacity: 0.5 };
 
-function KeyCard({ c, now }) {
+// ── Renewing on the desk (backend/keeper/desk.py) ─────────────────────────────
+// The new value goes to the node, which asks the provider first and keeps it only if it is
+// accepted; nothing is ever sent back. The services restart a few seconds later to use it.
+const inputStyle = { background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: 'var(--font-color)',
+  padding: '7px 10px', borderRadius: 4, fontSize: 13, width: '100%' };
+
+async function post(path, body) {
+  const r = await fetch(`/api/desk/keeper/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.detail || d.error || `HTTP ${r.status}`);
+  return d;
+}
+
+function RenewHere({ c, fields }) {
+  const [vals, setVals] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const go = async () => {
+    setBusy(true); setMsg(null);
+    try {
+      const d = await post(`renew/${encodeURIComponent(c.id)}`, { values: vals });
+      setMsg({ ok: d.ok, text: d.ok ? `Accepted: ${d.detail}. The desk restarts in a few seconds to use it.` : d.detail });
+      if (d.ok) setVals({});
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy(false);
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {fields.map(f => (
+        <input key={f.name} type={f.secret ? 'password' : 'text'} autoComplete="off" placeholder={f.label}
+          value={vals[f.name] || ''} onChange={e => setVals({ ...vals, [f.name]: e.target.value })} style={inputStyle} />
+      ))}
+      <div className={s.btnGroup}>
+        <button className={`${s.btn} ${s.btnPrimary}`} onClick={go} disabled={busy || fields.some(f => !vals[f.name])}>
+          {busy ? 'Checking with the provider…' : 'Check and use'}
+        </button>
+      </div>
+      {msg && <div style={{ fontSize: 12, color: msg.ok ? '#34d399' : '#fca5a5' }}>{msg.text}</div>}
+    </div>
+  );
+}
+
+function GmailRenew({ callback }) {
+  const [busy, setBusy] = useState('');
+  const [msg, setMsg] = useState(null);
+  const [paste, setPaste] = useState(null);      // the sign-in waits for the 127.0.0.1 address
+  const [pasted, setPasted] = useState('');
+  const upload = async file => {
+    if (!file) return;
+    setBusy('client'); setMsg(null);
+    try {
+      const d = await post('google/client', { text: await file.text() });
+      setMsg({ ok: true, text: `Client kept (${d.kind}${d.project ? `, project ${d.project}` : ''}). ${d.redirect_ok
+        ? 'Its redirect is this desk: Connect returns here by itself.' : 'Connect will ask you to paste the address Google sends you to.'}` });
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy('');
+  };
+  const connect = async () => {
+    setBusy('start'); setMsg(null);
+    try {
+      const d = await post('google/start');
+      if (d.mode === 'redirect') { window.location.href = d.url; return; }
+      setPaste(d); window.open(d.url, '_blank', 'noopener');
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy('');
+  };
+  const finish = async () => {
+    setBusy('finish'); setMsg(null);
+    try {
+      const d = await post('google/finish', { pasted });
+      setPaste(null); setPasted('');
+      setMsg({ ok: true, text: `Connected to ${d.mailbox}${d.calendar ? ' with Calendar' : ''}.${d.testing_until
+        ? ` Google will end this token on ${d.testing_until} because the app is in Testing — publish it once and connect again.` : ''}`,
+        publish: d.publish_url });
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy('');
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12 }}>
+      <div style={{ opacity: 0.6, lineHeight: 1.6 }}>
+        If Google refused the client itself, make a new one first: Google Cloud → Credentials → Create OAuth client →
+        <b> Web application</b>, with the redirect URI <code style={{ wordBreak: 'break-all' }}>{callback}</code>, download its JSON and choose it here.
+        A Desktop client works too; then you paste one address at the end.
+      </div>
+      <div className={s.btnGroup}>
+        <a className={s.btn} href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noreferrer">Google Cloud credentials</a>
+        <label className={s.btn} style={{ cursor: 'pointer' }}>
+          {busy === 'client' ? 'Keeping…' : 'Choose client JSON'}
+          <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={e => upload(e.target.files?.[0])} />
+        </label>
+        <button className={`${s.btn} ${s.btnPrimary}`} onClick={connect} disabled={!!busy}>{busy === 'start' ? 'Opening…' : 'Connect Gmail'}</button>
+      </div>
+      {paste && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ opacity: 0.6 }}>Sign in on the Google tab. It ends on a page that does not load (127.0.0.1…): copy that whole address and paste it here.</div>
+          <input value={pasted} onChange={e => setPasted(e.target.value)} placeholder="http://127.0.0.1:8765/?state=…&code=…" style={inputStyle} />
+          <div className={s.btnGroup}>
+            <button className={`${s.btn} ${s.btnPrimary}`} onClick={finish} disabled={!pasted || !!busy}>{busy === 'finish' ? 'Finishing…' : 'Finish'}</button>
+          </div>
+        </div>
+      )}
+      {msg && (
+        <div style={{ color: msg.ok ? '#34d399' : '#fca5a5' }}>
+          {msg.text}{msg.publish && <> <a href={msg.publish} target="_blank" rel="noreferrer">Publish the app →</a></>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Settings({ settings }) {
+  const [vals, setVals] = useState(() => Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, v.value])));
+  const [msg, setMsg] = useState('');
+  const save = async () => {
+    setMsg('');
+    try {
+      for (const [k, v] of Object.entries(vals)) if (v !== settings[k].value) await post('setting', { name: k, value: v });
+      setMsg('Saved. The desk restarts in a few seconds to use it.');
+    } catch (e) { setMsg(e.message); }
+  };
+  return (
+    <div style={{ background: 'var(--assistant-color, #101010)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: 20, marginBottom: 24 }}>
+      <div style={label}>Home (weather, travel)</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8, marginTop: 6 }}>
+        {Object.entries(settings).map(([k, v]) => (
+          <input key={k} value={vals[k] || ''} placeholder={v.label} title={v.label} style={inputStyle}
+            onChange={e => setVals({ ...vals, [k]: e.target.value })} />
+        ))}
+      </div>
+      <div className={s.btnGroup} style={{ marginTop: 8 }}><button className={s.btn} onClick={save}>Save</button></div>
+      {msg && <div style={{ fontSize: 12, opacity: 0.7, marginTop: 6 }}>{msg}</div>}
+    </div>
+  );
+}
+
+function KeyCard({ c, now, fields, callback }) {
   const badge = STATE_BADGE[c.state] || STATE_BADGE.unknown;
   const bad = ['dead', 'expired'].includes(c.state);
   const needsHuman = bad || c.state === 'soon' || c.state === 'missing';
@@ -122,9 +258,12 @@ function KeyCard({ c, now }) {
               </a>
             </div>
           )}
-          <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.45, fontFamily: 'monospace' }}>
-            {RENEWABLE.has(c.id) ? `On the laptop: python -m tools.keeper renew ${c.id}` : PUSH_HINT}
-          </div>
+          {c.id === 'gmail' && <GmailRenew callback={callback} />}
+          {fields?.length > 0 && <RenewHere c={c} fields={fields} />}
+          {c.id !== 'gmail' && !fields?.length && (
+            <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.45, fontFamily: 'monospace' }}>
+              {RENEWABLE.has(c.id) ? `On the laptop: python -m tools.keeper renew ${c.id}` : PUSH_HINT}
+            </div>)}
         </div>
       )}
     </div>
@@ -137,6 +276,8 @@ export default function KeysPage() {
   const [live, setLive] = useState(false);
   const [checking, setChecking] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [desk, setDesk] = useState(null);           // what can be renewed here (value-free)
+  const [back, setBack] = useState(null);           // what Google's sign-in came back with
 
   // Relative times ("3 min ago") move on their own between events.
   useEffect(() => {
@@ -145,6 +286,14 @@ export default function KeysPage() {
   }, []);
 
   useEffect(() => {
+    fetch('/api/desk/keeper/desk').then(r => r.json()).then(d => d.fields && setDesk(d)).catch(() => {});
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('gmail')) {
+      setBack(q.get('gmail') === 'ok'
+        ? { ok: true, text: `Gmail connected (${q.get('box') || 'mailbox'}).${q.get('testing') ? ` Google ends this token on ${q.get('testing')}: publish the app and connect again.` : ''}` }
+        : { ok: false, text: `Gmail sign-in failed: ${q.get('why') || 'unknown'}` });
+      window.history.replaceState(null, '', '/desk/keys');
+    }
     fetch('/api/desk/keys')
       .then(r => r.json())
       .then(d => (d.error ? setError(d.error) : setSnap(d)))
@@ -197,11 +346,13 @@ export default function KeysPage() {
             {checking ? 'Checking…' : 'Check all now'}
           </button>
         </div>
+        {back && <div style={{ color: back.ok ? '#34d399' : '#fca5a5', fontSize: 13, marginBottom: 16 }}>{back.text}</div>}
+        {desk?.settings && <Settings settings={desk.settings} />}
         {error && !snap && <div style={{ color: '#f87171', fontSize: 13 }}>{error}</div>}
         {!snap && !error && <div style={{ color: 'var(--font-color)', opacity: 0.4 }}>Loading…</div>}
         {snap && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
-            {creds.map(c => <KeyCard key={c.id} c={c} now={now} />)}
+            {creds.map(c => <KeyCard key={c.id} c={c} now={now} fields={desk?.fields?.[c.id]} callback={desk?.callback} />)}
           </div>
         )}
       </section>

@@ -80,6 +80,9 @@ Environment=NODE_ENV=production
 Environment=NEXT_TELEMETRY_DISABLED=1
 Environment=AGENT_SMITH_STATE=$STATE
 EnvironmentFile=-$ENVF
+# Values renewed on the desk (backend/keeper/desk.py), after the pushed ones so they win.
+# The backend does NOT read this file: it reconciles it against the pushed env itself.
+EnvironmentFile=-$STATE/desk-keys/env
 ExecStart=$APP/web/node_modules/.bin/next start -H 127.0.0.1 -p 3002
 Restart=always
 RestartSec=5
@@ -92,7 +95,29 @@ ReadWritePaths=$APP $STATE
 [Install]
 WantedBy=multi-user.target
 UNIT
+
+# A credential renewed on the desk rewrites desk-keys/env; restart both services a moment
+# later (after the renewal's answer has gone out) so every reader sees the new value.
+cat > /etc/systemd/system/agent-smith-desk-keys.path <<UNIT
+[Unit]
+Description=Agent Smith: restart on a credential renewed on the desk
+
+[Path]
+PathChanged=$STATE/desk-keys/env
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+cat > /etc/systemd/system/agent-smith-desk-keys.service <<UNIT
+[Unit]
+Description=Agent Smith: apply credentials renewed on the desk
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'sleep 4; systemctl restart agent-smith-backend agent-smith-web'
+UNIT
 systemctl daemon-reload
+systemctl enable --now agent-smith-desk-keys.path >/dev/null 2>&1 || true
 
 say "Web build"
 cd "$APP/web"

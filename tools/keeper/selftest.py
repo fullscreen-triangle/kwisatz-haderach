@@ -92,9 +92,38 @@ def run():
         check(not any("city.md" in f for f in found), "settings values are not reported as leaks")
 
         gmail_reconnect(tmp)
+        desk_pull(tmp)
     print("selftest passed")
 
 
+def desk_pull(tmp: Path):
+    """keeper pull: values renewed on the desk land in the entries that export them, the old
+    value stays in history, and a name no entry exports is left on the desk."""
+    import json
+    from tools.keeper import gmail, pull
+    kp = vault.create_vault(tmp / "p.kdbx", "correct horse battery staple")
+    key = vault.add_entry(kp, "Anthropic API", keeper_id="anthropic", strategy="static",
+                          env_spec="Password=ANTHROPIC_API_KEY", fields={"Password": "old-key"})
+    vault.add_entry(kp, "Desk settings", keeper_id="", strategy="static", env_spec="*", fields={"HOME_CITY": "Munich"})
+    vault.add_entry(kp, "Gmail OAuth", keeper_id="gmail", strategy="refresh", env_spec="", fields={},
+                    files={"credentials.json": FAKE_CLIENT, "gmail_token.json": b'{"refresh_token": "1//old"}'})
+    env_text = ("# renewed on the desk\nANTHROPIC_API_KEY='new-key'\nHOME_CITY='Greifswald'\n"
+                f"GMAIL_TOKEN_PATH='/var/lib/agent-smith/desk-keys/gmail-token.json'\nSOMETHING_PASSWORD={FAKE_PW_QUOTED}\n")
+    files = {"env": env_text.encode(), "gmail-token.json": json.dumps({"refresh_token": "1//desk", "scope": " ".join(gmail.SCOPES)}).encode()}
+    values = pull.env_values(files)
+    check(values["SOMETHING_PASSWORD"] == FAKE_PW, "desk env values unquote exactly")
+    placed, left = pull.place(kp, values, files)
+    kp.save()
+    items = {i.title: i for i in vault.read_items(vault.open_vault(tmp / "p.kdbx", password="correct horse battery staple"), forges=False)}
+    check(items["Anthropic API"].fields["Password"] == "new-key", "a desk key lands in the entry that exports it")
+    check(len(key.history) == 1, "the old key stays in the entry's history")
+    check(items["Desk settings"].fields["HOME_CITY"] == "Greifswald", "a desk setting lands in Desk settings")
+    check(json.loads(items["Gmail OAuth"].attachments["gmail_token.json"])["refresh_token"] == "1//desk", "the desk's Gmail token replaces the vault's")
+    check(sorted(placed) == ["ANTHROPIC_API_KEY", "GMAIL_TOKEN_PATH", "HOME_CITY"] and left == ["SOMETHING_PASSWORD"],
+          "a name no entry exports stays on the desk")
+
+
+FAKE_PW_QUOTED = '"pa\\$\\$ \'word\\"!\\`\\\\"'      # FAKE_PW as the desk writes it (double-quoted, escaped)
 FAKE_CLIENT = b'{"installed": {"client_id": "cid.apps.googleusercontent.com", "client_secret": "FAKE-SECRET", "project_id": "agent-smith-test"}}'
 
 

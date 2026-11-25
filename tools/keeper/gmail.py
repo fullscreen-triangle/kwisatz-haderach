@@ -219,9 +219,10 @@ def client_from_vault(kp, fallback: Optional[Path]) -> tuple:
                      "client → Download JSON) to the vault entry 'Gmail OAuth', or pass --credentials FILE.")
 
 
-def store(kp, grant: Grant, client_raw: bytes) -> tuple:
+def store(kp, grant: Grant, client_raw: bytes, replace_client: bool = False) -> tuple:
     """Put the new token on the Gmail entry. Returns (entry, created). The previous token
-    stays in the entry's history; the binary is not deleted because history refers to it."""
+    stays in the entry's history; the binary is not deleted because history refers to it.
+    `replace_client`: the OAuth client changed too (a new one was made on the desk)."""
     from tools.keeper import vault
     data = json.dumps(grant.token, indent=2).encode()
     e = gmail_entry(kp)
@@ -232,7 +233,7 @@ def store(kp, grant: Grant, client_raw: bytes) -> tuple:
     else:
         e.save_history()
         for a in list(e.attachments):
-            if a.filename == TOKEN_NAME:
+            if a.filename == TOKEN_NAME or (replace_client and a.filename == CLIENT_NAME):
                 e.delete_attachment(a)
         e.add_attachment(kp.add_binary(data, compressed=True, protected=True), TOKEN_NAME)
         if not any(a.filename == CLIENT_NAME for a in e.attachments):

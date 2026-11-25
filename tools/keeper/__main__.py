@@ -21,7 +21,9 @@ python -m tools.keeper <command>
                        OAuth client, check the token against Gmail, replace it in the
                        vault, push; says when Google will kill it again and how to stop
                        that (also: renew gmail, or double-click reconnect-gmail.cmd)
-  push [--host H]      send them to the server, restart, print the keeper's live verdict
+  push [--host H]      bring keys renewed on the desk (/desk/keys) into the vault, then send
+                       the vault to the server, restart, print the keeper's live verdict
+  pull [--host H]      the same (the name for when you only meant to collect desk renewals)
   audit [--repo DIR]   fail if any vault value is in a git-tracked file
   selftest             exercise render/vault/audit against a throwaway vault
 
@@ -422,7 +424,18 @@ def cmd_reconnect_gmail(a):
 
 
 def cmd_push(a):
-    push_items(vault.read_items(vault.open_vault(Path(a.vault), keyfile=a.keyfile)), a.host)
+    """Bring what was renewed on the desk into the vault first (tools/keeper/pull.py), so the
+    push never sends an older value; then push; then let the node drop its desk copies."""
+    from tools.keeper import pull
+    kp = vault.open_vault(Path(a.vault), keyfile=a.keyfile)
+    try:
+        placed = pull.pull(kp, a.host)
+    except SystemExit as e:
+        print(f"  note: {e} — pushing the vault as it is (desk renewals stay on the node)")
+        placed = []
+    push_items(vault.read_items(kp), a.host)
+    if placed:
+        pull.absorbed(placed, a.host)
 
 
 def push_items(items, host) -> None:
@@ -611,9 +624,10 @@ def main(argv=None):
     rg.add_argument("--timeout", type=float, default=300, help="seconds to wait for the browser (default 300)")
     rg.add_argument("--host", default=DEFAULT_HOST)
     rg.set_defaults(fn=cmd_reconnect_gmail)
-    ps = sub.add_parser("push")
-    ps.add_argument("--host", default=DEFAULT_HOST)
-    ps.set_defaults(fn=cmd_push)
+    for name in ("push", "pull"):                     # pull = push: both bring desk renewals in first
+        ps = sub.add_parser(name)
+        ps.add_argument("--host", default=DEFAULT_HOST)
+        ps.set_defaults(fn=cmd_push)
     au = sub.add_parser("audit")
     au.add_argument("--repo", default=str(REPO))
     au.set_defaults(fn=cmd_audit)

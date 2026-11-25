@@ -263,6 +263,20 @@ class Keeper:
                 "worst": worst, "counts": counts, "credentials": rows}
 
 
+def _desk_keys() -> None:
+    """Values renewed on the desk (desk.py) that the vault has not caught up with go into this
+    process's environment before anything reads it."""
+    if os.getenv("KEEPER_SCHEDULER", "1") == "0" or not os.getenv("AGENT_SMITH_STATE"):
+        return                                   # tests, and laptop dev runs, keep no desk keys
+    try:
+        from backend.keeper.desk import DESK
+        for name, outcome in DESK.reconcile().items():
+            log.info("desk key %s: %s", name, outcome)
+    except Exception:
+        log.exception("desk keys: reconcile failed")
+
+
+_desk_keys()
 KEEPER = Keeper(build_registry(os.environ), state_dir())
 
 
