@@ -64,7 +64,9 @@ function BlogItem({portoDetails, textButton, imageOnly, className, parallaxConte
                         {portoDetails.category && <MetaPost category={portoDetails.category} separate={", "}/>}
                         {portoDetails.title &&
                         <h4 className={`title-block mb-10`}>
-                            <DsnLink href={getBlogLink(portoDetails)} transitionPage={{title:portoDetails.title}}>{portoDetails.title}</DsnLink>
+                            {getBlogLink(portoDetails)
+                                ? <DsnLink href={getBlogLink(portoDetails)} transitionPage={{title:portoDetails.title}}>{portoDetails.title}</DsnLink>
+                                : portoDetails.title}
                         </h4>}
 
                         {
@@ -73,6 +75,7 @@ function BlogItem({portoDetails, textButton, imageOnly, className, parallaxConte
                             <p>{portoDetails.description}</p>
                         }
 
+                        {getBlogLink(portoDetails) && (
                         <DsnLink href={getBlogLink(portoDetails)} className={`link-visit p-relative mt-15`} transitionPage={{title:portoDetails.title}}>
 
                             <span className="link-visit-text">{textButton}</span>
@@ -85,6 +88,7 @@ function BlogItem({portoDetails, textButton, imageOnly, className, parallaxConte
                                 </svg>
                             </div>
                         </DsnLink>
+                        )}
 
                     </div>
                 </div>

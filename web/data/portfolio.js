@@ -1,62 +1,65 @@
-
+// Kundai's projects (from his CV and repositories). Each links to its repository or its live
+// demo (`href`); the images are the theme's placeholders until project images exist.
 
 const data = [
     {
         id: 1,
-        title: "Maybe Speaker",
-        slug: 'maybe-speaker',
-        category: ['Product', 'voice'],
-        description: 'Vin tries to reflect Diesel’s vision and combines.',
+        title: "hegel",
+        slug: 'hegel',
+        href: 'https://github.com/fullscreen-triangle/hegel',
+        category: ['Systems biology', 'Causal graphs'],
+        description: 'Causal graphs derived from the kinetics of metabolic networks, read as resistive circuits.',
         src: '/img/project/project1/1.jpg',
         overlay: 6
     },
     {
         id: 2,
-        title: "Yaren Collection",
-        slug: 'yaren-collection',
+        title: "gospel",
+        slug: 'gospel',
+        href: 'https://github.com/fullscreen-triangle/gospel',
         src: '/img/project/project2/1.jpg',
-
-        category: ['pen'],
-        description: 'symbols through which express themselves.',
+        category: ['Multi-omics'],
+        description: 'Genotype, transcriptomics and metagenomics integrated; validated against 1000 Genomes, gnomAD, UK Biobank.',
         overlay: 6,
-
     },
     {
         id: 3,
-        title: "Huggl Power Pack",
-        slug: 'huggl-power-pack',
+        title: "syndrome",
+        slug: 'syndrome',
+        href: 'https://syndrome-seven.vercel.app/tools',
         src: '/img/project/project3/1.jpg',
-
-        category: ['induction'],
-        description: 'Huggl is an induction charging.',
-        overlay: 6
+        category: ['Computational oncology'],
+        description: 'Neoantigen and MHC binding prediction, checked against IEDB.',
+        overlay: 6,
     },
     {
         id: 4,
-        title: "Principal Garden",
-        slug: 'principal-garden',
-        category: ['Architecture'],
+        title: "Crown Prince",
+        slug: 'crown-prince',
+        href: 'https://crown-prince-four-courners.vercel.app/',
         src: '/img/project/project4/1.jpg',
-        description: 'We are thrilled to share our new reel with you all.',
-        overlay: 2
+        category: ['Pharmacology'],
+        description: 'Pharmacokinetics, pharmacodynamics and ADME from first principles, validated against NIST data.',
+        overlay: 6,
     },
     {
         id: 5,
-        title: "Small Silver Car",
-        slug: 'small-silver-car',
+        title: "Systems-biology shaders",
+        slug: 'systems-biology-shaders',
+        href: 'https://systems-biology-shaders.vercel.app/',
         src: '/img/project/project5/1.jpg',
-
-        category: ['Photography', 'Car'],
-        description: 'Cal was first. The first public university in the great state of California.',
-        overlay: 5
+        category: ['Cell modelling', 'GPU'],
+        description: 'Cell and systems-biology models computed on the GPU.',
+        overlay: 6,
     },
     {
         id: 6,
-        title: "Lengshuikeng",
-        slug: 'lengshuikeng',
-        category: ['Photography'],
+        title: "Agent Smith desk",
+        slug: 'agent-smith',
+        href: 'https://github.com/fullscreen-triangle/kwisatz-haderach',
         src: '/img/project/project6/1.jpg',
-        description: 'Sometimes, we need to check the time.',
+        category: ['Personal research desk'],
+        description: 'Mail, documents, plans, work and tools in one desk on a home server; this site.',
         overlay: 4
     }
 ]
@@ -68,7 +71,7 @@ export const getPortfolioItem = (value, whereName = "slug") => {
 };
 export const getPortfolioLink = (item) => {
     if (item)
-        return item.slug && '/portfolio/' + item.slug;
+        return item.href || (item.slug && '/portfolio/' + item.slug);
 
     return '';
 };

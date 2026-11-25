@@ -1,66 +1,15 @@
+// The person behind this site. One entry: the theme's stock team is gone.
 const data = [
     {
         id: 1,
-        name: "Ahmed Shawky",
-        position: 'Co-Founder / Design',
-        src: '/img/team/1.jpg',
+        name: "Kundai Farai Sachikonye",
+        position: 'Wissenschaftlicher Mitarbeiter · Institut für Biochemie, Universität Greifswald',
+        src: '/img/team/kundai.jpg',
         social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
-        ]
-    },  {
-        id: 2,
-        name: "Hisham Megahed",
-        position: 'Creative Director',
-        src: '/img/team/2.jpg',
-        social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
-        ]
-    },  {
-        id: 3,
-        name: "Jeremy Smith",
-        position: 'Creative Studio Head',
-        src: '/img/team/3.jpg',
-        social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
-        ]
-    },  {
-        id: 4,
-        name: "Bill Gardner",
-        position: 'Web designer',
-        src: '/img/team/2.jpg',
-        social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
-        ]
-    },  {
-        id: 5,
-        name: "Jeremy Dupont",
-        position: 'Creative Director',
-        src: '/img/team/3.jpg',
-        social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
-        ]
-    },  {
-        id: 6,
-        name: "Angelo Walking",
-        position: 'Developer Lead',
-        src: '/img/team/1.jpg',
-        social: [
-            {title: "FB", url: "#0"},
-            {title: "TW", url: "#0"},
-            {title: "LN", url: "#0"}
+            {title: "GH", url: "https://github.com/fullscreen-triangle"},
+            {title: "ORCID", url: "https://orcid.org/0009-0009-5698-9595"},
         ]
     },
-
 ]
 
 export const getTeamData = () => data;

@@ -11,9 +11,9 @@ function AwardsItem({className, data, ...restProps}:AwardsItemProps) {
             <div className="award-number">{data.number}</div>
             <div className="award-logo">
 
-                <Image
+                {data.src && <Image
                     src={data.src} alt="" width={200} height={200}
-                />
+                />}
                 <h4 className="sm-title-block">{data.title}</h4>
             </div>
         </div>

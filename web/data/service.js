@@ -20,8 +20,8 @@ const servicesDetails = [
                     d="m114 208c11.974 0 22.987-5.238 30.612-14.354 4.193 1.497 8.687 2.354 13.388 2.354 4.116 0 8.135-.622 12-1.84v7.645c0 1.711 1.09 3.234 2.713 3.785.422.145.857.215 1.287.215 1.217 0 2.398-.559 3.17-1.562l12.494-16.243h21.314c1.676 0 3.174-1.047 3.754-2.617.578-1.574.115-3.34-1.16-4.43l-17.034-14.51c.918-3.396 1.462-6.89 1.462-10.443 0-22.055-17.943-40-40-40-2.416 0-4.77.251-7.068.664-6.029-14.465-20.308-24.664-36.932-24.664-22.057 0-40 17.945-40 40 0 6.469 1.578 12.564 4.317 17.976-2.809 5.552-4.317 11.767-4.317 18.024 0 22.055 17.943 40 40 40zm0-8c-17.645 0-32-14.355-32-32 0-3.464.587-6.807 1.649-10.017 7.342 8.563 18.213 14.017 30.351 14.017 2.416 0 4.77-.251 7.068-.664 3.259 7.819 8.947 14.356 16.097 18.744-6.018 6.343-14.275 9.92-23.165 9.92zm73.695-20c-1.242 0-2.414.578-3.17 1.562l-6.525 8.48v-28.882l22.115 18.84zm-29.695-56c17.645 0 32 14.355 32 32 0 1.542-.124 3.071-.341 4.583l-13.065-11.129c-1.188-1.008-2.852-1.238-4.271-.586-1.416.656-2.322 2.074-2.322 3.633v33.139c-3.813 1.546-7.84 2.361-12 2.361-12.969 0-24.138-7.77-29.158-18.887 14.721-5.911 25.157-20.305 25.157-37.114 0-2.603-.269-5.142-.746-7.608 1.553-.233 3.129-.392 4.746-.392zm-32 32c0-13.211 8.049-24.575 19.5-29.454.307 1.776.5 3.591.5 5.454 0 13.211-8.049 24.575-19.5 29.454-.307-1.777-.5-3.591-.5-5.454zm-12-56c12.969 0 24.138 7.769 29.158 18.887-14.722 5.909-25.158 20.304-25.158 37.113 0 2.603.269 5.142.746 7.608-1.553.233-3.129.392-4.746.392-17.645 0-32-14.355-32-32s14.355-32 32-32z"/>
             </g>
         </svg>,
-        title: "Creative Idea",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Multi-omics analysis",
+        description: "Genomics, transcriptomics, proteomics and metabolomics, integrated and validated against reference data.",
     },
     {
         icon: <svg enableBackground="new 0 0 300 300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
@@ -36,8 +36,8 @@ const servicesDetails = [
                     d="m66 105.907c7.719 0 14-6.281 14-14s-6.281-14-14-14-14 6.281-14 14 6.281 14 14 14zm0-20c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/>
             </g>
         </svg>,
-        title: "High Creative Minds",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Mass spectrometry",
+        description: "LC-MS/MS, MALDI-TOF and GC-MS data, from clinical glycomics to lipidomics at HPC scale.",
     },
     {
         icon: <svg enableBackground="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -48,8 +48,8 @@ const servicesDetails = [
                 </g>
             </g>
         </svg>,
-        title: "Business Planning",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Systems biology",
+        description: "Metabolic networks from thermodynamic and kinetic parameters; causal graphs from network kinetics.",
     },
     {
         icon: <svg enableBackground="new 0 0 300 300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
@@ -71,8 +71,8 @@ const servicesDetails = [
                     d="m274.474 134.402-49.455-24c-.545-.266-1.141-.402-1.746-.402h-32v-55.508c0-9.094-7.398-16.492-16.49-16.492h-103.02c-9.092 0-16.49 7.398-16.49 16.492v55.508h-20.938c-6.1 0-11.062 4.961-11.062 11.062v33.875c0 6.102 4.963 11.062 11.062 11.062h20.938v79.508c0 9.094 7.398 16.492 16.49 16.492h103.02c9.092 0 16.49-7.398 16.49-16.492v-79.507h32c.605 0 1.201-.137 1.746-.402l49.455-24c1.379-.668 2.254-2.066 2.254-3.598s-.875-2.93-2.254-3.598zm-170.759 23.598c-5.201-5.087-8.442-12.169-8.442-20s3.241-14.913 8.442-20h115.558v8h-112c-2.209 0-4 1.789-4 4s1.791 4 4 4h112v8h-80c-2.209 0-4 1.789-4 4s1.791 4 4 4h80v8zm123.557-37.612 16 7.765v19.695l-16 7.765zm-196 34.55v-33.875c0-1.688 1.373-3.062 3.062-3.062h4.938v40h-4.938c-1.688-.001-3.062-1.376-3.062-3.063zm16 3.062v-40h8v40zm127.51 96h-103.019c-4.682 0-8.49-3.809-8.49-8.492v-19.508h120v19.508c-.001 4.683-3.809 8.492-8.491 8.492zm8.49-36h-120v-163.508c0-4.684 3.809-8.492 8.49-8.492h103.02c4.682 0 8.49 3.809 8.49 8.492v55.508h-37.418c-.037-.032-.053-.078-.092-.109-6.352-5.09-14.338-7.891-22.49-7.891-9.151 0-17.49 3.46-23.848 9.105-.046.043-.094.08-.138.125-7.354 6.596-12.014 16.137-12.014 26.77s4.661 20.174 12.014 26.77c.044.046.092.082.138.125 6.358 5.645 14.697 9.105 23.848 9.105 8.222 0 16.229-2.848 22.607-8h37.393zm68-74.034v-11.932l12.293 5.966z"/>
             </g>
         </svg>,
-        title: "Mobile App Design",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Languages for science",
+        description: "Domain languages and their compilers: workflows and protocols as programs that are checked before they run.",
     },
     {
         icon: <svg enableBackground="new 0 0 300 300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
@@ -95,8 +95,8 @@ const servicesDetails = [
                     d="m102 132h16c2.211 0 4-1.789 4-4v-4h16.712c-11.24 5.472-18.806 15.892-20.33 28h-4.382c-2.211 0-4 1.789-4 4v16c0 2.211 1.789 4 4 4h16c2.211 0 4-1.789 4-4v-16c0-2.211-1.789-4-4-4h-3.572c1.567-9.578 8.127-17.644 17.556-21.547 2.935 3.37 7.205 5.547 12.016 5.547 4.752 0 8.979-2.122 11.912-5.421 8.745 3.873 14.973 11.672 17.165 21.421h-3.077c-2.211 0-4 1.789-4 4v16c0 2.211 1.789 4 4 4h16c2.211 0 4-1.789 4-4v-16c0-2.211-1.789-4-4-4h-4.764c-2.248-12.466-9.748-22.629-20.537-28h17.301v4c0 2.211 1.789 4 4 4h16c2.211 0 4-1.789 4-4v-16c0-2.211-1.789-4-4-4h-16c-2.211 0-4 1.789-4 4v4h-18.568c-1.788-6.882-7.997-12-15.432-12s-13.644 5.118-15.432 12h-18.568v-4c0-2.211-1.789-4-4-4h-16c-2.211 0-4 1.789-4 4v16c0 2.211 1.789 4 4 4zm24 36h-8v-8h8zm68 0h-8v-8h8zm4-52h8v8h-8zm-42-4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8zm-50 4h8v8h-8z"/>
             </g>
         </svg>,
-        title: "Web Development",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Research data",
+        description: "Catalogues and converters for catalysis data (NFDI4Cat, DCAT-AP), so a dataset says what it can claim.",
     },
     {
         icon: <svg enableBackground="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -127,8 +127,8 @@ const servicesDetails = [
                 </g>
             </g>
         </svg>,
-        title: "Program management",
-        description: "Web design encompasses many different skills and disciplines in the production of all web.",
+        title: "Scientific software",
+        description: "From method to deployed tool: Python, Rust and TypeScript, tested and documented.",
     },
 ]
 

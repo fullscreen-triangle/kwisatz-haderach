@@ -62,6 +62,7 @@ function Testimonial({
 
     }, []);
 
+    if (!TestimonialDetails.length) return null;      // none are invented (data/testimonial.js)
     return (
         <section className={dsnCN("testimonials", skin?.join(' ').trim(), className, title && 'testimonials-with-title')}
                  ref={testimonials}>

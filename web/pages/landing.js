@@ -305,7 +305,7 @@ function WeatherSection() {
         </div>
         <div style={{ fontSize: 18, color: '#fff', fontWeight: 600, marginTop: 8 }}>{cur.label || cur.condition || '—'}</div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>
-          {wx.city || 'Munich'} · Feels {Math.round(cur.feels_like ?? cur.feelsLike ?? 0)}°C ·{' '}
+          {wx.city || 'Greifswald'} · Feels {Math.round(cur.feels_like ?? cur.feelsLike ?? 0)}°C ·{' '}
           {cur.windspeed ?? cur.wind_speed ?? '?'} km/h · {cur.humidity ?? '?'}% humidity
         </div>
       </div>
@@ -493,8 +493,8 @@ function HealthSection() {
 // ── 7. Map ─────────────────────────────────────────────────────────────────────
 
 function MapSection() {
-  const lat = '48.1351';
-  const lng = '11.5820';
+  const lat = '54.0931';                          // Greifswald
+  const lng = '13.3878';
   const src = `https://www.google.com/maps/embed/v1/view?key=${MAPS_KEY}&center=${lat},${lng}&zoom=13&maptype=roadmap`;
 
   return (
@@ -506,7 +506,7 @@ function MapSection() {
         style={{ border: 'none', borderRadius: 10, display: 'block' }}
         allowFullScreen
         loading="lazy"
-        title="Munich map"
+        title="Greifswald map"
       />
       <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'right' }}>
         <a href="/desk/travel" style={{ color: TEAL, textDecoration: 'none' }}>Plan a trip →</a>
@@ -562,7 +562,7 @@ export default function Landing() {
       {/* ── Weather ── */}
       <section className="section-padding background-section" data-dsn-title="Weather">
         <div className="container">
-          <TitleSection description="Munich · Open-Meteo" defaultSpace={false} className="mb-section">
+          <TitleSection description="Greifswald · Open-Meteo" defaultSpace={false} className="mb-section">
             Weather
           </TitleSection>
           <div style={{ marginTop: 40 }}>
@@ -589,7 +589,7 @@ export default function Landing() {
       </section>
 
       {/* ── Map ── */}
-      <SectionWrap title="Map" sub="Munich · Stores · Trips">
+      <SectionWrap title="Map" sub="Greifswald · Stores · Trips">
         <MapSection />
       </SectionWrap>
 

@@ -8,26 +8,24 @@ function InfoBox({className}) {
             <ul>
                 <li>
                     <h5 className="title-block mb-15">Contact</h5>
-                    <p className="text-p ">+1 (800) 990 8877</p>
                     <div className="over-hidden mt-5">
-                        <a className="link-hover" data-hover-text="info@example.com"
-                           href="#">info@example.com</a>
+                        <a className="link-hover" data-hover-text="kundai.sachikonye@uni-greifswald.de"
+                           href="mailto:kundai.sachikonye@uni-greifswald.de">kundai.sachikonye@uni-greifswald.de</a>
                     </div>
-
                 </li>
                 <li>
                     <h5 className="title-block mb-15">Address</h5>
-                    <p className="text-p">United Kingdom <br /> 33—35 Southernhay East</p>
+                    <p className="text-p">Institut für Biochemie, Universität Greifswald<br />Felix-Hausdorff-Straße 4, 17489 Greifswald</p>
                 </li>
                 <li>
-                    <h5 className="title-block mb-15">Follow Us</h5>
+                    <h5 className="title-block mb-15">Code</h5>
                     <div className="social-item over-hidden">
-                        <a className="link-hover" data-hover-text="Instagram." href="#"
-                           target="_blank" rel="nofollow">Instagram.</a>
+                        <a className="link-hover" data-hover-text="GitHub." href="https://github.com/fullscreen-triangle"
+                           target="_blank" rel="noreferrer">GitHub.</a>
                     </div>
                     <div className="social-item over-hidden">
-                        <a className="link-hover" data-hover-text="Facebook." href="#"
-                           target="_blank" rel="nofollow">Facebook.</a>
+                        <a className="link-hover" data-hover-text="ORCID." href="https://orcid.org/0009-0009-5698-9595"
+                           target="_blank" rel="noreferrer">ORCID.</a>
                     </div>
                 </li>
             </ul>

@@ -2,10 +2,9 @@ import {dsnCN} from "../../hooks/helper";
 
 
 const socialContent = [
-    {name: "Dribbble.", href: "#0"},
-    {name: "Behance.", href: "#0"},
-    {name: "Linkedin.", href: "#0"},
-    {name: "Twitter.", href: "#0"},
+    {name: "GitHub.", href: "https://github.com/fullscreen-triangle"},
+    {name: "ORCID.", href: "https://orcid.org/0009-0009-5698-9595"},
+    {name: "GitLab.", href: "https://gitlab.com/k.sachikonye"},
 ];
 
 

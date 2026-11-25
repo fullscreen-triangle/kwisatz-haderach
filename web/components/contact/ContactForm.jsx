@@ -1,5 +1,4 @@
 import React, {useRef, useState} from 'react';
-import emailjs from '@emailjs/browser';
 import {dsnCN} from "../../hooks/helper";
 import TitleSection from "../heading/TitleSection";
 
@@ -9,22 +8,17 @@ function ContactForm({className}) {
     const [loading, setLoading] = useState();
     const [result, setResult] = useState();
 
+    // The message opens in the visitor's own mail program, addressed to Kundai. The theme sent
+    // it through an EmailJS account that was never his, so nothing goes to a third party now.
     const sendEmail = (e) => {
         e.preventDefault();
-        setResult(false);
-        setLoading(true);
-        emailjs.sendForm(
-            'service_mxt8ue9',
-            'template_1f1243o',
-            form.current,
-            'bvnMqTU1Ir-7kgLNL')
-            .then((result) => {
-                setLoading(false);
-                setResult(true);
-                form.current.reset();
-            }, (error) => {
-                setLoading(false);
-            });
+        const f = new FormData(form.current);
+        const subject = `Message from ${f.get('name') || 'the website'}`;
+        const body = `${f.get('message') || ''}
+
+${f.get('name') || ''} <${f.get('email') || ''}>`;
+        window.location.href = `mailto:kundai.sachikonye@uni-greifswald.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        setResult(true);
     };
 
     setTimeout(() => setResult(false), 5000);

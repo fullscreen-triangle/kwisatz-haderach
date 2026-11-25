@@ -39,10 +39,10 @@ function httpsGet(url) {
   });
 }
 
-function loadCache() {
+function loadCache(city) {
   try {
     const raw = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-    if (Date.now() - raw._ts < CACHE_TTL) return raw;
+    if (Date.now() - raw._ts < CACHE_TTL && raw.city === city) return raw;   // a moved home is a new forecast
   } catch {}
   return null;
 }
@@ -57,12 +57,12 @@ function saveCache(data) {
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
-  const cached = loadCache();
-  if (cached) return res.json(cached);
+  const lat  = process.env.HOME_LATITUDE  || '54.0931';
+  const lon  = process.env.HOME_LONGITUDE || '13.3878';
+  const city = process.env.HOME_CITY      || 'Greifswald';
 
-  const lat  = process.env.HOME_LATITUDE  || '48.1351';
-  const lon  = process.env.HOME_LONGITUDE || '11.5820';
-  const city = process.env.HOME_CITY      || 'Munich';
+  const cached = loadCache(city);
+  if (cached) return res.json(cached);
   const tz   = process.env.HOME_TZ        || 'Europe/Berlin';
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`

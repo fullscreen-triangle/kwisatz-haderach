@@ -5,8 +5,8 @@ import HeaderNormal from '../../components/header/HeaderNormal';
 import Footer from '../../components/footer/Footer';
 import s from '../../styles/desk.module.css';
 
-const HOME_STATION_NAME = process.env.NEXT_PUBLIC_HOME_STATION || 'München Hbf';
-const HOME_STATION_ID   = process.env.NEXT_PUBLIC_HOME_STATION_ID || '8000261';
+const HOME_STATION_NAME = process.env.NEXT_PUBLIC_HOME_STATION || 'Greifswald';
+const HOME_STATION_ID   = process.env.NEXT_PUBLIC_HOME_STATION_ID || '8010139';
 
 const STATUS_COLOR  = { planning: '#fbbf24', booked: '#4ade80', completed: 'rgba(187,187,187,0.4)', cancelled: '#f87171' };
 const STATUS_OPTIONS = ['planning', 'booked', 'completed', 'cancelled'];
