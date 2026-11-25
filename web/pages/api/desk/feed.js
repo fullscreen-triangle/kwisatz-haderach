@@ -1,4 +1,5 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
+import { python } from '../../../lib/python';
 import path from 'path';
 import fs from 'fs';
 
@@ -20,8 +21,8 @@ export default function handler(req, res) {
   const cached = loadCache();
   if (cached) return res.json(cached);
 
-  exec(
-    'python -m tools.health_tracker.feed_fetch',
+  execFile(
+    python(), ['-m', 'tools.health_tracker.feed_fetch'],
     { cwd: REPO_ROOT, timeout: 25_000 },
     (err, stdout, stderr) => {
       try {

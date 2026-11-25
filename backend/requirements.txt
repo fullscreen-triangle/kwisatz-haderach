@@ -6,6 +6,7 @@ python-multipart>=0.0.9   # bank.py UploadFile route; FastAPI needs it at boot
 
 # Health
 garminconnect>=0.3.3
+feedparser>=6.0
 
 # Grocery scraping
 requests>=2.31.0

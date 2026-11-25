@@ -1,4 +1,5 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
+import { python } from '../../../lib/python';
 import path from 'path';
 import fs from 'fs';
 
@@ -33,8 +34,8 @@ export default function handler(req, res) {
 
   const env = { ...process.env, GARMIN_EMAIL: email, GARMIN_PASSWORD: password };
 
-  exec(
-    'python -m tools.health_tracker.garmin_fetch --today',
+  execFile(
+    python(), ['-m', 'tools.health_tracker.garmin_fetch', '--today'],
     { cwd: REPO_ROOT, env, timeout: 30_000 },
     (err, stdout, stderr) => {
       try {

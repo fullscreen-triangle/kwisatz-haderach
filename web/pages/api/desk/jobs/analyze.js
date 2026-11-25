@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { python } from '../../../../lib/python';
 import path from 'path';
 import fs from 'fs';
 
@@ -11,7 +12,7 @@ function runAnalysis(url) {
   return new Promise((resolve, reject) => {
     // The URL goes to Python as one argument, with no shell in between, so characters
     // such as $( ) or backticks in it are only text.
-    execFile('python', ['-m', 'tools.job_assistant', 'apply', '--url', url], {
+    execFile(python(), ['-m', 'tools.job_assistant', 'apply', '--url', url], {
       cwd: REPO_ROOT,
       env: { ...process.env },
       timeout: 150_000,

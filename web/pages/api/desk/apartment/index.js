@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
+import { python } from '../../../../lib/python';
 
 const REPO_ROOT = path.join(process.cwd(), '..');
 const STORE = path.join(REPO_ROOT, 'tools', 'apartment_search', 'data', 'search.json');
@@ -49,8 +50,8 @@ function dossierStatus(held) {
 function analyse({ url, text, address }) {
   return new Promise(resolve => {
     const payload = JSON.stringify({ url: url || '', text: text || '', address: address || '' });
-    const child = exec(
-      'python -m tools.apartment_search.ingest',
+    const child = execFile(
+      python(), ['-m', 'tools.apartment_search.ingest'],
       { cwd: REPO_ROOT, env: { ...process.env }, timeout: 60000, maxBuffer: 8 * 1024 * 1024 },
       (err, stdout, stderr) => {
         if (err && err.killed) return resolve({ error: 'Timed out fetching the listing.' });

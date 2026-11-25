@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { python } from '../../../../lib/python';
 import path from 'path';
 import fs from 'fs';
 
@@ -36,7 +37,7 @@ export default function handler(req, res) {
   const args = ['-m', 'tools.grocery_tracker.price_lookup', '--query', String(query),
     '--stores', storeList.join(','), '--limit', String(parseInt(limit, 10) || 5)];
 
-  execFile('python', args, { cwd: REPO_ROOT, timeout: 30_000 }, (err, stdout, stderr) => {
+  execFile(python(), args, { cwd: REPO_ROOT, timeout: 30_000 }, (err, stdout, stderr) => {
     try {
       const data = JSON.parse(stdout);
       return res.json({ ...data, cached: false });

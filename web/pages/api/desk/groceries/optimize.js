@@ -1,4 +1,5 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
+import { python } from '../../../../lib/python';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
@@ -21,9 +22,9 @@ export default function handler(req, res) {
     return res.status(500).json({ error: 'Failed to write temp file: ' + e.message });
   }
 
-  const cmd = `python -m tools.grocery_tracker.optimizer --list "${tmp}" --trip-cost ${parseFloat(trip_cost) || 2.0}`;
+  const args = ['-m', 'tools.grocery_tracker.optimizer', '--list', tmp, '--trip-cost', String(parseFloat(trip_cost) || 2.0)];
 
-  exec(cmd, { cwd: REPO_ROOT, timeout: 30_000 }, (err, stdout, stderr) => {
+  execFile(python(), args, { cwd: REPO_ROOT, timeout: 30_000 }, (err, stdout, stderr) => {
     try { fs.unlinkSync(tmp); } catch {}
     try {
       const data = JSON.parse(stdout);
