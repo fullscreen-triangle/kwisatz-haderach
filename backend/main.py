@@ -42,6 +42,8 @@ from backend.routes import tasks as tasks_routes
 from backend.agents import service as agents_service
 from backend.repos import service as repos_service
 from backend.work import service as work_service
+from backend.life import service as life_service
+from backend.routes import life as life_routes
 from backend.routes import work as work_routes
 try:  # estimates from the decisions tool; a node that was not sent these files starts without them
     from backend.routes import estimate as estimate_routes
@@ -56,7 +58,8 @@ async def lifespan(app):
     # the depth dial (re-files items under committed distinctions; grows new ones).
     tasks = [t for t in (keeper_service.start(), mail_service.start(), planner_service.start(),
                          individuate_service.start(), agents_service.start(), repos_service.start(),
-                         reading_service.start(), work_service.start()) if t]
+                         reading_service.start(), work_service.start(),
+                         life_service.start()) if t]
     yield
     for t in tasks:
         t.cancel()
@@ -94,6 +97,7 @@ app.include_router(primitive_routes.router, prefix="/primitive", tags=["primitiv
 app.include_router(forms_routes.router, prefix="/forms", tags=["forms"])      # filling in documents, by margin
 app.include_router(tasks_routes.router, prefix="/tasks", tags=["tasks"])      # a job in plain words → tool agent
 app.include_router(work_routes.router, prefix="/work", tags=["work"])         # the work desk (currentValue), read only
+app.include_router(life_routes.router, prefix="/life", tags=["life"])         # facts about Kundai, kept current from mail
 if trip_routes:
     app.include_router(trip_routes.router, prefix="/trip", tags=["trip"])     # walking + transit legs as time bands
 if estimate_routes:

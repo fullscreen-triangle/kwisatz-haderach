@@ -68,6 +68,64 @@ function progressPct(d) {
   return Math.max(0, Math.min(100, 100 - (d / 365) * 100));
 }
 
+// What the desk read from mail about this document. "to confirm": a mail says so, but it is
+// not yours until you tap Confirm (or a second mail agrees); "Not right" lets you correct it.
+const STATE_COLOR = { known: '#34d399', 'to confirm': '#fbbf24', unknown: 'rgba(187,187,187,0.35)', 'not applicable': 'rgba(187,187,187,0.35)' };
+
+function Fact({ f, onUpdate }) {
+  const [edit, setEdit] = useState(false);
+  const [value, setValue] = useState(f.value || f.leader || '');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const shown = f.value || f.leader;
+  const send = async v => {
+    setBusy(true); setErr('');
+    const r = await fetch('/api/desk/documents', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot: f.slot, value: v }) }).then(x => x.json()).catch(() => ({ error: 'no answer' }));
+    setBusy(false);
+    if (r.error) setErr(r.error); else { setEdit(false); onUpdate(); }
+  };
+  const quote = f.evidence?.[f.evidence.length - 1]?.cue;
+  return (
+    <div style={{ fontSize: 12, padding: '6px 0', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ opacity: 0.55 }}>{f.label}</span>
+        <span>
+          <span style={{ color: 'var(--heading-color)', fontWeight: 600 }}>{shown || '—'}</span>
+          <span style={{ color: STATE_COLOR[f.state], marginLeft: 8, fontSize: 10, textTransform: 'uppercase' }}>{f.state}</span>
+        </span>
+      </div>
+      {quote && <div style={{ opacity: 0.4, marginTop: 2, fontStyle: 'italic' }}>{quote}</div>}
+      <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+        {f.state === 'to confirm' && shown && !busy && (
+          <button className={`${s.btn} ${s.btnPrimary}`} style={{ fontSize: 11, padding: '3px 10px' }} onClick={() => send(shown)}>Confirm</button>)}
+        {!busy && (
+          <button className={s.btn} style={{ fontSize: 11, padding: '3px 10px' }} onClick={() => setEdit(!edit)}>
+            {edit ? 'Cancel' : f.state === 'unknown' ? 'Add' : 'Not right'}
+          </button>)}
+        {busy && <span style={{ opacity: 0.5 }}>saving…</span>}
+      </div>
+      {edit && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+          <input type={f.kind === 'date' ? 'date' : 'text'} value={value} onChange={e => setValue(e.target.value)}
+            style={{ flex: 1, background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: 'var(--font-color)', padding: '5px 8px', borderRadius: 4, fontSize: 12 }} />
+          <button className={`${s.btn} ${s.btnPrimary}`} style={{ fontSize: 11 }} onClick={() => value && send(value)}>Save</button>
+          <button className={s.btn} style={{ fontSize: 11 }} onClick={() => send(null)} title="This does not apply to me">n/a</button>
+        </div>)}
+      {err && <div style={{ color: '#f87171', marginTop: 4 }}>{err}</div>}
+    </div>
+  );
+}
+
+function Facts({ facts, onUpdate }) {
+  return (
+    <div>
+      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.35, marginBottom: 4 }}>From your mail</div>
+      {facts.map(f => <Fact key={f.slot} f={f} onUpdate={onUpdate} />)}
+    </div>
+  );
+}
+
 function DocCard({ doc, onUpdate }) {
   const [showChecklist, setShowChecklist] = useState(false);
   const [editingExpiry, setEditingExpiry] = useState(false);
@@ -135,6 +193,8 @@ function DocCard({ doc, onUpdate }) {
 
         {doc.notes && <div style={{ fontSize: 12, color: 'var(--font-color)', opacity: 0.45, lineHeight: 1.6 }}>{doc.notes}</div>}
 
+        {doc.facts?.length > 0 && <Facts facts={doc.facts} onUpdate={onUpdate} />}
+
         <div className={s.btnGroup}>
           <button className={`${s.btn} ${s.btnPrimary}`} onClick={() => setShowChecklist(true)}>Renewal checklist</button>
           <button className={s.btn} onClick={() => setEditingExpiry(v => !v)}>
@@ -165,7 +225,8 @@ export default function DocumentsPage() {
   const fetch_ = useCallback(() => fetch('/api/desk/documents').then(r => r.json()).then(setDocs), []);
   useEffect(() => { fetch_(); }, [fetch_]);
 
-  const urgent = Object.values(docs || {}).filter(d => ['expired','overdue','urgent'].includes(d.urgency)).length;
+  const list = Object.values(docs || {}).filter(d => d && d.typeId);
+  const urgent = list.filter(d => ['expired','overdue','urgent'].includes(d.urgency)).length;
 
   return (
     <Layout activeScrollbar={false}>
@@ -191,7 +252,8 @@ export default function DocumentsPage() {
           <div style={{ color: 'var(--font-color)', opacity: 0.4 }}>Loading…</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 24 }}>
-            {Object.values(docs).map(doc => (
+            {docs.error && <div style={{ color: '#f87171', fontSize: 13 }}>{docs.error}</div>}
+            {list.map(doc => (
               <DocCard key={doc.typeId} doc={doc} onUpdate={fetch_} />
             ))}
           </div>

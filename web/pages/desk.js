@@ -35,6 +35,10 @@ function deriveAlerts(docs) {
     } else if (doc.urgency === 'urgent') {
       alerts.push({ level: 'warning', message: `${doc.name} renewal due within 30 days.`, action: 'Start process' });
     }
+    if (doc.toConfirm > 0) {
+      alerts.push({ level: 'warning', message: `${doc.name}: ${doc.toConfirm} fact${doc.toConfirm > 1 ? 's' : ''} read from your mail to confirm.`,
+                    action: 'Documents → Confirm' });
+    }
   }
   return alerts;
 }

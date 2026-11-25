@@ -1,120 +1,145 @@
-import fs from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), '..', 'tools', 'document_tracker', 'data', 'documents.json');
+// Documents: passport, residence and registration, built from the facts the node keeps current
+// from mail (backend/life, /life). Each document carries its facts with their state — known,
+// to confirm (a mail says so; one tap makes it yours), unknown — and the quotes behind them.
+// POST {slot, value} confirms or corrects one fact (value null: does not apply).
+import { backendUrl } from '../../../lib/sse-proxy';
 
 const DOC_TYPES = {
   PASSPORT: {
-    name: 'Zimbabwean Passport',
+    name: 'Zimbabwean passport',
     leadMonths: 8,
-    processingWeeks: 14,
     office: 'Embassy of Zimbabwe, Berlin',
     address: 'Kommandantenstraße 80, 10117 Berlin',
     phone: '+49 30 206 2263',
+    slots: ['passport_valid_until', 'passport_received_on', 'passport_issued_on', 'passport_number'],
+    expirySlot: 'passport_valid_until',
     requirements: [
-      { item: 'Completed application form ZIM 91', note: 'Download from zimberlin.de or collect at embassy' },
-      { item: 'Current/expired passport (original)', note: 'Make a certified copy before handing over' },
-      { item: '2 passport photos (35×45 mm)', note: 'White background, taken within last 6 months' },
-      { item: 'Meldebescheinigung', note: 'Proof of German registration — get from Bürgeramt (same day)' },
-      { item: 'Birth certificate (certified copy)', note: 'May require apostille if not previously on file' },
-      { item: 'Fee (approx. €80–120)', note: 'Verify current amount on embassy website' },
-      { item: 'Self-addressed registered return envelope', note: 'If submitting by post' },
+      { item: 'Completed application form ZIM 91', note: 'From zimberlin.de or at the embassy' },
+      { item: 'Current passport (original)', note: 'Copy it before handing it over' },
+      { item: '2 passport photos (35×45 mm)', note: 'White background, under 6 months old' },
+      { item: 'Meldebescheinigung', note: 'Stadt Greifswald, Bürgerbüro' },
+      { item: 'Birth certificate (certified copy)' },
+      { item: 'Fee', note: 'Check the current amount with the embassy' },
     ],
-    warning: '⚠ Processing is notoriously slow (10–16 weeks). Apply AT LEAST 8 months before expiry. Alternative: Consulate-General Frankfurt, Kettenhofweg 16, 60325 Frankfurt, +49 69 971 9750. If expired, Ausländerbehörde can issue a Reiseausweisersatz as a bridge.',
+    warning: 'Processing takes 10–16 weeks: apply at least 8 months before expiry. Your residence title is tied to a valid passport.',
   },
-  PERMIT: {
-    name: 'German Aufenthaltserlaubnis',
-    leadMonths: 3,
-    processingWeeks: 6,
-    office: 'Ausländerbehörde (city-specific)',
-    address: 'Munich: KVR Poccistraße 4, 80336 München',
-    phone: 'Book online at termine.muenchen.de',
+  RESIDENCE: {
+    name: 'Residence title',
+    leadMonths: 2,
+    office: 'Ausländerbehörde Landkreis Vorpommern-Greifswald',
+    address: 'Migration.Greifswald@kreis-vg.de — appointments by e-mail',
+    phone: '',
+    slots: ['residence_document', 'residence_valid_until', 'residence_applied_for', 'residence_applied_on',
+            'residence_appointment', 'residence_authority'],
+    expirySlot: 'residence_valid_until',
     requirements: [
-      { item: 'Valid passport', note: 'Must be valid for the full renewal period' },
-      { item: '1 biometric passport photo (35×45 mm)' },
-      { item: 'Current Aufenthaltserlaubnis (original)' },
-      { item: 'Proof of income or active job search', note: '3 months Gehaltsabrechnungen, or documented job applications' },
-      { item: 'Rental contract (Mietvertrag)', note: 'Current, signed by landlord' },
-      { item: 'Health insurance certificate', note: 'Current coverage confirmation from insurer' },
-      { item: 'Fee: ~€100' },
+      { item: 'Valid passport', note: 'Valid for the whole period applied for' },
+      { item: '1 biometric photo (35×45 mm)' },
+      { item: 'Employment contract (Arbeitsvertrag)', note: 'Universität Greifswald' },
+      { item: 'Hosting agreement', note: 'From Referat Personal (Frau Sadewasser) — for § 18d research stays' },
+      { item: 'Meldebescheinigung', note: 'Stadt Greifswald' },
+      { item: 'Health insurance certificate' },
+      { item: 'Current Fiktionsbescheinigung or residence card' },
     ],
-    warning: '⚠ Book appointment online early — slots fill weeks in advance. If permit expires before appointment, request a Fiktionsbescheinigung immediately. Under §31 AufenthG, 4-year marriage gives independent post-divorce right of residence.',
+    warning: 'A Fiktionsbescheinigung keeps you covered only until its date: ask the Ausländerbehörde to extend it before then.',
+  },
+  REGISTRATION: {
+    name: 'Address registration',
+    leadMonths: 0,
+    office: 'Stadt Greifswald, Bürgerbüro',
+    address: 'Markt 15, 17489 Greifswald',
+    phone: '',
+    slots: ['address_street', 'address_city', 'address_since', 'registered_on'],
+    expirySlot: null,
+    requirements: [
+      { item: 'Wohnungsgeberbestätigung', note: 'From the landlord' },
+      { item: 'Passport' },
+    ],
+    warning: 'Register within two weeks of moving in.',
   },
 };
 
-function subtractMonths(dateStr, months) {
+function daysFrom(dateStr) {
+  if (!dateStr) return null;
+  return Math.round((new Date(dateStr) - new Date()) / 86400000);
+}
+
+function minusMonths(dateStr, months) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
   d.setMonth(d.getMonth() - months);
   return d.toISOString().split('T')[0];
 }
 
-function daysFrom(dateStr) {
-  if (!dateStr) return null;
-  const diff = new Date(dateStr) - new Date();
-  return Math.round(diff / (1000 * 60 * 60 * 24));
-}
-
-function urgency(record, docType) {
-  const dte = daysFrom(record.expiry_date);
+function urgency(expiry, lead) {
+  const dte = daysFrom(expiry);
   if (dte === null) return 'unknown';
   if (dte < 0) return 'expired';
-  const deadline = subtractMonths(record.expiry_date, docType.leadMonths);
-  const dtd = daysFrom(deadline);
+  const dtd = daysFrom(minusMonths(expiry, lead));
   if (dtd < 0) return 'overdue';
   if (dtd < 30) return 'urgent';
   if (dtd < 90) return 'soon';
   return 'ok';
 }
 
-function loadData() {
-  if (!fs.existsSync(DATA_FILE)) return {};
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+function build(life) {
+  const facts = {};
+  for (const list of Object.values(life?.topics || {})) for (const f of list) facts[f.slot] = f;
+  const val = slot => facts[slot]?.value ?? facts[slot]?.leader ?? null;      // to confirm still shows, marked
+  const out = {};
+  for (const [tid, t] of Object.entries(DOC_TYPES)) {
+    const expiry = t.expirySlot ? val(t.expirySlot) : null;
+    const docFacts = t.slots.map(s => facts[s]).filter(Boolean);
+    const toConfirm = docFacts.filter(f => f.state === 'to confirm').length;
+    let name = t.name;
+    let notes = '';
+    let u = urgency(expiry, t.leadMonths);
+    if (tid === 'RESIDENCE') {
+      if (val('residence_document')) name = val('residence_document');
+      const applied = val('residence_applied_for');
+      if (applied) notes = `Applied for: ${applied}${val('residence_applied_on') ? ` (${val('residence_applied_on')})` : ''}.`;
+      if (val('residence_appointment')) notes += ` Appointment: ${val('residence_appointment')}.`;
+    }
+    if (tid === 'PASSPORT' && val('passport_received_on')) notes = `Received ${val('passport_received_on')}.`;
+    if (tid === 'REGISTRATION') {
+      const street = val('address_street');
+      notes = street ? `${street}, ${val('address_city') || ''}${val('registered_on') ? ` — registered ${val('registered_on')}` : ''}` : '';
+      u = val('registered_on') ? 'ok' : (street ? 'soon' : 'unknown');
+    }
+    out[tid] = {
+      ...t, typeId: tid, name, notes: notes.trim(),
+      office: (tid === 'RESIDENCE' && val('residence_authority')) || t.office,
+      expiryDate: expiry, renewalDeadline: expiry && t.leadMonths ? minusMonths(expiry, t.leadMonths) : null,
+      daysUntilExpiry: daysFrom(expiry), daysUntilDeadline: expiry ? daysFrom(minusMonths(expiry, t.leadMonths)) : null,
+      urgency: u, status: toConfirm ? 'to confirm' : 'active', toConfirm, facts: docFacts,
+    };
+  }
+  return out;
 }
 
-function saveData(data) {
-  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-export default function handler(req, res) {
-  if (req.method === 'GET') {
-    const raw = loadData();
-    const result = {};
-
-    for (const [tid, docType] of Object.entries(DOC_TYPES)) {
-      const record = raw[tid] || { expiry_date: null, status: 'active', notes: '' };
-      const deadline = record.expiry_date ? subtractMonths(record.expiry_date, docType.leadMonths) : null;
-
-      result[tid] = {
-        ...docType,
-        typeId: tid,
-        expiryDate: record.expiry_date,
-        status: record.status,
-        notes: record.notes,
-        renewalDeadline: deadline,
-        daysUntilExpiry: daysFrom(record.expiry_date),
-        daysUntilDeadline: daysFrom(deadline),
-        urgency: urgency(record, docType),
-      };
+export default async function handler(req, res) {
+  const backend = backendUrl();
+  if (!backend) return res.status(503).json({ error: 'Backend not configured (NEXT_PUBLIC_BACKEND_URL)' });
+  try {
+    if (req.method === 'GET') {
+      const r = await fetch(`${backend}/life`, { signal: AbortSignal.timeout(20_000) });
+      const life = await r.json();
+      return res.json(build(life));
     }
-
-    return res.json(result);
-  }
-
-  if (req.method === 'POST') {
-    const { typeId, status, notes, expiryDate } = req.body;
-    if (!typeId || !DOC_TYPES[typeId]) {
-      return res.status(400).json({ error: 'Invalid typeId' });
+    if (req.method === 'POST') {
+      let { slot, value, typeId, expiryDate } = req.body || {};
+      if (!slot && typeId && DOC_TYPES[typeId]?.expirySlot) { slot = DOC_TYPES[typeId].expirySlot; value = expiryDate; }
+      if (!slot) return res.status(400).json({ error: 'slot required' });
+      const r = await fetch(`${backend}/life/confirm`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot, value: value ?? null }), signal: AbortSignal.timeout(20_000),
+      });
+      const data = await r.json();
+      if (!r.ok) return res.status(r.status).json({ error: data.detail || 'could not save' });
+      return res.json({ ok: true, ...build(data) });
     }
-    const data = loadData();
-    if (!data[typeId]) data[typeId] = { expiry_date: null, status: 'active', notes: '' };
-    if (status)     data[typeId].status = status;
-    if (notes)      data[typeId].notes = notes;
-    if (expiryDate) data[typeId].expiry_date = expiryDate;
-    saveData(data);
-    return res.json({ ok: true });
+    return res.status(405).end();
+  } catch (e) {
+    return res.status(502).json({ error: `Could not reach the node: ${e.message}` });
   }
-
-  res.status(405).end();
 }
