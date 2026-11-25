@@ -124,10 +124,27 @@ cd "$APP/web"
 sudo -u $U npm ci --no-audit --no-fund --loglevel=error
 # Build through systemd so NEXT_PUBLIC_* come from the env file parsed exactly as the
 # service parses it — never by shell-sourcing a file of secrets.
+# Build into .next-build, not .next: the running site keeps serving the old build, and a
+# failed build (systemd-run does not pass next's exit status on) stops here, before any
+# restart. Only a complete build is swapped in.
+BUILD_LOG=$(mktemp)
+rm -rf "$APP/web/.next-build"
 systemd-run --quiet --wait --pipe --collect -p User=$U -p Group=$U \
   -p WorkingDirectory=$APP/web -p EnvironmentFile=-$ENVF \
-  -E NEXT_TELEMETRY_DISABLED=1 -E HOME=/home/$U \
-  $APP/web/node_modules/.bin/next build --no-lint 2>&1 | tail -4
+  -E NEXT_TELEMETRY_DISABLED=1 -E HOME=/home/$U -E NEXT_DIST_DIR=.next-build \
+  $APP/web/node_modules/.bin/next build --no-lint >"$BUILD_LOG" 2>&1 || true
+tail -4 "$BUILD_LOG"
+if grep -qE "Error occurred prerendering|Failed to compile|Build error occurred|Export encountered errors" "$BUILD_LOG" \
+   || [ ! -f "$APP/web/.next-build/BUILD_ID" ]; then
+  grep -E "Error occurred prerendering|Failed to compile|Build error occurred|Error:" "$BUILD_LOG" | head -5 >&2
+  echo "web build FAILED — the site keeps running the previous build; nothing was restarted" >&2
+  rm -f "$BUILD_LOG"
+  exit 1
+fi
+rm -f "$BUILD_LOG"
+rm -rf "$APP/web/.next-old"
+[ -d "$APP/web/.next" ] && mv "$APP/web/.next" "$APP/web/.next-old"
+mv "$APP/web/.next-build" "$APP/web/.next"
 
 say "Tailnet"          # the passwordless way in: https://server-2.<tailnet>.ts.net, his devices only
 if command -v tailscale >/dev/null && tailscale status >/dev/null 2>&1; then
