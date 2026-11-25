@@ -6,9 +6,10 @@ whole history), triages each message (read.triage) and reads the ones about his 
 residence, home or job. Each witnessed fact becomes an observation in the facts structure the
 forms already use (<state>/memory/facts, record "me"):
 
-  channel "mail-own"  he wrote it (his own address) — his own word; publishes on its own
-  channel "mail"      someone else wrote it — like a document quote; needs a second source
-                      or his confirmation (one tap on the documents page, from any device)
+  channel "mail-own"  he wrote it (his own address) — strong, but a model read it, so alone it
+                      does not publish: a second mail that agrees, or his tap, does
+  channel "mail"      someone else wrote it — like a document quote
+Until then the fact is "to confirm": shown on the documents page, marked, with one tap to make it his.
 
 A slot is "known" when the structure publishes it, "to confirm" when evidence points at a value
 that has not reached the threshold (or two values compete — e.g. a newer document), and
@@ -40,7 +41,7 @@ ME = "me"                                   # the forms' record for facts about 
 PASS = int(os.getenv("LIFE_PASS", str(15 * 60)))
 PER_PASS = int(os.getenv("LIFE_PER_PASS", "40"))
 
-RELIABILITY.setdefault("mail-own", 0.9999)  # he wrote it: his own statement (9.2 nats)
+RELIABILITY.setdefault("mail-own", 0.99)    # he wrote it (4.6 nats): with a second mail, or his tap, it publishes
 RELIABILITY.setdefault("mail", 0.9)         # someone else's mail: as strong as a document quote
 
 
@@ -158,38 +159,56 @@ class LifeService:
 
     # ------------------------------------------------------------- what you see
 
+    @staticmethod
+    def state_of(facts: Structure, nid: str) -> dict:
+        """The documents page's rule, stricter than the structure's threshold (which is low while
+        the store is small): a fact is known when he said so (his latest word wins), or when two
+        different mails state the same value and no mail states another. Otherwise any evidence
+        makes it "to confirm", led by the value most mails state."""
+        n = facts.nodes[nid]
+        said: Dict[str, set] = {}
+        person = None
+        for o in sorted((o for o in facts.observations if o.node == nid), key=lambda o: o.seq):
+            v = max(n.all_candidates(), key=lambda c, o=o: o.l(c))
+            if o.channel == "person":
+                person = v
+            elif v != BOT:
+                said.setdefault(v, set()).add(o.source)
+        candidates = [{"value": v, "sources": len(src)} for v, src in said.items()]
+        if person is not None:
+            return {"state": "not applicable" if person == BOT else "known",
+                    "value": None if person == BOT else person, "leader": None if person == BOT else person,
+                    "candidates": candidates}
+        if not said:
+            return {"state": "unknown", "value": None, "leader": None, "candidates": []}
+        leader = max(said, key=lambda v: (len(said[v]), -n.candidates.index(v) if v in n.candidates else 0))
+        known = len(said) == 1 and len(said[leader]) >= 2
+        return {"state": "known" if known else "to confirm", "value": leader if known else None,
+                "leader": leader, "candidates": candidates}
+
     def view(self) -> dict:
         facts = self.facts()
-        g = facts.graphs() if facts.nodes else {"status": {}, "witnessed": []}
+        g = facts.graphs() if facts.nodes else {"witnessed": []}
         reads = self.done()
         topics: Dict[str, List[dict]] = {t: [] for t in TOPICS}
         for slot in SLOTS:
             nid = f"{ME}␟{slot.id}"
-            s = g["status"].get(nid)
-            if s is None:
-                topics[slot.topic].append({"slot": slot.id, "label": slot.label, "kind": slot.kind, "state": "unknown"})
+            row = {"slot": slot.id, "label": slot.label, "kind": slot.kind}
+            if nid not in facts.nodes:
+                topics[slot.topic].append({**row, "state": "unknown", "value": None, "leader": None,
+                                           "candidates": [], "evidence": []})
                 continue
             evidence = [{"source": w["source"], "channel": w["channel"], "cue": w["cue"]}
                         for w in g["witnessed"] if w["node"] == nid]
-            n = facts.nodes[nid]
-            values = {}
-            for o in (o for o in facts.observations if o.node == nid):
-                v = max(n.all_candidates(), key=lambda c, o=o: o.l(c))
-                if v != BOT:
-                    values.setdefault(v, []).append(o.source)
-            state = {"solved": "known", "declined": "not applicable"}.get(s["status"], "to confirm")
-            topics[slot.topic].append({
-                "slot": slot.id, "label": slot.label, "kind": slot.kind, "state": state,
-                "value": s["value"] if s["status"] == "solved" else None,
-                "leader": s["leader"] if s["leader"] not in (None, BOT) else None,
-                "candidates": [{"value": v, "sources": len(src)} for v, src in values.items()],
-                "evidence": evidence[-4:]})
+            topics[slot.topic].append({**row, **self.state_of(facts, nid), "evidence": evidence[-4:]})
         read_n = sum(1 for r in reads.values() if "model" in r)
-        return {"as_of": _now(), "topics": topics, "theta": round(facts.theta, 2) if facts.nodes else None,
-                "mails_seen": len(reads), "mails_read": read_n, "running": self.running}
+        return {"as_of": _now(), "topics": topics, "mails_seen": len(reads), "mails_read": read_n,
+                "running": self.running}
 
     def value(self, slot: str) -> Optional[str]:
-        return self.facts().published().get(f"{ME}␟{slot}")
+        facts = self.facts()
+        nid = f"{ME}␟{slot}"
+        return self.state_of(facts, nid)["value"] if nid in facts.nodes else None
 
     def confirm(self, slot: str, value: Optional[str]) -> dict:
         """Your word on a slot: a value (it is yours now), or None = this does not apply."""

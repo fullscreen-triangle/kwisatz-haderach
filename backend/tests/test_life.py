@@ -73,10 +73,12 @@ class FakeMail:
         return self.by_key.get(key)
 
 
-def test_own_mail_publishes_others_wait_for_a_tap(tmp_path, monkeypatch):
+def test_two_mails_publish_one_waits_for_a_tap(tmp_path, monkeypatch):
+    again = msg("k7", "Re: Unterlagen", "Mein neuer Reisepass ist gültig bis 07.10.2036.", owner=True, day=22)
     other = msg("k5", "Ihr Termin", "Ihre Fiktionsbescheinigung ist gültig bis 20.04.2027.", day=25)
     noise = msg("k6", "Lunch?", "Shall we eat at noon?", day=26)
     answers = {"k1": [{"slot": "passport_valid_until", "value": "2036-10-07", "quote": "gültig bis 07.10.2036"}],
+               "k7": [{"slot": "passport_valid_until", "value": "2036-10-07", "quote": "gültig bis 07.10.2036"}],
                "k5": [{"slot": "residence_valid_until", "value": "2027-04-20", "quote": "gültig bis 20.04.2027"}]}
     calls = []
 
@@ -84,11 +86,12 @@ def test_own_mail_publishes_others_wait_for_a_tap(tmp_path, monkeypatch):
         calls.append(m.key)
         return reader.admit(answers[m.key], f"{m.subject}\n{reader.own_text(m)}"), "fake-model"
     monkeypatch.setattr(reader, "read", fake_read)
-    svc = LifeService(root=tmp_path, mail_store=FakeMail([PASS_MAIL, other, noise]), env={})
+    svc = LifeService(root=tmp_path, mail_store=FakeMail([PASS_MAIL, again, other, noise]), env={})
     c = asyncio.run(svc.run_pass())
-    assert c == {"triaged_out": 1, "read": 2, "facts": 2, "failed": 0} and calls == ["k1", "k5"]
+    assert c == {"triaged_out": 1, "read": 3, "facts": 3, "failed": 0} and calls == ["k1", "k7", "k5"]
     v = {f["slot"]: f for t in svc.view()["topics"].values() for f in t}
     assert v["passport_valid_until"]["state"] == "known" and v["passport_valid_until"]["value"] == "2036-10-07"
+    assert v["passport_valid_until"]["candidates"] == [{"value": "2036-10-07", "sources": 2}]
     assert v["residence_valid_until"]["state"] == "to confirm" and v["residence_valid_until"]["leader"] == "2027-04-20"
     assert "gültig bis 20.04.2027" in v["residence_valid_until"]["evidence"][0]["cue"]
     assert v["employer"]["state"] == "unknown"
@@ -122,6 +125,23 @@ def test_the_facts_are_the_forms_facts(tmp_path, monkeypatch):
     monkeypatch.setattr(reader, "read", fake_read)
     svc = LifeService(root=tmp_path, mail_store=FakeMail([PASS_MAIL]), env={})
     asyncio.run(svc.run_pass())
+    assert svc.value("passport_valid_until") is None                        # one mail read by a model: not yet
+    svc.confirm("passport_valid_until", "2036-10-07")                       # his tap
     pub = FormService(root=tmp_path).facts().published()
     assert pub == {"me␟passport_valid_until": "2036-10-07"}
     assert json.loads((tmp_path / "life" / "read.json").read_text(encoding="utf-8"))["k1"]["own"] is True
+
+
+def test_checks_stop_the_mixups_a_small_model_makes():
+    text = ("Am 08.10.2026 habe ich meinen neuen Reisepass erhalten. Ich beantrage die Erteilung einer "
+            "Aufenthaltserlaubnis, vorzugsweise als Blaue Karte EU. Anbei ein Scan meiner Fiktionsbescheinigung.")
+    got = reader.admit([
+        {"slot": "residence_document", "value": "Blaue Karte EU", "quote": "Ich beantrage die Erteilung einer Aufenthaltserlaubnis, vorzugsweise als Blaue Karte EU"},
+        {"slot": "residence_applied_for", "value": "Blaue Karte EU", "quote": "Ich beantrage die Erteilung einer Aufenthaltserlaubnis, vorzugsweise als Blaue Karte EU"},
+        {"slot": "residence_document", "value": "Fiktionsbescheinigung", "quote": "Anbei ein Scan meiner Fiktionsbescheinigung"},
+        {"slot": "passport_issued_on", "value": "2026-10-08", "quote": "Am 08.10.2026 habe ich meinen neuen Reisepass erhalten"},
+        {"slot": "passport_received_on", "value": "2026-10-08", "quote": "Am 08.10.2026 habe ich meinen neuen Reisepass erhalten"},
+    ], text)
+    assert [(g["slot"], g["value"]) for g in got] == [
+        ("residence_applied_for", "Blaue Karte EU"), ("residence_document", "Fiktionsbescheinigung"),
+        ("passport_received_on", "2026-10-08")]

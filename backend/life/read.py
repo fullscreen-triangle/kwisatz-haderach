@@ -48,16 +48,24 @@ written in the email), quote (the exact words of the email that state it, copied
 character, at most 200 characters, containing the value as written).
 
 Rules:
-- Facts about a FORMER passport, permit or address are not current: leave them out.
-- A request or plan is not a fact that holds: asking for a Fiktionsbescheinigung is not having
-  one (but it is residence_applied_for if he applied).
+- Facts about a FORMER passport, permit, office or address are not current: leave them out.
+- Held is not applied for. residence_document is only a document he says he HAS (e.g. he sends
+  a scan of it, it was issued to him). A document he asks for or applies for is
+  residence_applied_for, never residence_document.
+- Received is not issued: the day he got a passport is passport_received_on; passport_issued_on
+  only when the email names the issue date.
+- residence_authority is the office responsible for him NOW. If he writes to an office that it is
+  now responsible, that office is the addressee (see To:), not an office he names as former.
+- residence_applied_on is the date of the application that is still open, not of an earlier one
+  that another office handled.
 - Facts about other people are never facts about Kundai.
 - If the email states none of these, answer {{"facts": []}}."""
 
-SCHEMA = {"type": "object", "required": ["facts"], "properties": {"facts": {"type": "array", "items": {
-    "type": "object", "required": ["slot", "value", "quote"], "properties": {
-        "slot": {"type": "string", "enum": [s.id for s in SLOTS]},
-        "value": {"type": "string"}, "quote": {"type": "string"}}}}}}
+SCHEMA = {"type": "object", "required": ["facts"], "additionalProperties": False, "properties": {
+    "facts": {"type": "array", "items": {
+        "type": "object", "required": ["slot", "value", "quote"], "additionalProperties": False, "properties": {
+            "slot": {"type": "string", "enum": [s.id for s in SLOTS]},
+            "value": {"type": "string"}, "quote": {"type": "string"}}}}}}
 
 
 def triage(m) -> bool:
@@ -131,6 +139,24 @@ def witnessed(kind: str, value: str, quote: str, text: str) -> bool:
     return bool(norm(value)) and norm(value) in q
 
 
+# Checks on the quote that no model can talk past, for the slots a small model mixes up.
+# slot -> (the quote must match this, the quote must not match this)
+GUARDS = {
+    # held, not applied for: "ich beantrage … Blaue Karte EU" is an application, not a card
+    "residence_document": (None, re.compile(r"beantrag|antrag|erteilung|bitte um|apply|applied|request", re.I)),
+    # an issue date needs an issue word; "erhalten" (received) is not one
+    "passport_issued_on": (re.compile(r"ausgestellt|ausstellung|issued|date of issue", re.I), None),
+    "passport_received_on": (re.compile(r"erhalten|bekommen|abgeholt|received|collected|got", re.I), None),
+    "residence_applied_for": (re.compile(r"beantrag|antrag|erteilung|apply|applied|request", re.I), None),
+    "registered_on": (re.compile(r"anmeld|gemeldet|meldebescheinigung|einwohnermelde|registr", re.I), None),
+}
+
+
+def guarded(slot: str, quote: str) -> bool:
+    must, must_not = GUARDS.get(slot, (None, None))
+    return (must is None or bool(must.search(quote))) and (must_not is None or not must_not.search(quote))
+
+
 def admit(items: list, text: str) -> List[dict]:
     """The proposals that are witnessed, normalised: [{slot, value, quote}]. One per slot+value."""
     out, seen = [], set()
@@ -147,7 +173,7 @@ def admit(items: list, text: str) -> List[dict]:
                 continue
         else:
             value = " ".join(value.split())[:120]
-        if witnessed(slot.kind, value, quote, text) and (slot.id, value) not in seen:
+        if witnessed(slot.kind, value, quote, text) and guarded(slot.id, quote) and (slot.id, value) not in seen:
             seen.add((slot.id, value))
             out.append({"slot": slot.id, "value": value, "quote": " ".join(quote.split())[:240]})
     return out
@@ -156,7 +182,8 @@ def admit(items: list, text: str) -> List[dict]:
 def prompt(m) -> Tuple[str, str]:
     slots = "\n".join(f"- {s.id} ({s.kind}): {s.hint}" for s in SLOTS)
     sender = "Kundai himself" if m.owner else f"{m.from_name} <{m.from_addr}>"
-    user = (f"From: {sender}\nDate: {m.date.date().isoformat()}\nSubject: {m.subject}\n\n{own_text(m)[:6000]}")
+    to = ", ".join(getattr(m, "to", []) or [])[:300] or "Kundai"
+    user = (f"From: {sender}\nTo: {to}\nDate: {m.date.date().isoformat()}\nSubject: {m.subject}\n\n{own_text(m)[:6000]}")
     return SYSTEM.format(slots=slots), user
 
 
