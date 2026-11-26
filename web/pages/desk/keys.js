@@ -24,10 +24,10 @@ const STRATEGY = {
   static:  'you renew it',
 };
 
-const PUSH_HINT = 'Not renewable on the desk: update the entry in KeePassXC, then run: python -m tools.keeper push';
-// Plain API keys (backend/keeper/apikeys.py): `renew` checks the new key with the provider,
-// stores it and pushes, in one step.
-const RENEWABLE = new Set(['anthropic', 'openai', 'gemini', 'deepseek', 'huggingface', 'you', 'mapbox', 'openweather']);
+// The few the desk cannot take a new value for (a GitHub App, a Garmin session, local services).
+const PUSH_HINT = 'This one is set in KeePassXC: update the entry, then run python -m tools.keeper push on the laptop.';
+// Cards that need you come first.
+const ORDER = { dead: 0, expired: 1, soon: 2, missing: 3, unknown: 4, ok: 5 };
 
 function ago(iso, now) {
   if (!iso) return '—';
@@ -103,11 +103,90 @@ function RenewHere({ c, fields }) {
   );
 }
 
+// Gitea (the university forge): a new token made from your forge password. The password goes
+// to the node for this one request and is kept nowhere; the token is checked before it is kept.
+function MintHere({ c, info }) {
+  const [vals, setVals] = useState({ user: info.user || '', password: '', otp: '' });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const go = async () => {
+    setBusy(true); setMsg(null);
+    try {
+      const d = await post(`mint/${encodeURIComponent(c.id)}`, vals);
+      setMsg({ ok: d.ok, text: d.ok ? `${d.detail}. The desk restarts in a few seconds to use it.` : d.detail });
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setVals(v => ({ ...v, password: '', otp: '' }));
+    setBusy(false);
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ fontSize: 12, opacity: 0.6 }}>Make a new token on {info.host} with your password (used once, not kept):</div>
+      {!info.user && <input placeholder="User name" autoComplete="username" value={vals.user}
+        onChange={e => setVals({ ...vals, user: e.target.value })} style={inputStyle} />}
+      <input type="password" placeholder={`Password on ${info.host}`} autoComplete="current-password" value={vals.password}
+        onChange={e => setVals({ ...vals, password: e.target.value })} style={inputStyle} />
+      <input inputMode="numeric" placeholder="Two-factor code (only if asked)" autoComplete="one-time-code" value={vals.otp}
+        onChange={e => setVals({ ...vals, otp: e.target.value })} style={inputStyle} />
+      <div className={s.btnGroup}>
+        <button className={`${s.btn} ${s.btnPrimary}`} onClick={go} disabled={busy || !vals.password || !vals.user}>
+          {busy ? 'Making the token…' : 'Make a new token'}
+        </button>
+      </div>
+      {msg && <div style={{ fontSize: 12, color: msg.ok ? '#34d399' : '#fca5a5' }}>{msg.text}</div>}
+    </div>
+  );
+}
+
+// GitLab: the token renews itself while it still works (the keeper does this by itself two
+// weeks before the end; the button does it now).
+function RotateHere({ c }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const go = async () => {
+    setBusy(true); setMsg(null);
+    try {
+      const d = await post(`rotate/${encodeURIComponent(c.id)}`);
+      setMsg({ ok: d.ok, text: d.ok ? `${d.detail}. The desk restarts in a few seconds to use it.` : d.detail });
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy(false);
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div className={s.btnGroup}>
+        <button className={s.btn} onClick={go} disabled={busy}>{busy ? 'Renewing…' : 'Renew it now (with itself)'}</button>
+      </div>
+      {msg && <div style={{ fontSize: 12, color: msg.ok ? '#34d399' : '#fca5a5' }}>{msg.text}</div>}
+    </div>
+  );
+}
+
+function Copy({ text }) {
+  const [done, setDone] = useState(false);
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 2000); } catch { /* the text is shown anyway */ }
+  };
+  return <button className={s.btn} onClick={copy}>{done ? 'Copied' : 'Copy'}</button>;
+}
+
+const Step = ({ n, children }) => (
+  <div style={{ opacity: 0.75, lineHeight: 1.7 }}><b>{n}.</b> {children}</div>
+);
+
 function GmailRenew({ callback }) {
   const [busy, setBusy] = useState('');
   const [msg, setMsg] = useState(null);
   const [paste, setPaste] = useState(null);      // the sign-in waits for the 127.0.0.1 address
   const [pasted, setPasted] = useState('');
+  const [client, setClient] = useState({ client_id: '', client_secret: '', kind: 'web' });
+  const keepFields = async () => {
+    setBusy('client'); setMsg(null);
+    try {
+      const d = await post('google/client-fields', client);
+      setClient({ client_id: '', client_secret: '', kind: client.kind });
+      setMsg({ ok: true, text: `Client kept (${d.kind}). Now tap Connect Gmail.` });
+    } catch (e) { setMsg({ ok: false, text: e.message }); }
+    setBusy('');
+  };
   const upload = async file => {
     if (!file) return;
     setBusy('client'); setMsg(null);
@@ -140,17 +219,33 @@ function GmailRenew({ callback }) {
   };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12 }}>
-      <div style={{ opacity: 0.6, lineHeight: 1.6 }}>
-        If Google refused the client itself, make a new one first: Google Cloud → Credentials → Create OAuth client →
-        <b> Web application</b>, with the redirect URI <code style={{ wordBreak: 'break-all' }}>{callback}</code>, download its JSON and choose it here.
-        A Desktop client works too; then you paste one address at the end.
+      <Step n={1}>Only if Google refused the client itself: <a href="https://console.cloud.google.com/auth/clients/create"
+        target="_blank" rel="noreferrer">create an OAuth client</a> of type <b>Web application</b> with this redirect URI:</Step>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <code style={{ wordBreak: 'break-all', fontSize: 11, flex: 1 }}>{callback}</code>
+        <Copy text={callback || ''} />
       </div>
+      <Step n={2}>Copy its client ID and secret here (or choose its downloaded JSON):</Step>
+      <input placeholder="Client ID (…apps.googleusercontent.com)" autoComplete="off" value={client.client_id}
+        onChange={e => setClient({ ...client, client_id: e.target.value })} style={inputStyle} />
+      <input type="password" placeholder="Client secret" autoComplete="off" value={client.client_secret}
+        onChange={e => setClient({ ...client, client_secret: e.target.value })} style={inputStyle} />
+      <label style={{ opacity: 0.6 }}>
+        <input type="checkbox" checked={client.kind === 'installed'}
+          onChange={e => setClient({ ...client, kind: e.target.checked ? 'installed' : 'web' })} />
+        {' '}it is a Desktop client (then you paste one address at the end)
+      </label>
       <div className={s.btnGroup}>
-        <a className={s.btn} href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noreferrer">Google Cloud credentials</a>
+        <button className={s.btn} onClick={keepFields} disabled={!!busy || !client.client_id || !client.client_secret}>
+          {busy === 'client' ? 'Keeping…' : 'Keep this client'}
+        </button>
         <label className={s.btn} style={{ cursor: 'pointer' }}>
-          {busy === 'client' ? 'Keeping…' : 'Choose client JSON'}
+          Choose client JSON
           <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={e => upload(e.target.files?.[0])} />
         </label>
+      </div>
+      <Step n={3}>Sign in to Google with the mailbox:</Step>
+      <div className={s.btnGroup}>
         <button className={`${s.btn} ${s.btnPrimary}`} onClick={connect} disabled={!!busy}>{busy === 'start' ? 'Opening…' : 'Connect Gmail'}</button>
       </div>
       {paste && (
@@ -196,7 +291,7 @@ function Settings({ settings }) {
   );
 }
 
-function KeyCard({ c, now, fields, callback }) {
+function KeyCard({ c, now, fields, actions, callback }) {
   const badge = STATE_BADGE[c.state] || STATE_BADGE.unknown;
   const bad = ['dead', 'expired'].includes(c.state);
   const needsHuman = bad || c.state === 'soon' || c.state === 'missing';
@@ -250,21 +345,30 @@ function KeyCard({ c, now, fields, callback }) {
       <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.35 }}>used by: {c.used_by}</div>
 
       {needsHuman && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {actions?.mint && <MintHere c={c} info={actions.mint} />}
           {c.renew_url && (
             <div className={s.btnGroup}>
-              <a className={`${s.btn} ${s.btnPrimary}`} href={c.renew_url} target="_blank" rel="noreferrer">
-                Open {c.provider}
+              <a className={`${s.btn} ${actions?.mint ? '' : s.btnPrimary}`} href={c.renew_url} target="_blank" rel="noreferrer">
+                {c.id.startsWith('forge-') ? `Make a token on ${c.provider}` : `Get a new key from ${c.provider}`}
               </a>
             </div>
           )}
           {c.id === 'gmail' && <GmailRenew callback={callback} />}
           {fields?.length > 0 && <RenewHere c={c} fields={fields} />}
-          {c.id !== 'gmail' && !fields?.length && (
-            <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.45, fontFamily: 'monospace' }}>
-              {RENEWABLE.has(c.id) ? `On the laptop: python -m tools.keeper renew ${c.id}` : PUSH_HINT}
-            </div>)}
+          {c.id !== 'gmail' && !fields?.length && !actions && (
+            <div style={{ fontSize: 11, color: 'var(--font-color)', opacity: 0.45 }}>{PUSH_HINT}</div>)}
         </div>
+      )}
+      {!needsHuman && actions?.rotate && <RotateHere c={c} />}
+      {!needsHuman && (fields?.length > 0 || c.id === 'gmail') && (
+        <details style={{ fontSize: 12 }}>
+          <summary style={{ cursor: 'pointer', opacity: 0.5 }}>Replace it anyway</summary>
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {actions?.mint && <MintHere c={c} info={actions.mint} />}
+            {c.id === 'gmail' ? <GmailRenew callback={callback} /> : <RenewHere c={c} fields={fields} />}
+          </div>
+        </details>
       )}
     </div>
   );
@@ -317,7 +421,7 @@ export default function KeysPage() {
     setTimeout(() => setChecking(false), 20_000); // no change ⇒ no event; stop spinning anyway
   }, []);
 
-  const creds = snap?.credentials || [];
+  const creds = [...(snap?.credentials || [])].sort((a, b) => (ORDER[a.state] ?? 9) - (ORDER[b.state] ?? 9));
   const needAction = creds.filter(c => ['dead', 'expired', 'soon'].includes(c.state)).length;
 
   return (
@@ -351,8 +455,8 @@ export default function KeysPage() {
         {error && !snap && <div style={{ color: '#f87171', fontSize: 13 }}>{error}</div>}
         {!snap && !error && <div style={{ color: 'var(--font-color)', opacity: 0.4 }}>Loading…</div>}
         {snap && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
-            {creds.map(c => <KeyCard key={c.id} c={c} now={now} fields={desk?.fields?.[c.id]} callback={desk?.callback} />)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))', gap: 24 }}>
+            {creds.map(c => <KeyCard key={c.id} c={c} now={now} fields={desk?.fields?.[c.id]} actions={desk?.actions?.[c.id]} callback={desk?.callback} />)}
           </div>
         )}
       </section>

@@ -7,7 +7,6 @@ const nextConfig = {
     swcMinify: true,
     images: {
         unoptimized: true,
-        domains: ['theme.dsngrid.com'],
         formats: ['image/webp']
     },
     // i18n: {

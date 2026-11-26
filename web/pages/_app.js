@@ -1,7 +1,6 @@
 import 'dc/dist/style/dc.css';
 import '../styles/dc-dark.css';
 import "@fancyapps/ui/dist/fancybox.css";
-import 'flickr-justified-gallery/src/fjGallery.css';
 import 'swiper/css';
 import 'swiper/css/parallax';
 import 'swiper/css/pagination';

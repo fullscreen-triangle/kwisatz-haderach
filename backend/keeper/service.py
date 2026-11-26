@@ -132,6 +132,7 @@ class Keeper:
         self.version = 0
         self._cond = asyncio.Condition()
         self._wake = asyncio.Event()
+        self._auto_tried: Dict[str, datetime] = {}
         self._load_state()
 
     # ------------------------------------------------------------- persistence
@@ -215,8 +216,31 @@ class Keeper:
                            "soon" if exp and exp - now <= SOON else "ok")
         if due:
             self._save_state()
+        await self._renew_due(now)
         if any(before[cid] != r.visible() for cid, r in self.rows.items()):
             await self._bump()
+
+    async def _renew_due(self, now: datetime) -> None:
+        """Tokens the desk can renew without you (GitLab's, rotated with themselves) are
+        renewed once they turn amber, so they never reach 'expired'. One try a day each."""
+        if not os.getenv("AGENT_SMITH_STATE"):
+            return
+        from backend.keeper.desk import DESK
+        for r in self.rows.values():
+            if r.state != "soon" or "rotate" not in DESK.actions(r.cred.id):
+                continue
+            if now - self._auto_tried.get(r.cred.id, datetime.min.replace(tzinfo=timezone.utc)) < timedelta(days=1):
+                continue
+            self._auto_tried[r.cred.id] = now
+            try:
+                out = await DESK.rotate(r.cred.id)
+            except Exception as e:
+                out = {"ok": False, "detail": f"{type(e).__name__}"}
+            log.info("keeper: auto-rotate %s: %s", r.cred.id, out.get("detail"))
+            if out.get("ok"):
+                r.last_renewed = now
+            else:
+                r.detail = f"{r.detail} · renewing it by itself failed: {out.get('detail')}"
 
     async def run(self) -> None:
         async with httpx.AsyncClient(timeout=20, headers={"User-Agent": "agent-smith-keeper/1.0"}) as client:

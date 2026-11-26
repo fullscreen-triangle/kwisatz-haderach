@@ -10,7 +10,10 @@ Renewing on the desk (backend/keeper/desk.py) — values in, never out:
   GET  /keeper/desk               what can be renewed here, and with which fields
   POST /keeper/renew/{id}         {values}: checked with the provider, kept only if accepted
   POST /keeper/setting            {name, value}: home city and coordinates
+  POST /keeper/mint/{id}          {password, otp?, user?}: Gitea makes a new token (password not kept)
+  POST /keeper/rotate/{id}        GitLab renews the token with itself (the keeper also does it by itself)
   POST /keeper/google/client      {text}: a new Gmail OAuth client JSON
+  POST /keeper/google/client-fields {client_id, client_secret, kind}: the same, typed or pasted
   POST /keeper/google/start       a Google sign-in link
   POST /keeper/google/finish      {code, state} or {pasted}: the new Gmail token
   POST /keeper/desk/absorbed      {values: {name: ""}}: keeper pull has them in the vault
@@ -59,6 +62,18 @@ class ClientJson(BaseModel):
     text: str = Field(min_length=10, max_length=20_000)
 
 
+class Mint(BaseModel):
+    password: str = Field(min_length=1, max_length=500)
+    otp: str = Field(default="", max_length=12)
+    user: str = Field(default="", max_length=100)
+
+
+class ClientFields(BaseModel):
+    client_id: str = Field(min_length=10, max_length=300)
+    client_secret: str = Field(min_length=4, max_length=300)
+    kind: str = Field(default="web", pattern="^(web|installed)$")
+
+
 class Finish(BaseModel):
     code: str = Field(default="", max_length=2000)
     state: str = Field(default="", max_length=200)
@@ -69,6 +84,7 @@ class Finish(BaseModel):
 def desk_status():
     from backend.keeper.desk import DESK
     return {**DESK.status(), "fields": {cid: DESK.fields(cid) for cid in KEEPER.rows if DESK.fields(cid)},
+            "actions": {cid: DESK.actions(cid) for cid in KEEPER.rows if DESK.actions(cid)},
             "callback": DESK.callback_url()}
 
 
@@ -79,6 +95,26 @@ async def renew(cred_id: str, body: Renewal):
         return await DESK.renew(cred_id, body.values)
     except KeyError:
         raise HTTPException(404, "no such credential")
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@router.post("/mint/{cred_id}")
+async def mint(cred_id: str, body: Mint):
+    from backend.keeper.desk import DESK
+    try:
+        return await DESK.mint(cred_id, body.password, otp=body.otp, user=body.user)
+    except KeyError:
+        raise HTTPException(404, "no such credential")
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@router.post("/rotate/{cred_id}")
+async def rotate(cred_id: str):
+    from backend.keeper.desk import DESK
+    try:
+        return await DESK.rotate(cred_id)
     except ValueError as e:
         raise HTTPException(400, str(e))
 
@@ -97,6 +133,15 @@ def google_client(body: ClientJson):
     from backend.keeper.desk import DESK
     try:
         return DESK.google_client(body.text)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@router.post("/google/client-fields")
+def google_client_fields(body: ClientFields):
+    from backend.keeper.desk import DESK
+    try:
+        return DESK.google_client_fields(body.client_id, body.client_secret, body.kind)
     except ValueError as e:
         raise HTTPException(400, str(e))
 

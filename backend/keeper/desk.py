@@ -17,7 +17,12 @@ value stays while the pushed value is still the one it replaced (the vault is ol
 dropped once the vault holds the same value (`keeper pull` brought it over) or a different
 one (the vault was renewed since — it wins).
 
-Gmail: `google_start` gives a sign-in link for the OAuth client; with a web client whose
+Forges: `mint` makes a new Gitea token from your password (typed once, kept nowhere);
+`rotate` renews a GitLab token with itself, and the keeper does that by itself once the token
+turns amber (service.py `_renew_due`), so it never runs out while it still works.
+
+Gmail: the client comes as its downloaded JSON or as the client ID and secret typed in
+(`google_client_fields`). `google_start` gives a sign-in link for the OAuth client; with a web client whose
 redirect URI is this desk's callback, Google returns here by itself; with a desktop client
 Google sends the browser to 127.0.0.1, and the address it lands on is pasted into the desk.
 """
@@ -30,7 +35,7 @@ import os
 import secrets
 import time
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Mapping, MutableMapping, Optional
 
@@ -40,6 +45,9 @@ from backend.keeper.service import state_dir
 
 SETTINGS = {"HOME_CITY": "Home city", "HOME_LATITUDE": "Home latitude", "HOME_LONGITUDE": "Home longitude"}
 FLOW_TTL = 15 * 60
+# A token the desk mints on Gitea may read and push your repositories and read who you are.
+GITEA_SCOPES = ["write:repository", "read:user", "read:organization"]
+ROTATE_DAYS = 360                # GitLab caps a token at 365 days
 
 
 def fp(value: str) -> str:
@@ -226,7 +234,96 @@ class DeskKeys:
         self.put({name: v}, by="settings")
         return self.status()
 
+    # ------------------------------------------------------------- forge tokens the desk makes
+
+    def _forge(self, cred_id: str, kind: str):
+        from backend import forges
+        a = next((x for x in forges.discover(self.env) if f"forge-{x.id}" == cred_id), None)
+        if a is None or a.kind != kind:
+            raise ValueError(f"{cred_id} is not a {kind} account on the node")
+        return a
+
+    def actions(self, cred_id: str) -> Dict[str, dict]:
+        """What the desk can do for a credential beyond taking a pasted value:
+        mint   a Gitea token made from your forge password (typed once, never kept)
+        rotate a GitLab token renewed with itself, while it still works"""
+        from backend import forges
+        a = next((x for x in forges.discover(self.env) if f"forge-{x.id}" == cred_id), None)
+        if a is None:
+            return {}
+        if a.kind == "gitea":
+            return {"mint": {"user": a.user, "host": a.host}}
+        if a.kind == "gitlab":
+            return {"rotate": {"host": a.host}}
+        return {}
+
+    async def mint(self, cred_id: str, password: str, otp: str = "", user: str = "") -> dict:
+        """Gitea: ask the forge for a new access token with your user name and password. The
+        password is used for this one request and kept nowhere; the token is checked like any
+        renewed value before it is kept."""
+        a = self._forge(cred_id, "gitea")
+        login = (user or a.user).strip()
+        if not login:
+            raise ValueError("give your user name on the forge")
+        if not password:
+            raise ValueError("give your password on the forge")
+        name = f"agent-smith-desk-{datetime.now(timezone.utc):%Y%m%d-%H%M%S}"
+        headers = {"X-Gitea-OTP": otp.strip()} if otp.strip() else {}
+        url = f"{a.api}/users/{urllib.parse.quote(login)}/tokens"
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(url, auth=(login, password), headers=headers,
+                                  json={"name": name, "scopes": GITEA_SCOPES})
+            if r.status_code in (400, 422) and "scope" in r.text.lower():      # a Gitea older than 1.19
+                r = await client.post(url, auth=(login, password), headers=headers, json={"name": name})
+        if r.status_code == 401:
+            return {"ok": False, "detail": f"{a.host} did not accept that user name and password"
+                    + ("" if otp else " (with two-factor sign-in, add the current code)") + "; nothing was stored"}
+        if r.status_code == 403:
+            return {"ok": False, "detail": f"{a.host} does not let a password make tokens (single sign-on?): "
+                    "make one in its settings — the link above — and paste it below"}
+        if r.status_code not in (200, 201) or not (r.json() if r.content else {}).get("sha1"):
+            return {"ok": False, "detail": f"{a.host} answered {r.status_code}; nothing was stored"}
+        token_name = f"FORGE_{a.id.upper()}_TOKEN"
+        out = await self.renew(cred_id, {token_name: r.json()["sha1"]})
+        if out.get("ok") and login != a.user:
+            self.put({f"FORGE_{a.id.upper()}_USER": login}, by=f"{cred_id}-mint")
+        if out.get("ok"):
+            out["detail"] = f"{a.host} made a new token ({name}) and it works"
+        return out
+
+    async def rotate(self, cred_id: str) -> dict:
+        """GitLab: renew the token with itself (POST /personal_access_tokens/self/rotate). GitLab
+        revokes the old token the moment it answers, so the new one is kept straight away."""
+        from backend.keeper.service import KEEPER
+        a = self._forge(cred_id, "gitlab")
+        until = (datetime.now(timezone.utc) + timedelta(days=ROTATE_DAYS)).date().isoformat()
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(f"{a.api}/personal_access_tokens/self/rotate", headers=a.headers,
+                                  json={"expires_at": until})
+            if r.status_code == 400 and "expires" in r.text.lower():         # beyond the instance's cap
+                r = await client.post(f"{a.api}/personal_access_tokens/self/rotate", headers=a.headers)
+        if r.status_code in (401, 403):
+            return {"ok": False, "detail": f"{a.host} no longer accepts the current token, so it cannot renew "
+                    "itself: open the form (filled in for you), make a token and paste it below"}
+        body = r.json() if r.content else {}
+        if r.status_code != 200 or not body.get("token"):
+            return {"ok": False, "detail": f"{a.host} answered {r.status_code}; the token was not rotated"}
+        self.put({f"FORGE_{a.id.upper()}_TOKEN": body["token"]}, by=f"{cred_id}-rotate")
+        KEEPER.check_now()
+        return {"ok": True, "detail": f"rotated; the new token runs until {body.get('expires_at') or until}"}
+
     # ------------------------------------------------------------- Gmail
+
+    def google_client_fields(self, client_id: str, client_secret: str, kind: str = "web") -> dict:
+        """The same as uploading the client JSON, from the two values Google shows on the
+        client's page — easier to copy on a phone than a downloaded file."""
+        client_id, client_secret = client_id.strip(), client_secret.strip()
+        if not client_id.endswith(".apps.googleusercontent.com") or not client_secret:
+            raise ValueError("give the client ID (…apps.googleusercontent.com) and its secret")
+        block = {"client_id": client_id, "client_secret": client_secret,
+                 "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token",
+                 "redirect_uris": [self.callback_url()] if kind == "web" else ["http://localhost"]}
+        return self.google_client(json.dumps({"web" if kind == "web" else "installed": block}))
 
     def _flows(self) -> Dict[str, dict]:
         """Gmail sign-ins under way, by state — on disk, so a restart between start and finish

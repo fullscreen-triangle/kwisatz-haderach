@@ -4,7 +4,7 @@
 // finishes the sign-in on the node and comes back to the Keys page.
 import { proxyJSON, backendUrl } from '../../../../lib/sse-proxy';
 
-const POST = new Set(['setting', 'google/client', 'google/start', 'google/finish']);
+const POST = new Set(['setting', 'google/client', 'google/client-fields', 'google/start', 'google/finish']);
 
 export default async function handler(req, res) {
   const seg = [].concat(req.query.path || []);
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     res.writeHead(302, { Location: where });
     return res.end();
   }
-  const ok = req.method === 'POST' && (POST.has(path) || (seg.length === 2 && seg[0] === 'renew'));
+  const ok = req.method === 'POST' && (POST.has(path) || (seg.length === 2 && ['renew', 'mint', 'rotate'].includes(seg[0])));
   if (!ok) return res.status(404).json({ error: 'unknown keeper route' });
   return proxyJSON(req, res, `/keeper/${seg.map(encodeURIComponent).join('/')}`, { timeoutMs: 60_000 });
 }

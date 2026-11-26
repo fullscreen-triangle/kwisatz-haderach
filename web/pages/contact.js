@@ -7,7 +7,6 @@ import Map from "../components/Map/Map";
 import DsnGrid from "../layout/DsnGrid";
 import InfoBox from "../components/contact/InfoBox";
 import ContactForm from "../components/contact/ContactForm";
-import NextPage2 from "../components/next/NextPage2";
 import Footer from "../components/footer/Footer";
 import Head from "next/head";
 
@@ -53,7 +52,6 @@ function About() {
 
 
             {/*========== Start Next Page Section ==========*/}
-            <NextPage2 className={`background-section section-padding`}/>
             {/*========== End Next Page Section ==========*/}
 
             {/*========== Footer ==========*/}

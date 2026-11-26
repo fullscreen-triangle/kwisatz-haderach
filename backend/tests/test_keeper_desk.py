@@ -142,3 +142,74 @@ def test_gmail_with_a_web_client_returns_to_the_desk(tmp_path):
     assert d.google_client(web)["redirect_ok"] is True
     start = d.google_start()
     assert start["mode"] == "redirect" and start["redirect_uri"] == "https://desk.example/api/desk/keeper/google/callback"
+
+
+# ------------------------------------------------------------- forge tokens the desk makes
+
+def fake_forge(monkeypatch, handler):
+    """Every httpx.AsyncClient desk.py opens talks to `handler` instead of the network."""
+    import httpx
+    real = httpx.AsyncClient
+    monkeypatch.setattr(deskmod.httpx, "AsyncClient", lambda **kw: real(transport=httpx.MockTransport(handler), **kw))
+
+
+UNI = {"FORGE_UNI_KIND": "gitea", "FORGE_UNI_URL": "https://git.uni.example", "FORGE_UNI_USER": "me", "FORGE_UNI_TOKEN": "dead"}
+LAB = {"FORGE_GITLAB_KIND": "gitlab", "FORGE_GITLAB_URL": "https://gitlab.example", "FORGE_GITLAB_TOKEN": "old"}
+
+
+def test_actions_per_forge_kind(tmp_path):
+    d = DeskKeys(tmp_path, env={**UNI, **LAB})
+    assert d.actions("forge-uni") == {"mint": {"user": "me", "host": "git.uni.example"}}
+    assert d.actions("forge-gitlab") == {"rotate": {"host": "gitlab.example"}}
+    assert d.actions("anthropic") == {}
+
+
+def test_gitea_mints_a_token_from_the_password_and_keeps_only_the_token(tmp_path, monkeypatch, keeper):
+    import base64
+    seen = []
+
+    def handler(req):
+        seen.append(req)
+        auth = base64.b64decode(req.headers["authorization"].split()[1]).decode()
+        if auth != "me:pw":
+            return __import__("httpx").Response(401)
+        assert req.url.path == "/api/v1/users/me/tokens" and json.loads(req.content)["scopes"]
+        return __import__("httpx").Response(201, json={"sha1": "good", "name": "x"})
+    fake_forge(monkeypatch, handler)
+    env = dict(UNI)
+    d = DeskKeys(tmp_path, env=env)
+    no = run(d.mint("forge-uni", "wrong"))
+    assert no["ok"] is False and "did not accept" in no["detail"] and env["FORGE_UNI_TOKEN"] == "dead"
+    yes = run(d.mint("forge-uni", "pw", otp="123456"))
+    assert yes["ok"] and env["FORGE_UNI_TOKEN"] == "good" and seen[-1].headers["x-gitea-otp"] == "123456"
+    stored = (tmp_path / "env").read_text() + (tmp_path / "log.jsonl").read_text() + (tmp_path / "overrides.json").read_text()
+    assert "pw" not in stored.replace("pwd", "")                       # the password is kept nowhere
+    with pytest.raises(ValueError):
+        run(d.mint("forge-gitlab", "pw"))                               # not a Gitea account
+
+
+def test_gitlab_rotates_with_itself_and_keeps_the_new_token_at_once(tmp_path, monkeypatch, keeper):
+    import httpx
+
+    def handler(req):
+        if req.headers.get("private-token") != "old":
+            return httpx.Response(401)
+        assert req.url.path == "/api/v4/personal_access_tokens/self/rotate" and json.loads(req.content)["expires_at"]
+        return httpx.Response(200, json={"token": "new", "expires_at": "2027-11-21"})
+    fake_forge(monkeypatch, handler)
+    env = dict(LAB)
+    out = run(DeskKeys(tmp_path, env=env).rotate("forge-gitlab"))
+    assert out == {"ok": True, "detail": "rotated; the new token runs until 2027-11-21"} and env["FORGE_GITLAB_TOKEN"] == "new"
+    assert keeper == [1] and "new" not in json.dumps(out).replace("new token", "")
+    again = run(DeskKeys(tmp_path, env=env).rotate("forge-gitlab"))  # "new" is not what the fake forge accepts
+    assert again["ok"] is False and "cannot renew itself" in again["detail"]
+
+
+def test_gmail_client_from_pasted_id_and_secret(tmp_path):
+    d = DeskKeys(tmp_path, env={"AGENT_SMITH_URL": "https://desk.example"})
+    with pytest.raises(ValueError):
+        d.google_client_fields("not-a-client", "s")
+    assert d.google_client_fields("c.apps.googleusercontent.com", "s")["redirect_ok"] is True
+    assert d.google_start()["mode"] == "redirect"
+    assert d.google_client_fields("c.apps.googleusercontent.com", "s", kind="installed")["kind"] == "installed"
+    assert d.google_start()["mode"] == "paste"

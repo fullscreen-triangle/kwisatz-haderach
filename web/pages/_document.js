@@ -23,8 +23,6 @@ export default function Document() {
             <Main/>
             <NextScript/>
             <Script src="/js/splitting.min.js" strategy="beforeInteractive"/>
-            <Script src="/js/isotope.min.js" strategy="beforeInteractive"/>
-            <Script src="/js/fjGallery.min.js" strategy="beforeInteractive"/>
             <Script id="sw-register" strategy="afterInteractive">
                 {`if ('serviceWorker' in navigator) {
                     window.addEventListener('load', function () {

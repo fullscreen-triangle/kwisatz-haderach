@@ -24,7 +24,9 @@ _KIND = re.compile(r"^FORGE_([A-Z0-9_]+)_KIND$")
 PAGES = 10
 TTL = 30 * 60
 RENEW = {"github": "https://github.com/settings/tokens",
-         "gitlab": "https://{host}/-/user_settings/personal_access_tokens",
+         # GitLab fills the new-token form from the query: name, scopes, expiry are preset
+         "gitlab": "https://{host}/-/user_settings/personal_access_tokens?name=agent-smith-desk"
+                   "&scopes=api,read_repository,write_repository",
          "gitea": "https://{host}/user/settings/applications"}
 
 
@@ -83,15 +85,16 @@ def probe_for(account_id: str):
     async def probe(ctx) -> "ProbeResult":
         a = next((x for x in discover(ctx.env) if x.id == account_id), None)
         if a is None:
-            return _missing(f"forge account {account_id} not on the node — set it with tracker, then push")
+            return _missing(f"forge account {account_id} not on the node — paste its token below")
         path = {"github": "/user", "gitlab": "/personal_access_tokens/self", "gitea": "/user"}[a.kind]
         try:
             r = await ctx.client.get(a.api + path, headers=a.headers, timeout=20)
         except httpx.HTTPError as e:
             return ProbeResult(ok=None, detail=f"{a.host} could not be reached ({type(e).__name__}); will retry")
         if r.status_code in (401, 403):
-            return ProbeResult(ok=False, detail=f"{a.host} rejected the token — renew it with tracker "
-                                                f"(tracker tokens set {a.id}), then python -m tools.keeper push")
+            how = {"gitea": "make a new one with your password below, or paste one",
+                   "gitlab": "open the form (filled in for you), make a token and paste it below"}.get(a.kind, "paste a new one below")
+            return ProbeResult(ok=False, detail=f"{a.host} rejected the token — {how}")
         if r.status_code != 200:
             return _transient(r, a.host)
         exp, detail = None, f"token works for {a.user or 'you'} on {a.host}"
@@ -101,7 +104,7 @@ def probe_for(account_id: str):
             body = r.json()
             if body.get("expires_at"):
                 exp = datetime.fromisoformat(body["expires_at"]).replace(tzinfo=timezone.utc)
-            detail += " · GitLab rotates it: tracker tokens refresh, then push"
+            detail += " · the desk renews it by itself two weeks before it ends"
         return ProbeResult(ok=True, detail=detail, expires_at=exp)
     return probe
 

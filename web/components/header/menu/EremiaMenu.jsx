@@ -6,6 +6,8 @@ import Logo from "../../logo/Logo";
 
 const menuContent = [
     {name: "Desk",      href: "/desk"},
+    {name: "Keys",      href: "/desk/keys"},
+    {name: "Work",      href: "/desk/work"},
     {name: "Documents", href: "/desk/documents"},
     {name: "Inbox",     href: "/desk/inbox"},
     {name: "Jobs",      href: "/desk/jobs"},
